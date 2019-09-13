@@ -16,32 +16,30 @@
 import {
     BoundsFilter,
     BoundsFilterDesign,
+    BoundsValues,
     CompoundFilter,
+    CompoundFilterConfig,
     CompoundFilterDesign,
+    CompoundValues,
     DomainFilter,
     DomainFilterDesign,
+    DomainValues,
     FilterCollection,
+    FilterDataSource,
     FilterUtil,
     ListFilter,
     ListFilterDesign,
-    PairFilter,
-    PairFilterDesign,
-    SimpleFilter,
-    SimpleFilterDesign
-} from './filter.util';
-
-import {
-    BoundsValues,
-    CompoundFilterConfig,
-    CompoundValues,
-    DomainValues,
-    FilterDataSource,
     ListOfValues,
     OneValue,
+    PairFilter,
+    PairFilterDesign,
     PairOfValues,
-    SimpleFilterConfig
-} from '../models/filter';
-import { CompoundFilterType } from '../models/widget-option';
+    SimpleFilterConfig,
+    SimpleFilter,
+    SimpleFilterDesign
+} from './filters';
+
+import { CompoundFilterType } from './widget-option';
 
 import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
 

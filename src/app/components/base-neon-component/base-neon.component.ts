@@ -22,9 +22,10 @@ import {
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    FilterCollection
-} from '../../util/filter.util';
-import { FilterConfig, FilterDataSource } from '../../models/filter';
+    FilterCollection,
+    FilterConfig,
+    FilterDataSource
+} from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, DatasetUtil, FieldConfig } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';

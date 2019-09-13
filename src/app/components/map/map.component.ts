@@ -32,11 +32,12 @@ import {
     AbstractFilter,
     BoundsFilter,
     BoundsFilterDesign,
+    BoundsValues,
     FilterCollection,
+    FilterConfig,
     PairFilterDesign,
     SimpleFilterDesign
-} from '../../util/filter.util';
-import { BoundsValues, FilterConfig } from '../../models/filter';
+} from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {

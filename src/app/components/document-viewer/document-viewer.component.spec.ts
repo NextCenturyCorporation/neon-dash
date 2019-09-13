@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection } from '../../models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { Injector } from '@angular/core';
 
