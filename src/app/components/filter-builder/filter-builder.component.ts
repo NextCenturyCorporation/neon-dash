@@ -24,7 +24,7 @@ import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { Dataset, NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
+import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '../../models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -74,7 +74,7 @@ export class FilterBuilderComponent {
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
         filterClause.updateDatastores(this._dataset);
-        filterClause.field = NeonFieldMetaData.get();
+        filterClause.field = FieldConfig.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
 
@@ -216,10 +216,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends OptionCollection {
-    changeDatabase: NeonDatabaseMetaData;
-    changeTable: NeonTableMetaData;
-    changeField: NeonFieldMetaData;
-    field: NeonFieldMetaData;
+    changeDatabase: DatabaseConfig;
+    changeTable: TableConfig;
+    changeField: FieldConfig;
+    field: FieldConfig;
     operator: OperatorMetaData;
     value: string;
 }

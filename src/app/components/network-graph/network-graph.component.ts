@@ -33,7 +33,7 @@ import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../ut
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
@@ -282,13 +282,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.options.edgeColorField.columnName, '!=', value);
     }
 
-    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
             this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' + field.columnName, '=',
             values);
     }
 
-    private createFilterConfigOnNodeDataItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfigOnNodeDataItem(field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
             field.columnName, '=', value);
     }
@@ -384,7 +384,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     protected designEachFilterWithNoValues(): FilterConfig[] {
-        let filterFields: NeonFieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
+        let filterFields: FieldConfig[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
                 if (layer.layerType === LayerType.Nodes) {
@@ -914,7 +914,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     // TODO Reduce complexity of getAllNodes
     /* eslint-disable-next-line complexity */
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationNodeIdentifier?: string,
+        xPositionField: string, yPositionField: string, filterFields: FieldConfig[], relationNodeIdentifier?: string,
         showToolTip?: boolean) {
         let ret: Node[] = [];
         let relationNodes: any[] = [];

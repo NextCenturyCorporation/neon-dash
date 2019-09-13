@@ -15,7 +15,7 @@
 import { Injectable } from '@angular/core';
 
 import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -60,13 +60,13 @@ export class DashboardService {
     }
 
     onConfigChange(config: NeonConfig): Observable<NeonConfig> {
-        const datastores: NeonDatastoreConfig[] = Object.values(config.datastores || {})
+        const datastores: DatastoreConfig[] = Object.values(config.datastores || {})
             .map((datastore) => DatasetUtil.validateDatastore(datastore)).filter((datastore) => !!datastore);
 
-        const promises = datastores.map((datastore: NeonDatastoreConfig) => {
+        const promises = datastores.map((datastore: DatastoreConfig) => {
             const connection = this.connectionService.connect(datastore.type, datastore.host);
             if (connection) {
-                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
+                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: DatabaseConfig[]) => {
                     failedDatabases.forEach((database) => {
                         console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
                         this._deleteInvalidDashboards(config.dashboards, database.name);
@@ -124,8 +124,8 @@ export class DashboardService {
      */
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
-    public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        const validated: NeonDatastoreConfig = DatasetUtil.validateDatastore(datastore);
+    public setActiveDatastore(datastore: DatastoreConfig): void {
+        const validated: DatastoreConfig = DatasetUtil.validateDatastore(datastore);
         if (validated) {
             this.config.datastores[validated.name] = validated;
             this.state.datastore = validated;

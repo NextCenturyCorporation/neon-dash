@@ -23,7 +23,7 @@ import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../ut
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -178,10 +178,10 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.filterFields).toEqual([]);
 
-        expect(component.options.categoryField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.subTypeField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.categoryField).toEqual(FieldConfig.get());
+        expect(component.options.typeField).toEqual(FieldConfig.get());
+        expect(component.options.subTypeField).toEqual(FieldConfig.get());
+        expect(component.options.idField).toEqual(FieldConfig.get());
     });
 
     it('does have expected class properties', () => {
@@ -195,7 +195,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
 
@@ -222,10 +222,10 @@ describe('Component: TaxonomyViewer', () => {
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
@@ -260,7 +260,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
@@ -283,7 +283,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
@@ -308,7 +308,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
@@ -332,7 +332,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
@@ -351,7 +351,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
@@ -370,8 +370,8 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
-        component.options.valueField = NeonFieldMetaData.get({ columnName: 'testValueField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
+        component.options.valueField = FieldConfig.get({ columnName: 'testValueField' });
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
@@ -407,8 +407,8 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
-        component.options.valueField = NeonFieldMetaData.get({ columnName: 'testValueField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
+        component.options.valueField = FieldConfig.get({ columnName: 'testValueField' });
 
         component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
@@ -435,8 +435,8 @@ describe('Component: TaxonomyViewer', () => {
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
-        component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
-        component.options.valueField = NeonFieldMetaData.get({ columnName: 'testValueField' });
+        component.options.subTypeField = FieldConfig.get({ columnName: 'testSubTypeField' });
+        component.options.valueField = FieldConfig.get({ columnName: 'testValueField' });
 
         let classString = 'test-class';
 

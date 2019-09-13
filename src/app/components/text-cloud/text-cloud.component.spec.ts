@@ -14,7 +14,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 
 import { Injector } from '@angular/core';
 
@@ -62,24 +62,24 @@ describe('Component: TextCloud', () => {
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
-        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.sizeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dataField).toEqual(FieldConfig.get());
+        expect(component.options.sizeField).toEqual(FieldConfig.get());
     });
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.table = TableConfig.get({ name: 'testTable1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
+        component.options.dataField = FieldConfig.get({ columnName: 'testTextField' });
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     });
 
     it('returns expected query from finalizeVisualizationQuery', () => {
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
-        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
-        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase1' });
+        component.options.table = TableConfig.get({ name: 'testTable1' });
+        component.options.dataField = FieldConfig.get({ columnName: 'testTextField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -100,7 +100,7 @@ describe('Component: TextCloud', () => {
         });
 
         component.options.aggregation = AggregationType.AVG;
-        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField' });
+        component.options.sizeField = FieldConfig.get({ columnName: 'testSizeField' });
         component.options.limit = 25;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -269,14 +269,14 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with no data does return expected data', () => {
-        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
+        component.options.dataField = FieldConfig.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
 
         let actual1 = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.textCloudData).toEqual([]);
         expect(actual1).toEqual(0);
 
-        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
+        component.options.sizeField = FieldConfig.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
 
         let actual2 = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
@@ -285,7 +285,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with data does return expected data', () => {
-        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
+        component.options.dataField = FieldConfig.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
         let data = [{
             _aggregation: 8,
             testTextField: 'First'
