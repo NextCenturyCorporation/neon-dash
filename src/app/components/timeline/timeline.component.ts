@@ -56,7 +56,7 @@ import {
 } from '../../models/widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -112,7 +112,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfigOnItem(field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
             '=', value);
     }

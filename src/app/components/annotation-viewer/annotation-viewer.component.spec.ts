@@ -26,7 +26,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
@@ -65,12 +65,12 @@ describe('Component: AnnotationViewer', () => {
 
     it('Checks if option object has expected defaults', () => {
         expect(component.annotations).toBeUndefined();
-        expect(component.options.startCharacterField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.endCharacterField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.textField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.startCharacterField).toEqual(FieldConfig.get());
+        expect(component.options.endCharacterField).toEqual(FieldConfig.get());
+        expect(component.options.textField).toEqual(FieldConfig.get());
+        expect(component.options.typeField).toEqual(FieldConfig.get());
 
-        expect(component.options.documentTextField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.documentTextField).toEqual(FieldConfig.get());
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
     });

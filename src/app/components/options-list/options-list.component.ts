@@ -18,7 +18,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { WidgetOption } from '../../models/widget-option';
 
@@ -31,17 +31,17 @@ import { WidgetOption } from '../../models/widget-option';
 })
 export class OptionsListComponent {
     @Input() bindingsList: string[];
-    @Input() fields: NeonFieldMetaData[];
+    @Input() fields: FieldConfig[];
     @Input() options: WidgetOptionCollection;
     @Input() updateOnChange: Function;
 
     /**
      * Creates and returns a new empty field object.
      *
-     * @return {NeonFieldMetaData}
+     * @return {FieldConfig}
      */
-    public createEmptyField(): NeonFieldMetaData {
-        return NeonFieldMetaData.get();
+    public createEmptyField(): FieldConfig {
+        return FieldConfig.get();
     }
 
     /**
