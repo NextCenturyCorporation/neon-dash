@@ -26,7 +26,7 @@ import { CompoundFilterType } from '../models/widget-option';
 import { Dataset } from '../models/dataset';
 import { FilterChangeListener, FilterService } from './filter.service';
 
-import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
+import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../models/mock.dataset';
 import * as _ from 'lodash';
 
 describe('FilterService with no filters', () => {

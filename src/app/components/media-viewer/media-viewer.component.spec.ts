@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { MediaTypes } from '../../models/types';
 import { Injector } from '@angular/core';
 
@@ -22,12 +22,12 @@ import { } from 'jasmine-core';
 
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { FilterCollection } from '../../models/filters';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { FilterCollection } from '../../library/core/models/filters';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';

@@ -14,9 +14,9 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../library/core/models/widget-option';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
-import { DatastoreConfig } from '../models/dataset';
+import { DatastoreConfig } from '../library/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -25,8 +25,15 @@ import { ConfigService } from './config.service';
 
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
-import { CompoundFilter, CompoundFilterDesign, FilterConfig, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../models/filters';
-import { DATASET } from '../../testUtils/mock-dataset';
+import {
+    CompoundFilter,
+    CompoundFilterDesign,
+    FilterConfig,
+    FilterUtil,
+    SimpleFilter,
+    SimpleFilterDesign
+} from '../library/core/models/filters';
+import { DATASET } from '../library/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;

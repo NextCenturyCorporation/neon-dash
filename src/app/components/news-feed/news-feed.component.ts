@@ -24,14 +24,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from '../../util/date.util';
-import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../models/filters';
+import { DateFormat, DateUtil } from '../../library/core/date.util';
+import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
     SortOrder,
@@ -40,7 +40,7 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetNonPrimitiveOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';

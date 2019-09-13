@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { DatabaseConfig, FieldConfig, TableConfig } from './dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
 import {
     WidgetDatabaseOption,
     WidgetFieldOption,
@@ -23,10 +23,10 @@ import {
     WidgetNumberOption,
     WidgetSelectOption,
     WidgetTableOption
-} from './widget-option';
+} from '../library/core/models/widget-option';
 import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
-import { DATABASES, DATABASES_LIST, DATASET, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../../testUtils/mock-dataset';
+import { DATABASES, DATABASES_LIST, DATASET, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../library/core/models/mock.dataset';
 
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
@@ -115,9 +115,9 @@ describe('OptionCollection', () => {
     it('findField does work as expected if given an array index', () => {
         options.fields = FIELDS;
 
-        let dateIndex = _.findIndex(FIELDS, (fieldObject) => fieldObject.columnName === 'testDateField');
-        let nameIndex = _.findIndex(FIELDS, (fieldObject) => fieldObject.columnName === 'testNameField');
-        let sizeIndex = _.findIndex(FIELDS, (fieldObject) => fieldObject.columnName === 'testSizeField');
+        let dateIndex = _.findIndex(FIELDS, (fieldObject: FieldConfig) => fieldObject.columnName === 'testDateField');
+        let nameIndex = _.findIndex(FIELDS, (fieldObject: FieldConfig) => fieldObject.columnName === 'testNameField');
+        let sizeIndex = _.findIndex(FIELDS, (fieldObject: FieldConfig) => fieldObject.columnName === 'testSizeField');
 
         expect(options.findField('' + dateIndex)).toEqual(FIELD_MAP.DATE);
         expect(options.findField('' + nameIndex)).toEqual(FIELD_MAP.NAME);
