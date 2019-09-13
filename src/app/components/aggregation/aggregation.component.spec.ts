@@ -38,7 +38,7 @@ import {
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { FieldConfig } from '../../library/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';

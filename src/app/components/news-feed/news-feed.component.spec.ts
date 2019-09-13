@@ -24,7 +24,7 @@ import { FilterCollection, SimpleFilterDesign } from '../../library/core/models/
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { NewsFeedModule } from './news-feed.module';

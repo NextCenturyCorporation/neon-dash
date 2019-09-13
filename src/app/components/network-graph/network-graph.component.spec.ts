@@ -24,7 +24,7 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { NetworkGraphModule } from './network-graph.module';
