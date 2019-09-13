@@ -18,22 +18,22 @@ import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../services/abstract.search.service';
+} from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     FilterCollection,
     FilterConfig,
     FilterDataSource
-} from '../../models/filters';
+} from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from '../../models/dataset';
+import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionType,
     WidgetOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -44,7 +44,7 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from '../../services/connection.service';
+import { RequestWrapper } from '../../library/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
 
 export class InjectorOptionConfig extends OptionConfig {

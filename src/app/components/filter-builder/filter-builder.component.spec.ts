@@ -15,15 +15,15 @@
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../models/filters';
-import { CompoundFilterType } from '../../models/widget-option';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;

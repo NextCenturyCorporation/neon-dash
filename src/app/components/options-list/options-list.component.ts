@@ -18,9 +18,9 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { WidgetOption } from '../../models/widget-option';
+import { WidgetOption } from '../../library/core/models/widget-option';
 
 @Component({
     selector: 'app-options-list',
