@@ -69,10 +69,6 @@ export class NextCenturyFilter extends NextCenturyElement {
     public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
         super.attributeChangedCallback(name, oldValue, newValue);
 
-        if (!this._isReady()) {
-            return;
-        }
-
         switch (name) {
             case 'bounds-field-key-x':
             case 'bounds-field-key-y':
@@ -96,12 +92,16 @@ export class NextCenturyFilter extends NextCenturyElement {
                 this._updateFilterDesigns();
                 break;
             case 'vis-element-id':
-                CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, oldValue,
-                    this.getAttribute('vis-filter-output-event'), newValue, this.getAttribute('vis-filter-output-event'));
+                if (this.hasAttribute('vis-filter-output-event')) {
+                    CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, oldValue,
+                        this.getAttribute('vis-filter-output-event'), newValue, this.getAttribute('vis-filter-output-event'));
+                }
                 break;
             case 'vis-filter-output-event':
-                CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.getAttribute('vis-element-id'), oldValue,
-                    this.getAttribute('vis-element-id'), newValue);
+                if (this.hasAttribute('vis-element-id')) {
+                    CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.getAttribute('vis-element-id'), oldValue,
+                        this.getAttribute('vis-element-id'), newValue);
+                }
                 break;
         }
     }
@@ -489,7 +489,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      * filters created by this filter element.
      */
     private _updateFilterDesigns(): void {
-        if (this.hasAttribute('search-element-id') && this._isReadyWithFilterOptions()) {
+        if (this.hasAttribute('id') && this.hasAttribute('search-element-id') && this._isReadyWithFilterOptions()) {
             const queryElement = document.getElementById(this.getAttribute('search-element-id')) as any;
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
             if (queryElement && this._filterDesigns.length) {
