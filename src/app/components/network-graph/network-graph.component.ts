@@ -25,15 +25,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../models/dataset';
-import { CoreUtil } from '../../util/core.util';
+import { FieldConfig } from '../../library/core/models/dataset';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -45,7 +45,7 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetColorOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';

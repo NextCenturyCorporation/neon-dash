@@ -15,8 +15,8 @@
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { CompoundFilterType } from '../../models/widget-option';
-import { AbstractFilter } from '../../models/filters';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { AbstractFilter } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { eventing } from 'neon-framework';

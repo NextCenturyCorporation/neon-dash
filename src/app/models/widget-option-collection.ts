@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from './dataset';
+import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -25,7 +25,7 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetTableOption
-} from './widget-option';
+} from '../library/core/models/widget-option';
 
 export class OptionConfig {
     constructor(protected config: any) { }

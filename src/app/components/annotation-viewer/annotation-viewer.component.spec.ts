@@ -19,14 +19,14 @@ import { } from 'jasmine-core';
 
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { FieldConfig } from '../../models/dataset';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { FieldConfig } from '../../library/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';

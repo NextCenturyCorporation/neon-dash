@@ -15,12 +15,11 @@
 
 import {
     Dataset,
-    FieldKey,
     DatastoreConfig,
     DatabaseConfig,
     FieldConfig,
     TableConfig
-} from '../app/models/dataset';
+} from './dataset';
 
 export const FIELD_MAP = {
     CATEGORY: FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', type: 'string' }),

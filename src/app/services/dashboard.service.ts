@@ -15,7 +15,7 @@
 import { Injectable } from '@angular/core';
 
 import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../library/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -26,7 +26,7 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { AbstractFilter, FilterConfig, FilterUtil } from '../models/filters';
+import { AbstractFilter, FilterConfig, FilterUtil } from '../library/core/models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({
