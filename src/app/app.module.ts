@@ -30,6 +30,9 @@ import { RouteExampleComponent } from './route-example.component';
 import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
+// TODO Temp
+import { NextCenturyAngularTextCloudModule } from './library/next-century.wrappers.text-cloud.angular.module';
+
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -53,6 +56,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         CustomRequestsModule,
         DashboardModule,
         DynamicDialogModule,
+        NextCenturyAngularTextCloudModule,
         AppLazyModule,
         AppRoutingModule
     ],

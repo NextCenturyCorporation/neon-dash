@@ -25,11 +25,14 @@ import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
+import './library/next-century.wrappers.text-cloud.angular.component';
+
 import './library/next-century.core.aggregation.webcomponent';
 import './library/next-century.core.filter.webcomponent';
 import './library/next-century.core.group.webcomponent';
 import './library/next-century.core.search.webcomponent';
 import './library/next-century.visualizations.example.webcomponent';
+import './library/next-century.visualizations.text-cloud.webcomponent';
 
 @Component({
     selector: 'app-route-example',
@@ -43,11 +46,15 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
     @ViewChild('filter2A') filter2A;
     @ViewChild('filter3A') filter3A;
     @ViewChild('filter4A') filter4A;
+    @ViewChild('textCloudFilter1A') textCloudFilter1A;
+    @ViewChild('textCloudFilter2A') textCloudFilter2A;
     @ViewChild('search1') search1;
     @ViewChild('search2') search2;
     @ViewChild('search3') search3;
     @ViewChild('search4') search4;
     @ViewChild('search5') search5;
+    @ViewChild('textCloudSearch1') textCloudSearch1;
+    @ViewChild('textCloudSearch2') textCloudSearch2;
     @ViewChild('vis4') vis4;
 
     private _dataset: Dataset;
@@ -73,6 +80,10 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
             this.search3.nativeElement.init(this._dataset, this.filterService, this.searchService);
             this.search4.nativeElement.init(this._dataset, this.filterService, this.searchService);
             this.search5.nativeElement.init(this._dataset, this.filterService, this.searchService);
+            this.textCloudFilter1A.nativeElement.init(this._dataset, this.filterService);
+            this.textCloudFilter2A.nativeElement.init(this._dataset, this.filterService);
+            this.textCloudSearch1.nativeElement.init(this._dataset, this.filterService, this.searchService);
+            this.textCloudSearch2.nativeElement.init(this._dataset, this.filterService, this.searchService);
         });
     }
 
