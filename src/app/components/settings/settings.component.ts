@@ -18,7 +18,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { Dataset, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
@@ -143,8 +143,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-            let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            const dataset: Dataset = this.dashboardState.asDataset();
+            const datastoreName = this.dashboardState.datastore.name;
+            const table: NeonTableMetaData = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
+            const field: NeonFieldMetaData = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
 
             this.fields = table.fields;
