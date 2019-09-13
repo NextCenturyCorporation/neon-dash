@@ -24,10 +24,9 @@ import {
     AbstractFilter,
     FilterCollection
 } from '../../util/filter.util';
-import { DatasetUtil } from '../../util/dataset.util';
 import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, NeonFieldMetaData } from '../../models/dataset';
+import { Dataset, DatasetUtil, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
@@ -452,7 +451,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         if (fields.length) {
             (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
                 if (filter && filter.lhs && filter.operator && typeof filter.rhs !== 'undefined') {
-                    fields = fields.concat(DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys));
+                    fields = fields.concat(DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection));
                 }
             });
 
@@ -490,7 +489,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
             if (filter && filter.lhs && filter.operator && filter.rhs) {
                 filterClauses = filterClauses.concat(this.searchService.buildFilterClause(
-                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys), filter.operator, filter.rhs
+                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection), filter.operator, filter.rhs
                 ));
             }
         });

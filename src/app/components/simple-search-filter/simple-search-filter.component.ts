@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { SimpleFilterDesign } from '../../util/filter.util';
@@ -49,7 +49,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
             return;
         }
 
-        let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
+        const simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (!this.validateSimpleFilter(simpleFilter)) {
             return;
@@ -57,15 +57,17 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
 
         this.inputPlaceholder = simpleFilter.placeholder || '';
 
-        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(simpleFilter.databaseName);
-        let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+        const dataset: Dataset = this.dashboardState.asDataset();
+        const datastoreName = this.dashboardState.datastore.name;
+        const database: NeonDatabaseMetaData = dataset.retrieveDatabase(datastoreName, simpleFilter.databaseName);
+        const table: NeonTableMetaData = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
+        const field: NeonFieldMetaData = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
-        let filter: SimpleFilterDesign = new SimpleFilterDesign(this.dashboardState.datastore.name, database.name, table.name,
-            field.columnName, 'contains', term);
+        const filter: SimpleFilterDesign = new SimpleFilterDesign(datastoreName, database.name, table.name, field.columnName, 'contains',
+            term);
 
-        this.filterService.exchangeFilters('SimpleFilter', [filter], this.dashboardState.asDataset());
+        this.filterService.exchangeFilters('SimpleFilter', [filter], dataset);
 
         this.cachedFilter = filter;
     }

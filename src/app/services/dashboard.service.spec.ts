@@ -24,27 +24,10 @@ import { initializeTestBed, getConfigService } from '../../testUtils/initializeT
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 
-import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
 import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
 import { DATASET } from '../../testUtils/mock-dataset';
-
-function extractNames(data: { [key: string]: any } | any[]) {
-    if (Array.isArray(data)) {
-        return data.map((el) => extractNames(el));
-    } else if (_.isPlainObject(data)) {
-        if ('columnName' in data || 'name' in data) {
-            return data['columnName'] || data['name'];
-        }
-        const out = {};
-        for (const key of Object.keys(data)) {
-            out[key] = extractNames(data[key]);
-        }
-        return out;
-    }
-    return data;
-}
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;
@@ -66,22 +49,6 @@ describe('Service: DashboardService', () => {
 
     it('should have no active dashboards at creation', () => {
         expect(dashboardService.state.dashboard.name).not.toBeDefined();
-    });
-
-    it('should return datastores by name', () => {
-        dashboardService.addDatastore({
-            name: 'd1',
-            host: '',
-            type: '',
-            databases: {}
-        });
-
-        expect(dashboardService.config.datastores.d1).toEqual({
-            name: 'd1',
-            host: '',
-            type: '',
-            databases: {}
-        });
     });
 
     it('getFiltersToSaveInURL should return expected JSON string', () => {
@@ -142,10 +109,11 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active datastore at creation', () => {
-        let datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
-        datastore.databases = DashboardServiceMock.DATABASES;
-        datastore['hasUpdatedFields'] = true;
-        expect(dashboardService.state.datastore).toEqual(datastore);
+        expect(dashboardService.state.datastore).toEqual(DashboardServiceMock.DATASTORE);
+    });
+
+    it('should return active datastores by name', () => {
+        expect(dashboardService.config.datastores.datastore1).toEqual(DashboardServiceMock.DATASTORE);
     });
 
     it('should have active dashboard at creation', () => {
@@ -222,305 +190,6 @@ describe('Service: DashboardService with Mock Data', () => {
         }, DATASET)]);
     });
 
-    it('findRelationDataList does work with relations in string list structure', () => {
-        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
-            name: 'datastore1',
-            databases: {
-                testDatabase1: {
-                    tables: {
-                        testTable1: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                },
-                testDatabase2: {
-                    tables: {
-                        testTable2: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                }
-            }
-        }));
-
-        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
-            tables: {
-                testTable1: 'datastore1.testDatabase1.testTable1',
-                testTable2: 'datastore1.testDatabase1.testTable2'
-            },
-            relations: [
-                ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
-                ['datastore1.testDatabase1.testTable1.testRelationFieldB', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-            ]
-        }));
-
-        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }]
-            ],
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }]
-            ]
-        ]));
-    });
-
-    it('findRelationDataList does work with relations in nested list structure', () => {
-        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
-            name: 'datastore1',
-            databases: {
-                testDatabase1: {
-                    tables: {
-                        testTable1: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                },
-                testDatabase2: {
-                    tables: {
-                        testTable2: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                }
-            }
-        }));
-
-        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
-            tables: {
-                testTable1: 'datastore1.testDatabase1.testTable1',
-                testTable2: 'datastore1.testDatabase1.testTable2'
-            },
-            relations: [
-                [
-                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
-                ],
-                [
-                    ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-                ]
-            ]
-        }));
-
-        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }]
-            ],
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }, {
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }, {
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }]
-            ]
-        ]));
-    });
-
-    it('findRelationDataList does work with relations in both structures', () => {
-        spyOn(dashboardService.state, 'dashboard').and.returnValue({
-            relations: [
-                ['datastore1.testDatabase1.testTable1.testRelationFieldA', ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
-                [['datastore1.testDatabase1.testTable1.testRelationFieldB'], 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-            ]
-        });
-
-        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
-                }]
-            ],
-            [
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }],
-                [{
-                    datastore: DashboardServiceMock.DATASTORE,
-                    database: DashboardServiceMock.DATABASES.testDatabase2,
-                    table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
-                }]
-            ]
-        ]));
-    });
-
-    it('findRelationDataList does ignore relations on databases/tables/fields that don\'t exist', () => {
-        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
-            name: 'datastore1',
-            databases: {
-                testDatabase1: {
-                    tables: {
-                        testTable1: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                },
-                testDatabase2: {
-                    tables: {
-                        testTable2: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                }
-            }
-        }));
-
-        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
-            tables: {
-                testTable1: 'datastore1.testDatabase1.testTable1',
-                testTable2: 'datastore1.testDatabase2.testTable2'
-            },
-            relations: [
-                ['datastore1.fakeDatabase1.testTable1.testRelationFieldA', 'datastore1.fakeDatabase2.testTable2.testRelationFieldA'],
-                ['datastore1.testDatabase1.fakeTable1.testRelationFieldA', 'datastore1.testDatabase2.fakeTable2.testRelationFieldA'],
-                ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase2.testTable2.fakeRelationFieldA'],
-                [
-                    ['datastore1.fakeDatabase1.testTable1.fakeRelationFieldA', 'datastore1.fakeDatabase1.testTable1.fakeRelationFieldA'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-                ],
-                [
-                    ['datastore1.testDatabase1.fakeTable1.fakeRelationFieldA', 'datastore1.testDatabase1.fakeTable1.fakeRelationFieldA'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-                ],
-                [
-                    ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase1.testTable1.fakeRelationFieldA'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-                ]
-            ]
-        }));
-
-        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual([]);
-    });
-
-    it('findRelationDataList does ignore relations with unequal filter fields', () => {
-        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
-            name: 'datastore1',
-            databases: {
-                testDatabase1: {
-                    tables: {
-                        testTable1: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                },
-                testDatabase2: {
-                    tables: {
-                        testTable2: {
-                            fields: [
-                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
-                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
-                            ]
-                        }
-                    }
-                }
-            }
-        }));
-
-        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
-            tables: {
-                testTable1: 'datastore1.testDatabase1.testTable1',
-                testTable2: 'datastore1.testDatabase2.testTable2'
-            },
-            relations: [
-                [['datastore1.testDatabase1.testTable1.testRelationFieldA'], []],
-                [[], ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
-                [
-                    ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
-                ],
-                [
-                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
-                ]
-            ]
-        }));
-
-        expect(dashboardService.state.findRelationDataList()).toEqual([]);
-    });
-
     function getConfig(filters: string | FilterConfig[]) {
         const layouts = {
             testState: [
@@ -579,14 +248,7 @@ describe('Service: DashboardService with Mock Data', () => {
                                     fields: [
                                         { columnName: 'testTypeField', type: 'string', prettyName: 'Field2' }
                                     ]
-                                },
-                                tableC: { prettyName: 'tableC' }
-                            }
-                        },
-                        databaseX: {
-                            prettyName: 'databaseX',
-                            tables: {
-                                tableD: { prettyName: 'tableD' }
+                                }
                             }
                         }
                     }

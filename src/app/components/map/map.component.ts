@@ -49,7 +49,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { DatasetUtil, NeonFieldMetaData } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { CoreUtil } from '../../util/core.util';
 import {
@@ -62,7 +62,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
-import { DatasetUtil } from '../../util/dataset.util';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
