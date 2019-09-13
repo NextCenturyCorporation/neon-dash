@@ -20,7 +20,7 @@ import { SimpleFilterConfig } from '../../library/core/models/filters';
 import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { SimpleSearchFilterModule } from './simple-search-filter.module';
 

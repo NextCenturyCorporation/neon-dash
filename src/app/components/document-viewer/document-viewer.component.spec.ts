@@ -24,7 +24,7 @@ import { AbstractSearchService } from '../../library/core/services/abstract.sear
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 

@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonDashboardLeafConfig } from '../../app/models/types';
-import { DatastoreConfig, DatabaseConfig, FieldConfig, TableConfig } from '../../app/library/core/models/dataset';
-import { DashboardService } from '../../app/services/dashboard.service';
-import { ConfigService } from '../../app/services/config.service';
-import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
+import { NeonDashboardLeafConfig } from '../models/types';
+import { DashboardService } from './dashboard.service';
+import { ConfigService } from './config.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 import { Injectable } from '@angular/core';
-import { InjectableFilterService } from '../../app/services/injectable.filter.service';
+import { InjectableFilterService } from './injectable.filter.service';
 import {
     DATABASES,
     DATABASES_LIST,
@@ -29,9 +28,9 @@ import {
     TABLE_KEYS,
     TABLES,
     TABLES_LIST
-} from '../../app/library/core/models/mock.dataset';
+} from '../library/core/models/mock.dataset';
 
-export class MockConnectionService extends InjectableConnectionService {
+export class ConnectionServiceMock extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
         return null as any;
     }
@@ -77,7 +76,7 @@ export class DashboardServiceMock extends DashboardService {
     constructor(configService: ConfigService) {
         super(
             configService,
-            new MockConnectionService(),
+            new ConnectionServiceMock(),
             new InjectableFilterService()
         );
 
@@ -85,13 +84,12 @@ export class DashboardServiceMock extends DashboardService {
     }
 }
 
-
 @Injectable()
 export class EmptyDashboardServiceMock extends DashboardService {
     constructor(configService: ConfigService) {
         super(
             configService,
-            new MockConnectionService(),
+            new ConnectionServiceMock(),
             new InjectableFilterService()
         );
     }

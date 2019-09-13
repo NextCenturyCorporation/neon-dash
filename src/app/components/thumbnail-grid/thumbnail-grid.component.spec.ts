@@ -26,7 +26,7 @@ import { AbstractSearchService } from '../../library/core/services/abstract.sear
 import { CompoundFilterType } from '../../library/core/models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
