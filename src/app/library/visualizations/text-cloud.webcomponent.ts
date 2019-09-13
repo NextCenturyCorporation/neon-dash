@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { ColorOptions, SizeOptions, TextCloud } from '../components/text-cloud/text-cloud-namespace';
-import { CoreUtil } from '../util/core.util';
-import { NextCenturyElement } from './next-century.core.element.webcomponent';
+import { ColorOptions, SizeOptions, TextCloud } from '../../components/text-cloud/text-cloud-namespace';
+import { CoreUtil } from '../../util/core.util';
+import { NextCenturyElement } from '../core/element.webcomponent';
 
 export class NextCenturyTextCloud extends NextCenturyElement {
     private _data: any[] = [];

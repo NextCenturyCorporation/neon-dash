@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import { BoundsValues, CompoundValues, DomainValues, FilterValues, ListOfValues, OneValue, PairOfValues } from '../models/filter';
-import { CompoundFilterType } from '../models/widget-option';
-import { Dataset } from '../models/dataset';
+import { BoundsValues, CompoundValues, DomainValues, FilterValues, ListOfValues, OneValue, PairOfValues } from '../../models/filter';
+import { CompoundFilterType } from '../../models/widget-option';
+import { Dataset } from '../../models/dataset';
 
-import { FilterService } from '../services/filter.service';
+import { FilterService } from '../../services/filter.service';
 
 import {
     AbstractFilter,
@@ -27,10 +27,10 @@ import {
     FilterCollection,
     ListFilterDesign,
     PairFilterDesign
-} from '../util/filter.util';
-import { CoreUtil } from '../util/core.util';
+} from '../../util/filter.util';
+import { CoreUtil } from '../../util/core.util';
 
-import { NextCenturyElement } from './next-century.core.element.webcomponent';
+import { NextCenturyElement } from './element.webcomponent';
 
 export class NextCenturyFilter extends NextCenturyElement {
     private _dataset: Dataset;
