@@ -21,7 +21,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

@@ -22,7 +22,7 @@ import { DataTableComponent } from './data-table.component';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

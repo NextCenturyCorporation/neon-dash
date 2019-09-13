@@ -34,7 +34,7 @@ import {
     ListFilterDesign,
     SimpleFilter,
     SimpleFilterDesign
-} from '../../util/filter.util';
+} from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';

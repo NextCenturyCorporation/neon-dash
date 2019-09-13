@@ -22,7 +22,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { CompoundFilterType } from '../../models/widget-option';
 
 describe('Component: Filter Builder', () => {

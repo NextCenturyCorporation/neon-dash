@@ -28,7 +28,7 @@ import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { BoundsFilterDesign, FilterCollection, FilterUtil, PairFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { BoundsFilterDesign, FilterCollection, FilterUtil, PairFilterDesign, SimpleFilterDesign } from '../../models/filters';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';

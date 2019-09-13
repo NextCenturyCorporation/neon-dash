@@ -20,7 +20,7 @@ import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, SimpleFilterDesign } from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';

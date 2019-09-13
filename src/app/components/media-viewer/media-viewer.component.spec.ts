@@ -23,7 +23,7 @@ import { } from 'jasmine-core';
 import { MediaViewerComponent } from './media-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection } from '../../models/filters';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

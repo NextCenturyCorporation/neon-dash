@@ -26,7 +26,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, SimpleFilterDesign } from '../../models/filters';
 import { FieldConfig } from '../../models/dataset';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

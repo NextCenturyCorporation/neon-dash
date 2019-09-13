@@ -18,9 +18,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterDesign, FilterConfig, SimpleFilterDesign } from '../../models/filters';
 import { CompoundFilterType } from '../../models/widget-option';
-import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
