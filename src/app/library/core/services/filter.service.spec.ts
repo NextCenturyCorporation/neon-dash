@@ -517,9 +517,9 @@ describe('FilterService with filters', () => {
     });
 
     it('getFilters should return expected array', () => {
-        expect(filterService.getFilters()).toEqual([config1A, config1B, config2A]);
-        expect(filterService.getFilters(source1)).toEqual([config1A, config1B]);
-        expect(filterService.getFilters(source2)).toEqual([config2A]);
+        expect(filterService.getFilters()).toEqual([filter1A, filter1B, filter2A]);
+        expect(filterService.getFilters(source1)).toEqual([filter1A, filter1B]);
+        expect(filterService.getFilters(source2)).toEqual([filter2A]);
         expect(filterService.getFilters([{
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
