@@ -20,7 +20,7 @@ import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
-import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../models/dataset';
+import { DatastoreConfig, DatabaseConfig } from '../../models/dataset';
 
 @Component({
     selector: 'app-custom-connection',
@@ -74,7 +74,7 @@ export class CustomConnectionComponent implements AfterContentInit {
     }
 
     createDataset() {
-        let datastore = NeonDatastoreConfig.get({
+        let datastore = DatastoreConfig.get({
             name: this.data.datasetName,
             host: this.data.datastoreHost,
             type: this.data.datastoreType
@@ -82,7 +82,7 @@ export class CustomConnectionComponent implements AfterContentInit {
         datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
             acc[db.name] = db;
             return acc;
-        }, {} as { [key: string]: NeonDatabaseMetaData });
+        }, {} as { [key: string]: DatabaseConfig });
         this.datasetService.setActiveDatastore(datastore);
 
         // TODO: THOR-825:

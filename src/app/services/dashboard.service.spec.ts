@@ -17,7 +17,7 @@ import { inject } from '@angular/core/testing';
 import { FilterConfig } from '../models/filter';
 import { CompoundFilterType } from '../models/widget-option';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
-import { NeonDatastoreConfig } from '../models/dataset';
+import { DatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -44,7 +44,7 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(NeonDatastoreConfig.get());
+        expect(dashboardService.state.datastore).toEqual(DatastoreConfig.get());
     });
 
     it('should have no active dashboards at creation', () => {
