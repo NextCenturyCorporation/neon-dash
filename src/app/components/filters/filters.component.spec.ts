@@ -19,13 +19,13 @@ import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { FiltersModule } from './filters.module';
 

@@ -19,18 +19,18 @@ import { } from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../models/filters';
-import { FieldConfig } from '../../models/dataset';
-import { TimeInterval } from '../../models/widget-option';
+import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FieldConfig } from '../../library/core/models/dataset';
+import { TimeInterval } from '../../library/core/models/widget-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;

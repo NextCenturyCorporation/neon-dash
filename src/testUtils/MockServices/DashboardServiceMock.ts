@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { NeonDashboardLeafConfig } from '../../app/models/types';
-import { DatastoreConfig, DatabaseConfig, FieldConfig, TableConfig } from '../../app/models/dataset';
+import { DatastoreConfig, DatabaseConfig, FieldConfig, TableConfig } from '../../app/library/core/models/dataset';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
@@ -29,7 +29,7 @@ import {
     TABLE_KEYS,
     TABLES,
     TABLES_LIST
-} from '../mock-dataset';
+} from '../../app/library/core/models/mock.dataset';
 
 export class MockConnectionService extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {

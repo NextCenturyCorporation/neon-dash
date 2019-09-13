@@ -25,7 +25,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType } from '../../models/widget-option';
+import { OptionType } from '../../library/core/models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { neonEvents } from '../../models/neon-namespaces';

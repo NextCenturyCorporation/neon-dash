@@ -18,16 +18,16 @@ import { } from 'jasmine-core';
 
 import { GearComponent } from '../gear/gear.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
@@ -35,7 +35,7 @@ import {
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {

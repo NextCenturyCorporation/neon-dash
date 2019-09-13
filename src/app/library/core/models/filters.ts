@@ -22,7 +22,7 @@ import {
     FieldConfig,
     TableConfig
 } from './dataset';
-import { DateFormat, DateUtil } from '../util/date.util';
+import { DateFormat, DateUtil } from '../date.util';
 import * as _ from 'lodash';
 
 export interface FilterDataSource {

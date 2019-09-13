@@ -19,14 +19,14 @@ import { } from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterType } from '../../models/widget-option';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';

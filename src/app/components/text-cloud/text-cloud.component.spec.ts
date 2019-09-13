@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 
 import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType } from '../../models/widget-option';
+import { AggregationType, CompoundFilterType } from '../../library/core/models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { TextCloudModule } from './text-cloud.module';
 

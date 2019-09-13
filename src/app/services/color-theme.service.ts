@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
+import { AbstractColorThemeService, Theme } from '../library/core/services/abstract.color-theme.service';
 import { Color, ColorMap, ColorSet } from '../models/color';
 
 export class NeonTheme implements Theme {

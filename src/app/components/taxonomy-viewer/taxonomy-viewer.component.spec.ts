@@ -17,15 +17,15 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterType } from '../../models/widget-option';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';

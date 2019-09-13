@@ -32,7 +32,7 @@ import {
     FilterClause,
     QueryGroup,
     QueryPayload
-} from '../../services/abstract.search.service';
+} from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -49,9 +49,9 @@ import {
     ListFilterDesign,
     SimpleFilter,
     SimpleFilterDesign
-} from '../../models/filters';
-import { DatasetUtil } from '../../models/dataset';
-import { DateUtil } from '../../util/date.util';
+} from '../../library/core/models/filters';
+import { DatasetUtil } from '../../library/core/models/dataset';
+import { DateUtil } from '../../library/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -77,7 +77,7 @@ import {
     WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -85,7 +85,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../../library/core/core.util';
 
 @Component({
     selector: 'app-aggregation',
