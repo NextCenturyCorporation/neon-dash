@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { SimpleFilterDesign } from '../../util/filter.util';
@@ -59,9 +59,9 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
 
         const dataset: Dataset = this.dashboardState.asDataset();
         const datastoreName = this.dashboardState.datastore.name;
-        const database: NeonDatabaseMetaData = dataset.retrieveDatabase(datastoreName, simpleFilter.databaseName);
-        const table: NeonTableMetaData = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
-        const field: NeonFieldMetaData = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
+        const database: DatabaseConfig = dataset.retrieveDatabase(datastoreName, simpleFilter.databaseName);
+        const table: TableConfig = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
+        const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
         const filter: SimpleFilterDesign = new SimpleFilterDesign(datastoreName, database.name, table.name, field.columnName, 'contains',

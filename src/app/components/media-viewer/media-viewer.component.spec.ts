@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { MediaTypes } from '../../models/types';
 import { Injector } from '@angular/core';
 
@@ -65,11 +65,11 @@ describe('Component: MediaViewer', () => {
         expect(component.options.resize).toEqual(true);
         expect(component.options.typeMap).toEqual({});
         expect(component.options.url).toEqual('');
-        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(FieldConfig.get());
+        expect(component.options.linkField).toEqual(FieldConfig.get());
         expect(component.options.linkFields).toEqual([]);
-        expect(component.options.nameField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.nameField).toEqual(FieldConfig.get());
+        expect(component.options.typeField).toEqual(FieldConfig.get());
         expect(component.options.autoplay).toEqual(false);
     });
 
@@ -78,8 +78,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
@@ -103,8 +103,8 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('finalizeVisualizationQuery with no ID field does return expected query', (() => {
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
@@ -120,8 +120,8 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('finalizeVisualizationQuery with sort field does return expected query', (() => {
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
@@ -159,10 +159,10 @@ describe('Component: MediaViewer', () => {
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
@@ -200,10 +200,10 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('transformVisualizationQueryResults does reset options.id and return correct error if filter is selected', (() => {
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
-        component.options.nameField = NeonFieldMetaData.get({ columnName: 'testNameField' });
-        component.options.typeField = NeonFieldMetaData.get({ columnName: 'testTypeField' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField' });
+        component.options.linkField = FieldConfig.get({ columnName: 'testLinkField' });
+        component.options.nameField = FieldConfig.get({ columnName: 'testNameField' });
+        component.options.typeField = FieldConfig.get({ columnName: 'testTypeField' });
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';

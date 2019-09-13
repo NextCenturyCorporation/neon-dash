@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -58,13 +58,13 @@ describe('Component: NewsFeed', () => {
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.secondaryContentField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.titleContentField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.filterField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.contentField).toEqual(FieldConfig.get());
+        expect(component.options.secondaryContentField).toEqual(FieldConfig.get());
+        expect(component.options.titleContentField).toEqual(FieldConfig.get());
+        expect(component.options.dateField).toEqual(FieldConfig.get());
+        expect(component.options.filterField).toEqual(FieldConfig.get());
+        expect(component.options.idField).toEqual(FieldConfig.get());
+        expect(component.options.sortField).toEqual(FieldConfig.get());
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
@@ -100,16 +100,16 @@ describe('Component: NewsFeed', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
-        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
+        component.options.table = TableConfig.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
-        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
-        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField' });
-        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
-        component.options.secondaryContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
-        component.options.titleContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField' });
+        component.options.sortField = FieldConfig.get({ columnName: 'testSortField' });
+        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField' });
+        component.options.contentField = FieldConfig.get({ columnName: 'testContentField' });
+        component.options.secondaryContentField = FieldConfig.get({ columnName: 'testContentField' });
+        component.options.titleContentField = FieldConfig.get({ columnName: 'testContentField' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -141,13 +141,13 @@ describe('Component: NewsFeed', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'tesIdField', prettyName: 'Test Id Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'tesIdField', prettyName: 'Test Id Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField', prettyName: 'Test Content Field' });
+        component.options.contentField = FieldConfig.get({ columnName: 'testContentField', prettyName: 'Test Content Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
@@ -329,7 +329,7 @@ describe('Component: NewsFeed', () => {
     it('expandOrCollapse does call publishSelectId if ID is expanded', () => {
         let spy = spyOn(component, 'publishSelectId');
 
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.expandOrCollapse('id1');
 
@@ -340,7 +340,7 @@ describe('Component: NewsFeed', () => {
     it('expandOrCollapse does not call publishSelectId if ID is not expanded', () => {
         let spy = spyOn(component, 'publishSelectId');
 
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component['_expandedIdList'] = ['id1'];
 
