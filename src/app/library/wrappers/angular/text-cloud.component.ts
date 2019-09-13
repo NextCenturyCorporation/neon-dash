@@ -14,17 +14,17 @@
  */
 import { ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild, ViewEncapsulation } from '@angular/core';
 
-import { AbstractSearchService } from '../services/abstract.search.service';
-import { DashboardService } from '../services/dashboard.service';
-import { Dataset, DatasetUtil, FieldKey } from '../models/dataset';
-import { InjectableFilterService } from '../services/injectable.filter.service';
+import { AbstractSearchService } from '../../../services/abstract.search.service';
+import { DashboardService } from '../../../services/dashboard.service';
+import { Dataset, DatasetUtil, FieldKey } from '../../../models/dataset';
+import { InjectableFilterService } from '../../../services/injectable.filter.service';
 
-import './next-century.visualizations.text-cloud.webcomponent';
+import '../../visualizations/text-cloud.webcomponent';
 
 @Component({
     selector: 'app-next-century-angular-text-cloud',
-    templateUrl: './next-century.wrappers.text-cloud.angular.component.html',
-    styleUrls: ['./next-century.wrappers.text-cloud.angular.component.scss'],
+    templateUrl: './text-cloud.component.html',
+    styleUrls: ['./text-cloud.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-import { NextCenturyElement } from './next-century.core.element.webcomponent';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NextCenturyAngularTextCloud } from './text-cloud.component';
 
-export class NextCenturyGroup extends NextCenturyElement {
-    static get observedAttributes(): string[] {
-        return [
-            'field-key',
-            'name',
-            'type'
-        ];
-    }
-}
-
-window.customElements.define('next-century-group', NextCenturyGroup);
-
+@NgModule({
+    declarations: [NextCenturyAngularTextCloud],
+    exports: [NextCenturyAngularTextCloud],
+    entryComponents: [NextCenturyAngularTextCloud],
+    imports: [
+        CommonModule
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class NextCenturyAngularTextCloudModule { }

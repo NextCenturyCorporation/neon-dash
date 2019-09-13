@@ -13,17 +13,18 @@
  * limitations under the License.
  */
 
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NextCenturyAngularTextCloud } from './next-century.wrappers.text-cloud.angular.component';
+import { NextCenturyElement } from './element.webcomponent';
 
-@NgModule({
-    declarations: [NextCenturyAngularTextCloud],
-    exports: [NextCenturyAngularTextCloud],
-    entryComponents: [NextCenturyAngularTextCloud],
-    imports: [
-        CommonModule
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
-})
-export class NextCenturyAngularTextCloudModule { }
+export class NextCenturyAggregation extends NextCenturyElement {
+    static get observedAttributes(): string[] {
+        return [
+            'field-key',
+            'group',
+            'name',
+            'type'
+        ];
+    }
+}
+
+window.customElements.define('next-century-aggregation', NextCenturyAggregation);
+
