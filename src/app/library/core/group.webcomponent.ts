@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 
-import { NextCenturyElement } from './next-century.core.element.webcomponent';
+import { NextCenturyElement } from './element.webcomponent';
 
-export class NextCenturyAggregation extends NextCenturyElement {
+export class NextCenturyGroup extends NextCenturyElement {
     static get observedAttributes(): string[] {
         return [
             'field-key',
-            'group',
             'name',
             'type'
         ];
     }
 }
 
-window.customElements.define('next-century-aggregation', NextCenturyAggregation);
+window.customElements.define('next-century-group', NextCenturyGroup);
 

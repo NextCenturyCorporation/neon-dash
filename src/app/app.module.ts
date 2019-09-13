@@ -31,7 +31,7 @@ import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
 // TODO Temp
-import { NextCenturyAngularTextCloudModule } from './library/next-century.wrappers.text-cloud.angular.module';
+import { NextCenturyAngularTextCloudModule } from './library/wrappers/angular/text-cloud.module';
 
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';

@@ -25,14 +25,13 @@ import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
-import './library/next-century.wrappers.text-cloud.angular.component';
-
-import './library/next-century.core.aggregation.webcomponent';
-import './library/next-century.core.filter.webcomponent';
-import './library/next-century.core.group.webcomponent';
-import './library/next-century.core.search.webcomponent';
-import './library/next-century.visualizations.example.webcomponent';
-import './library/next-century.visualizations.text-cloud.webcomponent';
+import './library/core/aggregation.webcomponent';
+import './library/core/filter.webcomponent';
+import './library/core/group.webcomponent';
+import './library/core/search.webcomponent';
+import './library/visualizations/example.webcomponent';
+import './library/visualizations/text-cloud.webcomponent';
+import './library/wrappers/angular/text-cloud.component';
 
 @Component({
     selector: 'app-route-example',
