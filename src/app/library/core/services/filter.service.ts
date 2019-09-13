@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { CompoundFilterType } from '../models/widget-option';
-import { Dataset, FieldKey } from '../models/dataset';
+import { Dataset } from '../models/dataset';
 import {
     AbstractFilter,
     CompoundFilter,
@@ -62,58 +62,6 @@ export class FilterService {
         }
 
         return returnData;
-    }
-
-    /**
-     * Creates and returns the relation filter list for the given filter (but not including the given filter).  Also sets the relations
-     * (list of IDs) on the given filter and all its relation filters.
-     *
-     * @arg {AbstractFilter} filter
-     * @arg {Dataset} dataset
-     * @return {AbstractFilter[]}
-     * @private
-     */
-    private _createRelationFilterList(filter: AbstractFilter, dataset: Dataset): AbstractFilter[] {
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(filter.toConfig(), true);
-
-        return dataset.getRelations().reduce((returnList, relation) => {
-            let relationFilterList: AbstractFilter[] = [];
-
-            // Assume that each item within the relation list is a nested list with the same length.
-            // EX:  [[x1, y1], [x2, y2], [x3, y3]]
-            if (relation.length && relation[0].length === filterDataSourceList.length) {
-                let equivalentRelationList: FieldKey[][] = relation.filter((relationFieldKeyList) =>
-                    // Each item within the relationFieldKeyList must be equivalent to a FilterDataSource.
-                    relationFieldKeyList.every((relationFieldKey) => filterDataSourceList.some((filterDataSource) =>
-                        this._isRelationEquivalent(relationFieldKey, filterDataSource))) &&
-                    // Each FilterDataSource must be equivalent to an item within the relationFieldKeyList.
-                    filterDataSourceList.every((filterDataSource) => relationFieldKeyList.some((relationFieldKey) =>
-                        this._isRelationEquivalent(relationFieldKey, filterDataSource))));
-
-                // The length of equivalentRelationList should be either 0 or 1.
-                if (equivalentRelationList.length) {
-                    // Create new relation filters.
-                    relation.forEach((relationFieldKeyList) => {
-                        // Do not create a relation that is the same as the original filter.
-                        if (relationFieldKeyList !== equivalentRelationList[0]) {
-                            let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0],
-                                relationFieldKeyList, dataset);
-                            relationFilterList.push(relationFilter);
-                        }
-                    });
-
-                    // Save sibling relation filter IDs in the new relation filters.
-                    [filter].concat(relationFilterList).forEach((outerFilter) => {
-                        [filter].concat(relationFilterList).forEach((innerFilter) => {
-                            if (outerFilter.id !== innerFilter.id) {
-                                outerFilter.relations.push(innerFilter.id);
-                            }
-                        });
-                    });
-                }
-            }
-            return returnList.concat(relationFilterList);
-        }, [] as AbstractFilter[]);
     }
 
     /**
@@ -244,19 +192,6 @@ export class FilterService {
     }
 
     /**
-     * Returns if the given field is equivalent to the given data source.
-     *
-     * @arg {FieldKey} fieldKey
-     * @arg {FilterDataSource} filterDataSource
-     * @return {boolean}
-     * @private
-     */
-    private _isRelationEquivalent(fieldKey: FieldKey, filterDataSource: FilterDataSource): boolean {
-        return !!(fieldKey.datastore === filterDataSource.datastore && fieldKey.database === filterDataSource.database &&
-            fieldKey.table === filterDataSource.table && fieldKey.field === filterDataSource.field);
-    }
-
-    /**
      * Notifies all the filter-change listeners using the given caller ID and change collection.
      */
     public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
@@ -336,7 +271,7 @@ export class FilterService {
         filterConfigList.forEach((toggleFilterConfig) => {
             // Create the new filters and new relation filters to add (toggle ON).
             let toggleFilter: AbstractFilter = FilterUtil.createFilterFromConfig(toggleFilterConfig, dataset);
-            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(toggleFilter, dataset);
+            let relationFilterList: AbstractFilter[] = toggleFilter.createRelationFilterList(dataset);
 
             // Save the new filters and new relation filters in an intermediary collection to separate filters by unique data source.
             [toggleFilter].concat(relationFilterList).forEach((relationFilter) => {
@@ -398,7 +333,7 @@ export class FilterService {
         filterConfigs.forEach((filterConfig) => {
             // Create the new filters and new relation filters.
             let newFilter: AbstractFilter = FilterUtil.createFilterFromConfig(filterConfig, dataset);
-            let newRelationFilters: AbstractFilter[] = this._createRelationFilterList(newFilter, dataset);
+            let newRelationFilters: AbstractFilter[] = newFilter.createRelationFilterList(dataset);
 
             // Save the new filters and new relation filters in a filter collection to separate the filters by unique data source.
             [newFilter].concat(newRelationFilters).forEach((filter) => {
