@@ -28,8 +28,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilter } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, SimpleFilter } from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';

@@ -14,13 +14,14 @@
  */
 import { CompoundFilterType } from '../models/widget-option';
 import { Dataset, FieldKey } from '../models/dataset';
-import { FilterConfig, FilterDataSource } from '../models/filter';
 import {
     AbstractFilter,
     CompoundFilter,
     FilterCollection,
+    FilterConfig,
+    FilterDataSource,
     FilterUtil
-} from '../util/filter.util';
+} from '../models/filters';
 
 export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) => void;
 

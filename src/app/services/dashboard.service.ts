@@ -26,8 +26,7 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { FilterConfig } from '../models/filter';
-import { AbstractFilter, FilterUtil } from '../util/filter.util';
+import { AbstractFilter, FilterConfig, FilterUtil } from '../models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({

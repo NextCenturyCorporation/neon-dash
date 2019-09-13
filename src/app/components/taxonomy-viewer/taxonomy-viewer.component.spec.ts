@@ -19,7 +19,7 @@ import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterType } from '../../models/widget-option';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 

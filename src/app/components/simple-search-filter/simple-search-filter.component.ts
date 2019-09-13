@@ -16,7 +16,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnIni
 import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterDesign } from '../../util/filter.util';
+import { SimpleFilterDesign } from '../../models/filters';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';

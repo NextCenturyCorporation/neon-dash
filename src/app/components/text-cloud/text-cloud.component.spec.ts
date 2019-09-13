@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
 
 import { Injector } from '@angular/core';

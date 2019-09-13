@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterConfig } from '../../models/filter';
+import { SimpleFilterConfig } from '../../models/filters';
 import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';

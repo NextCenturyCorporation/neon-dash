@@ -28,7 +28,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../models/filters';
 import { FieldConfig } from '../../models/dataset';
 import { TimeInterval } from '../../models/widget-option';
 
