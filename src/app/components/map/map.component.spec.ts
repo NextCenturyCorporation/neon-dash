@@ -35,7 +35,7 @@ import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type
 import { FieldConfig } from '../../library/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 

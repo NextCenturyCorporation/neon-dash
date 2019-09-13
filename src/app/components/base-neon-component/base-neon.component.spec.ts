@@ -47,7 +47,7 @@ import {
 } from '../../library/core/models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
