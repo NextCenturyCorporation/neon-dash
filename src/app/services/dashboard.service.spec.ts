@@ -20,7 +20,7 @@ import { DatastoreConfig } from '../library/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock, ConnectionServiceMock } from '../services/mock.dashboard-service';
 import { ConfigService } from './config.service';
 
 import { InjectableFilterService } from './injectable.filter.service';
@@ -327,7 +327,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         ]);
 
-        const conn = new MockConnectionService();
+        const conn = new ConnectionServiceMock();
         const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
             localConfigService,
@@ -397,7 +397,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         ]`);
 
-        const conn = new MockConnectionService();
+        const conn = new ConnectionServiceMock();
         const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
             localConfigService,

@@ -19,7 +19,7 @@ import { FieldConfig } from '../../library/core/models/dataset';
 
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
 import { CompoundFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
