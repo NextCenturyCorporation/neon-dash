@@ -14,15 +14,13 @@
  */
 import { Injectable } from '@angular/core';
 
-import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
+import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { DatasetUtil, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { Connection } from './connection.service';
 import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
-import { DashboardUtil } from '../util/dashboard.util';
 
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
@@ -36,6 +34,8 @@ import { InjectableFilterService } from './injectable.filter.service';
     providedIn: 'root'
 })
 export class DashboardService {
+    static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
+
     public readonly config = NeonConfig.get();
     public readonly state = new DashboardState();
     public readonly gridState = new GridState({ max_cols: 12, max_rows: 0 });
@@ -60,20 +60,23 @@ export class DashboardService {
     }
 
     onConfigChange(config: NeonConfig): Observable<NeonConfig> {
-        const dataStoreMerges = Object
-            .values(config.datastores)
-            .map((datastore) => {
-                DashboardUtil.validateDatabases(datastore);
+        const datastores: NeonDatastoreConfig[] = Object.values(config.datastores || {})
+            .map((datastore) => DatasetUtil.validateDatastore(datastore)).filter((datastore) => !!datastore);
 
-                const connection = this.connectionService.connect(datastore.type, datastore.host);
-                if (connection) {
-                    return this.mergeDatastoreRemoteState(datastore, connection);
-                }
-                return undefined;
-            })
-            .filter((val) => !!val);
+        const promises = datastores.map((datastore: NeonDatastoreConfig) => {
+            const connection = this.connectionService.connect(datastore.type, datastore.host);
+            if (connection) {
+                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
+                    failedDatabases.forEach((database) => {
+                        console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
+                        this._deleteInvalidDashboards(config.dashboards, database.name);
+                    });
+                });
+            }
+            return undefined;
+        }).filter((promise) => !!promise);
 
-        return from(dataStoreMerges.length ? Promise.all(dataStoreMerges) : Promise.resolve(null))
+        return from(promises.length ? Promise.all(promises) : Promise.resolve(null))
             .pipe(
                 map(() => this.applyConfig(config))
             );
@@ -82,12 +85,15 @@ export class DashboardService {
     private applyConfig(config: NeonConfig) {
         return Object.assign(this.config, {
             errors: config.errors,
-            dashboards: DashboardUtil.validateDashboards(
-                config.dashboards ?
-                    _.cloneDeep(config.dashboards) :
-                    NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })
-            ),
-            datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
+            dashboards: this._validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+                NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })),
+            datastores: Object.values(config.datastores || {}).reduce((datastores, datastore) => {
+                // Ignore the datastore if another datastore with the same name already exists.  Assume that each name is unique.
+                if (!datastores[datastore.name]) {
+                    datastores[datastore.name] = datastore;
+                }
+                return datastores;
+            }, this.config.datastores || {}),
             layouts: _.cloneDeep(config.layouts || {}),
             lastModified: config.lastModified,
             projectTitle: config.projectTitle,
@@ -96,19 +102,11 @@ export class DashboardService {
         });
     }
 
-    /**
-     * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
-     */
-    public addDatastore(datastore: NeonDatastoreConfig) {
-        DashboardUtil.validateDatabases(datastore);
-        this.config.datastores[datastore.name] = datastore;
-    }
-
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
 
         // Assign first datastore
-        const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
+        const firstName = Object.keys(this.config.datastores || {}).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
@@ -127,90 +125,11 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        const out = NeonDatastoreConfig.get({
-            name: 'Unknown Dataset',
-            ...datastore
-        });
-        this.addDatastore(out);
-        this.state.datastore = out;
-    }
-
-    /**
-     * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
-     */
-    private mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
-        let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
-            this.mergeTableNamesAndFieldNames(connection, database));
-
-        return Promise.all(promiseArray).then((__response) => {
-            datastore['hasUpdatedFields'] = true;
-            return datastore;
-        });
-    }
-
-    /**
-     * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
-     * associated dashboards are deleted. Any other error will return a rejected promise.
-     */
-    private mergeTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
-        let promiseFields = [];
-        return new Promise<any>((resolve, reject) => {
-            connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-                Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                    let table = database.tables[tableName];
-
-                    if (table) {
-                        let existingFields = new Set(table.fields.map((field) => field.columnName));
-
-                        tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                            if (!existingFields.has(fieldName)) {
-                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
-                                    columnName: fieldName,
-                                    prettyName: fieldName,
-                                    // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
-                                    hide: existingFields.size > 25,
-                                    // Set the default type to text.
-                                    type: 'text'
-                                });
-                                table.fields.push(newField);
-                            }
-                        });
-
-                        promiseFields.push(this.mergeFieldTypes(connection, database, table));
-                    }
-                });
-
-                Promise.all(promiseFields).then(resolve, reject);
-            }, (error) => {
-                if (error.status === 404) {
-                    console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
-                    DashboardUtil.deleteInvalidDashboards(
-                        'choices' in this.config.dashboards ? this.config.dashboards.choices : {}, database.name
-                    );
-                }
-                resolve();
-            });
-        });
-    }
-
-    /**
-     * Wraps connection.getFieldTypes() in a promise object.
-     */
-    private mergeFieldTypes(
-        connection: Connection,
-        database: NeonDatabaseMetaData,
-        table: NeonTableMetaData
-    ): Promise<NeonFieldMetaData[]> {
-        return new Promise<NeonFieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
-            for (let field of table.fields) {
-                if (types && types[field.columnName]) {
-                    field.type = types[field.columnName];
-                }
-            }
-            resolve(table.fields);
-        }, (__error) => {
-            resolve([]);
-        }));
+        const validated: NeonDatastoreConfig = DatasetUtil.validateDatastore(datastore);
+        if (validated) {
+            this.config.datastores[validated.name] = validated;
+            this.state.datastore = validated;
+        }
     }
 
     /**
@@ -263,5 +182,72 @@ export class DashboardService {
                 this.state.asDataset()));
         }
         return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig, this.state.asDataset()));
+    }
+
+    /**
+     * Validate top level category of dashboards object in the config, then call
+     * separate function to check the choices within recursively.
+     */
+    private _validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        ConfigUtil.visitDashboards(dashboard, {
+            leaf: (leaf, path) => {
+                let parent = path[path.length - 2];
+
+                // If no choices are present, then this might be the last level of nested choices,
+                // which should instead have table keys and a layout specified. If not, delete choice.
+                if (!leaf['layout'] || !leaf['tables']) {
+                    Object.keys(parent.choices).forEach((choiceId) => {
+                        if (parent.choices[choiceId].name === leaf.name) {
+                            delete parent.choices[choiceId];
+                        }
+                    });
+                    return;
+                }
+
+                if (leaf.options.simpleFilter) {
+                    const filter = leaf.options.simpleFilter;
+                    if (filter.fieldKey) {
+                        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.fields[filter.fieldKey]);
+                        filter.databaseName = fieldKeyObject.database;
+                        filter.tableName = fieldKeyObject.table;
+                        filter.fieldName = '';
+                        filter.fieldName = fieldKeyObject ? fieldKeyObject.field : '';
+                    } else {
+                        delete leaf.options.simpleFilter;
+                    }
+                }
+            },
+            choice: (choice) => {
+                choice.category = DashboardService.DASHBOARD_CATEGORY_DEFAULT;
+            }
+        });
+        return dashboard;
+    }
+
+    /**
+     * Delete dashboards associated with the given database so users cannot select them.
+     */
+    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, invalidDatabaseName: string): any {
+        ConfigUtil.visitDashboards(dashboard, {
+            leaf: (leaf, path) => {
+                let tableKeys = Object.keys(leaf.tables);
+                const parent = path[path.length - 2];
+
+                for (const tableKey of tableKeys) {
+                    const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
+
+                    if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
+                        Object.keys(parent.choices).forEach((choiceId) => {
+                            if (parent.choices[choiceId].name === leaf.name) {
+                                delete parent.choices[choiceId];
+                            }
+                        });
+                        return;
+                    }
+                }
+            }
+        });
+
+        return null;
     }
 }

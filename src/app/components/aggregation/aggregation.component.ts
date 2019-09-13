@@ -47,7 +47,7 @@ import {
     SimpleFilter,
     SimpleFilterDesign
 } from '../../util/filter.util';
-import { DatasetUtil } from '../../util/dataset.util';
+import { DatasetUtil } from '../../models/dataset';
 import { DateUtil } from '../../util/date.util';
 import { BoundsValues, DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
