@@ -246,6 +246,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                         return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL_HTTPS.length);
                     } else if (!this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
                         return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL.length);
+                    } else if (!this.options.useWikipediaPageID && link.includes(' ')){
+                        return link.split(' ').join('_');
                     }
                     return link;
                 });
