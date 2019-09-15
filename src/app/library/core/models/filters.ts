@@ -377,13 +377,6 @@ export class FilterCollection {
     }
 
     /**
-     * Returns if this filter collection contains any filters (optionally, matching the given filter config).
-     */
-    public isFiltered(filterConfig?: FilterConfig): boolean {
-        return filterConfig ? !!this.getCompatibleFilters(filterConfig).length : !!this.getFilters().length;
-    }
-
-    /**
      * Sets the filters for the given data source (or an existing matching data source within this collection) to the given filters, then
      * returns the data source used for the collection key (either the given data source or the existing matching data source).
      *
