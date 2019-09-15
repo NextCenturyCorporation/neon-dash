@@ -346,25 +346,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
-     * in the widget and the dash and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     */
-    public toggleFilters(filterConfigList: FilterConfig[]): void {
-        if (this.cachedPage <= 0) {
-            this.cachedPage = this.page;
-        }
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
-
-        // Update the filters only once the page is changed.
-        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
-    }
-
-    /**
      * Run before executing all the data queries for the visualization.
      * Used to notify the visualization that queries are imminent.
      */
