@@ -199,14 +199,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     onClick(item) {
         if (!this.options.respondMode) {
-            this.toggleFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
+            this.exchangeFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
         }
     }
 
     onClickPart(part, item) {
         if (part.annotation) {
             // TODO THOR-1098
-            // this.toggleFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
+            // this.exchangeFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
         } else {
             this.onClick(item);
         }

@@ -1544,44 +1544,6 @@ describe('BaseNeonComponent', () => {
         expect(component['page']).toEqual(1);
     });
 
-    it('toggleFilters does call filterService.toggleFilters and update cachedPage', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(10);
-    });
-
-    it('toggleFilters does update page if shouldFilterSelf()=>true', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(1);
-    });
-
     it('showContribution() returns false', () => {
         expect(component['showContribution']()).toBeFalsy();
     });

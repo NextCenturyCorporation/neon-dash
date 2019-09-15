@@ -26,8 +26,9 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { CoreUtil } from '../../library/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -58,8 +59,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     public textCloudData: any[] = [];
 
-    // Cached filtered terms used to create new intersection (AND) filters.
-    private _filteredTerms: string[] = [];
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredText: string[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -108,26 +109,19 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        this._filteredTerms = [];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        this.textCloudData = this.textCloudData.map((item) => {
-            let itemCopy = {
+        this.textCloudData = this.textCloudData.map((item) =>
+            // Copy the old item.
+            ({
                 color: item.color,
                 fontSize: item.fontSize,
                 key: item.key,
                 keyTranslated: item.keyTranslated,
-                selected: false,
+                selected: this._filteredText.indexOf(item.key) >= 0,
                 value: item.value
-            };
-
-            if (filters.isFiltered(this.createFilterConfigOnSingleTerm(item.key)) ||
-                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]))) {
-                this._filteredTerms.push(item.key);
-                itemCopy.selected = true;
-            }
-
-            return itemCopy;
-        });
+            }));
     }
 
     refreshVisualization() {
@@ -146,14 +140,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterConfigOnMultipleTerms(values: any[] = [undefined]): ListFilterDesign {
-        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
-            this.options.table.name + '.' + this.options.dataField.columnName, '=', values);
-    }
-
-    private createFilterConfigOnSingleTerm(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.dataField.columnName, '=', value);
+    private createFilterConfigOnText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
+            this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' +
+            this.options.dataField.columnName, '=', values);
     }
 
     /**
@@ -182,7 +172,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected designEachFilterWithNoValues(): FilterConfig[] {
-        return this.options.dataField.columnName ? [this.createFilterConfigOnSingleTerm(), this.createFilterConfigOnMultipleTerms()] : [];
+        return this.options.dataField.columnName ? [this.createFilterConfigOnText()] : [];
     }
 
     /**
@@ -264,21 +254,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
-        this._filteredTerms = [];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        let data: any[] = results.map((item) => {
-            let key = item[options.dataField.columnName];
-            let filtered = filters.isFiltered(this.createFilterConfigOnSingleTerm(key)) ||
-                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]));
-
-            if (filtered) {
-                this._filteredTerms.push(key);
-            }
-
+        const data: any[] = results.map((item) => {
+            const text = CoreUtil.deepFind(item, options.dataField.columnName);
             return {
-                key: key,
-                keyTranslated: key,
-                selected: filtered,
+                key: text,
+                keyTranslated: text,
+                selected: this._filteredText.indexOf(text) >= 0,
                 value: item[this.searchService.getAggregationName()]
             };
         });
@@ -299,12 +283,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onClick(item) {
-        this._filteredTerms.push(item.key);
-
-        if (this.options.andFilters) {
-            this.exchangeFilters([this.createFilterConfigOnMultipleTerms(this._filteredTerms)]);
+        this._filteredText = CoreUtil.changeOrToggleValues(item.key, this._filteredText, true);
+        if (this._filteredText.length) {
+            this.exchangeFilters([this.createFilterConfigOnText(this._filteredText)]);
         } else {
-            this.toggleFilters([this.createFilterConfigOnSingleTerm(item.key)]);
+            this.exchangeFilters([], [this.createFilterConfigOnText()]);
         }
     }
 

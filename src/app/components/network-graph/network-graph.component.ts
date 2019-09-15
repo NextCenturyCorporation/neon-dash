@@ -28,7 +28,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -233,6 +233,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private graph: vis.Network;
     private relationNodes: any[] = [];
 
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredLegendValues: any[] = [];
+    private _filterFieldsToFilteredValues: Map<string, any[]> = new Map<string, any[]>();
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -276,20 +280,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.edgeColorField.columnName, '!=', value);
+    private createFilterConfigOnLegend(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.edgeColorField.columnName, '!=', values);
     }
 
     private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
             this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' + field.columnName, '=',
             values);
-    }
-
-    private createFilterConfigOnNodeDataItem(field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            field.columnName, '=', value);
     }
 
     /**
@@ -394,9 +393,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         return filterFields.reduce((designs, filterField) => {
             if (filterField && filterField.columnName) {
-                // Match a single EQUALS filter on the specified filter field.
-                designs.push(this.createFilterConfigOnNodeDataItem(filterField));
-                // Match a compound filter with one or more EQUALS filters on the specified filter field.
+                // Match a filter with one or more EQUALS filters on the specified filter field.
                 designs.push(this.createFilterConfigOnList(filterField));
             }
             return designs;
@@ -563,9 +560,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      *
      * @override
      */
-    protected redrawFilters(__filters: FilterCollection): void {
-        // TODO AIDA-751 Update the visualization's legend using the given filters.
-        // TODO AIDA-752 Update the visualization's selected (filtered) nodes using the given filters.
+    protected redrawFilters(filters: FilterCollection): void {
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend()) as ListFilter[];
+        this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
+        // TODO AIDA-751 Update the selected checkboxes in the legend using the filtered legend values.
+
+        this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnList(field)) as ListFilter[];
+            this._filterFieldsToFilteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
+        });
+        // TODO AIDA-752 Update the selected nodes in the network graph element using the filtered node values.
     }
 
     refreshVisualization() {
@@ -1353,7 +1357,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.disabledSet = this.disabledSet.filter((disabledSet) => !(disabledSet[0] === this.options.edgeColorField.columnName &&
                     disabledSet[1] === event.value));
             }
-            this.toggleFilters([this.createFilterConfigOnLegend(event.value)]);
+
+            this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
+            if (this._filteredLegendValues.length) {
+                this.exchangeFilters([this.createFilterConfigOnLegend(this._filteredLegendValues)]);
+            } else {
+                this.exchangeFilters([], [this.createFilterConfigOnLegend()]);
+            }
         }
     }
 
@@ -1362,24 +1372,35 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @param properties
      */
     onSelect(properties: { nodes: string[] }) {
-        if (properties.nodes.length === 1) {
-            let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
-
-            let filters: FilterConfig[] = [];
-            for (let filterField of selectedNode.filterFields) {
-                if (filterField.field && filterField.field.columnName) {
-                    let filterConfig: FilterConfig = (Array.isArray(filterField.data) ? this.createFilterConfigOnList(filterField.field,
-                        filterField.data) : this.createFilterConfigOnNodeDataItem(filterField.field, filterField.data));
-                    filters = filters.concat(filterConfig);
-                }
-            }
-
-            if (this.options.toggleFiltered) {
-                this.toggleFilters(filters);
-            } else {
-                this.exchangeFilters(filters);
-            }
+        if (properties.nodes.length !== 1) {
+            return;
         }
+
+        let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
+
+        let filters: FilterConfig[] = [];
+        let filtersToDelete: FilterConfig[] = [];
+
+        selectedNode.filterFields.filter((nodeFilterField) => !!nodeFilterField.field.columnName).forEach((nodeFilterField) => {
+            // Get all the values for the filter field from the data item.
+            const values: any[] = Array.isArray(nodeFilterField.data) ? nodeFilterField.data : [nodeFilterField.data];
+
+            // Change or toggle the filtered values for the filter field.
+            const filteredValues: any[] = CoreUtil.changeOrToggleMultipleValues(values,
+                this._filterFieldsToFilteredValues.get(nodeFilterField.field.columnName) || [], this.options.toggleFiltered);
+
+            this._filterFieldsToFilteredValues.set(nodeFilterField.field.columnName, filteredValues);
+
+            if (filteredValues.length) {
+                // Create a single filter on the filtered values.
+                filters.push(this.createFilterConfigOnList(nodeFilterField.field, filteredValues));
+            } else {
+                // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+                filtersToDelete.push(this.createFilterConfigOnList(nodeFilterField.field));
+            }
+        });
+
+        this.exchangeFilters(filters, filtersToDelete);
     }
 
     onDrag(properties: { nodes: string[] }) {
