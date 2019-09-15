@@ -13,9 +13,46 @@
  * limitations under the License.
  */
 
+import { ListFilter, SimpleFilter } from './models/filters';
+
 export class CoreUtil {
     // eslint-disable-next-line max-len
     static URL_PATTERN = /(?:(?:http:\/\/)|(?:https:\/\/)|(?:ftp:\/\/)|(?:file:\/\/)|(?:www\.).)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_+.~#?&\\/=]*/g;
+
+    /**
+     * Changes the given array of values to an array with the given values, or toggles the given values in the given array of values.
+     */
+    static changeOrToggleMultipleValues(newValues: any[], oldValues: any[], toggle: boolean = false): any[] {
+        if (!toggle) {
+            oldValues.splice(0, oldValues.length);
+        }
+        newValues.forEach((newValue) => {
+            const index = oldValues.indexOf(newValue);
+            if (index < 0) {
+                oldValues.push(newValue);
+            } else {
+                oldValues.splice(index, 1);
+            }
+        });
+        return oldValues;
+    }
+
+    /**
+     * Changes the given array of values to an array with the given value, or toggles the given value in the given array of values.
+     */
+    static changeOrToggleValues(value: any, values: any[], toggle: boolean = false): any[] {
+        if (toggle) {
+            const index = values.indexOf(value);
+            if (index < 0) {
+                values.push(value);
+            } else {
+                values.splice(index, 1);
+            }
+        } else {
+            values.splice(0, values.length, value);
+        }
+        return values;
+    }
 
     static checkStringForUrl(text: string) {
         // Need to use match operator and not RegExp.exec() because use of global flag
@@ -86,6 +123,13 @@ export class CoreUtil {
             url,
             splitText
         };
+    }
+
+    /**
+     * Returns the values in the given ListFilter objects.
+     */
+    static retrieveValuesFromListFilters(filters: ListFilter[]) {
+        return filters.reduce((list, filter) => list.concat(filter.filters), []).map((filter) => (filter as SimpleFilter).value);
     }
 
     /**

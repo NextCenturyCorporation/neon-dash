@@ -211,12 +211,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {object} item
      * @arg {boolean} [replaceAll=false]
      */
-    filterOnItem(item: any, replaceAll = false) {
-        if (replaceAll) {
-            this.exchangeFilters([this.createFilterConfig(item.field, item.value)]);
-        } else {
-            this.toggleFilters([this.createFilterConfig(item.field, item.value)]);
-        }
+    filterOnItem(item: any, __replaceAll = false) {
+        this.exchangeFilters([this.createFilterConfig(item.field, item.value)]);
     }
 
     /**

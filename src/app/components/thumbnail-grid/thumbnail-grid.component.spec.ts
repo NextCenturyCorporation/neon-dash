@@ -500,19 +500,14 @@ describe('Component: ThumbnailGrid', () => {
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(2);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
-        expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
-        expect((actual[1]).type).toEqual(CompoundFilterType.OR);
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect(actual.length).toEqual(1);
+        expect((actual[0]).type).toEqual(CompoundFilterType.OR);
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
     });
 
     it('isSelectable does return expected boolean', () => {
