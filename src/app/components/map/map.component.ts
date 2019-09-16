@@ -447,6 +447,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.filterMapForLegend();
         this.updateLegend();
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         return mapPoints.length;

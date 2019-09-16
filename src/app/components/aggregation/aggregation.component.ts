@@ -639,6 +639,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             if (this._filteredLegendValues.length) {
                 this.exchangeFilters([this.createFilterConfigOnLegendList(this._filteredLegendValues)]);
             } else {
+                // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the group field.
                 this.exchangeFilters([], [this.createFilterConfigOnLegendList()]);
             }
         }
@@ -881,6 +882,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.legendGroups = groups;
         }
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         // Set the active groups to all the groups in the active data.
@@ -1083,7 +1085,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Select individual filtered items.
-        // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
         let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnItemList()) as ListFilter[];
         this._filteredSingleValues = CoreUtil.retrieveValuesFromListFilters(listFilters);
         this.subcomponentMain.select(this._filteredSingleValues);
@@ -1213,7 +1214,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        this._filteredSingleValues = CoreUtil.changeOrToggleValues(value, this._filteredSingleValues, !doNotReplace);
+        this._filteredSingleValues = CoreUtil.changeOrToggleValues(value, this._filteredSingleValues, doNotReplace);
         if (this._filteredSingleValues.length) {
             this.exchangeFilters([this.createFilterConfigOnItemList(this._filteredSingleValues)]);
         } else {
@@ -1240,6 +1241,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
+        // Always keep the existing filter (don't remove it) if the user happens to draw exactly the same bounding box twice.
         this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)], [], true);
     }
 
