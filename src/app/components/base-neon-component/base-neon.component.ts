@@ -18,21 +18,22 @@ import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../services/abstract.search.service';
+} from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    FilterCollection
-} from '../../util/filter.util';
-import { FilterConfig, FilterDataSource } from '../../models/filter';
+    FilterCollection,
+    FilterConfig,
+    FilterDataSource
+} from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from '../../models/dataset';
+import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionType,
     WidgetOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -43,7 +44,7 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from '../../services/connection.service';
+import { RequestWrapper } from '../../library/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
 
 export class InjectorOptionConfig extends OptionConfig {
@@ -330,7 +331,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterConfig[]} filterConfigList
      * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[]): void {
+    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[], keepSameFilters?: boolean): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -340,26 +341,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete);
-    }
-
-    /**
-     * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
-     * in the widget and the dash and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     */
-    public toggleFilters(filterConfigList: FilterConfig[]): void {
-        if (this.cachedPage <= 0) {
-            this.cachedPage = this.page;
-        }
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
-
-        // Update the filters only once the page is changed.
-        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete,
+            keepSameFilters, this.options.applyPreviousFilter);
     }
 
     /**

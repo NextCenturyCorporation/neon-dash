@@ -25,18 +25,21 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     BoundsFilter,
     BoundsFilterDesign,
+    BoundsValues,
     FilterCollection,
-    PairFilterDesign,
-    SimpleFilterDesign
-} from '../../util/filter.util';
-import { BoundsValues, FilterConfig } from '../../models/filter';
+    FilterConfig,
+    ListFilter,
+    ListFilterDesign,
+    PairFilter,
+    PairFilterDesign
+} from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -49,9 +52,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig } from '../../models/dataset';
+import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -61,7 +64,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -96,6 +99,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public disabledSet: [string[]] = [] as any;
 
     public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
+
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _layersToFilteredPoints: Map<string, any[]> = new Map<string, any[]>();
+    private _layersToFilterFieldsToFilteredValues: Map<string, Map<string, any[]>> = new Map<string, Map<string, any[]>>();
 
     constructor(
         dashboardService: DashboardService,
@@ -199,7 +206,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public filterByLocation(box: BoundingBoxByDegrees): void {
         let filters: FilterConfig[] = this.options.layers.map((layer) => this.createFilterConfigOnBox(layer, box.north, box.south,
             box.east, box.west));
-        this.exchangeFilters(filters);
+
+        this.exchangeFilters(filters, [], true);
     }
 
     /**
@@ -217,18 +225,43 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         let filtersToDelete: FilterConfig[] = [];
 
         this.options.layers.forEach((layer) => {
-            filters.push(this.createFilterConfigOnPoint(layer, lat, lon));
-            layer.filterFields.forEach((filterField) => {
-                let filterValues: any[] = CoreUtil.flatten(filterFieldToValueList.map((filterFieldToValue) =>
-                    filterFieldToValue.get(filterField.columnName))).filter((value) => !!value);
-                if (!filterValues.length) {
-                    // Delete any previous filters on the filter field.
-                    filtersToDelete.push(this.createFilterConfigOnValue(layer, filterField));
+            // Change or toggle the filtered points on the map layer.
+            let filteredPoints = this._layersToFilteredPoints.get(layer.id) || [];
+            if (this.options.toggleFiltered) {
+                if (filteredPoints.some((point) => point[0] === lat && point[1] === lon)) {
+                    filteredPoints = filteredPoints.filter((point) => point[0] === lat && point[1] === lon);
                 } else {
-                    // Create a separate filter on each value because each value is a distinct item in the data (overlapping points).
-                    filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnValue(layer, filterField, value)));
+                    filteredPoints.push([lat, lon]);
+                }
+            } else {
+                filteredPoints = [[lat, lon]];
+            }
+            this._layersToFilteredPoints.set(layer.id, filteredPoints);
+            // Create filters on the filtered points.
+            filters = filters.concat(filteredPoints.map((point) => this.createFilterConfigOnPoint(layer, point[0], point[1])));
+
+            // Change or toggle the filtered values on the map layer.
+            let fieldsToValues = this._layersToFilterFieldsToFilteredValues.get(layer.id) || new Map<string, any[]>();
+            layer.filterFields.forEach((field) => {
+                // Get all the values for the filter field from the filterFieldToValueList argument.
+                const values = CoreUtil.flatten(filterFieldToValueList.map((filterFieldToValue) =>
+                    filterFieldToValue.get(field.columnName))).filter((value) => !!value);
+
+                // Change or toggle the filtered values for the filter field.
+                const filteredValues = CoreUtil.changeOrToggleMultipleValues(values, fieldsToValues.get(field.columnName) || [],
+                    this.options.toggleFiltered);
+
+                fieldsToValues.set(field.columnName, filteredValues);
+
+                if (filteredValues.length) {
+                    // Create a single filter on the filtered values.
+                    filters = filters.concat(this.createFilterConfigOnValue(layer, field, filteredValues));
+                } else {
+                    // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+                    filtersToDelete.push(this.createFilterConfigOnValue(layer, field));
                 }
             });
+            this._layersToFilterFieldsToFilteredValues.set(layer.id, fieldsToValues);
         });
 
         this.exchangeFilters(filters, filtersToDelete);
@@ -414,6 +447,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.filterMapForLegend();
         this.updateLegend();
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         return mapPoints.length;
@@ -496,32 +530,47 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
         // Add or remove a bounding box on the map depending on if the bounds is filtered.
         // TODO THOR-1102 Does this work with multiple layers?  Should a bounds filter on one layer always affect all of the other layers?
-        this.options.layers.forEach((options) => {
-            const boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBox(options));
+        this.options.layers.forEach((layer) => {
+            const boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBox(layer));
             if (boundsFilters.length) {
                 // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
                 for (const boundsFilter of boundsFilters) {
                     const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues();
                     const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
                     const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
-                    if (fieldKey1.field === options.latitudeField.columnName && fieldKey2.field === options.longitudeField.columnName) {
+                    if (fieldKey1.field === layer.latitudeField.columnName && fieldKey2.field === layer.longitudeField.columnName) {
                         this.mapObject.drawBoundary([bounds.end1 as number, bounds.end2 as number], [bounds.begin1 as number,
                             bounds.begin2 as number]);
                     }
-                    if (fieldKey2.field === options.latitudeField.columnName && fieldKey1.field === options.longitudeField.columnName) {
+                    if (fieldKey2.field === layer.latitudeField.columnName && fieldKey1.field === layer.longitudeField.columnName) {
                         this.mapObject.drawBoundary([bounds.end2 as number, bounds.end1 as number], [bounds.begin2 as number,
                             bounds.begin1 as number]);
                     }
                 }
                 removeFilter = false;
             }
+
+            // Update the filtered values for the map points.
+            const mapPointFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnPoint(layer));
+            this._layersToFilteredPoints.set(layer.id, mapPointFilters.map((mapPointFilter) => {
+                const pairFilter = mapPointFilter as PairFilter;
+                return [pairFilter.value1, pairFilter.value2];
+            }));
+            // TODO THOR-1104 Update the selected points in the map element using the filtered points.
+
+            // Update the filtered values for the filter fields.
+            let filteredValues: Map<string, any[]> = this._layersToFilterFieldsToFilteredValues.get(layer.id) || new Map<string, any[]>();
+            layer.filterFields.forEach((field) => {
+                const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnValue(layer, field)) as
+                    ListFilter[];
+                filteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
+            });
+            this._layersToFilterFieldsToFilteredValues.set(layer.id, filteredValues);
         });
 
         if (removeFilter) {
             this.mapObject.removeFilterBox();
         }
-
-        // TODO THOR-1104 Update the visualization's individual selected (filtered) map point(s) using the given filters.
     }
 
     /**
@@ -672,8 +721,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    private createFilterConfigOnValue(layer: any, field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(layer.datastore.name, layer.database.name, layer.table.name, field.columnName, '=', value);
+    private createFilterConfigOnValue(layer: any, field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, layer.datastore.name + '.' + layer.database.name + '.' + layer.table.name + '.' +
+            field.columnName, '=', values);
     }
 
     /**
@@ -720,7 +770,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', false, null)
+            new WidgetNumberOption('west', 'West', false, null),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+                false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

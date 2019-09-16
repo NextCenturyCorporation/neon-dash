@@ -24,15 +24,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
     OptionChoices,
@@ -40,7 +39,7 @@ import {
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { MatDialog } from '@angular/material';
@@ -212,12 +211,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {object} item
      * @arg {boolean} [replaceAll=false]
      */
-    filterOnItem(item: any, replaceAll = false) {
-        if (replaceAll) {
-            this.exchangeFilters([this.createFilterConfig(item.field, item.value)]);
-        } else {
-            this.toggleFilters([this.createFilterConfig(item.field, item.value)]);
-        }
+    filterOnItem(item: any, __replaceAll = false) {
+        this.exchangeFilters([this.createFilterConfig(item.field, item.value)]);
     }
 
     /**

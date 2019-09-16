@@ -17,15 +17,15 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterType } from '../../models/widget-option';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
@@ -481,87 +481,57 @@ describe('Component: TaxonomyViewer', () => {
 
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(2);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).operator).toEqual('!=');
-        expect((actual[0]).value).toBeUndefined();
-        expect((actual[1]).type).toEqual('and');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('!=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect(actual.length).toEqual(1);
+        expect((actual[0]).type).toEqual('and');
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('!=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
 
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(4);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).operator).toEqual('!=');
-        expect((actual[0]).value).toBeUndefined();
+        expect(actual.length).toEqual(2);
+        expect((actual[0]).type).toEqual('and');
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('!=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
         expect((actual[1]).type).toEqual('and');
         expect((actual[1]).filters.length).toEqual(1);
         expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
         expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
         expect((actual[1]).filters[0].operator).toEqual('!=');
         expect((actual[1]).filters[0].value).toBeUndefined();
-        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[2]).operator).toEqual('!=');
-        expect((actual[2]).value).toBeUndefined();
-        expect((actual[3]).type).toEqual('and');
-        expect((actual[3]).filters.length).toEqual(1);
-        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[3]).filters[0].operator).toEqual('!=');
-        expect((actual[3]).filters[0].value).toBeUndefined();
 
         component.options.subTypeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(6);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).operator).toEqual('!=');
-        expect((actual[0]).value).toBeUndefined();
+        expect(actual.length).toEqual(3);
+        expect((actual[0]).type).toEqual('and');
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('!=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
         expect((actual[1]).type).toEqual('and');
         expect((actual[1]).filters.length).toEqual(1);
         expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
         expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
         expect((actual[1]).filters[0].operator).toEqual('!=');
         expect((actual[1]).filters[0].value).toBeUndefined();
-        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[2]).operator).toEqual('!=');
-        expect((actual[2]).value).toBeUndefined();
-        expect((actual[3]).type).toEqual('and');
-        expect((actual[3]).filters.length).toEqual(1);
-        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[3]).filters[0].operator).toEqual('!=');
-        expect((actual[3]).filters[0].value).toBeUndefined();
-        expect((actual[4]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[4]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[4]).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
-        expect((actual[4]).operator).toEqual('!=');
-        expect((actual[4]).value).toBeUndefined();
-        expect((actual[5]).type).toEqual('and');
-        expect((actual[5]).filters.length).toEqual(1);
-        expect((actual[5]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[5]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[5]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
-        expect((actual[5]).filters[0].operator).toEqual('!=');
-        expect((actual[5]).filters[0].value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[2]).filters.length).toEqual(1);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[2]).filters[0].operator).toEqual('!=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
     });
 
     it('checkRelatedNodes to deselect a category does call exchangeFilters with category / type / subtype filters', () => {
@@ -583,8 +553,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testCategoryI'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryI']),
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA', 'testTypeB']),
@@ -620,14 +591,16 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeA'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA']),
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1', 'testSubType2'])
         ], [
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', undefined)
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', [undefined])
         ]]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].indeterminate).toEqual(true);
@@ -657,15 +630,14 @@ describe('Component: TaxonomyViewer', () => {
         });
 
         const [filters] = spy.calls.argsFor(0);
-        const [filterA, filterB] = filters.sort((field1, field2) => field1.field.localeCompare(field2.field));
 
         expect(spy.calls.count()).toEqual(1);
-        expect(filterA).toEqual(new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name,
-            DashboardServiceMock.DATABASES.testDatabase1.name, DashboardServiceMock.TABLES.testTable1.name,
-            DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', 'testSubType1'));
-        expect(filterB).toEqual(new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name,
-            DashboardServiceMock.DATABASES.testDatabase1.name, DashboardServiceMock.TABLES.testTable1.name,
-            DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeA'));
+        expect(filters[0]).toEqual(new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA']));
+        expect(filters[1]).toEqual(new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1']));
 
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
@@ -744,8 +716,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testCategoryII'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryII']),
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA', 'testTypeC', 'testTypeD']),
@@ -787,12 +760,15 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', undefined)
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
         ]]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
@@ -826,12 +802,15 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', undefined)
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
         ]]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
@@ -864,12 +843,15 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', undefined),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', undefined)
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', [undefined]),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
         ]]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
@@ -898,8 +880,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testCategoryI')
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryI'])
         ], []]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[1].checked).toEqual(true);
@@ -923,8 +906,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testCategoryI'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryI']),
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA', 'testTypeB'])
@@ -1059,8 +1043,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testCategoryI'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryI']),
             new ListFilterDesign(
                 CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name +
                 '.' + DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=',

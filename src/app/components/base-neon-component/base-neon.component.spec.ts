@@ -26,15 +26,14 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilter } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, SimpleFilter } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
     OptionChoices,
@@ -45,11 +44,11 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
@@ -1521,7 +1520,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined, undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1540,45 +1539,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(1);
-    });
-
-    it('toggleFilters does call filterService.toggleFilters and update cachedPage', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(10);
-    });
-
-    it('toggleFilters does update page if shouldFilterSelf()=>true', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined, undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(1);
     });

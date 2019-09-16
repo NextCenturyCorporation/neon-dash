@@ -14,8 +14,8 @@
  */
 
 import { ColorMap } from './color';
-import { DeepPartial, DatastoreConfig, translateValues } from './dataset';
-import { FilterConfig } from './filter';
+import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
+import { FilterConfig } from '../library/core/models/filters';
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
