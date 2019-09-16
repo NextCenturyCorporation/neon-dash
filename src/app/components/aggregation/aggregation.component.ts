@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../models/color';
+import { Color } from '../../library/core/models/color';
 
 import {
     AbstractSearchService,
