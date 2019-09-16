@@ -3504,7 +3504,7 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(0);
     });
 
-    it('subcomponentRequestsFilter with number data does call exchangeFilters', () => {
+    it('subcomponentRequestsFilter with primitive data does call exchangeFilters', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = false;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
@@ -3525,20 +3525,13 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.argsFor(1)).toEqual([[
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234, 5678])
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [5678])
         ]]);
-    });
-
-    it('subcomponentRequestsFilter with string data does call exchangeFilters', () => {
-        component.options.ignoreSelf = false;
-        component.options.requireAll = false;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        let spy1 = spyOn(component, 'exchangeFilters');
 
         component.subcomponentRequestsFilter('testCategory', 'testText1');
 
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[
+        expect(spy1.calls.count()).toEqual(3);
+        expect(spy1.calls.argsFor(2)).toEqual([[
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.X.columnName, '=', ['testText1'])
@@ -3546,41 +3539,34 @@ describe('Component: Aggregation', () => {
 
         component.subcomponentRequestsFilter('testCategory', 'testText2');
 
-        expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([[
+        expect(spy1.calls.count()).toEqual(4);
+        expect(spy1.calls.argsFor(3)).toEqual([[
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', ['testText1', 'testText2'])
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', ['testText2'])
+        ]]);
+
+        component.subcomponentRequestsFilter('testCategory', true);
+
+        expect(spy1.calls.count()).toEqual(5);
+        expect(spy1.calls.argsFor(4)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [true])
+        ]]);
+
+        component.subcomponentRequestsFilter('testCategory', false);
+
+        expect(spy1.calls.count()).toEqual(6);
+        expect(spy1.calls.argsFor(5)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [false])
         ]]);
     });
 
-    it('subcomponentRequestsFilter does call exchangeFilters with a compound AND filter if requireAll=true', () => {
+    it('subcomponentRequestsFilter does toggle values and call exchangeFilters if doNotReplace=true', () => {
         component.options.ignoreSelf = false;
-        component.options.requireAll = true;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        let spy1 = spyOn(component, 'exchangeFilters');
-
-        component.subcomponentRequestsFilter('testCategory', 1234);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[
-            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234])
-        ]]);
-
-        component.subcomponentRequestsFilter('testCategory', 5678);
-
-        expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([[
-            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234, 5678])
-        ]]);
-    });
-
-    it('subcomponentRequestsFilter does delete previous values and call exchangeFilters if doNotReplace=true', () => {
-        component.options.ignoreSelf = true;
         component.options.requireAll = false;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
@@ -3600,35 +3586,10 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.argsFor(1)).toEqual([[
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [5678])
-        ]]);
-    });
-
-    it('subcomponentRequestsFilter does toggle values', () => {
-        component.options.ignoreSelf = false;
-        component.options.requireAll = false;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        let spy1 = spyOn(component, 'exchangeFilters');
-
-        component.subcomponentRequestsFilter('testCategory', 1234);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[
-            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234])
-        ]]);
-
-        component.subcomponentRequestsFilter('testCategory', 5678);
-
-        expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([[
-            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234, 5678])
         ]]);
 
-        component.subcomponentRequestsFilter('testCategory', 1234);
+        component.subcomponentRequestsFilter('testCategory', 1234, true);
 
         expect(spy1.calls.count()).toEqual(3);
         expect(spy1.calls.argsFor(2)).toEqual([[
@@ -3637,13 +3598,38 @@ describe('Component: Aggregation', () => {
                 DashboardServiceMock.FIELD_MAP.X.columnName, '=', [5678])
         ]]);
 
-        component.subcomponentRequestsFilter('testCategory', 5678);
+        component.subcomponentRequestsFilter('testCategory', 5678, true);
 
         expect(spy1.calls.count()).toEqual(4);
         expect(spy1.calls.argsFor(3)).toEqual([[], [
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.X.columnName, '=', [undefined])
+        ]]);
+    });
+
+    it('subcomponentRequestsFilter does call exchangeFilters with a compound AND filter if requireAll=true', () => {
+        component.options.ignoreSelf = false;
+        component.options.requireAll = true;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        let spy1 = spyOn(component, 'exchangeFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 1234, true);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234])
+        ]]);
+
+        component.subcomponentRequestsFilter('testCategory', 5678, true);
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234, 5678])
         ]]);
     });
 
