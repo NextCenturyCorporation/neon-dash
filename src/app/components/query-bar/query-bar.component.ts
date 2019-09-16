@@ -17,15 +17,14 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -34,7 +33,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -332,9 +331,11 @@ export class QueryBarComponent extends BaseNeonComponent {
         let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
             query: extensionQuery
         });
+        let filterFieldValues = [];
         let queryClauses = [];
         for (const value of values) {
             queryClauses.push(query.where(extensionField.filterField, '=', value[this.options.idField.columnName]));
+            filterFieldValues.push(value[this.options.idField.columnName]);
         }
 
         extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
@@ -342,14 +343,17 @@ export class QueryBarComponent extends BaseNeonComponent {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {
-                    let resultValues = CoreUtil.deepFind(result, extensionField.idField);
-                    if (typeof resultValues !== 'undefined') {
-                        if (resultValues instanceof Array) {
-                            for (const value of resultValues) {
-                                responseValues.push(value);
+                    let idResultValues = CoreUtil.deepFind(result, extensionField.idField);
+                    let filterResultValues = CoreUtil.deepFind(result, extensionField.filterField);
+                    if (filterResultValues.find((val) => filterFieldValues.includes(val))) {
+                        if (typeof idResultValues !== 'undefined') {
+                            if (idResultValues instanceof Array) {
+                                for (const value of idResultValues) {
+                                    responseValues.push(value);
+                                }
+                            } else {
+                                responseValues.push(idResultValues);
                             }
-                        } else {
-                            responseValues.push(resultValues);
                         }
                     }
                 });

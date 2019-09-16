@@ -15,7 +15,7 @@
 import { Injectable } from '@angular/core';
 
 import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../library/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -26,8 +26,7 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { FilterConfig } from '../models/filter';
-import { AbstractFilter, FilterUtil } from '../util/filter.util';
+import { AbstractFilter, FilterConfig, FilterUtil } from '../library/core/models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({
@@ -154,7 +153,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: this.filterService.getFilters(),
+                filters: this.filterService.getFilters().map((filter) => filter.toConfig()),
                 layout: name
             }),
             projectTitle: name
@@ -171,7 +170,7 @@ export class DashboardService {
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
-        let filters: AbstractFilter[] = this.filterService.getRawFilters();
+        let filters: AbstractFilter[] = this.filterService.getFilters();
         return ConfigUtil.translate(JSON.stringify(filters.map((filter) => filter.toDataList())), ConfigUtil.encodeFiltersMap);
     }
 

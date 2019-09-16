@@ -13,20 +13,7 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from '../models/widget-option';
-import {
-    BoundsValues,
-    CompoundFilterConfig,
-    CompoundValues,
-    DomainValues,
-    FilterConfig,
-    FilterDataSource,
-    FilterValues,
-    ListOfValues,
-    OneValue,
-    PairOfValues,
-    SimpleFilterConfig
-} from '../models/filter';
+import { CompoundFilterType } from './widget-option';
 import {
     Dataset,
     DatasetUtil,
@@ -34,10 +21,95 @@ import {
     DatabaseConfig,
     FieldConfig,
     TableConfig
-} from '../models/dataset';
-import { DateFormat, DateUtil } from './date.util';
-
+} from './dataset';
+import { DateFormat, DateUtil } from '../date.util';
 import * as _ from 'lodash';
+
+export interface FilterDataSource {
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator?: string;
+}
+
+export interface SimpleFilterConfig {
+    id?: string;
+    relations?: string[];
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator: string;
+    value?: any;
+}
+
+export interface CompoundFilterConfig {
+    id?: string;
+    relations?: string[];
+    type: CompoundFilterType;
+    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
+}
+
+export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
+
+export abstract class FilterValues { }
+
+export class BoundsValues extends FilterValues {
+    constructor(
+        public begin1: boolean|number|string,
+        public begin2: boolean|number|string,
+        public field1: string,
+        public field2: string,
+        public end1: boolean|number|string,
+        public end2: boolean|number|string
+    ) {
+        super();
+    }
+}
+
+export class CompoundValues extends FilterValues {
+    constructor(public type: CompoundFilterType, public nested: FilterValues[]) {
+        super();
+    }
+}
+
+export class DomainValues extends FilterValues {
+    constructor(public begin: boolean|number|string|Date, public field: string, public end: boolean|number|string|Date) {
+        super();
+    }
+}
+
+export class ListOfValues extends FilterValues {
+    constructor(
+        public type: CompoundFilterType,
+        public field: string,
+        public operator: string,
+        public values: (boolean|number|string)[]
+    ) {
+        super();
+    }
+}
+
+export class OneValue extends FilterValues {
+    constructor(public field: string, public operator: string, public value: boolean|number|string) {
+        super();
+    }
+}
+
+export class PairOfValues extends FilterValues {
+    constructor(
+        public type: CompoundFilterType,
+        public field1: string,
+        public field2: string,
+        public operator1: string,
+        public operator2: string,
+        public value1: boolean|number|string,
+        public value2: boolean|number|string
+    ) {
+        super();
+    }
+}
 
 export class FilterUtil {
     /**
@@ -305,13 +377,6 @@ export class FilterCollection {
     }
 
     /**
-     * Returns if this filter collection contains any filters (optionally, matching the given filter config).
-     */
-    public isFiltered(filterConfig?: FilterConfig): boolean {
-        return filterConfig ? !!this.getCompatibleFilters(filterConfig).length : !!this.getFilters().length;
-    }
-
-    /**
      * Sets the filters for the given data source (or an existing matching data source within this collection) to the given filters, then
      * returns the data source used for the collection key (either the given data source or the existing matching data source).
      *
@@ -372,6 +437,55 @@ export abstract class AbstractFilter {
     ): AbstractFilter;
 
     /**
+     * Creates and returns the relation filter list for the filter.
+     *
+     * @arg {Dataset} dataset
+     * @return {AbstractFilter[]}
+     */
+    public createRelationFilterList(dataset: Dataset): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(this.toConfig(), true);
+
+        return dataset.getRelations().reduce((returnList, relation) => {
+            let relationFilterList: AbstractFilter[] = [];
+
+            // Assume that each item within the relation list is a nested list with the same length.
+            // EX:  [[x1, y1], [x2, y2], [x3, y3]]
+            if (relation.length && relation[0].length === filterDataSourceList.length) {
+                let equivalentRelationList: FieldKey[][] = relation.filter((relationFieldKeyList) =>
+                    // Each item within the relationFieldKeyList must be equivalent to a FilterDataSource.
+                    relationFieldKeyList.every((relationFieldKey) => filterDataSourceList.some((filterDataSource) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))) &&
+                    // Each FilterDataSource must be equivalent to an item within the relationFieldKeyList.
+                    filterDataSourceList.every((filterDataSource) => relationFieldKeyList.some((relationFieldKey) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))));
+
+                // The length of equivalentRelationList should be either 0 or 1.
+                if (equivalentRelationList.length) {
+                    // Create new relation filters.
+                    relation.forEach((relationFieldKeyList) => {
+                        // Do not create a relation that is the same as the original filter.
+                        if (relationFieldKeyList !== equivalentRelationList[0]) {
+                            let relationFilter: AbstractFilter = this.createRelationFilter(equivalentRelationList[0],
+                                relationFieldKeyList, dataset);
+                            relationFilterList.push(relationFilter);
+                        }
+                    });
+
+                    // Save sibling relation filter IDs in the new relation filters.
+                    relationFilterList.concat(this).forEach((outerFilter) => {
+                        relationFilterList.concat(this).forEach((innerFilter) => {
+                            if (outerFilter.id !== innerFilter.id) {
+                                outerFilter.relations.push(innerFilter.id);
+                            }
+                        });
+                    });
+                }
+            }
+            return returnList.concat(relationFilterList);
+        }, [] as AbstractFilter[]);
+    }
+
+    /**
      * Returns if this filter affects a search in the given datastore/database/table.
      *
      * @arg {string} datastore
@@ -428,6 +542,19 @@ export abstract class AbstractFilter {
      * @abstract
      */
     public abstract isEquivalentToFilter(filter: AbstractFilter): boolean;
+
+    /**
+     * Returns if the given field is equivalent to the given data source.
+     *
+     * @arg {FieldKey} fieldKey
+     * @arg {FilterDataSource} filterDataSource
+     * @return {boolean}
+     * @private
+     */
+    private _isRelationEquivalent(fieldKey: FieldKey, filterDataSource: FilterDataSource): boolean {
+        return !!(fieldKey.datastore === filterDataSource.datastore && fieldKey.database === filterDataSource.database &&
+            fieldKey.table === filterDataSource.table && fieldKey.field === filterDataSource.field);
+    }
 
     /**
      * Returns the filtered values for the filter object.

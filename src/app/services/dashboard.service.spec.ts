@@ -14,20 +14,26 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { FilterConfig } from '../models/filter';
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../library/core/models/widget-option';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
-import { DatastoreConfig } from '../models/dataset';
+import { DatastoreConfig } from '../library/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock, ConnectionServiceMock } from '../services/mock.dashboard-service';
 import { ConfigService } from './config.service';
 
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
-import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
-import { DATASET } from '../../testUtils/mock-dataset';
+import {
+    CompoundFilter,
+    CompoundFilterDesign,
+    FilterConfig,
+    FilterUtil,
+    SimpleFilter,
+    SimpleFilterDesign
+} from '../library/core/models/filters';
+import { DATASET } from '../library/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;
@@ -54,7 +60,7 @@ describe('Service: DashboardService', () => {
     it('getFiltersToSaveInURL should return expected JSON string', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
-        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
                 DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 'testValue', 'id1', ['relation1']),
             new CompoundFilter(CompoundFilterType.AND, [
@@ -78,7 +84,7 @@ describe('Service: DashboardService', () => {
     it('getFiltersToSaveInURL does work with booleans, empty strings, nulls, and numbers', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
-        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
                 DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', false, 'id1'),
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
@@ -321,7 +327,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         ]);
 
-        const conn = new MockConnectionService();
+        const conn = new ConnectionServiceMock();
         const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
             localConfigService,
@@ -391,7 +397,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         ]`);
 
-        const conn = new MockConnectionService();
+        const conn = new ConnectionServiceMock();
         const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
             localConfigService,

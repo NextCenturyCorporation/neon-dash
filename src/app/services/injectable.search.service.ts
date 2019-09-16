@@ -15,7 +15,7 @@
 
 import { Injectable } from '@angular/core';
 import { InjectableConnectionService } from './injectable.connection.service';
-import { SearchService } from './search.service';
+import { SearchService } from '../library/core/services/search.service';
 
 @Injectable({
     providedIn: 'root'

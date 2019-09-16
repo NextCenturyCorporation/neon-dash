@@ -19,12 +19,12 @@ import { } from 'jasmine-core';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { AddVisualizationModule } from './add-visualization.module';
 
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { AbstractColorThemeService } from '../../library/core/services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: AddVisualization', () => {

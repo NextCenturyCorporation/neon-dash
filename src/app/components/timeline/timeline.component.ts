@@ -28,23 +28,24 @@ import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../services/abstract.search.service';
+} from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     DomainFilter,
     DomainFilterDesign,
+    DomainValues,
     FilterCollection,
+    FilterConfig,
     SimpleFilterDesign
-} from '../../util/filter.util';
-import { DomainValues, FilterConfig } from '../../models/filter';
+} from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     AggregationType,
     OptionChoices,
@@ -53,10 +54,10 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -108,7 +109,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
-        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+        // Console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
         this.redrawOnResize = true;
     }
 

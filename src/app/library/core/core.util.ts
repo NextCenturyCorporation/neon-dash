@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
+import { FieldConfig } from './models/dataset';
+import { FilterCollection, ListFilter, ListFilterDesign, SimpleFilter } from './models/filters';
+
 export class CoreUtil {
     // eslint-disable-next-line max-len
-    static URL_PATTERN = /(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}\-\x{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?/ig;
+    static URL_PATTERN = /(?:(?:http:\/\/)|(?:https:\/\/)|(?:ftp:\/\/)|(?:file:\/\/)|(?:www\.).)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_+.~#?&\\/=]*/g;
 
     /**
      * Add the given listener of the given event on the element with the given ID.
@@ -29,11 +32,46 @@ export class CoreUtil {
         }
     }
 
+    /**
+     * Changes the given array of values to an array with the given values, or toggles the given values in the given array of values.
+     */
+    static changeOrToggleMultipleValues(newValues: any[], oldValues: any[], toggle: boolean = false): any[] {
+        if (!toggle) {
+            oldValues.splice(0, oldValues.length);
+        }
+        newValues.forEach((newValue) => {
+            const index = oldValues.indexOf(newValue);
+            if (index < 0) {
+                oldValues.push(newValue);
+            } else {
+                oldValues.splice(index, 1);
+            }
+        });
+        return oldValues;
+    }
+
+    /**
+     * Changes the given array of values to an array with the given value, or toggles the given value in the given array of values.
+     */
+    static changeOrToggleValues(value: any, values: any[], toggle: boolean = false): any[] {
+        if (toggle) {
+            const index = values.indexOf(value);
+            if (index < 0) {
+                values.push(value);
+            } else {
+                values.splice(index, 1);
+            }
+        } else {
+            values.splice(0, values.length, value);
+        }
+        return values;
+    }
+
     static checkStringForUrl(text: string) {
         // Need to use match operator and not RegExp.exec() because use of global flag
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
         let matches = text.match(CoreUtil.URL_PATTERN);
-        let prefixPattern = new RegExp('^(http|https|ftp)://');
+        let prefixPattern = new RegExp('^(http|https|ftp|file)://');
         let temp;
         matches.forEach((url, index) => {
             if (!prefixPattern.test(url)) {
@@ -101,6 +139,16 @@ export class CoreUtil {
     }
 
     /**
+     * Returns true if the given item contains a value from the given Map of filtered values for all the given filter fields.
+     */
+    static isItemFilteredInEveryField(item: any, fields: FieldConfig[], fieldsToValues: Map<string, any[]>): boolean {
+        return !fields.length ? false : fields.filter((field) => !!field.columnName).every((field) => {
+            const values: any[] = fieldsToValues.get(field.columnName) || [];
+            return (!values.length && !item[field.columnName]) || values.indexOf(item[field.columnName]) >= 0;
+        });
+    }
+
+    /**
      * Removes the given listener of the given event on the element with the given ID.
      */
     static removeListener(listener: (event: any) => void, elementId: string, eventName: string): void {
@@ -110,6 +158,13 @@ export class CoreUtil {
                 element.removeEventListener(eventName, listener);
             }
         }
+    }
+
+    /**
+     * Returns the values in the given ListFilter objects.
+     */
+    static retrieveValuesFromListFilters(filters: ListFilter[]): any[] {
+        return filters.reduce((list, filter) => list.concat(filter.filters), []).map((filter) => (filter as SimpleFilter).value);
     }
 
     /**
@@ -166,6 +221,22 @@ export class CoreUtil {
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
         }
         return [];
+    }
+
+    /**
+     * Updates the filtered values of all the given filter fields in the given Map using the filters in the given filter collection.
+     */
+    static updateValuesFromListFilters(
+        fields: FieldConfig[],
+        filters: FilterCollection,
+        fieldsToValues: Map<string, any[]>,
+        createListFilterDesign: (field: FieldConfig, values?: any[]) => ListFilterDesign
+    ): Map<string, any> {
+        fields.filter((field) => !!field.columnName).forEach((field) => {
+            const listFilters: ListFilter[] = filters.getCompatibleFilters(createListFilterDesign(field)) as ListFilter[];
+            fieldsToValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
+        });
+        return fieldsToValues;
     }
 
     /**

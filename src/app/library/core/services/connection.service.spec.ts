@@ -14,7 +14,7 @@
  */
 import { query } from 'neon-framework';
 
-import { ConnectionService, NeonConnection } from './connection.service';
+import { ConnectionService, CoreConnection } from './connection.service';
 
 describe('ConnectionService', () => {
     let service: ConnectionService;
@@ -36,9 +36,9 @@ describe('ConnectionService', () => {
     });
 
     it('createConnection does return an existing connection', () => {
-        let existingNeonConnection = new NeonConnection(new query.Connection());
+        let existingConnection = new CoreConnection(new query.Connection());
         service['connections'].set('elasticsearchrest', new Map<string, any>());
-        service['connections'].get('elasticsearchrest').set('localhost', existingNeonConnection);
+        service['connections'].get('elasticsearchrest').set('localhost', existingConnection);
 
         let connection = new query.Connection();
         spyOn(service, 'neonConnection').and.returnValue(connection);
@@ -46,7 +46,7 @@ describe('ConnectionService', () => {
 
         let output = service.connect('elasticsearchrest', 'localhost');
 
-        expect(output).toEqual(existingNeonConnection);
+        expect(output).toEqual(existingConnection);
         expect(spy.calls.count()).toEqual(0);
     });
 });

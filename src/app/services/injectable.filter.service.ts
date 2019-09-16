@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { FilterService } from './filter.service';
+import { FilterService } from '../library/core/services/filter.service';
 
 @Injectable({
     providedIn: 'root'

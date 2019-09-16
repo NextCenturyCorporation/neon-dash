@@ -16,15 +16,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterConfig } from '../../models/filter';
+import { SimpleFilter } from '../../library/core/models/filters';
 import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { SimpleSearchFilterModule } from './simple-search-filter.module';
 
-describe('Component: SimpleFilter', () => {
+describe('Component: SimpleSearchFilter', () => {
     let component: SimpleSearchFilterComponent;
     let fixture: ComponentFixture<SimpleSearchFilterComponent>;
     let filterService: InjectableFilterService;
@@ -73,11 +73,11 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterConfig).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((filters[0] as SimpleFilterConfig).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((filters[0] as SimpleFilterConfig).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((filters[0] as SimpleFilterConfig).operator).toEqual('contains');
-        expect((filters[0] as SimpleFilterConfig).value).toEqual('add filter with click');
+        expect((filters[0] as SimpleFilter).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((filters[0] as SimpleFilter).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((filters[0] as SimpleFilter).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((filters[0] as SimpleFilter).operator).toEqual('contains');
+        expect((filters[0] as SimpleFilter).value).toEqual('add filter with click');
     });
 
     it('should replace filter when one already exists', () => {
@@ -94,11 +94,11 @@ describe('Component: SimpleFilter', () => {
 
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterConfig).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((filters[0] as SimpleFilterConfig).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((filters[0] as SimpleFilterConfig).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((filters[0] as SimpleFilterConfig).operator).toEqual('contains');
-        expect((filters[0] as SimpleFilterConfig).value).toEqual('replace filter with click');
+        expect((filters[0] as SimpleFilter).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((filters[0] as SimpleFilter).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((filters[0] as SimpleFilter).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((filters[0] as SimpleFilter).operator).toEqual('contains');
+        expect((filters[0] as SimpleFilter).value).toEqual('replace filter with click');
     });
 
     it('should filter when the user presses enter', () => {
@@ -112,11 +112,11 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterConfig).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((filters[0] as SimpleFilterConfig).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((filters[0] as SimpleFilterConfig).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((filters[0] as SimpleFilterConfig).operator).toEqual('contains');
-        expect((filters[0] as SimpleFilterConfig).value).toEqual('add filter with enter');
+        expect((filters[0] as SimpleFilter).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((filters[0] as SimpleFilter).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((filters[0] as SimpleFilter).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((filters[0] as SimpleFilter).operator).toEqual('contains');
+        expect((filters[0] as SimpleFilter).value).toEqual('add filter with enter');
     });
 
     it('should show close icon when filter has been created', () => {

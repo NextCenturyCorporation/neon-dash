@@ -15,20 +15,20 @@
 
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from './abstract.search.service';
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
-import { ConnectionService, NeonConnection, RequestWrapper } from './connection.service';
+import { ConnectionService, CoreConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';
 
-export class NeonQueryWrapper implements QueryPayload {
+export class CoreQueryWrapper implements QueryPayload {
     /* eslint-disable-next-line no-shadow */
     constructor(public query: query.Query) { }
 }
 
-export class NeonGroupWrapper implements QueryGroup {
+export class CoreGroupWrapper implements QueryGroup {
     constructor(public group: string | query.GroupByFunctionClause) { }
 }
 
-export class NeonWhereWrapper implements FilterClause {
+export class CoreWhereWrapper implements FilterClause {
     constructor(public where: query.WherePredicate) { }
 }
 
@@ -46,15 +46,15 @@ export class SearchService extends AbstractSearchService {
      * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
      *
-     * @arg {NeonWhereWrapper[]} filterClauses
+     * @arg {CoreWhereWrapper[]} filterClauses
      * @arg {CompoundFilterType} [type=CompoundFilterType.AND]
-     * @return {NeonWhereWrapper}
+     * @return {CoreWhereWrapper}
      * @abstract
      */
     public buildCompoundFilterClause(
-        filterClauses: NeonWhereWrapper[],
+        filterClauses: CoreWhereWrapper[],
         type: CompoundFilterType = CompoundFilterType.AND
-    ): NeonWhereWrapper {
+    ): CoreWhereWrapper {
         if (!filterClauses.length) {
             return null;
         }
@@ -62,7 +62,7 @@ export class SearchService extends AbstractSearchService {
             return filterClauses[0];
         }
         let wheres = filterClauses.map((filterClause) => (filterClause).where);
-        return new NeonWhereWrapper(type === CompoundFilterType.AND ? query.and.apply(query, wheres) :
+        return new CoreWhereWrapper(type === CompoundFilterType.AND ? query.and.apply(query, wheres) :
             query.or.apply(query, wheres));
     }
 
@@ -72,11 +72,11 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} groupField
      * @arg {TimeInterval} interval
      * @arg {string} [name]
-     * @return {NeonGroupWrapper}
+     * @return {CoreGroupWrapper}
      * @override
      */
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval, name?: string): NeonGroupWrapper {
-        return new NeonGroupWrapper(new query.GroupByFunctionClause('' + interval, groupField, name || ('_' + interval)));
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval, name?: string): CoreGroupWrapper {
+        return new CoreGroupWrapper(new query.GroupByFunctionClause('' + interval, groupField, name || ('_' + interval)));
     }
 
     /**
@@ -85,22 +85,22 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} field
      * @arg {string} operator
      * @arg {string} value
-     * @return {NeonWhereWrapper}
+     * @return {CoreWhereWrapper}
      * @override
      */
-    public buildFilterClause(field: string, operator: string, value: string): NeonWhereWrapper {
-        return new NeonWhereWrapper(query.where(field, operator, value));
+    public buildFilterClause(field: string, operator: string, value: string): CoreWhereWrapper {
+        return new CoreWhereWrapper(query.where(field, operator, value));
     }
 
     /**
      * Returns a new query group using the given group field.
      *
      * @arg {string} groupField
-     * @return {NeonGroupWrapper}
+     * @return {CoreGroupWrapper}
      * @override
      */
-    public buildQueryGroup(groupField: string): NeonGroupWrapper {
-        return new NeonGroupWrapper(groupField);
+    public buildQueryGroup(groupField: string): CoreGroupWrapper {
+        return new CoreGroupWrapper(groupField);
     }
 
     /**
@@ -109,15 +109,15 @@ export class SearchService extends AbstractSearchService {
      * @arg {string} databaseName
      * @arg {string} tableName
      * @arg {string[]} [fieldNames=[]]
-     * @return {NeonQueryWrapper}
+     * @return {CoreQueryWrapper}
      * @override
      */
-    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = []): NeonQueryWrapper {
+    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = []): CoreQueryWrapper {
         let queryObject: query.Query = new query.Query().selectFrom(databaseName, tableName);
         if (fieldNames.length) {
             queryObject.withFields(fieldNames);
         }
-        return new NeonQueryWrapper(queryObject);
+        return new CoreQueryWrapper(queryObject);
     }
 
     /**
@@ -191,12 +191,12 @@ export class SearchService extends AbstractSearchService {
      *
      * @arg {string} datastoreType
      * @arg {string} datastoreHost
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @return {RequestWrapper}
      * @override
      */
-    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryWrapper): RequestWrapper {
-        let connection: NeonConnection<NeonQueryWrapper> = this.connectionService.connect(datastoreType, datastoreHost);
+    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: CoreQueryWrapper): RequestWrapper {
+        let connection: CoreConnection<CoreQueryWrapper> = this.connectionService.connect(datastoreType, datastoreHost);
         return connection ? connection.runSearchQuery(queryPayload, null) : null;
     }
 
@@ -266,13 +266,13 @@ export class SearchService extends AbstractSearchService {
     /**
      * Transforms the values in the filter clauses in the given search query payload using the given map of keys-to-values-to-labels.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
-     * @return {NeonQueryWrapper}
+     * @return {CoreQueryWrapper}
      * @override
      */
-    public transformFilterClauseValues(queryPayload: NeonQueryWrapper,
-        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): NeonQueryWrapper {
+    public transformFilterClauseValues(queryPayload: CoreQueryWrapper,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): CoreQueryWrapper {
         /* eslint-disable-next-line dot-notation */
         let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
 
@@ -287,14 +287,14 @@ export class SearchService extends AbstractSearchService {
      * Transforms the given search query payload into an object to export.
      *
      * @arg {{columnName:string,prettyName:string}[]} fields
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {string} uniqueName
      * @return {any}
      * @override
      */
     public transformQueryPayloadToExport(
         fields: { columnName: string, prettyName: string }[],
-        queryPayload: NeonQueryWrapper,
+        queryPayload: CoreQueryWrapper,
         uniqueName: string
     ): any {
         return {
@@ -384,14 +384,14 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the aggregation data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {AggregationType} type
      * @arg {string} name
      * @arg {string} field
      * @return {AbstractSearchService}
      * @override
      */
-    public updateAggregation(queryPayload: NeonQueryWrapper, type: AggregationType, name: string, field: string): AbstractSearchService {
+    public updateAggregation(queryPayload: CoreQueryWrapper, type: AggregationType, name: string, field: string): AbstractSearchService {
         queryPayload.query.aggregate(this.transformAggregationType(type), field, name);
         return this;
     }
@@ -400,12 +400,12 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the fields data in the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {string[]} fields
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFields(queryPayload: NeonQueryWrapper, fields: string[]): AbstractSearchService {
+    public updateFields(queryPayload: CoreQueryWrapper, fields: string[]): AbstractSearchService {
         let existingFields: string[] = (queryPayload.query as any).fields;
         queryPayload.query.withFields((existingFields.length === 1 && existingFields[0] === '*') ? fields : existingFields.concat(fields));
         return this;
@@ -414,11 +414,11 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the fields data in the given search query payload to match all fields.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFieldsToMatchAll(queryPayload: NeonQueryWrapper): AbstractSearchService {
+    public updateFieldsToMatchAll(queryPayload: CoreQueryWrapper): AbstractSearchService {
         queryPayload.query.withFields('*');
         return this;
     }
@@ -426,12 +426,12 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the filter clause data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
-     * @arg {NeonWhereWrapper} filterClause
+     * @arg {CoreQueryWrapper} queryPayload
+     * @arg {CoreWhereWrapper} filterClause
      * @return {AbstractSearchService}
      * @override
      */
-    public updateFilter(queryPayload: NeonQueryWrapper, filterClause: NeonWhereWrapper): AbstractSearchService {
+    public updateFilter(queryPayload: CoreQueryWrapper, filterClause: CoreWhereWrapper): AbstractSearchService {
         if (filterClause) {
             queryPayload.query.where(filterClause.where);
         }
@@ -441,12 +441,12 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the group data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
-     * @arg {NeonGroupWrapper[]} groupClauses
+     * @arg {CoreQueryWrapper} queryPayload
+     * @arg {CoreGroupWrapper[]} groupClauses
      * @return {AbstractSearchService}
      * @override
      */
-    public updateGroups(queryPayload: NeonQueryWrapper, groupClauses: NeonGroupWrapper[]): AbstractSearchService {
+    public updateGroups(queryPayload: CoreQueryWrapper, groupClauses: CoreGroupWrapper[]): AbstractSearchService {
         queryPayload.query.groupBy(groupClauses.map((groupClause) => groupClause.group));
         return this;
     }
@@ -454,12 +454,12 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the limit data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {number} limit
      * @return {AbstractSearchService}
      * @override
      */
-    public updateLimit(queryPayload: NeonQueryWrapper, limit: number): AbstractSearchService {
+    public updateLimit(queryPayload: CoreQueryWrapper, limit: number): AbstractSearchService {
         queryPayload.query.limit(limit);
         return this;
     }
@@ -467,12 +467,12 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the offset data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {number} offset
      * @return {AbstractSearchService}
      * @override
      */
-    public updateOffset(queryPayload: NeonQueryWrapper, offset: number): AbstractSearchService {
+    public updateOffset(queryPayload: CoreQueryWrapper, offset: number): AbstractSearchService {
         queryPayload.query.offset(offset);
         return this;
     }
@@ -480,13 +480,13 @@ export class SearchService extends AbstractSearchService {
     /**
      * Sets the sort data on the given search query payload.
      *
-     * @arg {NeonQueryWrapper} queryPayload
+     * @arg {CoreQueryWrapper} queryPayload
      * @arg {string} field
      * @arg {SortOrder} [order=SortOrder.ASCENDING]
      * @return {AbstractSearchService}
      * @override
      */
-    public updateSort(queryPayload: NeonQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
+    public updateSort(queryPayload: CoreQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
         /* eslint-disable-next-line dot-notation */
         queryPayload.query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] : query['DESCENDING']);
         return this;

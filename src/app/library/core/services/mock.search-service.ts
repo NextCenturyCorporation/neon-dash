@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,11 +11,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../../app/services/abstract.search.service';
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../../app/models/widget-option';
-import { RequestWrapper } from '../../app/services/connection.service';
+import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from './abstract.search.service';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { RequestWrapper } from './connection.service';
 import { Injectable } from '@angular/core';
 
 /**
@@ -99,8 +98,7 @@ export class SearchServiceMock extends AbstractSearchService {
     }
 
     public transformFilterClauseValues(queryPayload: QueryPayload,
-        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
-    ): QueryPayload {
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): QueryPayload {
         this.transformFilterClauseValuesHelper((queryPayload as any).filter, keysToValuesToLabels);
         return queryPayload;
     }
@@ -131,8 +129,7 @@ export class SearchServiceMock extends AbstractSearchService {
     }
 
     public transformQueryResultsValues(queryResults: { data: any[] },
-        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
-    ): { data: any[] } {
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): { data: any[] } {
         let transformedResults = [];
         for (let result of queryResults.data) {
             let transformedResult = {};

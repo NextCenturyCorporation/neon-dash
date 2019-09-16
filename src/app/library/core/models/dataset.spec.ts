@@ -14,7 +14,7 @@
  */
 
 import { Dataset, DatasetUtil } from './dataset';
-import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
+import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from './mock.dataset';
 import * as _ from 'lodash';
 
 describe('Dataset Tests', () => {
