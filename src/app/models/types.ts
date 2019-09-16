@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { ColorMap } from './color';
+import { ColorMap } from '../library/core/models/color';
 import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
 import { FilterConfig } from '../library/core/models/filters';
 
