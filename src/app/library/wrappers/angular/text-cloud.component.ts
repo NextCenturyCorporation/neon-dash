@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, ViewEncapsulation } from '@angular/core';
 
 import { AbstractSearchService } from '../../../services/abstract.search.service';
 import { DashboardService } from '../../../services/dashboard.service';
@@ -43,7 +43,8 @@ export class NextCenturyAngularTextCloud {
         this.dashboardService.stateSource.subscribe(() => {
             const dataset: Dataset = this.dashboardService.state.asDataset();
             this.elementRef.nativeElement.querySelector('#' + this.id + 'TextCloudFilter').init(dataset, this.filterService);
-            this.elementRef.nativeElement.querySelector('#' + this.id + 'TextCloudSearch').init(dataset, this.filterService, this.searchService);
+            this.elementRef.nativeElement.querySelector('#' + this.id + 'TextCloudSearch').init(dataset, this.filterService,
+                this.searchService);
         });
     }
 
