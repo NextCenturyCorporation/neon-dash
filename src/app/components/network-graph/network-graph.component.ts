@@ -956,7 +956,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 // If there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
                 if (colorField && this.prettifiedNodeLegendLabels.length === 0) {
                     color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                        colorMapVal).getComputedCss(this.visualization);
+                        colorMapVal).getComputedCss(this.visualization.nativeElement);
                 }
 
                 // Set node name with or without type description
@@ -986,7 +986,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             for (const nodeLabel of this.prettifiedNodeLegendLabels) {
                                 if (nodeLabel === shortName) {
                                     color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                                        nodeLabel).getComputedCss(this.visualization);
+                                        nodeLabel).getComputedCss(this.visualization.nativeElement);
                                     break;
                                 }
                             }
@@ -1052,7 +1052,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // If there is a valid colorField and no modifications to the legend labels, override the default colorString
         if (colorField && this.prettifiedEdgeLegendLabels.length === 0) {
             color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                colorMapVal).getComputedCss(this.visualization);
+                colorMapVal).getComputedCss(this.visualization.nativeElement);
         }
 
         let colorObject = { color: color, highlight: color };
@@ -1067,7 +1067,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (edgeLabel === shortName) {
                         colorMapVal = edgeLabel;
                         color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name,
-                            colorField, edgeLabel).getComputedCss(this.visualization);
+                            colorField, edgeLabel).getComputedCss(this.visualization.nativeElement);
                         colorObject = { color: color, highlight: color };
                         break;
                     }
