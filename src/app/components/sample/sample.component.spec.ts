@@ -22,15 +22,15 @@ import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
-import { FieldConfig } from '../../models/dataset';
+import { FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FieldConfig } from '../../library/core/models/dataset';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
@@ -272,7 +272,6 @@ describe('Component: Sample', () => {
 
     it('filterOnItem does call exchangeFilters if replaceAll=true', () => {
         let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -281,24 +280,6 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
-        ]]);
-        expect(spyToggle.calls.count()).toEqual(0);
-    });
-
-    it('filterOnItem does call toggleFilters if replaceAll=false', () => {
-        let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
-
-        (component as any).filterOnItem({
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
-            value: 'testFilterValue'
-        });
-
-        expect(spyExchange.calls.count()).toEqual(0);
-        expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[
             new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
                 DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
         ]]);

@@ -23,7 +23,8 @@
         [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
-            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
+            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'"
+                (mousedown)="expandOrCollapse(item.field[options.idField.columnName])">
                 <mat-panel-title [class.with-date]="options.dateField.columnName != ''">
                     <span class="date" *ngIf="options.dateField.columnName != ''">
                         {{ relativeTime(item.field[options.dateField.columnName]) }}
@@ -44,7 +45,7 @@
                     </ng-container>
                 </div>
             </mat-expansion-panel-header>
-            <mat-panel-description *ngIf="isExpanded(item)">
+            <mat-panel-description *ngIf="isExpanded(item.field[options.idField.columnName])">
                 <div>
                     <div class="text multiple-line" *ngIf="item.field[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>

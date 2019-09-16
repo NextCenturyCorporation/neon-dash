@@ -15,8 +15,8 @@
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { CompoundFilterType } from '../../models/widget-option';
-import { AbstractFilter } from '../../util/filter.util';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { AbstractFilter } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { eventing } from 'neon-framework';
@@ -72,7 +72,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     updateFilters() {
         this.groups = [];
-        for (const filter of this.filterService.getRawFilters()) {
+        for (const filter of this.filterService.getFilters()) {
             const filterFieldLabel = filter.getLabelForField(true);
             const fieldGroup = this.groups.find((group) => group.name === filterFieldLabel);
             if (!fieldGroup) {

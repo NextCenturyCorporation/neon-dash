@@ -13,19 +13,20 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 
 import { NewsFeedModule } from './news-feed.module';
 
@@ -67,21 +68,32 @@ describe('Component: NewsFeed', () => {
         expect(component.options.sortField).toEqual(FieldConfig.get());
     });
 
-    it('createFilter does call filterService.toggleFilters as expected', () => {
-        let spy = spyOn((component as any), 'toggleFilters');
+    it('createFilter does call filterService.exchangeFilters as expected', () => {
+        component.options.toggleFiltered = true;
+        let spy = spyOn((component as any), 'exchangeFilters');
 
-        component.createFilter('testText');
+        component.createFilter('testText1');
 
         expect(spy.calls.count()).toEqual(0);
 
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
-        component.createFilter('testText');
+        component.createFilter('testText1');
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testText')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testText1'])
+        ]]);
+
+        component.createFilter('testText2');
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testText1', 'testText2'])
         ]]);
     });
 
@@ -91,11 +103,13 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
-        expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect((actual[0]).type).toEqual(CompoundFilterType.OR);
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
@@ -325,42 +339,26 @@ describe('Component: NewsFeed', () => {
 
     // Private get array values method test?
 
-    // for selectGridItem method
-    it('selectGridItem does call publishSelectId if idField is set', () => {
+    it('expandOrCollapse does call publishSelectId if ID is expanded', () => {
         let spy = spyOn(component, 'publishSelectId');
-
-        component.selectItem({
-            testIdField: 'id1'
-        });
-        expect(spy.calls.count()).toEqual(0);
 
         component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
-        component.selectItem({
-            field: {
-                testIdField: 'id1'
-            }
-        });
+        component.expandOrCollapse('id1');
+
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['id1']);
     });
 
-    it('selectGridItem does call createFilter if filterField is set', () => {
-        let spy = spyOn(component, 'createFilter');
+    it('expandOrCollapse does not call publishSelectId if ID is not expanded', () => {
+        let spy = spyOn(component, 'publishSelectId');
 
-        component.selectItem({
-            testFilterField: 'filter1'
-        });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+
+        component['_expandedIdList'] = ['id1'];
+
+        component.expandOrCollapse('id1');
+
         expect(spy.calls.count()).toEqual(0);
-
-        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
-
-        component.filterItem({
-            field: {
-                testFilterField: 'filter1'
-            }
-        });
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['filter1']);
     });
 });

@@ -20,7 +20,7 @@ import { NeonDashboardChoiceConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DashboardSelectorModule } from './dashboard-selector.module';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { DashboardService } from '../../services/dashboard.service';
 import { RouterTestingModule } from '@angular/router/testing';
 

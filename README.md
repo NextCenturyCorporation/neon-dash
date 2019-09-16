@@ -4,14 +4,25 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 
 ## Table of Content
 
+* [Why Use the Neon Dashboard?](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#why-use-the-neon-dashboard)
 * [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions)
 * [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#local-development-instructions)
 * [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
 * [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#custom-dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
+* [Planned Efforts](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#planned-efforts)
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
 * [Contact Us](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#contact-us)
+
+## Why Use the Neon Dashboard
+
+The Neon Dashboard offers multiple benefits over other big data exploration and visualization applications:
+
+* The Neon Dashboard is free and open-source
+* The Neon Dashboard supports different types of datastores (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
+* The Neon Dashboard allows you to **view and filter on data from separate datastores at the same time**
+* The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
 ## Initial Setup Instructions
 
@@ -221,6 +232,26 @@ In Elasticsearch 7, mapping types have been removed.  In the Neon Dashboard's co
 ## Technical Stack
 
 The Neon Dashboard is an [Angular](https://angular.io/) web application.
+
+## Planned Efforts
+
+### Data Tasks
+
+* Additional datastore support:  SQL, SPARQL, Cypher
+* Edit or annotate live data in your datastores
+* "Join" on data across tables/databases/datastores if data denormalization isn't possible
+* Make scripts to help users ingest their data
+
+### UI Tasks
+
+* Create a custom dataset and dashboard configuration wizard
+* Export data to CSV, PDF, etc.
+* Show GeoJSON regions in the Map
+* Design tabbed dashboard widgets
+* Expand Selenium test suites
+* Set data access restrictions
+* Plan new data visualizations
+* Move visualizations into the Next Century Component Library
 
 ## Apache 2 Open Source License
 

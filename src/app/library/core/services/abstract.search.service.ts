@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AbstractFilter, CompoundFilter, SimpleFilter } from '../util/filter.util';
+import { AbstractFilter, CompoundFilter, SimpleFilter } from '../models/filters';
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
 

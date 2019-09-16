@@ -24,23 +24,22 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../models/dataset';
-import { CoreUtil } from '../../util/core.util';
+import { FieldConfig } from '../../library/core/models/dataset';
+import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {
@@ -200,14 +199,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     onClick(item) {
         if (!this.options.respondMode) {
-            this.toggleFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
+            this.exchangeFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
         }
     }
 
     onClickPart(part, item) {
         if (part.annotation) {
             // TODO THOR-1098
-            // this.toggleFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
+            // this.exchangeFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
         } else {
             this.onClick(item);
         }

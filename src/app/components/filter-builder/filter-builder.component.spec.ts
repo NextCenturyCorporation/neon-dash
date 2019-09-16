@@ -15,22 +15,22 @@
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { FieldConfig } from '../../models/dataset';
+import { FieldConfig } from '../../library/core/models/dataset';
 
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
-import { CompoundFilterType } from '../../models/widget-option';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
     let filterService: InjectableFilterService;
 
     beforeEach(() => {
-        filterService = jasmine.createSpyObj('InjectableFilterService', ['toggleFilters']);
+        filterService = jasmine.createSpyObj('InjectableFilterService', ['createFilters']);
         component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), filterService);
     });
 
@@ -152,14 +152,14 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses.length).toEqual(1);
     });
 
-    it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
+    it('saveFilter does not call filterService.createFilters if any of the filter clauses are not valid', () => {
         component.saveFilter();
 
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).not.toHaveBeenCalled();
+        expect(filterService.createFilters).not.toHaveBeenCalled();
     });
 
-    it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
+    it('saveFilter does call filterService.createFilters with a simple filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
         let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
@@ -171,12 +171,12 @@ describe('Component: Filter Builder', () => {
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
+        expect(filterService.createFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
 
-    it('saveFilter does call filterService.toggleFilters with a compound OR filter and clear the internal list of filter clauses', () => {
+    it('saveFilter does call filterService.createFilters with a compound OR filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.addBlankFilterClause();
         component.compoundTypeIsOr = true;
@@ -194,12 +194,12 @@ describe('Component: Filter Builder', () => {
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
+        expect(filterService.createFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
 
-    it('saveFilter does call filterService.toggleFilters with a compound AND filter and clear the internal list of filter clauses', () => {
+    it('saveFilter does call filterService.createFilters with a compound AND filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.addBlankFilterClause();
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
@@ -216,7 +216,7 @@ describe('Component: Filter Builder', () => {
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
+        expect(filterService.createFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -235,7 +235,7 @@ describe('Component: Filter Builder', () => {
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
+        expect(filterService.createFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
@@ -251,7 +251,7 @@ describe('Component: Filter Builder', () => {
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
+        expect(filterService.createFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
     });
 
     it('validateFilters does return expected boolean', () => {

@@ -18,7 +18,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { Dataset, FieldConfig, TableConfig } from '../../models/dataset';
+import { Dataset, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
