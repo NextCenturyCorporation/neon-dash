@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import { NextCenturyElement } from '../core/element.webcomponent';
-
-import { CoreUtil } from '../../util/core.util';
+import { CoreUtil } from '../core/core.util';
+import { NextCenturyElement } from '../core/components/element.webcomponent';
 
 export class NextCenturyExample extends NextCenturyElement {
     private _data: any[];
