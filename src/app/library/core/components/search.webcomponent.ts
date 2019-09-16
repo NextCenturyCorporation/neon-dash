@@ -13,18 +13,25 @@
  * limitations under the License.
  */
 
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../../models/widget-option';
-import { Dataset, DatasetUtil, FieldKey } from '../../models/dataset';
-import { BoundsValues, CompoundValues, DomainValues, FilterValues, ListOfValues, OneValue, PairOfValues } from '../../models/filter';
-
-import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../../services/abstract.search.service';
-import { FilterService } from '../../services/filter.service';
-import { RequestWrapper } from '../../services/connection.service';
-
-import { CoreUtil } from '../../util/core.util';
-import { AbstractFilter, CompoundFilterDesign, FilterUtil } from '../../util/filter.util';
-
+import {
+    AbstractFilter,
+    BoundsValues,
+    CompoundFilterDesign,
+    CompoundValues,
+    DomainValues,
+    FilterUtil,
+    FilterValues,
+    ListOfValues,
+    OneValue,
+    PairOfValues
+} from '../models/filters';
+import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../services/abstract.search.service';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { CoreUtil } from '../core.util';
+import { Dataset, DatasetUtil, FieldKey } from '../models/dataset';
+import { FilterService } from '../services/filter.service';
 import { NextCenturyElement } from './element.webcomponent';
+import { RequestWrapper } from '../services/connection.service';
 
 // We need to import the Neon Framework so we can call the setNeonServerUrl function.
 import * as neon from 'neon-framework';

@@ -98,7 +98,7 @@
     <next-century-filter #filter3A
         id="filter3A"
         list-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        list-operator="contains"
+        list-operator="="
         search-element-id="search3"
         vis-element-id="vis3"
         vis-filter-input-function="changeSelectedText"
@@ -248,6 +248,9 @@
     <app-next-century-angular-text-cloud
         id="testAngular1"
         aggregationType="count"
+        [dataset]="dataset"
+        [filterService]="filterService"
+        [searchService]="searchService"
         textFieldKey="es1.ldc_uyg_jul_18.ui_out.topic"
     >
     </app-next-century-angular-text-cloud>
@@ -257,6 +260,9 @@
     <app-next-century-angular-text-cloud
         id="testAngular2"
         aggregationType="count"
+        [dataset]="dataset"
+        [filterService]="filterService"
+        [searchService]="searchService"
         textFieldKey="es1.ldc_uyg_jul_18.ui_out.translatedText"
     >
     </app-next-century-angular-text-cloud>
