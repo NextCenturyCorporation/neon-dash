@@ -112,16 +112,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
         this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        this.textCloudData = this.textCloudData.map((item) =>
-            // Copy the old item.
-            ({
-                color: item.color,
-                fontSize: item.fontSize,
-                key: item.key,
-                keyTranslated: item.keyTranslated,
-                selected: this._filteredText.indexOf(item.key) >= 0,
-                value: item.value
-            }));
+        // Create a copy of each item.
+        this.textCloudData = this.textCloudData.map((item) => ({
+            color: item.color,
+            fontSize: item.fontSize,
+            key: item.key,
+            keyTranslated: item.keyTranslated,
+            selected: this._filteredText.indexOf(item.key) >= 0,
+            value: item.value
+        }));
     }
 
     refreshVisualization() {
@@ -287,6 +286,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (this._filteredText.length) {
             this.exchangeFilters([this.createFilterConfigOnText(this._filteredText)]);
         } else {
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the text field.
             this.exchangeFilters([], [this.createFilterConfigOnText()]);
         }
     }

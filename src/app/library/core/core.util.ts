@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-import { ListFilter, SimpleFilter } from './models/filters';
+import { FieldConfig } from './models/dataset';
+import { FilterCollection, ListFilter, ListFilterDesign, SimpleFilter } from './models/filters';
 
 export class CoreUtil {
     // eslint-disable-next-line max-len
@@ -126,9 +127,19 @@ export class CoreUtil {
     }
 
     /**
+     * Returns true if the given item contains a value from the given Map of filtered values for all the given filter fields.
+     */
+    static isItemFilteredInEveryField(item: any, fields: FieldConfig[], fieldsToValues: Map<string, any[]>): boolean {
+        return !fields.length ? false : fields.filter((field) => !!field.columnName).every((field) => {
+            const values: any[] = fieldsToValues.get(field.columnName) || [];
+            return (!values.length && !item[field.columnName]) || values.indexOf(item[field.columnName]) >= 0;
+        });
+    }
+
+    /**
      * Returns the values in the given ListFilter objects.
      */
-    static retrieveValuesFromListFilters(filters: ListFilter[]) {
+    static retrieveValuesFromListFilters(filters: ListFilter[]): any[] {
         return filters.reduce((list, filter) => list.concat(filter.filters), []).map((filter) => (filter as SimpleFilter).value);
     }
 
@@ -186,6 +197,22 @@ export class CoreUtil {
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
         }
         return [];
+    }
+
+    /**
+     * Updates the filtered values of all the given filter fields in the given Map using the filters in the given filter collection.
+     */
+    static updateValuesFromListFilters(
+        fields: FieldConfig[],
+        filters: FilterCollection,
+        fieldsToValues: Map<string, any[]>,
+        createListFilterDesign: (field: FieldConfig, values?: any[]) => ListFilterDesign
+    ): Map<string, any> {
+        fields.filter((field) => !!field.columnName).forEach((field) => {
+            const listFilters: ListFilter[] = filters.getCompatibleFilters(createListFilterDesign(field)) as ListFilter[];
+            fieldsToValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
+        });
+        return fieldsToValues;
     }
 }
 

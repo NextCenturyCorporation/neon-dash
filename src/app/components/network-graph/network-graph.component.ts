@@ -772,6 +772,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         this.resetGraphData();
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         this.updateLegend();
@@ -1362,6 +1363,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (this._filteredLegendValues.length) {
                 this.exchangeFilters([this.createFilterConfigOnLegend(this._filteredLegendValues)]);
             } else {
+                // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the color field.
                 this.exchangeFilters([], [this.createFilterConfigOnLegend()]);
             }
         }

@@ -118,6 +118,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this._filteredText.length) {
             this.exchangeFilters([this.createFilterConfigOnText(this._filteredText)]);
         } else {
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
             this.exchangeFilters([], [this.createFilterConfigOnText()]);
         }
     }
