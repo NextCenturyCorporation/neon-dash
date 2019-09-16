@@ -13,23 +13,26 @@
  * limitations under the License.
  */
 
-import { BoundsValues, CompoundValues, DomainValues, FilterValues, ListOfValues, OneValue, PairOfValues } from '../../models/filter';
-import { CompoundFilterType } from '../../models/widget-option';
-import { Dataset } from '../../models/dataset';
-
-import { FilterService } from '../../services/filter.service';
-
 import {
     AbstractFilter,
     BoundsFilterDesign,
+    BoundsValues,
     CompoundFilterDesign,
+    CompoundValues,
     DomainFilterDesign,
+    DomainValues,
     FilterCollection,
+    FilterValues,
     ListFilterDesign,
-    PairFilterDesign
-} from '../../util/filter.util';
-import { CoreUtil } from '../../util/core.util';
-
+    ListOfValues,
+    OneValue,
+    PairFilterDesign,
+    PairOfValues
+} from '../models/filters';
+import { CompoundFilterType } from '../models/widget-option';
+import { CoreUtil } from '../core.util';
+import { Dataset } from '../models/dataset';
+import { FilterService } from '../services/filter.service';
 import { NextCenturyElement } from './element.webcomponent';
 
 export class NextCenturyFilter extends NextCenturyElement {
