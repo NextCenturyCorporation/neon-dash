@@ -12,26 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import { Router } from '@angular/router';
 
-import { CoreUtil } from './util/core.util';
-import { Dataset } from './models/dataset';
-import { DateUtil } from './util/date.util';
+import { AbstractSearchService } from './library/core/services/abstract.search.service';
+import { CoreUtil } from './library/core/core.util';
+import { Dataset } from './library/core/models/dataset';
+import { DateUtil } from './library/core/date.util';
 
-import { AbstractSearchService } from './services/abstract.search.service';
 import { ConfigService } from './services/config.service';
 import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
-import './library/core/aggregation.webcomponent';
-import './library/core/filter.webcomponent';
-import './library/core/group.webcomponent';
-import './library/core/search.webcomponent';
+import './library/core/components/aggregation.webcomponent';
+import './library/core/components/filter.webcomponent';
+import './library/core/components/group.webcomponent';
+import './library/core/components/search.webcomponent';
 import './library/visualizations/example.webcomponent';
-import './library/visualizations/text-cloud.webcomponent';
-import './library/wrappers/angular/text-cloud.component';
+import './library/visualizations/text-cloud/text-cloud.webcomponent';
+import './library/wrappers/angular/text-cloud.angular.component';
 
 @Component({
     selector: 'app-route-example',
@@ -56,33 +64,36 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
     @ViewChild('textCloudSearch2') textCloudSearch2;
     @ViewChild('vis4') vis4;
 
-    private _dataset: Dataset;
+    public dataset: Dataset;
 
     constructor(
         configService: ConfigService,
         dashboardService: DashboardService,
-        private filterService: InjectableFilterService,
-        private searchService: AbstractSearchService,
+        public filterService: InjectableFilterService,
+        public searchService: AbstractSearchService,
+        private changeDetectorRef: ChangeDetectorRef,
         private elementRef: ElementRef,
         router: Router
     ) {
         super(configService, dashboardService, router);
 
         dashboardService.stateSource.subscribe(() => {
-            this._dataset = this.dashboardService.state.asDataset();
-            this.filter1A.nativeElement.init(this._dataset, this.filterService);
-            this.filter2A.nativeElement.init(this._dataset, this.filterService);
-            this.filter3A.nativeElement.init(this._dataset, this.filterService);
-            this.filter4A.nativeElement.init(this._dataset, this.filterService);
-            this.search1.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.search2.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.search3.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.search4.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.search5.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.textCloudFilter1A.nativeElement.init(this._dataset, this.filterService);
-            this.textCloudFilter2A.nativeElement.init(this._dataset, this.filterService);
-            this.textCloudSearch1.nativeElement.init(this._dataset, this.filterService, this.searchService);
-            this.textCloudSearch2.nativeElement.init(this._dataset, this.filterService, this.searchService);
+            this.dataset = this.dashboardService.state.asDataset();
+            this.filter1A.nativeElement.init(this.dataset, this.filterService);
+            this.filter2A.nativeElement.init(this.dataset, this.filterService);
+            this.filter3A.nativeElement.init(this.dataset, this.filterService);
+            this.filter4A.nativeElement.init(this.dataset, this.filterService);
+            this.search1.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.search2.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.search3.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.search4.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.search5.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.textCloudFilter1A.nativeElement.init(this.dataset, this.filterService);
+            this.textCloudFilter2A.nativeElement.init(this.dataset, this.filterService);
+            this.textCloudSearch1.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.textCloudSearch2.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            // Must call detectChanges here to update the dataset of the Angular visualization wrapper elements.
+            this.changeDetectorRef.detectChanges();
         });
     }
 

@@ -41,7 +41,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../library/core/models/widget-option';
-import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
+import { TextCloud, SizeOptions, ColorOptions } from '../../library/visualizations/text-cloud/TextCloud';
 import { MatDialog } from '@angular/material';
 
 @Component({
