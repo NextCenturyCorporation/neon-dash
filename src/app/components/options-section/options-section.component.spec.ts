@@ -17,18 +17,18 @@ import { OptionsSectionComponent } from '../options-section/options-section.comp
 import { OptionsSectionModule } from '../options-section/options-section.module';
 
 import { Injector } from '@angular/core';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { AbstractColorThemeService } from '../../library/core/services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import {
     WidgetFieldOption,
     WidgetFreeTextOption, WidgetSelectOption,
     OptionChoices
-} from '../../models/widget-option';
+} from '../../library/core/models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 describe('Component: Options-Section', () => {

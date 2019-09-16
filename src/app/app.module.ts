@@ -17,8 +17,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
-import { AbstractColorThemeService } from './services/abstract.color-theme.service';
-import { AbstractSearchService } from './services/abstract.search.service';
+import { AbstractColorThemeService } from './library/core/services/abstract.color-theme.service';
+import { AbstractSearchService } from './library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';

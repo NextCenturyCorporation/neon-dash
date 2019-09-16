@@ -18,7 +18,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { WidgetOption } from '../../models/widget-option';
+import { WidgetOption } from '../../library/core/models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 @Component({

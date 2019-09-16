@@ -18,14 +18,14 @@ import { ViewContainerRef, NgModuleFactoryLoader } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { NeonConfig } from '../../models/types';
 
-import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ConfirmationDialogModule } from '../../components/confirmation-dialog/confirmation-dialog.module';

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../models/dataset';
+import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterDesign } from '../../util/filter.util';
+import { SimpleFilterDesign } from '../../library/core/models/filters';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';

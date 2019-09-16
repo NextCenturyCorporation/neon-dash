@@ -15,7 +15,7 @@
 
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
 import { ConnectionService } from './connection.service';
-import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
+import { SearchService, CoreGroupWrapper, CoreWhereWrapper, CoreQueryWrapper } from './search.service';
 
 import { query } from 'neon-framework';
 
@@ -31,28 +31,28 @@ describe('Service: Search', () => {
 
     it('buildCompoundFilterClause does return expected filter clause', () => {
         expect(service.buildCompoundFilterClause([
-            new NeonWhereWrapper(query.where('field1', '=', 'value1')),
-            new NeonWhereWrapper(query.where('field2', '=', 'value2'))
-        ])).toEqual(new NeonWhereWrapper(query.and.apply(query, [
+            new CoreWhereWrapper(query.where('field1', '=', 'value1')),
+            new CoreWhereWrapper(query.where('field2', '=', 'value2'))
+        ])).toEqual(new CoreWhereWrapper(query.and.apply(query, [
             query.where('field1', '=', 'value1'),
             query.where('field2', '=', 'value2')
         ])));
 
         expect(service.buildCompoundFilterClause([
-            new NeonWhereWrapper(query.where('field1', '=', 'value1')),
-            new NeonWhereWrapper(query.where('field2', '=', 'value2'))
-        ], CompoundFilterType.OR)).toEqual(new NeonWhereWrapper(query.or.apply(query, [
+            new CoreWhereWrapper(query.where('field1', '=', 'value1')),
+            new CoreWhereWrapper(query.where('field2', '=', 'value2'))
+        ], CompoundFilterType.OR)).toEqual(new CoreWhereWrapper(query.or.apply(query, [
             query.where('field1', '=', 'value1'),
             query.where('field2', '=', 'value2')
         ])));
 
         expect(service.buildCompoundFilterClause([
-            new NeonWhereWrapper(query.where('field1', '=', 'value1')),
-            new NeonWhereWrapper(query.or.apply(query, [
+            new CoreWhereWrapper(query.where('field1', '=', 'value1')),
+            new CoreWhereWrapper(query.or.apply(query, [
                 query.where('field2', '=', 'value2'),
                 query.where('field3', '=', 'value3')
             ]))
-        ])).toEqual(new NeonWhereWrapper(query.and.apply(query, [
+        ])).toEqual(new CoreWhereWrapper(query.and.apply(query, [
             query.where('field1', '=', 'value1'),
             query.or.apply(query, [
                 query.where('field2', '=', 'value2'),
@@ -62,49 +62,49 @@ describe('Service: Search', () => {
     });
 
     it('buildCompoundFilterClause does not wrap single filter clause', () => {
-        expect(service.buildCompoundFilterClause([new NeonWhereWrapper(query.where('field', '=', 'value'))])).toEqual(
-            new NeonWhereWrapper(query.where('field', '=', 'value'))
+        expect(service.buildCompoundFilterClause([new CoreWhereWrapper(query.where('field', '=', 'value'))])).toEqual(
+            new CoreWhereWrapper(query.where('field', '=', 'value'))
         );
     });
 
     it('buildDateQueryGroup does return expected query group', () => {
-        expect(service.buildDateQueryGroup('groupField', TimeInterval.MINUTE)).toEqual(new NeonGroupWrapper(
+        expect(service.buildDateQueryGroup('groupField', TimeInterval.MINUTE)).toEqual(new CoreGroupWrapper(
             new query.GroupByFunctionClause('minute', 'groupField', '_minute')
         ));
-        expect(service.buildDateQueryGroup('groupField', TimeInterval.HOUR)).toEqual(new NeonGroupWrapper(
+        expect(service.buildDateQueryGroup('groupField', TimeInterval.HOUR)).toEqual(new CoreGroupWrapper(
             new query.GroupByFunctionClause('hour', 'groupField', '_hour')
         ));
-        expect(service.buildDateQueryGroup('groupField', TimeInterval.DAY_OF_MONTH)).toEqual(new NeonGroupWrapper(
+        expect(service.buildDateQueryGroup('groupField', TimeInterval.DAY_OF_MONTH)).toEqual(new CoreGroupWrapper(
             new query.GroupByFunctionClause('dayOfMonth', 'groupField', '_dayOfMonth')
         ));
-        expect(service.buildDateQueryGroup('groupField', TimeInterval.MONTH)).toEqual(new NeonGroupWrapper(
+        expect(service.buildDateQueryGroup('groupField', TimeInterval.MONTH)).toEqual(new CoreGroupWrapper(
             new query.GroupByFunctionClause('month', 'groupField', '_month')
         ));
-        expect(service.buildDateQueryGroup('groupField', TimeInterval.YEAR)).toEqual(new NeonGroupWrapper(
+        expect(service.buildDateQueryGroup('groupField', TimeInterval.YEAR)).toEqual(new CoreGroupWrapper(
             new query.GroupByFunctionClause('year', 'groupField', '_year')
         ));
     });
 
     it('buildFilterClause does return expected filter clause', () => {
-        expect(service.buildFilterClause('field', '=', 'value')).toEqual(new NeonWhereWrapper(query.where('field', '=', 'value')));
+        expect(service.buildFilterClause('field', '=', 'value')).toEqual(new CoreWhereWrapper(query.where('field', '=', 'value')));
     });
 
     it('buildQueryGroup does return expected query group', () => {
-        expect(service.buildQueryGroup('groupField')).toEqual(new NeonGroupWrapper('groupField'));
+        expect(service.buildQueryGroup('groupField')).toEqual(new CoreGroupWrapper('groupField'));
     });
 
     it('buildQueryPayload does return expected query payload', () => {
-        expect(service.buildQueryPayload('database', 'table')).toEqual(new NeonQueryWrapper(new query.Query().selectFrom('database',
+        expect(service.buildQueryPayload('database', 'table')).toEqual(new CoreQueryWrapper(new query.Query().selectFrom('database',
             'table')));
 
-        expect(service.buildQueryPayload('database', 'table', ['field'])).toEqual(new NeonQueryWrapper(new query.Query().selectFrom(
+        expect(service.buildQueryPayload('database', 'table', ['field'])).toEqual(new CoreQueryWrapper(new query.Query().selectFrom(
             'database', 'table'
         ).withFields(['field'])));
 
-        expect(service.buildQueryPayload('database', 'table', ['field1', 'field2'])).toEqual(new NeonQueryWrapper(new query.Query()
+        expect(service.buildQueryPayload('database', 'table', ['field1', 'field2'])).toEqual(new CoreQueryWrapper(new query.Query()
             .selectFrom('database', 'table').withFields(['field1', 'field2'])));
 
-        expect(service.buildQueryPayload('database', 'table', [])).toEqual(new NeonQueryWrapper(new query.Query().selectFrom('database',
+        expect(service.buildQueryPayload('database', 'table', [])).toEqual(new CoreQueryWrapper(new query.Query().selectFrom('database',
             'table')));
     });
 
@@ -127,7 +127,7 @@ describe('Service: Search', () => {
     });
 
     it('runSearch does call expected function', () => {
-        let queryPayload = new NeonQueryWrapper(new query.Query());
+        let queryPayload = new CoreQueryWrapper(new query.Query());
         let called = 0;
         let spy = spyOn(service['connectionService'], 'connect').and.returnValue({
             runSearchQuery: (queryInput, __options) => {
@@ -151,19 +151,19 @@ describe('Service: Search', () => {
         };
 
         let input1 = new query.Query().where(query.where('field', '=', 'oldValue'));
-        service.transformFilterClauseValues(new NeonQueryWrapper(input1), {});
+        service.transformFilterClauseValues(new CoreQueryWrapper(input1), {});
         expect(input1).toEqual(new query.Query().where(query.where('field', '=', 'oldValue')));
 
         let input2 = new query.Query().where(query.where('field', '=', 'oldValue'));
-        service.transformFilterClauseValues(new NeonQueryWrapper(input2), map);
+        service.transformFilterClauseValues(new CoreQueryWrapper(input2), map);
         expect(input2).toEqual(new query.Query().where(query.where('field', '=', 'newValue')));
 
         let input3 = new query.Query().where(query.where('field', '=', 'otherValue'));
-        service.transformFilterClauseValues(new NeonQueryWrapper(input3), map);
+        service.transformFilterClauseValues(new CoreQueryWrapper(input3), map);
         expect(input3).toEqual(new query.Query().where(query.where('field', '=', 'otherValue')));
 
         let input4 = new query.Query().where(query.where('otherField', '=', 'oldValue'));
-        service.transformFilterClauseValues(new NeonQueryWrapper(input4), map);
+        service.transformFilterClauseValues(new CoreQueryWrapper(input4), map);
         expect(input4).toEqual(new query.Query().where(query.where('otherField', '=', 'oldValue')));
     });
 
@@ -190,7 +190,7 @@ describe('Service: Search', () => {
                 query.where('field2', '=', 'oldValue3')
             ])
         ]));
-        service.transformFilterClauseValues(new NeonQueryWrapper(input), map);
+        service.transformFilterClauseValues(new CoreQueryWrapper(input), map);
         expect(input).toEqual(new query.Query().where(query.and.apply(query, [
             query.where('field1', '=', 'newValue1'),
             query.where('field1', '=', 'oldValue2'),
@@ -219,7 +219,7 @@ describe('Service: Search', () => {
 
         let queryInput = new query.Query().withFields('field1', 'field2');
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -241,7 +241,7 @@ describe('Service: Search', () => {
     it('transformQueryPayloadToExport does need fields argument to work as expected', () => {
         let queryInput = new query.Query().withFields('field1', 'field2');
 
-        expect(service.transformQueryPayloadToExport([], new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport([], new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [],
                 ignoreFilters: undefined,
@@ -268,7 +268,7 @@ describe('Service: Search', () => {
 
         let queryInput = new query.Query().withFields('field1', 'field1', 'field2');
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -307,7 +307,7 @@ describe('Service: Search', () => {
             new query.GroupByFunctionClause('year', 'field2', '_year')
         ]);
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -353,7 +353,7 @@ describe('Service: Search', () => {
         /* eslint-disable-next-line dot-notation */
         let queryInput = new query.Query().withFields('field1', 'field2').aggregate(query['COUNT'], 'field1', '_count');
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -401,7 +401,7 @@ describe('Service: Search', () => {
             .aggregate(query['SUM'], 'field4', '_sum');
         /* eslint-enable dot-notation */
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field5',
@@ -448,7 +448,7 @@ describe('Service: Search', () => {
         ]).aggregate(query['COUNT'], 'field1', '_count');
         /* eslint-enable dot-notation */
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -487,7 +487,7 @@ describe('Service: Search', () => {
 
         let queryInput = new query.Query().withFields('*');
 
-        expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
                 fields: [{
                     query: 'field1',
@@ -618,10 +618,10 @@ describe('Service: Search', () => {
     it('updateAggregation does update given query payload and does not remove previous aggregations', () => {
         let input: query.Query = new query.Query();
 
-        service.updateAggregation(new NeonQueryWrapper(input), AggregationType.AVG, '_avg', 'field');
+        service.updateAggregation(new CoreQueryWrapper(input), AggregationType.AVG, '_avg', 'field');
         expect(input).toEqual(new query.Query().aggregate('avg', 'field', '_avg'));
 
-        service.updateAggregation(new NeonQueryWrapper(input), AggregationType.COUNT, '_count', '*');
+        service.updateAggregation(new CoreQueryWrapper(input), AggregationType.COUNT, '_count', '*');
         expect(input).toEqual(new query.Query().aggregate('avg', 'field', '_avg').aggregate('count', '*', '_count'));
     });
 
@@ -629,20 +629,20 @@ describe('Service: Search', () => {
         let input: query.Query = new query.Query();
         input.withFields(['field']);
 
-        service.updateFieldsToMatchAll(new NeonQueryWrapper(input));
+        service.updateFieldsToMatchAll(new CoreQueryWrapper(input));
         expect(input).toEqual(new query.Query());
     });
 
     it('updateFilter does update given query payload', () => {
         let input: query.Query = new query.Query();
 
-        service.updateFilter(new NeonQueryWrapper(input), null);
+        service.updateFilter(new CoreQueryWrapper(input), null);
         expect(input).toEqual(new query.Query());
 
-        service.updateFilter(new NeonQueryWrapper(input), new NeonWhereWrapper(query.where('field1', '=', 'value1')));
+        service.updateFilter(new CoreQueryWrapper(input), new CoreWhereWrapper(query.where('field1', '=', 'value1')));
         expect(input).toEqual(new query.Query().where(query.where('field1', '=', 'value1')));
 
-        service.updateFilter(new NeonQueryWrapper(input), new NeonWhereWrapper(query.or.apply(query, [
+        service.updateFilter(new CoreQueryWrapper(input), new CoreWhereWrapper(query.or.apply(query, [
             query.where('field2', '=', 'value2'), query.where('field3', '=', 'value3')
         ])));
         expect(input).toEqual(new query.Query().where(query.or.apply(query, [
@@ -653,40 +653,40 @@ describe('Service: Search', () => {
     it('updateGroups does update given query payload', () => {
         let input: query.Query = new query.Query();
 
-        service.updateGroups(new NeonQueryWrapper(input), [new NeonGroupWrapper('group1')]);
+        service.updateGroups(new CoreQueryWrapper(input), [new CoreGroupWrapper('group1')]);
         expect(input).toEqual(new query.Query().groupBy(['group1']));
 
-        service.updateGroups(new NeonQueryWrapper(input), [new NeonGroupWrapper('group2'), new NeonGroupWrapper('group3')]);
+        service.updateGroups(new CoreQueryWrapper(input), [new CoreGroupWrapper('group2'), new CoreGroupWrapper('group3')]);
         expect(input).toEqual(new query.Query().groupBy(['group2', 'group3']));
     });
 
     it('updateLimit does update given query payload', () => {
         let input: query.Query = new query.Query();
 
-        service.updateLimit(new NeonQueryWrapper(input), 0);
+        service.updateLimit(new CoreQueryWrapper(input), 0);
         expect(input).toEqual(new query.Query().limit(0));
 
-        service.updateLimit(new NeonQueryWrapper(input), 100);
+        service.updateLimit(new CoreQueryWrapper(input), 100);
         expect(input).toEqual(new query.Query().limit(100));
     });
 
     it('updateOffset does update given query payload', () => {
         let input: query.Query = new query.Query();
 
-        service.updateOffset(new NeonQueryWrapper(input), 0);
+        service.updateOffset(new CoreQueryWrapper(input), 0);
         expect(input).toEqual(new query.Query().offset(0));
 
-        service.updateOffset(new NeonQueryWrapper(input), 100);
+        service.updateOffset(new CoreQueryWrapper(input), 100);
         expect(input).toEqual(new query.Query().offset(100));
     });
 
     it('updateSort does update given query payload', () => {
         let input: query.Query = new query.Query();
 
-        service.updateSort(new NeonQueryWrapper(input), 'sortField');
+        service.updateSort(new CoreQueryWrapper(input), 'sortField');
         expect(input).toEqual(new query.Query().sortBy('sortField', 1));
 
-        service.updateSort(new NeonQueryWrapper(input), 'sortField', SortOrder.DESCENDING);
+        service.updateSort(new CoreQueryWrapper(input), 'sortField', SortOrder.DESCENDING);
         expect(input).toEqual(new query.Query().sortBy('sortField', -1));
     });
 });

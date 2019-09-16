@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonConfig } from '../models/types';
 import { query } from 'neon-framework';
 
 export interface RequestWrapper {
@@ -126,11 +125,11 @@ export interface Connection<T extends { query: any } = { query: any }> {
      * @return {RequestWrapper}
      * @abstract
      */
-    saveState(stateData: NeonConfig, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
+    saveState(stateData: any, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
 }
 
 // Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
-export class NeonConnection<T extends { query: any } = { query: any }> implements Connection<T> {
+export class CoreConnection<T extends { query: any } = { query: any }> implements Connection<T> {
     constructor(public connection: query.Connection) { }
 
     /**
@@ -267,7 +266,7 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
      * @override
      */
     public saveState(
-        stateData: NeonConfig,
+        stateData: any,
         onSuccess: (response: any) => void,
         onError?: (response: any) => void
     ): RequestWrapper {
@@ -277,25 +276,25 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
 
 export class ConnectionService {
     // Maps the datastore types to datastore hosts to connections.
-    private connections = new Map<string, Map<string, NeonConnection<any>>>();
+    private connections = new Map<string, Map<string, CoreConnection<any>>>();
 
     /**
      * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
-     * creates and returns a Neon connection if none exists.
+     * creates and returns a connection if none exists.
      */
     public connect<T extends { query: any } = { query: any }>(
         datastoreType: string,
         datastoreHost: string,
         ignoreUpdates: boolean = false
-    ): NeonConnection<T> {
+    ): CoreConnection<T> {
         if (datastoreType && datastoreHost) {
             if (!this.connections.has(datastoreType)) {
-                this.connections.set(datastoreType, new Map<string, NeonConnection<T>>());
+                this.connections.set(datastoreType, new Map<string, CoreConnection<T>>());
             }
             if (!this.connections.get(datastoreType).has(datastoreHost)) {
                 let connection = this.neonConnection();
                 connection.connect(datastoreType, datastoreHost, ignoreUpdates);
-                this.connections.get(datastoreType).set(datastoreHost, new NeonConnection<T>(connection));
+                this.connections.get(datastoreType).set(datastoreHost, new CoreConnection<T>(connection));
             }
             return this.connections.get(datastoreType).get(datastoreHost);
         }

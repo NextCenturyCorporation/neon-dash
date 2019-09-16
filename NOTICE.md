@@ -31,7 +31,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | js-yaml@3.13.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | leaflet.markercluster@1.4.1 | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
 | leaflet@1.5.1 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
-| lodash@4.17.15 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
+| lodash@4.17.11 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | moment@2.24.0 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | neon-framework@1.0.1 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
 | ng-dynamic-component@4.0.3 | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
@@ -44,4 +44,5 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
+| visjs-network@4.24.10 | [(Apache-2.0 OR MIT)](https://github.com/visjs-community/visjs-network/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.9.1 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |

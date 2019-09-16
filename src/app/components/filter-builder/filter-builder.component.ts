@@ -18,13 +18,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
-import { CompoundFilterType } from '../../models/widget-option';
-import { FilterConfig } from '../../models/filter';
+import { CompoundFilterDesign, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/widget-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '../../models/dataset';
+import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '../../library/core/models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -182,7 +181,7 @@ export class FilterBuilderComponent {
             new CompoundFilterDesign(this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND, filterConfigs));
 
         if (filterConfig) {
-            this.filterService.toggleFilters('CustomFilter', [filterConfig], this._dataset);
+            this.filterService.createFilters('CustomFilter', [filterConfig], this._dataset);
             this.clearEveryFilterClause();
         }
     }

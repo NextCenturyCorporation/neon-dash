@@ -21,34 +21,38 @@
     border-bottom: 2px solid var(--color-border, lightgrey);
     padding: 5px 0;
 
-    .remove-all {
+    .buttons {
         align-self: flex-start;
-    }
 
-    .group {
-        zoom: 0.8;
-        display: inline-block;
-        background: var(--color-background-contrast, lightgrey);
-        border-radius: 30px;
-        margin: 3px 5px;
-        padding: 3px;
-
-        &.remove-all {
-            padding: 3px;
-            background: none;
-            margin: 3px 5px;
-
-            button {
-                border-radius: 50% !important;
-            }
+        button {
+            border-radius: 50% !important;
+            margin: 5px 0 0 5px !important;
         }
     }
 
-    .group-name {
-        padding: 0 0.5em;
-    }
-
-    mat-chip-list {
+    .group {
         display: inline-block;
+        background: var(--color-background-contrast, lightgrey);
+        border-radius: 30px;
+        font-size: 10px;
+        line-height: 24px; /* Keep the same height as the chip elements */
+        margin: 4px 5px;
+        padding: 4px;
+
+        .group-name {
+            padding: 0 0.5em;
+        }
+
+        mat-chip-list {
+            display: inline-block;
+
+            .mat-chip {
+                font-size: 10px;
+                height: unset;
+                line-height: 16px;
+                min-height: unset;
+                padding: 4px 4px 4px 8px;
+            }
+        }
     }
 }
