@@ -27,7 +27,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -378,11 +378,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        this._updateFilteredValues(filters);
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnValues.bind(this));
 
         // Update the filtered status of each table row.
         this.tableData.forEach((item) => {
-            item._filtered = this._isFiltered(item);
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
         });
     }
 
@@ -489,18 +490,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         // Update the filtered values before transforming the data.
-        this._updateFilteredValues(filters);
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnValues.bind(this));
 
         this.tableData = results.map((result) => {
-            let row: any = {};
+            let item: any = {};
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
                 }
             }
-            row._filtered = this._isFiltered(row);
-            return row;
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
+            return item;
         });
         return this.tableData.length;
     }
@@ -801,25 +803,5 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.initializeHeadersFromFieldsConfig();
             this.recalculateActiveHeaders();
         }
-    }
-
-    /**
-     * Returns true if the given item contains a filtered value for each filter field.
-     */
-    private _isFiltered(item: any): boolean {
-        return this.options.filterFields.length ? this.options.filterFields.filter((field) => !!field.columnName).every((field) => {
-            const filteredValues: any[] = this._filterFieldsToFilteredValues.get(field.columnName);
-            return filteredValues.indexOf(item[field.columnName]) >= 0;
-        }) : false;
-    }
-
-    /**
-     * Updates the filtered values of each filter field using the filters in the given filter collection.
-     */
-    private _updateFilteredValues(filters: FilterCollection): void {
-        this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnValues(field)) as ListFilter[];
-            this._filterFieldsToFilteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
-        });
     }
 }

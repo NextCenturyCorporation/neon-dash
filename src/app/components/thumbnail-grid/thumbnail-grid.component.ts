@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -389,14 +389,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
 
         // Update the filtered values before transforming the data.
-        this._updateFilteredValues(filters);
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
 
         results.forEach((result) => {
             let item: any = {};
             options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
                 item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
             });
-            item._filtered = this._isFiltered(item);
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
@@ -534,11 +535,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        this._updateFilteredValues(filters);
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
 
         // Update the filtered status of each grid item.
         this.gridArray.forEach((item) => {
-            item._filtered = this._isFiltered(item);
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
         });
     }
 
@@ -844,25 +846,5 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    /**
-     * Returns true if the given item contains a filtered value for each filter field.
-     */
-    private _isFiltered(item: any): boolean {
-        return this.options.filterFields.length ? this.options.filterFields.filter((field) => !!field.columnName).every((field) => {
-            const filteredValues: any[] = this._filterFieldsToFilteredValues.get(field.columnName);
-            return filteredValues.indexOf(item[field.columnName]) >= 0;
-        }) : false;
-    }
-
-    /**
-     * Updates the filtered values of each filter field using the filters in the given filter collection.
-     */
-    private _updateFilteredValues(filters: FilterCollection): void {
-        this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnList(field)) as ListFilter[];
-            this._filterFieldsToFilteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
-        });
     }
 }
