@@ -255,10 +255,18 @@ describe('Component: Map', () => {
 
         let colorThemeService = getService(InjectableColorThemeService);
 
-        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
-        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
-        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
-        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
+        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(
+            component.visualization.nativeElement
+        );
 
         let dataset1 = {
             data: [
