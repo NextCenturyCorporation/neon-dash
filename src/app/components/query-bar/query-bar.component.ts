@@ -440,7 +440,7 @@ export class QueryBarComponent extends BaseNeonComponent {
      * @override
      */
     protected redrawFilters(__filters: FilterCollection): void {
-        // TODO AIDA-754 Update the query bar active text using the given filters.
+        // TODO AIDA-1041 Update the query bar active text using the given filters.
     }
 
     private updateFiltersIfDone(): void {
