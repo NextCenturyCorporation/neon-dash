@@ -14,7 +14,7 @@
                 </mat-option>
             </mat-autocomplete>
             <button *ngIf="queryBar.value" mat-icon-button aria-label="Clear" class="neon-icon-button-small"
-                (click)="queryBar.value = ''; removeFilters()">
+                (click)="clearQueryText();removeFilters(); ">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
