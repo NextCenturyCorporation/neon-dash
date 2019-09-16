@@ -60,6 +60,7 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     private extensionFiltersToDelete: FilterConfig[];
     private extensionFiltersCollection: Map<string, FilterConfig[]> = new Map<string, FilterConfig[]>();
+    private filtersRemoved: boolean = false;
 
     constructor(
         dashboardService: DashboardService,
@@ -275,6 +276,12 @@ export class QueryBarComponent extends BaseNeonComponent {
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
+
+        let filters = this.filterService.getFilters();
+        if (!filters.length && this.filtersRemoved) {
+            this.filtersRemoved = false;
+            this.clearQueryText();
+        }
     }
 
     /**
@@ -386,6 +393,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         });
 
         this.deleteFilters(removeFilterList);
+        this.filtersRemoved = true;
     }
 
     /**
@@ -404,7 +412,7 @@ export class QueryBarComponent extends BaseNeonComponent {
      * @override
      */
     protected redrawFilters(__filters: FilterCollection): void {
-        // TODO AIDA-754 Update the query bar active text using the given filters.
+        // TODO AIDA-1041 Update the query bar active text using the given filters.
     }
 
     private updateFiltersIfDone(): void {
@@ -413,5 +421,9 @@ export class QueryBarComponent extends BaseNeonComponent {
             return;
         }
         this.exchangeFilters(filterLists.reduce((list, filterList) => list.concat(filterList), []), this.extensionFiltersToDelete);
+    }
+
+    public clearQueryText(): void{
+        this.queryBar.nativeElement.value = '';
     }
 }
