@@ -1218,6 +1218,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this._filteredSingleValues.length) {
             this.exchangeFilters([this.createFilterConfigOnItemList(this._filteredSingleValues)]);
         } else {
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the data field.
             this.exchangeFilters([], [this.createFilterConfigOnItemList()]);
         }
     }
