@@ -381,7 +381,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let color = rgbColor;
             if (!this.options.singleColor) {
                 color = !unique.colorValue ? whiteString : this.colorThemeService.getColor(databaseName, tableName, colorField,
-                    unique.colorValue).getComputedCss(this.visualization);
+                    unique.colorValue).getComputedCss(this.visualization.nativeElement);
             }
 
             let name = `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`;

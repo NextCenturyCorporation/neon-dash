@@ -12,14 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ElementRef } from '@angular/core';
 
 export type ColorMap = Record<string, Record<string, Record<string, Record<string, string>>>>;
 
-/**
- * General color class.
- * This class can provide colors in a hex string, RGB formatted, or in RGB percent.
- */
 export class Color {
     /**
      * Creates and returns a Color object using the given Hex string like "#123" or "#112233" or "112233".
@@ -98,30 +93,30 @@ export class Color {
     constructor(private css: string, private hoverColor: string, private transparencyHigh: string) {}
 
     /**
-     * Returns the computed CSS for the color using the given ElementRef object to find custom CSS properties like "--variable".
-     * @arg {ElementRef} elementRef
+     * Returns the computed CSS for the color using the given HTMLElement object to find custom CSS properties like "--variable".
+     * @arg {HTMLElement} element
      * @return {string}
      */
-    public getComputedCss(elementRef: ElementRef): string {
-        return this.computeColor(this.css, elementRef);
+    public getComputedCss(element: HTMLElement): string {
+        return this.computeColor(this.css, element);
     }
 
     /**
-     * Returns the CSS for the hover color using the given ElementRef object to find custom CSS properties like "--variable".
-     * @arg {ElementRef} elementRef
+     * Returns the CSS for the hover color using the given HTMLElement object to find custom CSS properties like "--variable".
+     * @arg {HTMLElement} element
      * @return {string}
      */
-    public getComputedCssHoverColor(elementRef: ElementRef): string {
-        return this.computeColor(this.hoverColor, elementRef);
+    public getComputedCssHoverColor(element: HTMLElement): string {
+        return this.computeColor(this.hoverColor, element);
     }
 
     /**
-     * Returns the CSS for the high transparency color using the given ElementRef object to find custom CSS properties like "--variable".
-     * @arg {ElementRef} elementRef
+     * Returns the CSS for the high transparency color using the given HTMLElement object to find custom CSS properties like "--variable".
+     * @arg {HTMLElement} element
      * @return {string}
      */
-    public getComputedCssTransparencyHigh(elementRef: ElementRef): string {
-        return this.computeColor(this.transparencyHigh, elementRef);
+    public getComputedCssTransparencyHigh(element: HTMLElement): string {
+        return this.computeColor(this.transparencyHigh, element);
     }
 
     /**
@@ -149,48 +144,59 @@ export class Color {
     }
 
     /**
-     * Returns the color for the given CSS using the given ElementRef object to find custom CSS properties like "--variable".
+     * Returns the color for the given CSS using the given HTMLElement object to find custom CSS properties like "--variable".
      * @arg {string} colorCss
-     * @arg {ElementRef} elementRef
+     * @arg {HTMLElement} element
      * @return {string}
      */
-    private computeColor(colorCss: string, elementRef: ElementRef): string {
+    private computeColor(colorCss: string, element: HTMLElement): string {
         if (colorCss.indexOf('var(--') === 0) {
             let css = colorCss.substring(4, colorCss.length - 1);
             css = css.indexOf(',') >= 0 ? css.substring(0, css.indexOf(',')) : css;
-            return getComputedStyle(elementRef.nativeElement).getPropertyValue(css).trim();
+            return getComputedStyle(element).getPropertyValue(css).trim();
         }
         if (colorCss.indexOf('--') === 0) {
-            return getComputedStyle(elementRef.nativeElement).getPropertyValue(colorCss).trim();
+            return getComputedStyle(element).getPropertyValue(colorCss).trim();
         }
         return colorCss;
     }
 }
 
-/**
- * A set of colors, used to keep track of which values map to which colors
- */
 export class ColorSet {
-    private colors: Color[] = [
-        new Color('var(--color-set-1)', 'var(--color-set-dark-1)', 'var(--color-set-1-transparency-high)'),
-        new Color('var(--color-set-2)', 'var(--color-set-dark-2)', 'var(--color-set-2-transparency-high)'),
-        new Color('var(--color-set-3)', 'var(--color-set-dark-3)', 'var(--color-set-3-transparency-high)'),
-        new Color('var(--color-set-4)', 'var(--color-set-dark-4)', 'var(--color-set-4-transparency-high)'),
-        new Color('var(--color-set-5)', 'var(--color-set-dark-5)', 'var(--color-set-5-transparency-high)'),
-        new Color('var(--color-set-6)', 'var(--color-set-dark-6)', 'var(--color-set-6-transparency-high)'),
-        new Color('var(--color-set-7)', 'var(--color-set-dark-7)', 'var(--color-set-7-transparency-high)'),
-        new Color('var(--color-set-8)', 'var(--color-set-dark-8)', 'var(--color-set-8-transparency-high)'),
-        new Color('var(--color-set-light-1)', 'var(--color-set-1)', 'var(--color-set-light-1-transparency-high)'),
-        new Color('var(--color-set-light-2)', 'var(--color-set-2)', 'var(--color-set-light-2-transparency-high)'),
-        new Color('var(--color-set-light-3)', 'var(--color-set-3)', 'var(--color-set-light-3-transparency-high)'),
-        new Color('var(--color-set-light-4)', 'var(--color-set-4)', 'var(--color-set-light-4-transparency-high)'),
-        new Color('var(--color-set-light-5)', 'var(--color-set-5)', 'var(--color-set-light-5-transparency-high)'),
-        new Color('var(--color-set-light-6)', 'var(--color-set-6)', 'var(--color-set-light-6-transparency-high)'),
-        new Color('var(--color-set-light-7)', 'var(--color-set-7)', 'var(--color-set-light-7-transparency-high)'),
-        new Color('var(--color-set-light-8)', 'var(--color-set-8)', 'var(--color-set-light-8-transparency-high)')
+    protected colors: Color[] = [
+        Color.fromHexString('#0000FF'), // Blue
+        Color.fromHexString('#00FF00'), // Lime
+        Color.fromHexString('#FF0000'), // Red
+
+        Color.fromHexString('#00FFFF'), // Cyan
+        Color.fromHexString('#FFFF00'), // Yellow
+        Color.fromHexString('#FF00FF'), // Magenta
+
+        Color.fromHexString('#000080'), // Navy
+        Color.fromHexString('#008000'), // Green
+        Color.fromHexString('#800000'), // Maroon
+
+        Color.fromHexString('#008080'), // Teal
+        Color.fromHexString('#808000'), // Olive
+        Color.fromHexString('#800080'), // Purple
+
+        Color.fromHexString('#0080FF'), // Blue?
+        Color.fromHexString('#80FF00'), // Green?
+        Color.fromHexString('#FF0080'), // Purple?
+        Color.fromHexString('#FF8000'), // Orange
+        Color.fromHexString('#00FF80'), // Green?
+        Color.fromHexString('#8000FF'), // Purple?
+
+        Color.fromHexString('#8080FF'), // Blue?
+        Color.fromHexString('#80FF80'), // Green?
+        Color.fromHexString('#FF8080'), // Red?
+
+        Color.fromHexString('#80FFFF'), // Blue?
+        Color.fromHexString('#FFFF80'), // Yellow?
+        Color.fromHexString('#FF80FF')  // Purple?
     ];
 
-    private currentIndex: number = 0;
+    protected currentIndex: number = 0;
 
     /**
      * @constructor
@@ -200,15 +206,29 @@ export class ColorSet {
      * @arg {string} fieldName
      * @arg {Map<string, Color>} [valueToColor=new Map<string, Color>()]
      */
-    constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string,
-        private valueToColor: Map<string, Color> = new Map<string, Color>()) {}
+    constructor(
+        protected colorKey: string,
+        protected databaseName: string,
+        protected tableName: string,
+        protected fieldName: string,
+        protected valueToColor: Map<string, Color> = new Map<string, Color>()
+    ) { }
+
+    /**
+     * Returns the list of keys in this color set.
+     *
+     * @return {string[]}
+     */
+    public getAllKeys(): string[] {
+        return Array.from(this.valueToColor.keys()).sort();
+    }
 
     /**
      * Returns the color field.
      *
      * @return {string}
      */
-    getColorField(): string {
+    public getColorField(): string {
         return this.fieldName;
     }
 
@@ -218,12 +238,13 @@ export class ColorSet {
      * @arg {string} value
      * @return {Color}
      */
-    getColorForValue(value: string): Color {
+    public getColorForValue(value: string): Color {
         let color = this.valueToColor.get(value);
+        let colorArray: Color[] = this.getColorArray() || [];
         if (!color) {
-            color = this.colors[this.currentIndex];
+            color = colorArray[this.currentIndex];
             this.valueToColor.set(value, color);
-            this.currentIndex = (this.currentIndex + 1) % this.colors.length;
+            this.currentIndex = (this.currentIndex + 1) % colorArray.length;
         }
         return color;
     }
@@ -233,16 +254,11 @@ export class ColorSet {
      *
      * @return {Map<string, Color>}
      */
-    getColorMap(): Map<string, Color> {
+    public getColorMap(): Map<string, Color> {
         return this.valueToColor;
     }
 
-    /**
-     * Returns the list of keys in this color set.
-     *
-     * @return {string[]}
-     */
-    getAllKeys(): string[] {
-        return Array.from(this.valueToColor.keys()).sort();
+    protected getColorArray(): Color[] {
+        return this.colors;
     }
 }
