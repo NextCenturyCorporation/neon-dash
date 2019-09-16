@@ -417,7 +417,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
                     let highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, currentType,
-                        currentType).getComputedCssTransparencyHigh(this.visualization);
+                        currentType).getComputedCssTransparencyHigh(this.visualization.nativeElement);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -634,7 +634,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     part.highlightColor = 'rgb(255,255,255)';
                 } else if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
                     part.highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, part.type,
-                        part.type).getComputedCssTransparencyHigh(this.visualization);
+                        part.type).getComputedCssTransparencyHigh(this.visualization.nativeElement);
                 }
             }
         }
