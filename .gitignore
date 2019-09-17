@@ -11,6 +11,7 @@ terraform/lambda.zip
 /tmp
 /doc
 /target
+src/app/library/core/dist
 
 # ignore personal build and run scripts in docker dir
 docker/build.sh
