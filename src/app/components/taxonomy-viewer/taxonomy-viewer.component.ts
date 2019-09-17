@@ -600,7 +600,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             filterConfigListToDelete.push(this.createFilterConfigOnList(this.options.subTypeField));
         }
 
-        this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterConfigListToDelete);
+        this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterConfigListToDelete, true);
     }
 
     private _updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean): void {

@@ -1402,7 +1402,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
         });
 
-        this.exchangeFilters(filters, filtersToDelete);
+        this.exchangeFilters(filters, filtersToDelete, true);
     }
 
     onDrag(properties: { nodes: string[] }) {
