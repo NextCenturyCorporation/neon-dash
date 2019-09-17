@@ -34,6 +34,7 @@
   * [Filter Design](#filter-design)
   * [Filter Operator](#filter-operator)
   * [Filter Type](#filter-type)
+  * [Filtered Values](#filtered-values)
   * [Group Type](#group-type)
   * [Relation](#relation)
   * [Search Data Object](#search-data-object)
@@ -69,7 +70,7 @@ The **Search Component** is an HTML Element (JavaScript Web Component) that you 
 
 ### Filter Component
 
-The **Filter Component** is an HTML Element (JavaScript Web Component) that you define referencing a specific visualization element.  It listens to filter events from its corresponding visualization element; creates [filter designs](#filter-design) from the filtered values; and sends the filter designs to the [FilterService](#filterservice).  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#externally-filtered-data) to the visualization element.  Each visualization element can have zero or more Filter Components.
+The **Filter Component** is an HTML Element (JavaScript Web Component) that you define referencing a specific visualization element.  It listens to filter events from its corresponding visualization element; creates [filter designs](#filter-design) from the [filtered values](#filtered-values); and sends the filter designs to the [FilterService](#filterservice).  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#externally-filtered-data) to the visualization element.  Each visualization element can have zero or more Filter Components.
 
 ### Aggregation Component
 
@@ -80,6 +81,10 @@ The **Aggregation Component** lets you define an [aggregate function](https://en
 The **Group Component** lets you define a data grouping on a field in your search query, usually combined with an [aggregate function](#aggregation), like the equivalent SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
 
 ### Visualization Components
+
+TODO
+
+#### Available Visualizations
 
 TODO
 
@@ -112,6 +117,8 @@ Note that, with Elasticsearch, we equate **indexes** with databases and **mappin
 #### Dataset Examples
 
 ```js
+// Define your datastores, databases, tables, and (optionally) fields.
+// The NCCL will automatically detect fields if they are not defined.
 const fieldArray = [];
 const tableObject = TableConfig.get({
     prettyName: 'Table Name',
@@ -133,8 +140,7 @@ const datastoreObject = DatastoreConfig.get({
 const datastores = {
     datastore_id: datastoreObject
 };
-const connectionService = new ConnectionService();
-const dataServerUrl = 'http://localhost:8090';
+// Define relations to manage simultaneous filtering across datastores (if needed).
 const relations = [
     [
         // Relation of two date/time fields in separate tables.
@@ -163,6 +169,9 @@ const relations = [
          ]
     ]
 ];
+// Create a single Dataset object with your datastores.
+const connectionService = new ConnectionService();
+const dataServerUrl = 'http://localhost:8090';
 const dataset = new Dataset(datastores, connectionService, dataServerUrl, relations);
 ```
 
@@ -239,7 +248,7 @@ Additionally, you must have a deployed instance of the [NCCL Data Server](https:
 4. Initialize each of your [Search Components](#search-and-filter) with the Dataset, FilterService, and SearchService.
 
 ```js
-// Create a single copy of each of the core Services to share with each of your NCCL Components.
+// Create a single copy of each core Service to share with each NCCL Component.
 const connectionService = new ConnectionService();
 const filterService = new FilterService();
 const searchService = new SearchService(connectionService);
@@ -247,8 +256,8 @@ const searchService = new SearchService(connectionService);
 // Define your NCCL Data Server hostname.
 const dataServer = 'http://localhost:8090';
 
-// Define your datastores, databases, tables, and fields.
-// Note that fields are optional.  The NCCL will automatically detect fields if they are not defined.
+// Define your datastores, databases, tables, and (optionally) fields.
+// The NCCL will automatically detect fields if they are not defined.
 const fieldArray = [];
 const tableObject = TableConfig.get({
     prettyName: 'Table Name',
@@ -268,18 +277,18 @@ const datastoreObject = DatastoreConfig.get({
     }
 });
 
-// Define your datastore relations, if any.
+// Define relations to manage simultaneous filtering across datastores (if needed).
 const relations = [];
 
-// Create a single Dataset object with your datastores, connectionService, dataServer, and relations.
+// Create a single Dataset object with your datastores.
 const datasetObject = new Dataset({
     datastore_id: datastoreObject
 }, connectionService, dataServer, relations);
 
-// Initialize each of your Filter Components with the Dataset and FilterService.
+// Initialize each Filter Component with the Dataset and FilterService.
 document.getElementById('filter1').init(datasetObject, filterService);
 
-// Initialize each of your Search Components with the Dataset, FilterService, and SearchService.
+// Initialize each Search Component with the Dataset, FilterService, and SearchService.
 document.getElementById('search1').init(datasetObject, filterService, searchService);
 ```
 
@@ -339,7 +348,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 2. Define a **[Filter Component](#filter-component)** and give it an `id` attribute.
 3. This Filter Component will be creating filters of a specific [filter type](#filter-type).  Give the Filter Component all of the attributes required by the chosen filter type.
 4. This Filter Component will be sending [filter designs](#filter-design) to the Search Component.  Give the Filter Component a `search-element-id` attribute containing the `id` of the Search Component.
-5. This Filter Component will be receiving filtered values from filter events sent by the Visualization element.  Unless your Visualization element does not have a filter event with applicable event data (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Filter Component a `vis-element-id` attribute containing the `id` of the Visualization element and a `vis-filter-output-event` attribute containing the name of the Visualization's filter event.
+5. This Filter Component will be receiving [filtered values](#filtered-values) from filter events sent by the Visualization element.  Unless your Visualization element does not have a filter event with applicable event data (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Filter Component a `vis-element-id` attribute containing the `id` of the Visualization element and a `vis-filter-output-event` attribute containing the name of the Visualization's filter event.
 6. Unless your Visualization element does not have an applicable "change filters" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Filter Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-filter-input-function` attribute containing the name of the Visualization's "change filters" function.
 
 ```html
@@ -459,130 +468,91 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 ### Using NCCL Visualization Components
 
+#### Framework-Agnostic Visualization Examples
+
 ```html
 <!-- Simple Examples -->
 <next-century-text-cloud
-    term-field-key="es1.index_name.index_type.text_field"
+    id="textCloud1"
+    text-field-key="es1.index_name.index_type.text_field"
 >
 </next-century-text-cloud>
 
 <!-- Advanced Examples -->
 <next-century-text-cloud
+    id="textCloud2"
     enable-hide-if-unfiltered
     enable-ignore-self-filter
     enable-intersection-filter
     enable-show-counts
     strength-aggregation="avg"
     strength-field-key="es1.index_name.index_type.size_field"
-    term-field-key="es1.index_name.index_type.text_field"
+    text-field-key="es1.index_name.index_type.text_field"
 >
 </next-century-text-cloud>
 ```
 
+```js
+const textCloud1 = document.getElementById('textCloud1');
+textCloud1.init(dataset, filterService, searchService);
+
+const textCloud2 = document.getElementById('textCloud2');
+textCloud2.init(dataset, filterService, searchService);
+```
+
 #### What Does It Render?
 
-In your application, this...
-
 ```html
-<next-century-map-leaflet
-    category-field-key="es1.index_name.index_type.category_field"
-    latitude-field-key="es1.index_name.index_type.latitude_field"
-    longitude-field-key="es1.index_name.index_type.longitude_field"
+<next-century-base-text-cloud
+    id="textCloud1Vis"
+    aggregation-field="aggregations._count"
+    text-field="fields.text_field"
 >
-</next-century-map-leaflet>
-```
-
-...will turn into this...
-
-```html
-<!-- Element IDs are made with unique alphanumeric indentifiers. -->
-<div id="map_1234">
-    <!-- Leaflet code -->
-</div>
+</next-century-base-text-cloud>
 
 <next-century-search
-    id="search_1234"
-    search-field-key="es1.index_name.index_type.*"
+    id="textCloud1Search"
+    search-field-key="es1.index_name.index_type.text_field"
+    search-limit=10000
+    sort-aggregation="_count"
+    sort-order="descending"
+    vis-draw-function="drawData"
+    vis-element-id="textCloud1Vis"
 >
+    <next-century-aggregation
+        field-key="es1.index_name.index_type.text_field"
+        name="_count"
+    ></next-century-aggregation>
+    <next-century-group
+        field-key="es1.index_name.index_type.text_field"
+    ></next-century-group>
 </next-century-search>
 
-<!-- On-Draw-Bounds Filter -->
 <next-century-filter
-    id="filter_1234"
-    bounds-field-key-x="es1.index_name.index_type.latitude_field"
-    bounds-field-key-y="es1.index_name.index_type.longitude_field"
-    search-element-id="search_1234"
-    type="bounds"
->
-</next-century-filter>
-
-<!-- On-Point-Click Filter -->
-<next-century-filter
-    id="filter_1235"
-    pair-field-key-1="es1.index_name.index_type.latitude_field"
-    pair-field-key-2="es1.index_name.index_type.longitude_field"
-    pair-operator-1="="
-    pair-operator-2="="
-    search-element-id="search_1234"
-    type="pair"
->
-</next-century-filter>
-
-<!-- Secondary On-Point-Click Filter -->
-<next-century-filter
-    id="filter_1236"
-    list-field-key="es1.index_name.index_type.category_field"
+    id="textCloud1Filter"
+    list-field-key="es1.index_name.index_type.text_field"
     list-operator="="
-    search-element-id="search_1234"
-    type="list"
->
-</next-century-filter>
-
-<!-- Legend Filter -->
-<next-century-filter
-    id="filter_1237"
-    list-field-key="es1.index_name.index_type.category_field"
-    list-operator="!="
-    search-element-id="search_1234"
-    type="list"
->
-</next-century-filter>
+    search-element-id="textCloud1Search"
+    vis-element-id="textCloud1Vis"
+    vis-filter-input-function="changeFilteredText"
+    vis-filter-output-event="filter"
+></next-century-filter>
 ```
-
-...with custom transformation functions:
-
-(TODO / WIP)
 
 ```js
-const transformSearchDataArray = function(searchDataArray) { /* ... */ };
-const transformBoundsEventFilterData = function(event) { /* ... */ };
-const transformPointsEventFilterData = function(event) { /* ... */ };
-const transformLegendEventFilterData = function(event) { /* ... */ };
-const transformBoundsFilterDataArray = function(event) { /* ... */ };
-const transformPointsLocationFilterDataArray = function(event) { /* ... */ };
-const transformPointsCategoryFilterDataArray = function(event) { /* ... */ };
-const transformLegendFilterDataArray = function(event) { /* ... */ };
-
-const searchElement = document.getElementById('search_1234');
-searchElement.addEventListener('dataReceived', transformSearchDataArray);
-
-const mapElement = document.getElementById('map_1234');
-mapElement.addEventListener('onBounds', transformBoundsEventFilterData);
-mapElement.addEventListener('onPoints', transformPointsEventFilterData);
-mapElement.addEventListener('onLegend', transformLegendEventFilterData);
-
-const boundsFilterElement = document.getElementById('filter_1234');
-boundsFilterElement.addEventListener('filtersChanged', transformBoundsFilterDataArray);
-
-const pointsLocationFilterElement = document.getElementById('filter_1235');
-pointsLocationFilterElement.addEventListener('filtersChanged', transformPointsLocationFilterDataArray);
-
-const pointsCategoryFilterElement = document.getElementById('filter_1236');
-pointsCategoryFilterElement.addEventListener('filtersChanged', transformPointsCategoryFilterDataArray);
-
-const legendFilterElement = document.getElementById('filter_1237');
-legendFilterElement.addEventListener('filtersChanged', transformLegendFilterDataArray);
+public init(dataset: Dataset, filterService: FilterService, searchService: SearchService) {
+    const filterComponent = document.getElementById('textCloud1Filter');
+    filterComponent.init(dataset, filterService);
+    const searchComponent = document.getElementById('textCloud1Search');
+    searchComponent.init(dataset, filterService, searchService);
+}
 ```
+
+#### Framework-Specific Visualization Wrappers
+
+* [Developing in Angular](#developing-in-angular)
+* [Developing in React](#developing-in-react)
+* [Developing in Vue](#developing-in-vue)
 
 ### Using My Visualization Elements
 
@@ -592,7 +562,7 @@ To use your own Visualization Elements:
 
 1. It's best if your Visualization element has a "draw data" function that accepts an **[array of search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
 2. If you want your Visualization element to generate search filters, it's best if your Visualization element emits filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter output data transformations](#transforming-filter-data-sent-from-my-visualization) to call the `updateFilters` function on the Filter Component in order for it to create the new filters.
-3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its filtered values.
+3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its [filtered values](#filtered-values).
 
 ### Using Custom Data Transformations
 
@@ -758,7 +728,7 @@ A **field key** is a string containing a **unique datastore identifier**, **data
 
 ### Filter Data Array
 
-A **filter data array** contains filtered values in a format depending on the [type of filter](#filter-type) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
+A **filter data array** contains [filtered values](#filtered-values) in a format depending on the [type of filter](#filter-type) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
 
 A **List Filter** contains data in one of two formats:  first, it may be a single value, not in an array (yes, the name "filter data array" is confusing in this case); second, it may be an array of one or more values.  All of the values will be included in the filter.
 
@@ -791,7 +761,7 @@ const pairFilterData2 = [['a', 'b'], ['c', 'd']];
 
 A **filter design** contains the data needed to create specific filter, including [field key(s)](#field-key), operator(s), values, and [filter type](#filter-type).  The FilterService transforms filter designs into filter objects that it then saves and gives to the Search Component.
 
-However, a filter design can also be made without filter values.  In this case, it's used to match all filters with the same field keys, operators, and filter type (and nested format for compound filters) but different values.  Each Filter Component creates filters of a specific design; the Search Component uses the filter designs from its corresponding Filter Components to identify [externally filtered data](#externally-filtered-data).
+However, a filter design can also be made without any values.  In this case, it's used to match all filters with the same field keys, operators, and filter type (and nested format for compound filters) but different values.  Each Filter Component creates filters of a specific design; the Search Component uses the filter designs from its corresponding Filter Components to identify [externally filtered data](#externally-filtered-data).
 
 ### Filter Operator
 
@@ -919,6 +889,10 @@ Example:
 Filter Component Attributes:
 
 TODO
+
+### Filtered Values
+
+**Filtered values** are the primitives (string, number, or boolean) or Date objects that are filtered by your visualization.  Examples:  parts of a document's text; groups in a bar chart; coordinates on a map; IDs of nodes in a graph.
 
 ### Group Type
 
