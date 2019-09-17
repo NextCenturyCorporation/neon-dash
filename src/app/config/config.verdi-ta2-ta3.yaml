@@ -440,9 +440,9 @@ layouts:
               title: Document Timeline
               tableKey: document_table
               idField: document_field_id
-              filterField: document_field_id
+              filterField: document_field_children
               dateField: document_field_date
-              granularity: month
+              granularity: dayOfMonth
               hideUnfiltered: false
 
         - type: thumbnailGrid
@@ -796,7 +796,7 @@ layouts:
               idField: document_field_id
               filterField:
               dateField: document_field_date
-              granularity: month
+              granularity: dayOfMonth
               hideUnfiltered: true
 
         - type: thumbnailGrid
