@@ -201,7 +201,7 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 ### Setup
 
-* Import the NCCL Core Components and the Web Component polyfills into your frontend application.
+* Import the NCCL core components / models / services and the Web Component polyfills into your frontend application.
 * Define a [**Search Component**](#search-component) and zero or more [**Filter Components**](#filter-component) for each of your application's data visualizations (or import and use NCCL [**Visualization Components**](#visualizations)).
 * Create [**Dataset**](#datasets), [**FilterService**](#filterservice), and [**SearchService**](#searchservice) objects and use them to initialize your Search and Filter Components.
 * Separately, deploy the [**NCCL Data Server**](#the-data-server) so that it can communicate with your frontend application and your datastores.
@@ -223,7 +223,7 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 Your frontend application must import the following dependencies:
 
-* The NCCL Core Components
+* The NCCL core components / models / services
 * The [Web Components Polyfills](https://www.npmjs.com/package/@webcomponents/webcomponentsjs)
 * (Optionally) One or more NCCL Visualization Components
 
