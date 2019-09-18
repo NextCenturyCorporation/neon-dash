@@ -319,8 +319,9 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _handleDeleteFilters(values?: any|any[]): void {
         if (this._isReady()) {
-            const filterDesigns: CompoundFilterDesign[] = typeof values !== 'undefined' ? this._createFilterDesigns(values) : [];
-            if (filterDesigns.length || typeof values === 'undefined') {
+            const filterDesigns: CompoundFilterDesign[] = this._createFilterDesigns(typeof values !== 'undefined' ? values :
+                this._generateFilterDesignValues(this._retrieveFilterType()));
+            if (filterDesigns.length) {
                 this._deleteFilters(filterDesigns);
             }
         }
