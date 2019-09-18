@@ -64,7 +64,7 @@ export class NextCenturySearch extends NextCenturyElement {
             'enable-hide-if-unfiltered',
             'enable-ignore-self-filter',
             'id',
-            'search-field-key',
+            'search-field-keys',
             'search-limit',
             'search-page',
             'server',
@@ -89,7 +89,7 @@ export class NextCenturySearch extends NextCenturyElement {
                 // Falls through
             case 'enable-hide-if-unfiltered':
             case 'enable-ignore-self-filter':
-            case 'search-field-key':
+            case 'search-field-keys':
             case 'search-limit':
             case 'search-page':
             case 'sort-aggregation':
@@ -153,30 +153,31 @@ export class NextCenturySearch extends NextCenturyElement {
      * Returns the search query with its fields, aggregations, groups, filters, and sort.
      */
     private _buildQuery(searchFilters: AbstractFilter[]): QueryPayload {
+        const fieldKeys: FieldKey[] = this._retrieveFieldKeys().filter((fieldKey) =>
+            !!fieldKey && !!fieldKey.field && fieldKey.field !== '*');
+
         const aggregations: AggregationData[] = this._findSearchAggregations();
         const groups: GroupData[] = this._findSearchGroups();
-
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
 
         const unsharedFilters: AbstractFilter[] = Array.from(this._idsToFilters.values()).reduce((completeFilterList, filterList) =>
             completeFilterList.concat(filterList), []);
 
-        const fields: string[] = (fieldKey.field !== '*' ? [fieldKey.field] : [])
+        const fields: string[] = fieldKeys.map((fieldKey) => fieldKey.field)
             .concat(aggregations.filter((aggregation) => aggregation.fieldKey).map((aggregation) => aggregation.fieldKey.field))
             .concat(groups.filter((group) => group.fieldKey).map((group) => group.fieldKey.field))
             .concat(unsharedFilters.reduce((list, filter) => list.concat(FilterUtil.retrieveFields(filter)), []));
 
-        let queryPayload: QueryPayload = this._searchService.buildQueryPayload(fieldKey.database, fieldKey.table,
+        const tableKey: FieldKey = this._retrieveTableKey();
+        let queryPayload: QueryPayload = this._searchService.buildQueryPayload(tableKey.database, tableKey.table,
             fields.length ? fields : ['*']);
 
-        const filterClauses: FilterClause[] =
-            (fieldKey.field !== '*' ? [this._searchService.buildFilterClause(fieldKey.field, '!=', null)] : [])
-                .concat(searchFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)))
-                .concat(unsharedFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)));
+        const clauses: FilterClause[] = fieldKeys.map((fieldKey) => this._searchService.buildFilterClause(fieldKey.field, '!=', null))
+            .concat(searchFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)))
+            .concat(unsharedFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)));
 
-        if (filterClauses.length) {
-            this._searchService.updateFilter(queryPayload, filterClauses.length === 1 ? filterClauses[0] :
-                this._searchService.buildCompoundFilterClause(filterClauses));
+        if (clauses.length) {
+            this._searchService.updateFilter(queryPayload, clauses.length === 1 ? clauses[0] :
+                this._searchService.buildCompoundFilterClause(clauses));
         }
 
         if (aggregations.length) {
@@ -489,7 +490,7 @@ export class NextCenturySearch extends NextCenturyElement {
      * Returns if the required properties have been initialized to run a search.
      */
     private _isReady(): boolean {
-        return !!(this._filterService && this._searchService && this.hasAttribute('search-field-key') && this.hasAttribute('id'));
+        return !!(this._filterService && this._searchService && this.hasAttribute('search-field-keys') && this.hasAttribute('id'));
     }
 
     /**
@@ -508,7 +509,15 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 
     /**
-     * Returns the all the filters in the datastore/database/table of the search-field-key (except the filters matching
+     * Returns all the search field keys.
+     */
+    private _retrieveFieldKeys(): FieldKey[] {
+        const fieldKeyStrings: string[] = (this.getAttribute('search-field-keys') || '').split(',');
+        return fieldKeyStrings.map((fieldKeyString) => DatasetUtil.deconstructTableOrFieldKey(fieldKeyString));
+    }
+
+    /**
+     * Returns the all the filters in the datastore/database/table of the search-field-keys (except the filters matching
      * the _idsToFilterDesigns, unless filter-self is true).
      */
     private _retrieveSearchFilters(): AbstractFilter[] {
@@ -518,9 +527,9 @@ export class NextCenturySearch extends NextCenturyElement {
 
         const sharedFilters: AbstractFilter[] = this.hasAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
 
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
+        const tableKey: FieldKey = this._retrieveTableKey();
 
-        return !fieldKey ? [] : this._filterService.getFiltersToSearch(fieldKey.datastore, fieldKey.database, fieldKey.table,
+        return !tableKey ? [] : this._filterService.getFiltersToSearch(tableKey.datastore, tableKey.database, tableKey.table,
             sharedFilters.map((filter) => filter.toConfig()));
     }
 
@@ -539,6 +548,16 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 
     /**
+     * Returns the single search table key.
+     *
+     * TODO Don't assume that each fieldKey contains the same datastore, database, and table.
+     */
+    private _retrieveTableKey(): FieldKey {
+        const fieldKeys: FieldKey[] = this._retrieveFieldKeys();
+        return fieldKeys.length ? fieldKeys[0] : null;
+    }
+
+    /**
      * Runs the given search query using the current attributes, dataset, and services.
      */
     private _runQuery(queryPayload: QueryPayload, isFiltered: boolean): void {
@@ -550,12 +569,12 @@ export class NextCenturySearch extends NextCenturyElement {
             this._runningQuery.abort();
         }
 
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
+        const tableKey: FieldKey = this._retrieveTableKey();
         // Returns a list of [DatastoreConfig, DatabaseConfig, TableConfig, FieldConfig]
-        const metaData = fieldKey ? this._dataset.retrieveConfigDataFromFieldKey(fieldKey) : [null, null, null, null];
-        const dataHost = metaData[0] ? metaData[0].host : null;
-        const dataType = metaData[0] ? metaData[0].type : null;
-        const labels = metaData[2] ? metaData[2].labelOptions : {};
+        const configData = tableKey ? this._dataset.retrieveConfigDataFromFieldKey(tableKey) : [null, null, null, null];
+        const dataHost = configData[0] ? configData[0].host : null;
+        const dataType = configData[0] ? configData[0].type : null;
+        const labels = configData[2] ? configData[2].labelOptions : {};
         const hideIfUnfiltered = !!this.getAttribute('enable-hide-if-unfiltered');
 
         // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.
