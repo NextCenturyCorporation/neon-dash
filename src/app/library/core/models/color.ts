@@ -193,7 +193,7 @@ export class ColorSet {
 
         Color.fromHexString('#80FFFF'), // Blue?
         Color.fromHexString('#FFFF80'), // Yellow?
-        Color.fromHexString('#FF80FF')  // Purple?
+        Color.fromHexString('#FF80FF') // Purple?
     ];
 
     protected currentIndex: number = 0;
