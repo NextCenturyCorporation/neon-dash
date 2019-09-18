@@ -214,7 +214,7 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 4. The visualization renders the search data.
 5. When a user's interaction with a visualization should generate a filter on some data (for example, clicking on an element), that visualization will dispatch an event to notify its corresponding **Filter Component**.
 6. When a **Filter Component** is notified with a filter event from its corresponding visualization, it will create a new filter and send it to the **FilterService**.
-7. When the **FilterService** is sent a filter, it notifies each relevant **Search Component** to automatically run a new search query using that filter and have its visualization re-render the search data (see 1-4).  A Search Component is relevant if the datastore, database, and table in its `search-field-key` match a datastore, database, and table in the new filter(s).
+7. When the **FilterService** is sent a filter, it notifies each relevant **Search Component** to automatically run a new search query using that filter and have its visualization re-render the search data (see 1-4).  A Search Component is relevant if the datastore, database, and table in its `search-field-keys` match a datastore, database, and table in the new filter(s).
 8. Additionally, when the **FilterService** is sent a filter, it also notifies each relevant **Filter Component** to pass the [externally filtered data](#externally-filtered-data) onto its corresponding visualization if needed.  A Filter Component is relevant if its [filter designs](#filter-design) match the new filter(s).
 
 ## How can I use the Next Century Component Library too?
@@ -287,7 +287,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 1. Define your **Visualization element** and give it an `id` attribute.
 2. Define a **[Search Component](#search-component)** and give it an `id` attribute.
-3. This Search Component will be querying one or more fields in a specific datastore/database/table.  Give the Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
+3. This Search Component will be querying one or more fields in a specific datastore/database/table.  Give the Search element a `search-field-keys` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
 4. Give the Search Component a `server` attribute containing the hostname of your deployed [NCCL Data Server](#the-data-server) WITH the `http` prefix if needed.
 5. Unless your Visualization element does not have an applicable "draw data" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Search Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-draw-function` attribute containing the name of the Visualization's"draw data" function.
 
@@ -296,7 +296,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -315,7 +315,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.username_field"
+    search-field-keys="es1.index_name.index_type.username_field"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -347,7 +347,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -373,7 +373,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.username_field"
+    search-field-keys="es1.index_name.index_type.username_field"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -410,7 +410,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -502,7 +502,7 @@ In your application, this...
 
 <next-century-search
     id="search_1234"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
 >
 </next-century-search>
 
@@ -624,7 +624,7 @@ search1.addEventListener('dataReceived', transformSearchDataArray);
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
 >
 </next-century-search>
 ```
@@ -655,7 +655,7 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -699,7 +699,7 @@ filter1.addEventListener('filtersChanged', transformFilterDataArray);
 
 <next-century-search
     id="search1"
-    search-field-key="es1.index_name.index_type.*"
+    search-field-keys="es1.index_name.index_type.*"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
