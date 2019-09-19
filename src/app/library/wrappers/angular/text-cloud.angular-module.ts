@@ -15,7 +15,7 @@
 
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NextCenturyAngularTextCloud } from './text-cloud.angular.component';
+import { NextCenturyAngularTextCloud } from './text-cloud.angular-component';
 
 @NgModule({
     declarations: [NextCenturyAngularTextCloud],

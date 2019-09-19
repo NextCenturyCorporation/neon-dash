@@ -30,7 +30,7 @@ import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '..
 import { CoreUtil } from '../core.util';
 import { Dataset, DatasetUtil, FieldKey } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
-import { NextCenturyElement } from './element.webcomponent';
+import { NextCenturyElement } from './element.web-component';
 import { RequestWrapper } from '../services/connection.service';
 
 interface AggregationData {
@@ -81,12 +81,12 @@ export class NextCenturySearch extends NextCenturyElement {
         ];
     }
 
-    static createElement(id: string, attributes: Record<string, any>): HTMLElement {
+    static createElement(id: string, attributes: Record<string, any>): NextCenturySearch {
         if (!id || NextCenturySearch.requiredAttributes.some((attribute) => typeof attributes[attribute] === 'undefined')) {
             return null;
         }
 
-        const searchElement = document.createElement(NextCenturySearch.ELEMENT_NAME);
+        const searchElement = document.createElement(NextCenturySearch.ELEMENT_NAME) as NextCenturySearch;
         searchElement.setAttribute('id', id);
         NextCenturySearch.requiredAttributes.forEach((attribute) => {
             searchElement.setAttribute(attribute, attributes[attribute]);
@@ -136,9 +136,14 @@ export class NextCenturySearch extends NextCenturyElement {
 
         if (this.hasAttribute('id')) {
             this._registerWithFilterService(null, this.getAttribute('id'));
-            this._startQuery();
+
+            if (this.hasAttribute('search-field-keys')) {
+                this._startQuery();
+            } else {
+                console.error('Search component must have the search-field-keys attribute!');
+            }
         } else {
-            console.error('NextCenturySearch must have an id attribute!');
+            console.error('Search component must have an id attribute!');
         }
     }
 
