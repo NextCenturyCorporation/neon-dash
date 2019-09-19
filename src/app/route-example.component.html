@@ -21,6 +21,7 @@
 
     <next-century-filter #filter1A
         id="filter1A"
+        filter-type="list"
         list-field-key="es1.ldc_uyg_jul_18.ui_out._id"
         list-operator="="
         search-element-id="search1"
@@ -40,7 +41,7 @@
 
     <next-century-search #search2
         id="search2"
-        enable-igonre-self-filter
+        enable-ignore-self-filter
         search-field-keys="es1.ldc_uyg_jul_18.ui_out.topic"
         search-limit=10000
         sort-aggregation="_records"
@@ -49,16 +50,17 @@
         vis-element-id="vis2"
     >
         <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-            name="_records"
+            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+            aggregation-name="_records"
         ></next-century-aggregation>
         <next-century-group
-            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+            group-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
         ></next-century-group>
     </next-century-search>
 
     <next-century-filter #filter2A
         id="filter2A"
+        filter-type="list"
         list-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
         list-operator="="
         search-element-id="search2"
@@ -78,7 +80,8 @@
 
     <next-century-search #search3
         id="search3"
-        enable-igonre-self-filter
+        enable-ignore-self-filter
+        filter-type="list"
         search-field-keys="es1.ldc_uyg_jul_18.ui_out.translatedText"
         search-limit=10000
         sort-aggregation="_records"
@@ -87,16 +90,17 @@
         vis-element-id="vis3"
     >
         <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-            name="_records"
+            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+            aggregation-name="_records"
         ></next-century-aggregation>
         <next-century-group
-            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+            group-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
         ></next-century-group>
     </next-century-search>
 
     <next-century-filter #filter3A
         id="filter3A"
+        filter-type="list"
         list-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
         list-operator="="
         search-element-id="search3"
@@ -116,7 +120,8 @@
 
     <next-century-search #search4
         id="search4"
-        enable-igonre-self-filter
+        enable-ignore-self-filter
+        filter-type="list"
         search-field-keys="es1.ldc_uyg_jul_18.ui_out.createdDate"
         search-limit=10000
         sort-aggregation="_timeline"
@@ -125,25 +130,25 @@
         vis-element-id="vis4"
     >
         <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-            name="_timeline"
-            type="min"
+            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+            aggregation-name="_timeline"
+            aggregation-type="min"
         ></next-century-aggregation>
         <next-century-aggregation
-            group="_dayOfMonth"
-            name="_records"
+            aggregation-group="_dayOfMonth"
+            aggregation-name="_records"
         ></next-century-aggregation>
         <next-century-group
-            field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-            type="dayOfMonth"
+            group-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+            group-type="dayOfMonth"
         ></next-century-group>
     </next-century-search>
 
     <next-century-filter #filter4A
         id="filter4A"
         domain-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+        filter-type="domain"
         search-element-id="search4"
-        type="domain"
     ></next-century-filter>
 </div>
 
@@ -162,23 +167,65 @@
         vis-element-id="vis5"
     >
         <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.*"
-            name="_records"
+            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.*"
+            aggregation-name="_records"
         ></next-century-aggregation>
     </next-century-search>
 </div>
 
 <div class="column">
-    <next-century-text-cloud #textCloud1
+    <next-century-text-cloud #textCloudWrapper1
+        id="textCloudWrapper1"
+        enable-ignore-self-filter
+        text-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+    >
+    </next-century-text-cloud>
+</div>
+
+<div class="column">
+    <next-century-text-cloud #textCloudWrapper2
+        id="textCloudWrapper2"
+        aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.geoLocation.lat"
+        aggregation-type="max"
+        enable-ignore-self-filter
+        text-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+    >
+    </next-century-text-cloud>
+</div>
+
+<div class="column">
+    <app-next-century-angular-text-cloud
+        id="testAngular1"
+        [dataset]="dataset"
+        [filterService]="filterService"
+        [options]="textCloudOptions1"
+        [searchService]="searchService"
+    >
+    </app-next-century-angular-text-cloud>
+</div>
+
+<div class="column">
+    <app-next-century-angular-text-cloud
+        id="testAngular2"
+        [dataset]="dataset"
+        [filterService]="filterService"
+        [options]="textCloudOptions2"
+        [searchService]="searchService"
+    >
+    </app-next-century-angular-text-cloud>
+</div>
+
+<div class="column">
+    <next-century-base-text-cloud #textCloud1
         id="textCloud1"
         aggregation-field="aggregations._records"
         text-field="fields.topic"
     >
-    </next-century-text-cloud>
+    </next-century-base-text-cloud>
 
     <next-century-search #textCloudSearch1
         id="textCloudSearch1"
-        enable-igonre-self-filter
+        enable-ignore-self-filter
         search-field-keys="es1.ldc_uyg_jul_18.ui_out.topic"
         search-limit=10000
         sort-aggregation="_records"
@@ -187,11 +234,11 @@
         vis-element-id="textCloud1"
     >
         <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-            name="_records"
+            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+            aggregation-name="_records"
         ></next-century-aggregation>
         <next-century-group
-            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+            group-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
         ></next-century-group>
     </next-century-search>
 
@@ -199,76 +246,12 @@
         id="textCloudFilter1A"
         list-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
         list-operator="="
+        filter-type="list"
         search-element-id="textCloudSearch1"
         vis-element-id="textCloud1"
         vis-filter-input-function="changeFilteredText"
         vis-filter-output-event="filter"
     ></next-century-filter>
-</div>
-
-<div class="column">
-    <next-century-text-cloud #textCloud2
-        id="textCloud2"
-        aggregation-field="aggregations._records"
-        text-field="fields.translatedText"
-    >
-    </next-century-text-cloud>
-
-    <next-century-search #textCloudSearch2
-        id="textCloudSearch2"
-        enable-igonre-self-filter
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        search-limit=10000
-        sort-aggregation="_records"
-        sort-order="descending"
-        vis-draw-function="drawData"
-        vis-element-id="textCloud2"
-    >
-        <next-century-aggregation
-            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-            name="_records"
-        ></next-century-aggregation>
-        <next-century-group
-            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        ></next-century-group>
-    </next-century-search>
-
-    <next-century-filter #textCloudFilter2A
-        id="textCloudFilter2A"
-        list-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        list-operator="="
-        search-element-id="textCloudSearch2"
-        vis-element-id="textCloud2"
-        vis-filter-input-function="changeFilteredText"
-        vis-filter-output-event="filter"
-    ></next-century-filter>
-</div>
-
-<div class="column">
-    <app-next-century-angular-text-cloud
-        id="testAngular1"
-        aggregationType="count"
-        [dataset]="dataset"
-        [filterService]="filterService"
-        [searchService]="searchService"
-        textFieldKey="es1.ldc_uyg_jul_18.ui_out.topic"
-    >
-    </app-next-century-angular-text-cloud>
-</div>
-
-<div class="column">
-    <app-next-century-angular-text-cloud
-        id="testAngular2"
-        aggregationType="count"
-        [dataset]="dataset"
-        [filterService]="filterService"
-        [searchService]="searchService"
-        textFieldKey="es1.ldc_uyg_jul_18.ui_out.translatedText"
-    >
-    </app-next-century-angular-text-cloud>
-</div>
-
-<div class="column">
 </div>
 
 <!-- beautify ignore:end -->

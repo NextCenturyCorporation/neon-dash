@@ -23,9 +23,9 @@ export class CoreUtil {
     /**
      * Add the given listener of the given event on the element with the given ID.
      */
-    static addListener(listener: (event: any) => void, elementId: string, eventName: string): void {
+    static addListener(listener: (event: any) => void, parentElement: HTMLElement, elementId: string, eventName: string): void {
         if (elementId && eventName) {
-            const element = document.getElementById(elementId) as any;
+            const element = parentElement.querySelector('#' + elementId);
             if (element) {
                 element.addEventListener(eventName, listener);
             }
@@ -151,9 +151,9 @@ export class CoreUtil {
     /**
      * Removes the given listener of the given event on the element with the given ID.
      */
-    static removeListener(listener: (event: any) => void, elementId: string, eventName: string): void {
+    static removeListener(listener: (event: any) => void, parentElement: HTMLElement, elementId: string, eventName: string): void {
         if (elementId && eventName) {
-            const element = document.getElementById(elementId) as any;
+            const element = parentElement.querySelector('#' + elementId);
             if (element) {
                 element.removeEventListener(eventName, listener);
             }
@@ -203,6 +203,19 @@ export class CoreUtil {
     }
 
     /**
+     * Transforms the given attributes of an HTMLElement into an object.
+     */
+    static transformElementAttributes(elementAttributes: NamedNodeMap): Record<string, any> {
+        let attributes: Record<string, any> = {};
+        // I don't think(?) we're able to use a for-of on a NamedNodeMap.
+        /* eslint-disable-next-line @typescript-eslint/prefer-for-of */
+        for (let index = 0; index < elementAttributes.length; ++index) {
+            attributes[elementAttributes[index].name] = elementAttributes[index].value;
+        }
+        return attributes;
+    }
+
+    /**
      * Transforms the given string or string array into a string array and returns the array.
      *
      * @arg {string|string[]} input
@@ -245,13 +258,14 @@ export class CoreUtil {
      */
     static updateListener(
         listener: (event: any) => void,
+        parentElement: HTMLElement,
         oldElementId: string,
         oldEventName: string,
         newElementId: string,
         newEventName: string
     ): void {
-        CoreUtil.removeListener(listener, oldElementId, oldEventName);
-        CoreUtil.addListener(listener, newElementId, newEventName);
+        CoreUtil.removeListener(listener, parentElement, oldElementId, oldEventName);
+        CoreUtil.addListener(listener, parentElement, newElementId, newEventName);
     }
 }
 
