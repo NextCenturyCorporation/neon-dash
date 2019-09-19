@@ -17,12 +17,11 @@ import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, ViewE
 import { AbstractSearchService } from '../../core/services/abstract.search.service';
 import { Dataset } from '../../core/models/dataset';
 import { FilterService } from '../../core/services/filter.service';
-import { NextCenturyTextCloud } from '../webcomponents/text-cloud.webcomponent';
+import { NextCenturyTextCloud } from '../../visualizations/text-cloud/text-cloud.web-component';
 
 @Component({
     selector: 'app-next-century-angular-text-cloud',
-    templateUrl: './text-cloud.angular.component.html',
-    styleUrls: ['./text-cloud.angular.component.scss'],
+    template: '<next-century-text-cloud [attr.id]="id + \'_angular\'"></next-century-text-cloud>',
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

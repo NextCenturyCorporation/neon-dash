@@ -15,16 +15,16 @@
 
 import './core.util';
 import './date.util';
-import './components/aggregation.webcomponent';
-import './components/element.webcomponent';
-import './components/filter.webcomponent';
-import './components/group.webcomponent';
-import './components/search.webcomponent';
-import './services/abstract.search.service.webcomponent';
-import './services/abstract.color-theme.service.webcomponent';
-import './services/connection.service.webcomponent';
-import './services/filter.service.webcomponent';
-import './services/search.service.webcomponent';
+import './components/aggregation.web-component';
+import './components/element.web-component';
+import './components/filter.web-component';
+import './components/group.web-component';
+import './components/search.web-component';
+import './services/abstract.search.service';
+import './services/abstract.color-theme.service';
+import './services/connection.service';
+import './services/filter.service';
+import './services/search.service';
 import './models/dataset';
 import './models/filters';
 import './models/widget-option';
