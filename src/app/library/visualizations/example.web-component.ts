@@ -14,7 +14,7 @@
  */
 
 import { CoreUtil } from '../core/core.util';
-import { NextCenturyElement } from '../core/components/element.webcomponent';
+import { NextCenturyElement } from '../core/components/element.web-component';
 
 export class NextCenturyExample extends NextCenturyElement {
     private _data: any[];

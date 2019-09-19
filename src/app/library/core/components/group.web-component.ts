@@ -13,30 +13,29 @@
  * limitations under the License.
  */
 
-import { NextCenturyElement } from './element.webcomponent';
+import { NextCenturyElement } from './element.web-component';
 
-export class NextCenturyAggregation extends NextCenturyElement {
-    static ELEMENT_NAME = 'next-century-aggregation';
+export class NextCenturyGroup extends NextCenturyElement {
+    static ELEMENT_NAME = 'next-century-group';
 
     static get observedAttributes(): string[] {
         return [
-            'aggregation-field-key',
-            'aggregation-group',
-            'aggregation-name',
-            'aggregation-type'
+            'group-field-key',
+            'group-name',
+            'group-type'
         ];
     }
 
     static createElement(attributes: Record<string, any>): HTMLElement {
-        const aggregationElement = document.createElement(NextCenturyAggregation.ELEMENT_NAME);
-        NextCenturyAggregation.observedAttributes.forEach((attribute) => {
+        const groupElement = document.createElement(NextCenturyGroup.ELEMENT_NAME);
+        NextCenturyGroup.observedAttributes.forEach((attribute) => {
             if (typeof attributes[attribute] !== 'undefined') {
-                aggregationElement.setAttribute(attribute, attributes[attribute]);
+                groupElement.setAttribute(attribute, attributes[attribute]);
             }
         });
-        return aggregationElement;
+        return groupElement;
     }
 }
 
-window.customElements.define(NextCenturyAggregation.ELEMENT_NAME, NextCenturyAggregation);
+window.customElements.define(NextCenturyGroup.ELEMENT_NAME, NextCenturyGroup);
 

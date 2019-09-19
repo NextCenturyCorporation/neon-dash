@@ -33,14 +33,14 @@ import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
-import './library/core/components/aggregation.webcomponent';
-import './library/core/components/filter.webcomponent';
-import './library/core/components/group.webcomponent';
-import './library/core/components/search.webcomponent';
-import './library/visualizations/example.webcomponent';
-import './library/visualizations/text-cloud/text-cloud';
-import './library/wrappers/angular/text-cloud.angular.component';
-import './library/wrappers/webcomponents/text-cloud.webcomponent';
+import './library/core/components/aggregation.web-component';
+import './library/core/components/filter.web-component';
+import './library/core/components/group.web-component';
+import './library/core/components/search.web-component';
+import './library/visualizations/example.web-component';
+import './library/visualizations/text-cloud/text-cloud.visualization';
+import './library/visualizations/text-cloud/text-cloud.web-component';
+import './library/wrappers/angular/text-cloud.angular-component';
 
 @Component({
     selector: 'app-route-example',
@@ -75,6 +75,7 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
     public textCloudOptions2 = {
         'aggregation-field-key': 'es1.ldc_uyg_jul_18.ui_out.geoLocation.lat',
         'aggregation-type': 'max',
+        'enable-ignore-self-filter': true,
         'text-field-key': 'es1.ldc_uyg_jul_18.ui_out.topic'
     };
 
