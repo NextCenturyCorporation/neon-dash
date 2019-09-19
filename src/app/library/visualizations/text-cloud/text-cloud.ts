@@ -17,7 +17,7 @@ import { ColorOptions, SizeOptions, TextCloud } from './TextCloud';
 import { CoreUtil } from '../../core/core.util';
 import { NextCenturyElement } from '../../core/components/element.webcomponent';
 
-export class NextCenturyTextCloud extends NextCenturyElement {
+export class NextCenturyTextCloudVisualization extends NextCenturyElement {
     private _data: any[] = [];
     private _filtered: any[] = [];
     private _shadowRoot: ShadowRoot;
@@ -26,12 +26,12 @@ export class NextCenturyTextCloud extends NextCenturyElement {
 
     static get observedAttributes(): string[] {
         return [
+            'aggregation-field',
+            'aggregation-label',
             'color-accent',
             'color-text',
             'enable-counts',
             'enable-paragraphs',
-            'aggregation-field',
-            'aggregation-label',
             'text-field'
         ];
     }
@@ -77,14 +77,14 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         this._shadowRoot.appendChild(template.content.cloneNode(true));
         this._visElement = document.createElement('div');
         this._shadowRoot.appendChild(this._visElement);
-        this._createTextCloudVisualization();
+        this._createVisualizationAndRedrawData();
     }
 
     public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
         super.attributeChangedCallback(name, oldValue, newValue);
 
         if (name === 'color-accent' || name === 'color-text') {
-            this._createTextCloudVisualization();
+            this._createVisualizationAndRedrawData();
         } else {
             this._redrawData();
         }
@@ -142,7 +142,7 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         }));
     }
 
-    private _createTextCloudVisualization(): void {
+    private _createVisualizationAndRedrawData(): void {
         const accentColorHex = this.getAttribute('color-accent') || '#0000FF';
         const textColorHex = this.getAttribute('color-text') || '#111111';
         this._textCloudObject = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
@@ -187,4 +187,4 @@ export class NextCenturyTextCloud extends NextCenturyElement {
     }
 }
 
-window.customElements.define('next-century-text-cloud', NextCenturyTextCloud);
+window.customElements.define('next-century-base-text-cloud', NextCenturyTextCloudVisualization);

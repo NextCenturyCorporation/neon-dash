@@ -15,10 +15,9 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, ViewEncapsulation } from '@angular/core';
 
 import { AbstractSearchService } from '../../core/services/abstract.search.service';
-import { Dataset, DatasetUtil, FieldKey } from '../../core/models/dataset';
+import { Dataset } from '../../core/models/dataset';
 import { FilterService } from '../../core/services/filter.service';
-
-import '../../visualizations/text-cloud/text-cloud.webcomponent';
+import { NextCenturyTextCloud } from '../webcomponents/text-cloud.webcomponent';
 
 @Component({
     selector: 'app-next-century-angular-text-cloud',
@@ -28,26 +27,25 @@ import '../../visualizations/text-cloud/text-cloud.webcomponent';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NextCenturyAngularTextCloud implements OnChanges {
-    @Input() aggregationFieldKey: string;
-    @Input() aggregationType: string;
     @Input() dataset: Dataset;
     @Input() filterService: FilterService;
     @Input() id: string;
+    @Input() options: Record<string, any>;
     @Input() searchService: AbstractSearchService;
-    @Input() textFieldKey: string;
 
     constructor(private elementRef: ElementRef) { }
 
     ngOnChanges(__changes) {
-        if (this.id && this.dataset && this.filterService && this.searchService) {
-            this.elementRef.nativeElement.querySelector('#' + this.id + 'TextCloudFilter').init(this.dataset, this.filterService);
-            this.elementRef.nativeElement.querySelector('#' + this.id + 'TextCloudSearch').init(this.dataset, this.filterService,
-                this.searchService);
+        if (this.id) {
+            const textCloud = this.elementRef.nativeElement.querySelector('#' + this.id + '_angular') as NextCenturyTextCloud;
+            if (textCloud) {
+                Object.keys(this.options || {}).forEach((attribute) => {
+                    textCloud.setAttribute(attribute, this.options[attribute]);
+                });
+                if (this.dataset && this.filterService && this.searchService) {
+                    textCloud.init(this.dataset, this.filterService, this.searchService);
+                }
+            }
         }
-    }
-
-    public findFieldName(fieldKeyString: string): string {
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
-        return fieldKey ? fieldKey.field : null;
     }
 }

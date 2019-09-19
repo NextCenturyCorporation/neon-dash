@@ -16,15 +16,27 @@
 import { NextCenturyElement } from './element.webcomponent';
 
 export class NextCenturyAggregation extends NextCenturyElement {
+    static ELEMENT_NAME = 'next-century-aggregation';
+
     static get observedAttributes(): string[] {
         return [
-            'field-key',
-            'group',
-            'name',
-            'type'
+            'aggregation-field-key',
+            'aggregation-group',
+            'aggregation-name',
+            'aggregation-type'
         ];
+    }
+
+    static createElement(attributes: Record<string, any>): HTMLElement {
+        const aggregationElement = document.createElement(NextCenturyAggregation.ELEMENT_NAME);
+        NextCenturyAggregation.observedAttributes.forEach((attribute) => {
+            if (typeof attributes[attribute] !== 'undefined') {
+                aggregationElement.setAttribute(attribute, attributes[attribute]);
+            }
+        });
+        return aggregationElement;
     }
 }
 
-window.customElements.define('next-century-aggregation', NextCenturyAggregation);
+window.customElements.define(NextCenturyAggregation.ELEMENT_NAME, NextCenturyAggregation);
 
