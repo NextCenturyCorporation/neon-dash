@@ -17,16 +17,18 @@ import { AbstractSearchService } from '../../core/services/abstract.search.servi
 import { CoreUtil } from '../../core/core.util';
 import { Dataset, DatasetUtil, FieldKey } from '../../core/models/dataset';
 import { FilterService } from '../../core/services/filter.service';
-import { NextCenturyAggregation } from '../../core/components/aggregation.webcomponent';
-import { NextCenturyElement } from '../../core/components/element.webcomponent';
-import { NextCenturyFilter } from '../../core/components/filter.webcomponent';
-import { NextCenturyGroup } from '../../core/components/group.webcomponent';
-import { NextCenturySearch } from '../../core/components/search.webcomponent';
-import { NextCenturyTextCloudVisualization } from '../../visualizations/text-cloud/text-cloud';
+import { NextCenturyAggregation } from '../../core/components/aggregation.web-component';
+import { NextCenturyElement } from '../../core/components/element.web-component';
+import { NextCenturyFilter } from '../../core/components/filter.web-component';
+import { NextCenturyGroup } from '../../core/components/group.web-component';
+import { NextCenturySearch } from '../../core/components/search.web-component';
+import { NextCenturyTextCloudVisualization } from '../../visualizations/text-cloud/text-cloud.visualization';
 
 export class NextCenturyTextCloud extends NextCenturyElement {
     private _containerElement: HTMLElement;
     private _dataset: Dataset;
+    private _filterService: FilterService;
+    private _searchService: AbstractSearchService;
     private _shadowRoot: ShadowRoot;
 
     static get observedAttributes(): string[] {
@@ -96,7 +98,7 @@ export class NextCenturyTextCloud extends NextCenturyElement {
 
         const filterElementId = attributes['id'] + '_filter';
         const searchElementId = attributes['id'] + '_search';
-        const visElementId = attributes['id'] + '_base';
+        const visElementId = attributes['id'] + '_visualization';
 
         // Override attributes
         attributes['aggregation-name'] = '_aggregation';
@@ -124,7 +126,7 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         searchElement.append(aggregationElement);
         searchElement.append(groupElement);
 
-        const visElement = document.createElement('next-century-base-text-cloud');
+        const visElement = document.createElement('next-century-visualization-text-cloud');
         visElement.setAttribute('id', visElementId);
         NextCenturyTextCloudVisualization.observedAttributes.forEach((attribute) => {
             if (typeof attributes[attribute] !== 'undefined') {

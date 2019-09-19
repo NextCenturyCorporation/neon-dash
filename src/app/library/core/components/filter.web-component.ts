@@ -33,7 +33,7 @@ import { CompoundFilterType } from '../models/widget-option';
 import { CoreUtil } from '../core.util';
 import { Dataset } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
-import { NextCenturyElement } from './element.webcomponent';
+import { NextCenturyElement } from './element.web-component';
 
 export class NextCenturyFilter extends NextCenturyElement {
     static ELEMENT_NAME = 'next-century-filter';
@@ -74,12 +74,12 @@ export class NextCenturyFilter extends NextCenturyElement {
         ];
     }
 
-    static createElement(id: string, attributes: Record<string, any>): HTMLElement {
+    static createElement(id: string, attributes: Record<string, any>): NextCenturyFilter {
         if (!id || NextCenturyFilter.requiredAttributes.some((attribute) => typeof attributes[attribute] === 'undefined')) {
             return null;
         }
 
-        const filterElement = document.createElement(NextCenturyFilter.ELEMENT_NAME);
+        const filterElement = document.createElement(NextCenturyFilter.ELEMENT_NAME) as NextCenturyFilter;
         filterElement.setAttribute('id', id);
         NextCenturyFilter.requiredAttributes.forEach((attribute) => {
             filterElement.setAttribute(attribute, attributes[attribute]);
@@ -115,6 +115,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             case 'pair-operator-1':
             case 'pair-operator-2':
                 this._deleteFiltersThenUpdateConfigs();
+                this._updateFilterDesigns();
                 break;
             case 'id':
                 this._registerWithFilterService(oldValue, newValue);
@@ -140,10 +141,6 @@ export class NextCenturyFilter extends NextCenturyElement {
 
     public connectedCallback(): void {
         super.connectedCallback();
-
-        if (this.hasAttribute('search-element-id')) {
-            this._updateFilterDesigns();
-        }
     }
 
     public disconnectedCallback(): void {
@@ -169,8 +166,14 @@ export class NextCenturyFilter extends NextCenturyElement {
 
         if (this.hasAttribute('id')) {
             this._registerWithFilterService(null, this.getAttribute('id'));
+
+            if (this.hasAttribute('filter-type') && this.hasAttribute('search-element-id')) {
+                this._updateFilterDesigns();
+            } else {
+                console.error('Filter component must have the filter-type and search-element-id attributes!');
+            }
         } else {
-            console.error('NextCenturyFilter must have an id attribute!');
+            console.error('Filter component must have an id attribute!');
         }
     }
 
@@ -212,6 +215,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             return this._createFilterDesignsOnPair(this.hasAttribute('pair-intersection'), this.getAttribute('pair-field-key-1'),
                 this.getAttribute('pair-field-key-2'), this.getAttribute('pair-operator-1'), this.getAttribute('pair-operator-2'), values);
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected filter type:', filterType);
         return [];
     }
 
@@ -230,6 +234,7 @@ export class NextCenturyFilter extends NextCenturyElement {
                 return [new BoundsFilterDesign(fieldKey1, fieldKey2, values[0], values[1], values[2], values[3])];
             }
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected bounds values:', values);
         return [];
     }
 
@@ -248,6 +253,7 @@ export class NextCenturyFilter extends NextCenturyElement {
                 return [new DomainFilterDesign(fieldKey, values[0], values[1])];
             }
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected domain values:', values);
         return [];
     }
 
@@ -270,6 +276,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             return [new ListFilterDesign(intersection ? CompoundFilterType.AND : CompoundFilterType.OR, fieldKey, operator,
                 Array.isArray(values) ? values : [values])];
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected list values:', values);
         return [];
     }
 
@@ -297,6 +304,7 @@ export class NextCenturyFilter extends NextCenturyElement {
                     operator1, operator2, values[0], values[1])];
             }
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected pair values:', values);
         return [];
     }
 
@@ -340,6 +348,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         if (this._isFilterTypePair(filterType)) {
             return [[undefined, undefined]];
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected filter type:', filterType);
         return [];
     }
 
@@ -384,7 +393,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         }
 
         if (callerId !== this.getAttribute('id')) {
-            const visElement = document.getElementById(this.getAttribute('vis-element-id')) as any;
+            const visElement = this.parentElement.querySelector('#' + this.getAttribute('vis-element-id'));
             const filterFunction = this.getAttribute('vis-filter-input-function');
 
             const filterCollection: FilterCollection = this._filterService.retrieveCompatibleFilterCollection(this._filterDesigns);
@@ -452,17 +461,10 @@ export class NextCenturyFilter extends NextCenturyElement {
      * Returns if the required properties have been initialized to create a filter.
      */
     private _isReady(): boolean {
-        return !!(this._dataset && this._filterService && this.hasAttribute('id') && this.hasAttribute('search-element-id') &&
-            this._isReadyWithFilterOptions());
-    }
-
-    /**
-     * Returns if the required properties have been initialized to create a filter of a specific type.
-     */
-    private _isReadyWithFilterOptions(): boolean {
         const filterType = this._retrieveFilterType();
-        return this._isFilterTypeBounds(filterType) || this._isFilterTypeDomain(filterType) || this._isFilterTypeList(filterType) ||
-            this._isFilterTypePair(filterType);
+        return !!(this._dataset && this._filterService && this.hasAttribute('id') && this.hasAttribute('search-element-id') &&
+            filterType && (this._isFilterTypeBounds(filterType) || this._isFilterTypeDomain(filterType) ||
+                this._isFilterTypeList(filterType) || this._isFilterTypePair(filterType)));
     }
 
     /**
@@ -514,6 +516,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         if (filterValues instanceof CompoundValues) {
             return filterValues.nested.map((nested) => this._retrieveValuesFromFilterValues([nested]));
         }
+        console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected filter values:', filterValues);
         return [];
     }
 
@@ -522,11 +525,11 @@ export class NextCenturyFilter extends NextCenturyElement {
      * filters created by this filter element.
      */
     private _updateFilterDesigns(): void {
-        if (this.hasAttribute('id') && this.hasAttribute('search-element-id') && this._isReadyWithFilterOptions()) {
-            const queryElement = document.getElementById(this.getAttribute('search-element-id')) as any;
+        if (this._isReady() && this.parentElement) {
+            const searchElement = this.parentElement.querySelector('#' + this.getAttribute('search-element-id'));
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
-            if (queryElement && this._filterDesigns.length) {
-                queryElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
+            if (searchElement && this._filterDesigns.length) {
+                searchElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
                 this.dispatchEvent(new CustomEvent('designsUpdated', {
                     bubbles: true,
                     detail: {
