@@ -33,9 +33,6 @@ import { FilterService } from '../services/filter.service';
 import { NextCenturyElement } from './element.webcomponent';
 import { RequestWrapper } from '../services/connection.service';
 
-// We need to import the Neon Framework so we can call the setNeonServerUrl function.
-import * as neon from 'neon-framework';
-
 interface AggregationData {
     fieldKey: FieldKey;
     group: string;
@@ -51,6 +48,7 @@ interface GroupData {
 
 export class NextCenturySearch extends NextCenturyElement {
     static DEFAULT_LIMIT = 10;
+    static ELEMENT_NAME = 'next-century-search';
 
     private _dataset: Dataset;
     private _filterService: FilterService;
@@ -60,20 +58,46 @@ export class NextCenturySearch extends NextCenturyElement {
     private _searchService: AbstractSearchService;
 
     static get observedAttributes(): string[] {
+        return ['id'].concat(NextCenturySearch.requiredAttributes).concat(NextCenturySearch.optionalAttributes);
+    }
+
+    static get optionalAttributes(): string[] {
         return [
             'enable-hide-if-unfiltered',
             'enable-ignore-self-filter',
-            'id',
-            'search-field-keys',
             'search-limit',
             'search-page',
-            'server',
             'sort-aggregation',
             'sort-field-key',
             'sort-order',
             'vis-draw-function',
             'vis-element-id'
         ];
+    }
+
+    static get requiredAttributes(): string[] {
+        return [
+            'search-field-keys'
+        ];
+    }
+
+    static createElement(id: string, attributes: Record<string, any>): HTMLElement {
+        if (!id || NextCenturySearch.requiredAttributes.some((attribute) => typeof attributes[attribute] === 'undefined')) {
+            return null;
+        }
+
+        const searchElement = document.createElement(NextCenturySearch.ELEMENT_NAME);
+        searchElement.setAttribute('id', id);
+        NextCenturySearch.requiredAttributes.forEach((attribute) => {
+            searchElement.setAttribute(attribute, attributes[attribute]);
+        });
+        NextCenturySearch.optionalAttributes.forEach((attribute) => {
+            if (typeof attributes[attribute] !== 'undefined') {
+                searchElement.setAttribute(attribute, attributes[attribute]);
+            }
+        });
+
+        return searchElement;
     }
 
     public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
@@ -83,26 +107,11 @@ export class NextCenturySearch extends NextCenturyElement {
             return;
         }
 
-        switch (name) {
-            case 'id':
-                this._registerWithFilterService(oldValue, newValue);
-                // Falls through
-            case 'enable-hide-if-unfiltered':
-            case 'enable-ignore-self-filter':
-            case 'search-field-keys':
-            case 'search-limit':
-            case 'search-page':
-            case 'sort-aggregation':
-            case 'sort-field-key':
-            case 'sort-order':
-            case 'vis-draw-function':
-            case 'vis-element-id':
-                this._startQuery();
-                break;
-            case 'server':
-                neon.setNeonServerUrl(newValue);
-                break;
+        if (name === 'id') {
+            this._registerWithFilterService(oldValue, newValue);
         }
+
+        this._startQuery();
     }
 
     public connectedCallback(): void {
@@ -231,15 +240,16 @@ export class NextCenturySearch extends NextCenturyElement {
     private _findSearchAggregations(): AggregationData[] {
         let aggregations: AggregationData[] = [];
         for (const aggregationElement of this.getElementsByTagName('next-century-aggregation') as any) {
-            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(aggregationElement.getAttribute('field-key'));
-            const group = aggregationElement.getAttribute('group');
-            const name = aggregationElement.getAttribute('name');
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(aggregationElement.getAttribute('aggregation-field-key'));
+            const group = aggregationElement.getAttribute('aggregation-group');
+            const name = aggregationElement.getAttribute('aggregation-name');
+            const type = (aggregationElement.getAttribute('aggregation-type') || AggregationType.COUNT) as AggregationType;
             if ((fieldKey || group) && name) {
                 aggregations.push({
                     fieldKey,
-                    group: aggregationElement.getAttribute('group'),
-                    name: aggregationElement.getAttribute('name'),
-                    type: (aggregationElement.getAttribute('type') || AggregationType.COUNT) as AggregationType
+                    group,
+                    name,
+                    type
                 });
             }
         }
@@ -252,12 +262,14 @@ export class NextCenturySearch extends NextCenturyElement {
     private _findSearchGroups(): GroupData[] {
         let groups: GroupData[] = [];
         for (const groupElement of this.getElementsByTagName('next-century-group') as any) {
-            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(groupElement.getAttribute('field-key'));
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(groupElement.getAttribute('group-field-key'));
+            const name = groupElement.getAttribute('group-name');
+            const type = groupElement.getAttribute('group-type');
             if (fieldKey) {
                 groups.push({
                     fieldKey,
-                    name: groupElement.getAttribute('name'),
-                    type: groupElement.getAttribute('type')
+                    name,
+                    type
                 });
             }
         }
@@ -305,7 +317,7 @@ export class NextCenturySearch extends NextCenturyElement {
             return item;
         });
 
-        const visElement = document.getElementById(this.getAttribute('vis-element-id')) as any;
+        const visElement = this.parentElement.querySelector('#' + this.getAttribute('vis-element-id'));
         const drawFunction = this.getAttribute('vis-draw-function');
         if (visElement && drawFunction) {
             visElement[drawFunction](data);
@@ -629,5 +641,5 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 }
 
-window.customElements.define('next-century-search', NextCenturySearch);
+window.customElements.define(NextCenturySearch.ELEMENT_NAME, NextCenturySearch);
 

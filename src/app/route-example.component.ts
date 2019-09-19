@@ -38,8 +38,9 @@ import './library/core/components/filter.webcomponent';
 import './library/core/components/group.webcomponent';
 import './library/core/components/search.webcomponent';
 import './library/visualizations/example.webcomponent';
-import './library/visualizations/text-cloud/text-cloud.webcomponent';
+import './library/visualizations/text-cloud/text-cloud';
 import './library/wrappers/angular/text-cloud.angular.component';
+import './library/wrappers/webcomponents/text-cloud.webcomponent';
 
 @Component({
     selector: 'app-route-example',
@@ -54,17 +55,28 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
     @ViewChild('filter3A') filter3A;
     @ViewChild('filter4A') filter4A;
     @ViewChild('textCloudFilter1A') textCloudFilter1A;
-    @ViewChild('textCloudFilter2A') textCloudFilter2A;
     @ViewChild('search1') search1;
     @ViewChild('search2') search2;
     @ViewChild('search3') search3;
     @ViewChild('search4') search4;
     @ViewChild('search5') search5;
     @ViewChild('textCloudSearch1') textCloudSearch1;
-    @ViewChild('textCloudSearch2') textCloudSearch2;
+    @ViewChild('textCloudWrapper1') textCloudWrapper1;
+    @ViewChild('textCloudWrapper2') textCloudWrapper2;
     @ViewChild('vis4') vis4;
 
     public dataset: Dataset;
+
+    public textCloudOptions1 = {
+        'enable-ignore-self-filter': true,
+        'text-field-key': 'es1.ldc_uyg_jul_18.ui_out.topic'
+    };
+
+    public textCloudOptions2 = {
+        'aggregation-field-key': 'es1.ldc_uyg_jul_18.ui_out.geoLocation.lat',
+        'aggregation-type': 'max',
+        'text-field-key': 'es1.ldc_uyg_jul_18.ui_out.topic'
+    };
 
     constructor(
         configService: ConfigService,
@@ -88,18 +100,19 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
             this.search3.nativeElement.init(this.dataset, this.filterService, this.searchService);
             this.search4.nativeElement.init(this.dataset, this.filterService, this.searchService);
             this.search5.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.textCloudWrapper1.nativeElement.init(this.dataset, this.filterService, this.searchService);
+            this.textCloudWrapper2.nativeElement.init(this.dataset, this.filterService, this.searchService);
             this.textCloudFilter1A.nativeElement.init(this.dataset, this.filterService);
-            this.textCloudFilter2A.nativeElement.init(this.dataset, this.filterService);
             this.textCloudSearch1.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.textCloudSearch2.nativeElement.init(this.dataset, this.filterService, this.searchService);
             // Must call detectChanges here to update the dataset of the Angular visualization wrapper elements.
             this.changeDetectorRef.detectChanges();
         });
     }
 
     ngAfterViewInit() {
-        CoreUtil.addListener(this._transformTimestampsToDateStrings.bind(this), 'vis4', 'dataSelected');
-        CoreUtil.addListener(this._transformDateStringsToTimestamps.bind(this), 'filter4A', 'filterValuesChanged');
+        CoreUtil.addListener(this._transformTimestampsToDateStrings.bind(this), this.elementRef.nativeElement, 'vis4', 'dataSelected');
+        CoreUtil.addListener(this._transformDateStringsToTimestamps.bind(this), this.elementRef.nativeElement, 'filter4A',
+            'filterValuesChanged');
     }
 
     private _transformDateStringsToTimestamps(event: any): void {

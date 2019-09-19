@@ -16,14 +16,26 @@
 import { NextCenturyElement } from './element.webcomponent';
 
 export class NextCenturyGroup extends NextCenturyElement {
+    static ELEMENT_NAME = 'next-century-group';
+
     static get observedAttributes(): string[] {
         return [
-            'field-key',
-            'name',
-            'type'
+            'group-field-key',
+            'group-name',
+            'group-type'
         ];
+    }
+
+    static createElement(attributes: Record<string, any>): HTMLElement {
+        const groupElement = document.createElement(NextCenturyGroup.ELEMENT_NAME);
+        NextCenturyGroup.observedAttributes.forEach((attribute) => {
+            if (typeof attributes[attribute] !== 'undefined') {
+                groupElement.setAttribute(attribute, attributes[attribute]);
+            }
+        });
+        return groupElement;
     }
 }
 
-window.customElements.define('next-century-group', NextCenturyGroup);
+window.customElements.define(NextCenturyGroup.ELEMENT_NAME, NextCenturyGroup);
 

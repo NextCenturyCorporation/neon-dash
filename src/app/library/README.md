@@ -320,14 +320,14 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     vis-element-id="vis1"
 >
     <next-century-group
-        field-key="es1.index_name.index_type.username_field"
+        group-field-key="es1.index_name.index_type.username_field"
     >
     </next-century-group>
     
     <next-century-aggregation
-        field-key="es1.index_name.index_type.username_field"
-        name="_records"
-        type="count"
+        aggregation-field-key="es1.index_name.index_type.username_field"
+        aggregation-name="_records"
+        aggregation-type="count"
     >
     </next-century-aggregation>
 </next-century-search>
@@ -355,10 +355,10 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-filter
     id="filter1"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
     vis-filter-output-event="dataSelected"
@@ -378,24 +378,24 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     vis-element-id="vis1"
 >
     <next-century-aggregation
-        field-key="es1.index_name.index_type.username_field"
-        name="_records"
-        type="count"
+        aggregation-field-key="es1.index_name.index_type.username_field"
+        aggregation-name="_records"
+        aggregation-type="count"
     >
     </next-century-aggregation>
 
     <next-century-group
-        field-key="es1.index_name.index_type.username_field"
+        group-field-key="es1.index_name.index_type.username_field"
     >
     </next-century-group>
 </next-century-search>
 
 <next-century-filter
     id="filter1"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.username_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
     vis-filter-output-event="dataSelected"
@@ -415,29 +415,29 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     vis-element-id="vis1"
 >
     <next-century-aggregation
-        field-key="es1.index_name.index_type.username_field"
-        name="_records"
-        type="count"
+        aggregation-field-key="es1.index_name.index_type.username_field"
+        aggregation-name="_records"
+        aggregation-type="count"
     >
     </next-century-aggregation>
 
     <next-century-group
-        field-key="es1.index_name.index_type.username_field"
+        group-field-key="es1.index_name.index_type.username_field"
     >
     </next-century-group>
 
     <next-century-group
-        field-key="es1.index_name.index_type.text_field"
+        group-field-key="es1.index_name.index_type.text_field"
     >
     </next-century-group>
 </next-century-search>
 
 <next-century-filter
     id="filter1"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.username_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedUsername"
     vis-filter-output-event="usernameSelected"
@@ -446,10 +446,10 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-filter
     id="filter2"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.text_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedText"
     vis-filter-output-event="textSelected"
@@ -663,10 +663,10 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 
 <next-century-filter
     id="filter1"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
 >
@@ -707,10 +707,10 @@ filter1.addEventListener('filtersChanged', transformFilterDataArray);
 
 <next-century-filter
     id="filter1"
+    filter-type="list"
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
-    type="list"
     vis-element-id="vis1"
     vis-filter-output-event="dataSelected"
 >
