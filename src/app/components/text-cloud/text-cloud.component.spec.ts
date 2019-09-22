@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, ListFilter, ListFilterDesign, SimpleFilter } from '../../library/core/models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 
 import { Injector } from '@angular/core';
@@ -127,20 +127,21 @@ describe('Component: TextCloud', () => {
 
         component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(2);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect(actual.length).toEqual(1);
+        expect((actual[0]).type).toEqual(CompoundFilterType.AND);
+        expect((actual[0]).filters.length).toEqual(1);
+        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[0]).filters[0].operator).toEqual('=');
+        expect((actual[0]).filters[0].value).toBeUndefined();
     });
 
-    it('onClick does call toggleFilters with expected object', () => {
+    it('onClick does call exchangeFilters with expected object', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
 
         component.options.andFilters = false;
 
@@ -148,22 +149,22 @@ describe('Component: TextCloud', () => {
             key: 'testText1'
         });
 
-        expect(spyExchange.calls.count()).toEqual(0);
-        expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', 'testText1')
+        expect(spyExchange.calls.count()).toEqual(1);
+        expect(spyExchange.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1'])
         ]]);
 
         component.onClick({
             key: 'testText2'
         });
 
-        expect(spyExchange.calls.count()).toEqual(0);
-        expect(spyToggle.calls.count()).toEqual(2);
-        expect(spyToggle.calls.argsFor(1)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', 'testText2')
+        expect(spyExchange.calls.count()).toEqual(2);
+        expect(spyExchange.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1', 'testText2'])
         ]]);
 
         component.options.andFilters = true;
@@ -172,9 +173,8 @@ describe('Component: TextCloud', () => {
             key: 'testText3'
         });
 
-        expect(spyToggle.calls.count()).toEqual(2);
-        expect(spyExchange.calls.count()).toEqual(1);
-        expect(spyExchange.calls.argsFor(0)).toEqual([[
+        expect(spyExchange.calls.count()).toEqual(3);
+        expect(spyExchange.calls.argsFor(2)).toEqual([[
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1', 'testText2', 'testText3'])
@@ -184,9 +184,8 @@ describe('Component: TextCloud', () => {
             key: 'testText4'
         });
 
-        expect(spyToggle.calls.count()).toEqual(2);
-        expect(spyExchange.calls.count()).toEqual(2);
-        expect(spyExchange.calls.argsFor(1)).toEqual([[
+        expect(spyExchange.calls.count()).toEqual(4);
+        expect(spyExchange.calls.argsFor(3)).toEqual([[
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1', 'testText2', 'testText3', 'testText4'])
@@ -247,7 +246,10 @@ describe('Component: TextCloud', () => {
         }];
 
         let testCollection = new FilterCollection();
-        spyOn(testCollection, 'isFiltered').and.callFake((design) => design.value === 'key2');
+        spyOn(testCollection, 'getCompatibleFilters').and.callFake((__design) => [
+            ListFilter.fromFilters([new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.TEXT, '=', 'key2')], CompoundFilterType.OR)
+        ]);
 
         (component as any).redrawFilters(testCollection);
 

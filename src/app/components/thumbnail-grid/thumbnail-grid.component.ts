@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -76,6 +76,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public view: any = ViewType;
     public constructedLinkField: string = 'constructedUrl';
 
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filterFieldsToFilteredValues: Map<string, any[]> = new Map<string, any[]>();
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -105,26 +108,29 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     createFilter(item: any) {
         let filters: FilterConfig[] = [];
+        let filtersToDelete: FilterConfig[] = [];
 
-        this.options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-            let filterValues: any[] = typeof item[filterField.columnName] === 'undefined' ? [] :
-                (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
-            if (filterValues.length) {
-                filters.push(filterValues.length === 1 ? this.createFilterConfigOnItem(filterField, filterValues[0]) :
-                    this.createFilterConfigOnList(filterField, filterValues));
+        this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+            // Get all the values for the filter field from the data item.
+            const values: any[] = typeof item[field.columnName] === 'undefined' ? [] : (Array.isArray(item[field.columnName]) ?
+                item[field.columnName] : [item[field.columnName]]);
+
+            // Change or toggle the filtered values for the filter field.
+            const filteredValues: any[] = CoreUtil.changeOrToggleMultipleValues(values,
+                this._filterFieldsToFilteredValues.get(field.columnName) || [], this.options.toggleFiltered);
+
+            this._filterFieldsToFilteredValues.set(field.columnName, filteredValues);
+
+            if (filteredValues.length) {
+                // Create a single filter on the filtered values.
+                filters.push(this.createFilterConfigOnList(field, filteredValues));
+            } else {
+                // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+                filtersToDelete.push(this.createFilterConfigOnList(field));
             }
         });
 
-        if (this.options.toggleFiltered) {
-            this.toggleFilters(filters);
-        } else {
-            this.exchangeFilters(filters);
-        }
-    }
-
-    private createFilterConfigOnItem(field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
-            '=', value);
+        this.exchangeFilters(filters, filtersToDelete);
     }
 
     private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
@@ -216,9 +222,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     protected designEachFilterWithNoValues(): FilterConfig[] {
         return this.options.filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
-                // Match a single EQUALS filter on the specific filter field.
-                designs.push(this.createFilterConfigOnItem(filterField));
-                // Match a compound filter with one or more EQUALS filters on the specific filter field.
+                // Match a filter with one or more EQUALS filters on the specific filter field.
                 designs.push(this.createFilterConfigOnList(filterField));
             }
             return designs;
@@ -384,17 +388,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.gridArray = [];
 
+        // Update the filtered values before transforming the data.
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
+
         results.forEach((result) => {
-            let item = {
-                _filtered: this.options.filterFields.length ? this.options.filterFields.every((filterField) => {
-                    if (filterField.columnName) {
-                        let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, result[filterField.columnName]);
-                        let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [result[filterField.columnName]]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                    }
-                    return false;
-                }) : false
-            };
+            let item: any = {};
+            options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+                item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
+            });
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
@@ -408,9 +411,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             if (options.compareField.columnName) {
                 item[options.compareField.columnName] = CoreUtil.deepFind(result, options.compareField.columnName);
             }
-            options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-                item[filterField.columnName] = CoreUtil.deepFind(result, filterField.columnName);
-            });
             if (options.idField.columnName) {
                 item[options.idField.columnName] = CoreUtil.deepFind(result, options.idField.columnName);
             }
@@ -535,15 +535,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
+
+        // Update the filtered status of each grid item.
         this.gridArray.forEach((item) => {
-            item._filtered = this.options.filterFields.every((filterField) => {
-                if (filterField.columnName) {
-                    let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, item[filterField.columnName]);
-                    let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [item[filterField.columnName]]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                }
-                return false;
-            });
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
         });
     }
 

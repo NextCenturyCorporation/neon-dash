@@ -181,7 +181,7 @@ export class FilterBuilderComponent {
             new CompoundFilterDesign(this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND, filterConfigs));
 
         if (filterConfig) {
-            this.filterService.toggleFilters('CustomFilter', [filterConfig], this._dataset);
+            this.filterService.createFilters('CustomFilter', [filterConfig], this._dataset);
             this.clearEveryFilterClause();
         }
     }
