@@ -34,6 +34,7 @@ import { CoreUtil } from '../core.util';
 import { Dataset } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
 import { NextCenturyElement } from './element.web-component';
+import { NextCenturySearch } from './search.web-component';
 
 export class NextCenturyFilter extends NextCenturyElement {
     static ELEMENT_NAME = 'next-century-filter';
@@ -75,7 +76,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     }
 
     static createElement(id: string, attributes: Record<string, any>): NextCenturyFilter {
-        if (!id || NextCenturyFilter.requiredAttributes.some((attribute) => typeof attributes[attribute] === 'undefined')) {
+        if (!id || NextCenturyFilter.requiredAttributes.some((attribute) => !attributes[attribute])) {
             return null;
         }
 
@@ -101,42 +102,38 @@ export class NextCenturyFilter extends NextCenturyElement {
     public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
         super.attributeChangedCallback(name, oldValue, newValue);
 
-        switch (name) {
-            case 'bounds-field-key-x':
-            case 'bounds-field-key-y':
-            case 'domain-field-key':
-            case 'filter-type':
-            case 'list-field-key':
-            case 'list-intersection':
-            case 'list-operator':
-            case 'pair-field-key-1':
-            case 'pair-field-key-2':
-            case 'pair-intersection':
-            case 'pair-operator-1':
-            case 'pair-operator-2':
-                this._deleteFiltersThenUpdateConfigs();
-                this._updateFilterDesigns();
-                break;
-            case 'id':
-                this._registerWithFilterService(oldValue, newValue);
-                this._updateFilterDesigns();
-                break;
-            case 'search-element-id':
-                this._updateFilterDesigns();
-                break;
-            case 'vis-element-id':
-                if (this.hasAttribute('vis-filter-output-event') && this.parentElement) {
-                    CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.parentElement, oldValue,
-                        this.getAttribute('vis-filter-output-event'), newValue, this.getAttribute('vis-filter-output-event'));
-                }
-                break;
-            case 'vis-filter-output-event':
-                if (this.hasAttribute('vis-element-id') && this.parentElement) {
-                    CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.parentElement,
-                        this.getAttribute('vis-element-id'), oldValue, this.getAttribute('vis-element-id'), newValue);
-                }
-                break;
+        if (!this._isReady()) {
+            return;
         }
+
+        if (name === 'vis-element-id') {
+            if (this.getAttribute('vis-filter-output-event') && this.parentElement) {
+                CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.parentElement, oldValue,
+                    this.getAttribute('vis-filter-output-event'), newValue, this.getAttribute('vis-filter-output-event'));
+            }
+            return;
+        }
+
+        if (name === 'vis-filter-output-event') {
+            if (this.getAttribute('vis-element-id') && this.parentElement) {
+                CoreUtil.updateListener(this._handleFilterEventFromVisualizationCallback, this.parentElement,
+                    this.getAttribute('vis-element-id'), oldValue, this.getAttribute('vis-element-id'), newValue);
+            }
+            return;
+        }
+
+        if (name === 'id') {
+            this._registerWithFilterService(oldValue, newValue);
+        }
+
+        if (name === 'search-element-id' && this.parentElement) {
+            const searchElement: NextCenturySearch = this.parentElement.querySelector('#' + oldValue);
+            if (searchElement) {
+                searchElement.updateFilterDesigns(this.getAttribute('id'), []);
+            }
+        }
+
+        this._updateFilterDesigns();
     }
 
     public connectedCallback(): void {
@@ -149,7 +146,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         CoreUtil.removeListener(this._handleFilterEventFromVisualizationCallback, this.parentElement, this.getAttribute('vis-element-id'),
             this.getAttribute('vis-filter-output-event'));
 
-        if (this.hasAttribute('id')) {
+        if (this.getAttribute('id')) {
             this._registerWithFilterService(this.getAttribute('id'), null);
         }
     }
@@ -164,10 +161,10 @@ export class NextCenturyFilter extends NextCenturyElement {
         CoreUtil.addListener(this._handleFilterEventFromVisualizationCallback, this.parentElement, this.getAttribute('vis-element-id'),
             this.getAttribute('vis-filter-output-event'));
 
-        if (this.hasAttribute('id')) {
+        if (this.getAttribute('id')) {
             this._registerWithFilterService(null, this.getAttribute('id'));
 
-            if (this.hasAttribute('filter-type') && this.hasAttribute('search-element-id')) {
+            if (this.getAttribute('filter-type') && this.getAttribute('search-element-id')) {
                 this._updateFilterDesigns();
             } else {
                 console.error('Filter component must have the filter-type and search-element-id attributes!');
@@ -201,7 +198,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     private _createFilterDesigns(values: any|any[]): CompoundFilterDesign[] {
         const filterType = this._retrieveFilterType();
         if (this._isFilterTypeList(filterType)) {
-            return this._createFilterDesignsOnList(this.hasAttribute('list-intersection'), this.getAttribute('list-field-key'),
+            return this._createFilterDesignsOnList(!!this.getAttribute('list-intersection'), this.getAttribute('list-field-key'),
                 this.getAttribute('list-operator'), values);
         }
         if (this._isFilterTypeBounds(filterType)) {
@@ -212,7 +209,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             return this._createFilterDesignsOnDomain(this.getAttribute('domain-field-key'), values);
         }
         if (this._isFilterTypePair(filterType)) {
-            return this._createFilterDesignsOnPair(this.hasAttribute('pair-intersection'), this.getAttribute('pair-field-key-1'),
+            return this._createFilterDesignsOnPair(!!this.getAttribute('pair-intersection'), this.getAttribute('pair-field-key-1'),
                 this.getAttribute('pair-field-key-2'), this.getAttribute('pair-operator-1'), this.getAttribute('pair-operator-2'), values);
         }
         console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected filter type:', filterType);
@@ -268,7 +265,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     ): CompoundFilterDesign[] {
         if (fieldKey && operator && !!(Array.isArray(values) ? values.length : values)) {
             // Handle a nested array like [[a, b], [c], [d, e, f]]
-            if (Array.isArray(values) && Array.isArray(values[0])) {
+            if (Array.isArray(values) && values.some((value) => Array.isArray(value))) {
                 return values.map((value) => this._createFilterDesignsOnList(intersection, fieldKey, operator, value))
                     .reduce((list, part) => list.concat(part), []);
             }
@@ -322,31 +319,20 @@ export class NextCenturyFilter extends NextCenturyElement {
     }
 
     /**
-     * Deletes all the filters in the FilterService with the old filter designs and updates the filter designs to use the current
-     * attributes.
-     */
-    private _deleteFiltersThenUpdateConfigs(): void {
-        if (this._isReady()) {
-            this._deleteFilters(this._filterDesigns);
-            this._updateFilterDesigns();
-        }
-    }
-
-    /**
      * Returns values to create blank/empty filter designs.
      */
     private _generateFilterDesignValues(filterType: string): any[] {
         if (this._isFilterTypeList(filterType)) {
-            return [undefined, [undefined]];
+            return [undefined];
         }
         if (this._isFilterTypeBounds(filterType)) {
-            return [[undefined, undefined, undefined, undefined]];
+            return [undefined, undefined, undefined, undefined];
         }
         if (this._isFilterTypeDomain(filterType)) {
-            return [[undefined, undefined]];
+            return [undefined, undefined];
         }
         if (this._isFilterTypePair(filterType)) {
-            return [[undefined, undefined]];
+            return [undefined, undefined];
         }
         console.warn('Filter component ' + this.getAttribute('id') + ' has unexpected filter type:', filterType);
         return [];
@@ -373,7 +359,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             const filterDesigns: CompoundFilterDesign[] = this._createFilterDesigns(values);
             if (filterDesigns.length) {
                 this._filterService.exchangeFilters(this.getAttribute('search-element-id'), filterDesigns, this._dataset);
-                this.dispatchEvent(new CustomEvent('filtersCreated', {
+                this.dispatchEvent(new CustomEvent('filtersChanged', {
                     bubbles: true,
                     detail: {
                         filters: filterDesigns
@@ -387,43 +373,41 @@ export class NextCenturyFilter extends NextCenturyElement {
      * Handles the behavior whenever any filters in the whole application are changed by giving the relevant filter values to the
      * visualization element as needed.
      */
-    private _handleFilterChangeFromServices(callerId: string): void {
+    private _handleFilterChangeFromServices(__callerId: string): void {
         if (!this._isReady()) {
             return;
         }
 
-        if (callerId !== this.getAttribute('id')) {
-            const visElement = this.parentElement.querySelector('#' + this.getAttribute('vis-element-id'));
-            const filterFunction = this.getAttribute('vis-filter-input-function');
+        const visElement = this.parentElement.querySelector('#' + this.getAttribute('vis-element-id'));
+        const filterFunction = this.getAttribute('vis-filter-input-function');
 
-            const filterCollection: FilterCollection = this._filterService.retrieveCompatibleFilterCollection(this._filterDesigns);
-            const filters: AbstractFilter[] = filterCollection.getFilters();
-            const filterValuesList: FilterValues[] = filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []);
-            const values: (any|any[])[] = filterValuesList.map((filterValues) => this._retrieveValuesFromFilterValues(filterValues));
+        const filterCollection: FilterCollection = this._filterService.retrieveCompatibleFilterCollection(this._filterDesigns);
+        const filters: AbstractFilter[] = filterCollection.getFilters();
+        const filterValuesList: FilterValues[] = filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []);
+        const values: (any|any[])[] = filterValuesList.map((filterValues) => this._retrieveValuesFromFilterValues(filterValues));
 
-            let copyOfValueOrArray: any|any[] = this._copyArrayOrReturnValue(values);
-            if (Array.isArray(values) && values.length && Array.isArray(values[0])) {
-                copyOfValueOrArray = values.map((value) => this._copyArrayOrReturnValue(value));
-            }
-
-            if (visElement && filterFunction) {
-                visElement[filterFunction](copyOfValueOrArray);
-            }
-
-            this.dispatchEvent(new CustomEvent('filtersChanged', {
-                bubbles: true,
-                detail: {
-                    values: copyOfValueOrArray
-                }
-            }));
+        let copyOfValueOrArray: any|any[] = this._copyArrayOrReturnValue(values);
+        if (Array.isArray(values) && values.length && Array.isArray(values[0])) {
+            copyOfValueOrArray = values.map((value) => this._copyArrayOrReturnValue(value));
         }
+
+        if (visElement && filterFunction) {
+            visElement[filterFunction](copyOfValueOrArray);
+        }
+
+        this.dispatchEvent(new CustomEvent('valuesFiltered', {
+            bubbles: true,
+            detail: {
+                values: copyOfValueOrArray
+            }
+        }));
     }
 
     /**
      * Handles the behavior whenever any filter values are emitted from the visualization element by adding or removing filters as needed.
      */
     private _handleFilterEventFromVisualization(event: any) {
-        if (event && event.detail && event.detail.values !== 'undefined') {
+        if (event && event.detail && typeof event.detail.values !== 'undefined') {
             this.updateFilters(event.detail.values);
         }
     }
@@ -432,29 +416,29 @@ export class NextCenturyFilter extends NextCenturyElement {
      * Returns if the current attributes of this filter element correspond to a bounds filter.
      */
     private _isFilterTypeBounds(filterType: string): boolean {
-        return filterType === 'bounds' && this.hasAttribute('bounds-field-key-x') && this.hasAttribute('bounds-field-key-y');
+        return !!(filterType === 'bounds' && this.getAttribute('bounds-field-key-x') && this.getAttribute('bounds-field-key-y'));
     }
 
     /**
      * Returns if the current attributes of this filter element correspond to a domain filter.
      */
     private _isFilterTypeDomain(filterType: string): boolean {
-        return filterType === 'domain' && this.hasAttribute('domain-field-key');
+        return !!(filterType === 'domain' && this.getAttribute('domain-field-key'));
     }
 
     /**
      * Returns if the current attributes of this filter element correspond to a list filter.
      */
     private _isFilterTypeList(filterType: string): boolean {
-        return filterType === 'list' && this.hasAttribute('list-field-key') && this.hasAttribute('list-operator');
+        return !!(filterType === 'list' && this.getAttribute('list-field-key') && this.getAttribute('list-operator'));
     }
 
     /**
      * Returns if the current attributes of this filter element correspond to a pair filter.
      */
     private _isFilterTypePair(filterType: string): boolean {
-        return filterType === 'pair' && this.hasAttribute('pair-field-key-1') && this.hasAttribute('pair-field-key-2') &&
-            this.hasAttribute('pair-operator-1') && this.hasAttribute('pair-operator-2');
+        return !!(filterType === 'pair' && this.getAttribute('pair-field-key-1') && this.getAttribute('pair-field-key-2') &&
+            this.getAttribute('pair-operator-1') && this.getAttribute('pair-operator-2'));
     }
 
     /**
@@ -462,7 +446,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _isReady(): boolean {
         const filterType = this._retrieveFilterType();
-        return !!(this._dataset && this._filterService && this.hasAttribute('id') && this.hasAttribute('search-element-id') &&
+        return !!(this._dataset && this._filterService && this.getAttribute('id') && this.getAttribute('search-element-id') &&
             filterType && (this._isFilterTypeBounds(filterType) || this._isFilterTypeDomain(filterType) ||
                 this._isFilterTypeList(filterType) || this._isFilterTypePair(filterType)));
     }
@@ -526,7 +510,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _updateFilterDesigns(): void {
         if (this._isReady() && this.parentElement) {
-            const searchElement = this.parentElement.querySelector('#' + this.getAttribute('search-element-id'));
+            const searchElement: NextCenturySearch = this.parentElement.querySelector('#' + this.getAttribute('search-element-id'));
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
             if (searchElement && this._filterDesigns.length) {
                 searchElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
@@ -536,7 +520,6 @@ export class NextCenturyFilter extends NextCenturyElement {
                         designs: this._filterDesigns
                     }
                 }));
-                this._handleDeleteFilters();
             }
         }
     }

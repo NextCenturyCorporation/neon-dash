@@ -79,11 +79,12 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         if (attributes['aggregation-label']) {
             return attributes['aggregation-label'];
         }
-        if (attributes['aggregation-type'] !== 'count') {
+        const aggregationType = attributes['aggregation-type'];
+        if (aggregationType && aggregationType !== 'count') {
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(attributes['aggregation-field-key']);
             if (fieldKey && fieldKey.field) {
                 const configData = this._dataset.retrieveConfigDataFromFieldKey(fieldKey);
-                return attributes['aggregation-type'] + ' of ' + configData[3].prettyName;
+                return aggregationType.substring(0, 1).toUpperCase() + aggregationType.substring(1) + ' of ' + configData[3].prettyName;
             }
         }
         return undefined;
@@ -96,23 +97,31 @@ export class NextCenturyTextCloud extends NextCenturyElement {
             return;
         }
 
+        let newElement = document.createElement('div');
+        this._shadowRoot.replaceChild(newElement, this._containerElement);
+        this._containerElement = newElement;
+
         const filterElementId = attributes['id'] + '_filter';
         const searchElementId = attributes['id'] + '_search';
         const visElementId = attributes['id'] + '_visualization';
 
         // Override attributes
-        attributes['aggregation-name'] = '_aggregation';
         attributes['aggregation-field'] = 'aggregations._aggregation';
-        attributes['aggregation-label'] = this._createAggregationLabel(attributes);
         attributes['aggregation-field-key'] = attributes['aggregation-field-key'] || attributes['text-field-key'];
-        attributes['group-field-key'] = attributes['text-field-key'];
+        attributes['aggregation-group'] = undefined;
+        attributes['aggregation-label'] = this._createAggregationLabel(attributes);
+        attributes['aggregation-name'] = '_aggregation';
         attributes['filter-type'] = 'list';
+        attributes['group-field-key'] = attributes['text-field-key'];
+        attributes['group-name'] = undefined;
+        attributes['group-type'] = undefined;
         attributes['list-field-key'] = attributes['text-field-key'];
-        attributes['list-operator'] = '=';
+        attributes['list-operator'] = attributes['list-operator'] || '=';
         attributes['search-element-id'] = searchElementId;
         attributes['search-field-keys'] = attributes['text-field-key'];
         attributes['search-limit'] = attributes['search-limit'] || 10000;
         attributes['sort-aggregation'] = '_aggregation';
+        attributes['sort-field-key'] = undefined;
         attributes['text-field'] = 'fields.' + textFieldKey.field;
         attributes['vis-draw-function'] = 'drawData';
         attributes['vis-element-id'] = visElementId;

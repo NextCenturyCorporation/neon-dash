@@ -31,9 +31,10 @@ export class SearchServiceMock extends AbstractSearchService {
         }) : null;
     }
 
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval, __name?: string): QueryGroup {
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval, name?: string): QueryGroup {
         return {
             field: groupField,
+            name: name || ('_' + interval),
             type: '' + interval
         };
     }
@@ -128,8 +129,10 @@ export class SearchServiceMock extends AbstractSearchService {
         }
     }
 
-    public transformQueryResultsValues(queryResults: { data: any[] },
-        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): { data: any[] } {
+    public transformQueryResultsValues(
+        queryResults: { data: any[] },
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): { data: any[] } {
         let transformedResults = [];
         for (let result of queryResults.data) {
             let transformedResult = {};

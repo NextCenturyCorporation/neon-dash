@@ -30,8 +30,8 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
             'aggregation-label',
             'color-accent',
             'color-text',
-            'enable-counts',
-            'enable-paragraphs',
+            'enable-show-paragraphs',
+            'enable-show-values',
             'text-field'
         ];
     }
@@ -95,10 +95,13 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
      */
     public changeFilteredText(text: any|any[]): void {
         // If text is "a", transform to ["a"]; if text is ["a", "b"], keep it; if text is [["a"], ["b", "c"]], transform to ["a", "b", "c"]
-        const filtered: any[] = !Array.isArray(text) ? [text] : ((!text.length || !Array.isArray(text[0])) ? text :
-            text.reduce((list, part) => list.concat(part), []));
+        const filtered: any[] = !Array.isArray(text) ? [text] : text.reduce((list, part) => list.concat(part), []);
+        // Only redraw the visualization data if some of the filters have changed.
         if (this._filtered.length !== filtered.length || this._filtered.some((value, index) => value !== filtered[index])) {
             this._filtered = filtered;
+            this._data.forEach((item) => {
+                item.selected = this._filtered.indexOf(item.key) >= 0;
+            });
             this._redrawData();
         }
     }
@@ -110,12 +113,14 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
         const aggregationField = this.getAttribute('aggregation-field');
         const textField = this.getAttribute('text-field');
 
-        this._data = !textField ? [] : data.map((item) => ({
-            key: CoreUtil.deepFind(item, textField),
-            keyTranslated: CoreUtil.deepFind(item, textField),
-            selected: item.filtered,
-            value: aggregationField ? CoreUtil.deepFind(item, aggregationField) : 1
-        })).filter((item) => !!item.key);
+        this._data = !textField ? [] : data.map((item) => {
+            const text = CoreUtil.deepFind(item, textField);
+            return {
+                key: text,
+                selected: this._filtered.indexOf(text) >= 0,
+                value: aggregationField ? CoreUtil.deepFind(item, aggregationField) : 1
+            };
+        }).filter((item) => !!item.key);
 
         this._redrawData();
     }
@@ -123,15 +128,17 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
     /**
      * Toggles the filtered status of the given text cloud data item.
      */
-    public toggleFilter(item: any): void {
-        const index = this._filtered.indexOf(item.key);
+    public toggleFilter(text: any): void {
+        const index = this._filtered.indexOf(text);
         if (index >= 0) {
             this._filtered.splice(index, 1);
-            item.selected = false;
         } else {
-            this._filtered.push(item.key);
-            item.selected = true;
+            this._filtered.push(text);
         }
+
+        this._data.forEach((item) => {
+            item.selected = this._filtered.indexOf(item.key) >= 0;
+        });
 
         this._redrawData();
 
@@ -151,8 +158,8 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
 
     private _redrawData(): void {
         const aggregationLabel = this.getAttribute('aggregation-label');
-        const showCounts = !!this.getAttribute('enable-counts');
-        const showParagraphs = !!this.getAttribute('enable-paragraphs');
+        const showCounts = !!this.getAttribute('enable-show-values');
+        const showParagraphs = !!this.getAttribute('enable-show-paragraphs');
 
         let newElement = document.createElement('div');
         newElement.className = 'text-cloud';
@@ -166,20 +173,22 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
             let itemElement = document.createElement('div');
             itemElement.className = elementClasses.join(' ');
             itemElement.onclick = () => {
-                this.toggleFilter(item);
+                this.toggleFilter(item.key);
             };
             itemElement.style.color = item.color;
             itemElement.style['font-size'] = item.fontSize;
             itemElement.title = (aggregationLabel ? (aggregationLabel + ': ') : '') + item.value;
 
-            let termElement = document.createElement('span');
-            termElement.innerHTML = item.key;
-            itemElement.appendChild(termElement);
+            let keyElement = document.createElement('span');
+            keyElement.className = 'key';
+            keyElement.innerHTML = item.key;
+            itemElement.appendChild(keyElement);
 
             if (showCounts) {
-                let countsElement = document.createElement('span');
-                countsElement.innerHTML = item.value;
-                itemElement.appendChild(countsElement);
+                let valueElement = document.createElement('span');
+                valueElement.className = 'value';
+                valueElement.innerHTML = item.value;
+                itemElement.appendChild(valueElement);
             }
 
             this._visElement.appendChild(itemElement);
