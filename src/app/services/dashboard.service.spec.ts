@@ -60,7 +60,7 @@ describe('Service: DashboardService', () => {
     it('getFiltersToSaveInURL should return expected JSON string', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
-        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
                 DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 'testValue', 'id1', ['relation1']),
             new CompoundFilter(CompoundFilterType.AND, [
@@ -84,7 +84,7 @@ describe('Service: DashboardService', () => {
     it('getFiltersToSaveInURL does work with booleans, empty strings, nulls, and numbers', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
-        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
                 DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', false, 'id1'),
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
