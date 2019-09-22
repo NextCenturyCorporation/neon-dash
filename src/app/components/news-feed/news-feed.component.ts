@@ -27,12 +27,13 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CoreUtil } from '../../library/core/core.util';
 import {
+    CompoundFilterType,
     OptionChoices,
     SortOrder,
     WidgetFieldOption,
@@ -74,6 +75,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private _expandedIdList: any[] = [];
 
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredText: any[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -110,16 +114,18 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return;
         }
 
-        if (this.options.toggleFiltered) {
-            this.toggleFilters([this.createFilterConfigOnText(text)]);
+        this._filteredText = CoreUtil.changeOrToggleValues(text, this._filteredText, this.options.toggleFiltered);
+        if (this._filteredText.length) {
+            this.exchangeFilters([this.createFilterConfigOnText(this._filteredText)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnText(text)]);
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+            this.exchangeFilters([], [this.createFilterConfigOnText()]);
         }
     }
 
-    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.filterField.columnName, '=', value);
+    private createFilterConfigOnText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.filterField.columnName, '=', values);
     }
 
     /**
@@ -261,11 +267,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this._expandedIdList = [];
 
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
+
         this.newsFeedData = results.map((result) => {
-            let item = {
-                _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
-                    result[this.options.filterField.columnName]
-                ))),
+            let item: any = {
                 field: {},
                 media: undefined
             };
@@ -307,6 +313,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     item.media.selected = item.media.list[0];
                 }
             }
+
+            item._filtered = !!this.options.filterField.columnName && !!item.field[this.options.filterField.columnName] &&
+                (this._filteredText.indexOf(item.field[this.options.filterField.columnName]) >= 0);
+
             return item;
         });
         return this.newsFeedData.length;
@@ -340,10 +350,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
+
         this.newsFeedData.forEach((item) => {
-            item._filtered = this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
-                item[this.options.filterField.columnName]
-            ));
+            item._filtered = this.options.filterField.columnName && item.field[this.options.filterField.columnName] &&
+                this._filteredText.indexOf(item.field[this.options.filterField.columnName]) >= 0;
         });
     }
 

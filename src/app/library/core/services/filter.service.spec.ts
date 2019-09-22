@@ -517,9 +517,9 @@ describe('FilterService with filters', () => {
     });
 
     it('getFilters should return expected array', () => {
-        expect(filterService.getFilters()).toEqual([config1A, config1B, config2A]);
-        expect(filterService.getFilters(source1)).toEqual([config1A, config1B]);
-        expect(filterService.getFilters(source2)).toEqual([config2A]);
+        expect(filterService.getFilters()).toEqual([filter1A, filter1B, filter2A]);
+        expect(filterService.getFilters(source1)).toEqual([filter1A, filter1B]);
+        expect(filterService.getFilters(source2)).toEqual([filter2A]);
         expect(filterService.getFilters([{
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
@@ -781,13 +781,13 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].value).toEqual(20);
     });
 
-    it('toggleFilters should add new filters to an existing data source and call the _notifier', () => {
+    it('createFilters should add new filters to an existing data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
             FIELD_MAP.ID.columnName, '=', 'testId5');
 
-        let actual = filterService.toggleFilters('testCaller', [testConfig], dataset);
+        let actual = filterService.createFilters('testCaller', [testConfig], dataset);
 
         let listComplete = filterService['filterCollection'].getFilters(source1);
         expect(listComplete.length).toEqual(3);
@@ -813,7 +813,7 @@ describe('FilterService with filters', () => {
         expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should add new filters to a new data source and call the _notifier', () => {
+    it('createFilters should add new filters to a new data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
@@ -827,7 +827,7 @@ describe('FilterService with filters', () => {
             operator: '='
         } as FilterDataSource];
 
-        let actual = filterService.toggleFilters('testCaller', [testConfig], dataset);
+        let actual = filterService.createFilters('testCaller', [testConfig], dataset);
 
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
@@ -853,70 +853,12 @@ describe('FilterService with filters', () => {
         expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should delete old argument filters and call the _notifier', () => {
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let actual = filterService.toggleFilters('testCaller', [config1A], dataset);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-
-        expect(actual.size).toEqual(2);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([config1B]);
-        expect(actual.get(keys[1])).toEqual([config2A]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
-    it('toggleFilters should add new argument filters, delete old argument filters, and call the _notifier', () => {
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.TEXT.columnName, '=', 'testText');
-
-        let testSource = [{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let actual = filterService.toggleFilters('testCaller', [testConfig, config1A], dataset);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-
-        let listComplete = filterService['filterCollection'].getFilters(testSource);
-        expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.TEXT);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testText');
-
-        testConfig.id = listComplete[0].id;
-
-        expect(actual.size).toEqual(3);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([config1B]);
-        expect(actual.get(keys[1])).toEqual([config2A]);
-        expect(actual.get(keys[2])).toEqual([testConfig]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
-    it('toggleFilters should also add new relation filters', () => {
+    it('createFilters should also add new relation filters', () => {
         generateRelationFilters();
 
         let spy = spyOn(filterService as any, '_notifier');
 
-        let actual = filterService.toggleFilters('testCaller', [relationConfig1], dataset);
+        let actual = filterService.createFilters('testCaller', [relationConfig1], dataset);
 
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
@@ -955,7 +897,7 @@ describe('FilterService with filters', () => {
         expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should keep old relation filters and add new relation filters', () => {
+    it('createFilters should keep old relation filters and add new relation filters', () => {
         activateRelationFilters();
 
         let spy = spyOn(filterService as any, '_notifier');
@@ -963,7 +905,7 @@ describe('FilterService with filters', () => {
         let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
             FIELD_MAP.RELATION_B.columnName, '=', 'testToggleRelation');
 
-        let actual = filterService.toggleFilters('testCaller', [testConfig2], dataset);
+        let actual = filterService.createFilters('testCaller', [testConfig2], dataset);
 
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
@@ -1004,76 +946,10 @@ describe('FilterService with filters', () => {
         expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should also delete old relation filters', () => {
-        activateRelationFilters();
-
+    it('createFilters should not publish any event if no filters are affected', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let actual = filterService.toggleFilters('testCaller', [relationConfig1], dataset);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
-        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
-
-        expect(actual.size).toEqual(4);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([config1A, config1B]);
-        expect(actual.get(keys[1])).toEqual([config2A]);
-        expect(actual.get(keys[2])).toEqual([]);
-        expect(actual.get(keys[3])).toEqual([]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
-    it('toggleFilters should keep non-argument relation filters and delete argument relation filters', () => {
-        activateRelationFilters();
-
-        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation');
-        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_B.columnName, '=', 'testToggleRelation');
-
-        let testFilter1 = FilterUtil.createFilterFromConfig(testConfig1, dataset);
-        let testFilter2 = FilterUtil.createFilterFromConfig(testConfig2, dataset);
-        testFilter1.relations = [testFilter2.id];
-        testFilter2.relations = [testFilter1.id];
-
-        testConfig1.id = testFilter1.id;
-        testConfig1.relations = testFilter1.relations;
-        testConfig2.id = testFilter2.id;
-        testConfig2.relations = testFilter2.relations;
-
-        filterService['filterCollection'].setFilters(relationSource1, [relationFilter1, testFilter1]);
-        filterService['filterCollection'].setFilters(relationSource2, [relationFilter2, testFilter2]);
-
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let actual = filterService.toggleFilters('testCaller', [relationConfig1], dataset);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([testFilter1]);
-        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([testFilter2]);
-
-        expect(actual.size).toEqual(4);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([config1A, config1B]);
-        expect(actual.get(keys[1])).toEqual([config2A]);
-        expect(actual.get(keys[2])).toEqual([testConfig1]);
-        expect(actual.get(keys[3])).toEqual([testConfig2]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
-    it('toggleFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let actual = filterService.toggleFilters('testCaller', [], dataset);
+        let actual = filterService.createFilters('testCaller', [], dataset);
 
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
