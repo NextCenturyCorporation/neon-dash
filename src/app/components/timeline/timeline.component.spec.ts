@@ -190,6 +190,7 @@ describe('Component: Timeline', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }],
             aggregation: [
@@ -220,10 +221,12 @@ describe('Component: Timeline', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_month',
                 type: 'month'
             },
             {
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }],
             aggregation: [
@@ -262,6 +265,7 @@ describe('Component: Timeline', () => {
                 'testIdField',
                 {
                     field: 'testDateField',
+                    name: '_year',
                     type: 'year'
                 }],
             aggregation: [
@@ -294,14 +298,17 @@ describe('Component: Timeline', () => {
                 'testIdField',
                 {
                     field: 'testDateField',
+                    name: '_dayOfMonth',
                     type: 'dayOfMonth'
                 },
                 {
                     field: 'testDateField',
+                    name: '_month',
                     type: 'month'
                 },
                 {
                     field: 'testDateField',
+                    name: '_year',
                     type: 'year'
                 }],
             aggregation: [

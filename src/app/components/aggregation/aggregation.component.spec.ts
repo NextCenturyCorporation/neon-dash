@@ -515,6 +515,7 @@ describe('Component: Aggregation', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }, 'testCategoryField'],
             sort: {
@@ -549,6 +550,7 @@ describe('Component: Aggregation', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }, 'testCategoryField'],
             sort: {
@@ -586,6 +588,7 @@ describe('Component: Aggregation', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }, 'testYField', 'testCategoryField'],
             sort: {
@@ -621,18 +624,23 @@ describe('Component: Aggregation', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_minute',
                 type: 'minute'
             }, {
                 field: 'testDateField',
+                name: '_hour',
                 type: 'hour'
             }, {
                 field: 'testDateField',
+                name: '_dayOfMonth',
                 type: 'dayOfMonth'
             }, {
                 field: 'testDateField',
+                name: '_month',
                 type: 'month'
             }, {
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }, 'testCategoryField'],
             sort: {
