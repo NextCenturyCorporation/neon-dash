@@ -677,7 +677,7 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 
 1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-input-function` attribute to the Filter Component.
 2. Define a transform function that accepts a **[filter data array](#filter-data-array)**, transforms it into your data format, and sends the transformed filter data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
-3. Add your transform function as an event listener to the `filtersChanged` event on the Filter Component.
+3. Add your transform function as an event listener to the `valuesFiltered` event on the Filter Component.
 4. Initialize the Filter and Search Components as normal ([see above](#initializing-nccl-core-services-and-components)).
 
 ```js
@@ -691,7 +691,7 @@ const transformFilterDataArray = function(filterDataArray) {
 };
 
 const filter1 = document.getElementById('filter1');
-filter1.addEventListener('filtersChanged', transformFilterDataArray);
+filter1.addEventListener('valuesFiltered', transformFilterDataArray);
 ```
 
 ```html

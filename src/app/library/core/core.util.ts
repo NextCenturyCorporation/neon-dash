@@ -24,7 +24,7 @@ export class CoreUtil {
      * Add the given listener of the given event on the element with the given ID.
      */
     static addListener(listener: (event: any) => void, parentElement: HTMLElement, elementId: string, eventName: string): void {
-        if (elementId && eventName) {
+        if (elementId && eventName && parentElement) {
             const element = parentElement.querySelector('#' + elementId);
             if (element) {
                 element.addEventListener(eventName, listener);
@@ -152,7 +152,7 @@ export class CoreUtil {
      * Removes the given listener of the given event on the element with the given ID.
      */
     static removeListener(listener: (event: any) => void, parentElement: HTMLElement, elementId: string, eventName: string): void {
-        if (elementId && eventName) {
+        if (elementId && eventName && parentElement) {
             const element = parentElement.querySelector('#' + elementId);
             if (element) {
                 element.removeEventListener(eventName, listener);

@@ -19,7 +19,6 @@ import {
     CompoundFilterDesign,
     CompoundValues,
     DomainValues,
-    FilterUtil,
     FilterValues,
     ListOfValues,
     OneValue,
@@ -82,7 +81,7 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 
     static createElement(id: string, attributes: Record<string, any>): NextCenturySearch {
-        if (!id || NextCenturySearch.requiredAttributes.some((attribute) => typeof attributes[attribute] === 'undefined')) {
+        if (!id || NextCenturySearch.requiredAttributes.some((attribute) => !attributes[attribute])) {
             return null;
         }
 
@@ -121,7 +120,7 @@ export class NextCenturySearch extends NextCenturyElement {
     public disconnectedCallback(): void {
         super.disconnectedCallback();
 
-        if (this.hasAttribute('id')) {
+        if (this.getAttribute('id')) {
             this._registerWithFilterService(this.getAttribute('id'), null);
         }
     }
@@ -134,10 +133,10 @@ export class NextCenturySearch extends NextCenturyElement {
         this._filterService = filterService;
         this._searchService = searchService;
 
-        if (this.hasAttribute('id')) {
+        if (this.getAttribute('id')) {
             this._registerWithFilterService(null, this.getAttribute('id'));
 
-            if (this.hasAttribute('search-field-keys')) {
+            if (this.getAttribute('search-field-keys')) {
                 this._startQuery();
             } else {
                 console.error('Search component must have the search-field-keys attribute!');
@@ -167,8 +166,9 @@ export class NextCenturySearch extends NextCenturyElement {
      * Returns the search query with its fields, aggregations, groups, filters, and sort.
      */
     private _buildQuery(searchFilters: AbstractFilter[]): QueryPayload {
-        const fieldKeys: FieldKey[] = this._retrieveFieldKeys().filter((fieldKey) =>
-            !!fieldKey && !!fieldKey.field && fieldKey.field !== '*');
+        const fieldKeys: FieldKey[] = this._retrieveFieldKeys();
+        const allFields = fieldKeys.some((fieldKey) => !!fieldKey && fieldKey.field === '*');
+        const searchFieldKeys: FieldKey[] = fieldKeys.filter((fieldKey) => !!fieldKey && !!fieldKey.field && fieldKey.field !== '*');
 
         const aggregations: AggregationData[] = this._findSearchAggregations();
         const groups: GroupData[] = this._findSearchGroups();
@@ -176,28 +176,32 @@ export class NextCenturySearch extends NextCenturyElement {
         const unsharedFilters: AbstractFilter[] = Array.from(this._idsToFilters.values()).reduce((completeFilterList, filterList) =>
             completeFilterList.concat(filterList), []);
 
-        const fields: string[] = fieldKeys.map((fieldKey) => fieldKey.field)
-            .concat(aggregations.filter((aggregation) => aggregation.fieldKey).map((aggregation) => aggregation.fieldKey.field))
-            .concat(groups.filter((group) => group.fieldKey).map((group) => group.fieldKey.field))
-            .concat(unsharedFilters.reduce((list, filter) => list.concat(FilterUtil.retrieveFields(filter)), []));
+        const sortAggregation = this.getAttribute('sort-aggregation');
+        const sortFieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('sort-field-key'));
+
+        const fields: string[] = allFields ? [] : (searchFieldKeys.map((fieldKey) => fieldKey.field)
+            .concat(aggregations.filter((agg) => agg.fieldKey && agg.fieldKey.field).map((agg) => agg.fieldKey.field))
+            .concat(groups.filter((group) => group.fieldKey && group.fieldKey.field).map((group) => group.fieldKey.field))
+            .concat((sortFieldKey && sortFieldKey.field) ? sortFieldKey.field : []));
 
         const tableKey: FieldKey = this._retrieveTableKey();
         let queryPayload: QueryPayload = this._searchService.buildQueryPayload(tableKey.database, tableKey.table,
             fields.length ? fields : ['*']);
 
-        const clauses: FilterClause[] = fieldKeys.map((fieldKey) => this._searchService.buildFilterClause(fieldKey.field, '!=', null))
+        const filterClauses: FilterClause[] = (allFields ? [] : fields)
+            .map((fieldName) => this._searchService.buildFilterClause(fieldName, '!=', null))
             .concat(searchFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)))
             .concat(unsharedFilters.map((filter) => this._searchService.generateFilterClauseFromFilter(filter)));
 
-        if (clauses.length) {
-            this._searchService.updateFilter(queryPayload, clauses.length === 1 ? clauses[0] :
-                this._searchService.buildCompoundFilterClause(clauses));
+        if (filterClauses.length) {
+            this._searchService.updateFilter(queryPayload, filterClauses.length === 1 ? filterClauses[0] :
+                this._searchService.buildCompoundFilterClause(filterClauses));
         }
 
         if (aggregations.length) {
             for (const aggregation of aggregations) {
-                this._searchService.updateAggregation(queryPayload, aggregation.type, aggregation.name, aggregation.fieldKey ?
-                    aggregation.fieldKey.field : aggregation.group);
+                this._searchService.updateAggregation(queryPayload, aggregation.type, aggregation.name,
+                    (aggregation.fieldKey && aggregation.fieldKey.field) ? aggregation.fieldKey.field : aggregation.group);
             }
         }
 
@@ -206,20 +210,19 @@ export class NextCenturySearch extends NextCenturyElement {
             for (const group of groups) {
                 switch (group.type) {
                     case (TimeInterval.MINUTE as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MINUTE, group.name));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MINUTE));
                         // Falls through
                     case (TimeInterval.HOUR as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.HOUR, group.name));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.HOUR));
                         // Falls through
                     case (TimeInterval.DAY_OF_MONTH as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.DAY_OF_MONTH,
-                            group.name));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.DAY_OF_MONTH));
                         // Falls through
                     case (TimeInterval.MONTH as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MONTH, group.name));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MONTH));
                         // Falls through
                     case (TimeInterval.YEAR as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.YEAR, group.name));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.YEAR));
                         break;
                     default:
                         searchGroups.push(this._searchService.buildQueryGroup(group.fieldKey.field));
@@ -228,10 +231,7 @@ export class NextCenturySearch extends NextCenturyElement {
             this._searchService.updateGroups(queryPayload, searchGroups);
         }
 
-        const sortAggregation = this.getAttribute('sort-aggregation');
-        const sortFieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('sort-field-key'));
-
-        if (sortAggregation || sortFieldKey) {
+        if (sortAggregation || (sortFieldKey && sortFieldKey.field)) {
             const sortOrder: SortOrder = (this.getAttribute('sort-order') || SortOrder.DESCENDING) as SortOrder;
             this._searchService.updateSort(queryPayload, sortAggregation || sortFieldKey.field, sortOrder);
         }
@@ -290,7 +290,7 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         // Don't run the search query if the event was sent with this element's ID and if filter-self is false.
-        if (callerId === this.getAttribute('id') && this.hasAttribute('enable-ignore-self-filter')) {
+        if (callerId === this.getAttribute('id') && this.getAttribute('enable-ignore-self-filter')) {
             return;
         }
 
@@ -322,7 +322,7 @@ export class NextCenturySearch extends NextCenturyElement {
             return item;
         });
 
-        const visElement = this.parentElement.querySelector('#' + this.getAttribute('vis-element-id'));
+        const visElement = this.parentElement ? this.parentElement.querySelector('#' + this.getAttribute('vis-element-id')) : null;
         const drawFunction = this.getAttribute('vis-draw-function');
         if (visElement && drawFunction) {
             visElement[drawFunction](data);
@@ -473,33 +473,38 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 
     /**
-     * Returns if the given values work with the given operator.
+     * Returns if the given inputs work with the given operator.
      */
-    private _isFilteredWithOperator(value1: any, operator: string, value2: any): boolean {
+    private _isFilteredWithOperator(input1: any, operator: string, input2: any): boolean {
+        if (Array.isArray(input1)) {
+            return input1.some((value) => this._isFilteredWithOperator(value, operator, input2));
+        }
+
         if (operator === '=') {
-            return value1 === value2;
+            return input1 === input2;
         }
         if (operator === '!=') {
-            return value1 !== value2;
+            return input1 !== input2;
         }
         if (operator === 'contains') {
-            return ('' + value1).indexOf('' + value2) >= 0;
+            return ('' + input1).indexOf('' + input2) >= 0;
         }
         if (operator === 'not contains') {
-            return ('' + value1).indexOf('' + value2) < 0;
+            return ('' + input1).indexOf('' + input2) < 0;
         }
         if (operator === '>=') {
-            return value1 >= value2;
+            return input1 >= input2;
         }
         if (operator === '<=') {
-            return value1 <= value2;
+            return input1 <= input2;
         }
         if (operator === '>') {
-            return value1 > value2;
+            return input1 > input2;
         }
         if (operator === '<') {
-            return value1 < value2;
+            return input1 < input2;
         }
+
         return false;
     }
 
@@ -507,7 +512,8 @@ export class NextCenturySearch extends NextCenturyElement {
      * Returns if the required properties have been initialized to run a search.
      */
     private _isReady(): boolean {
-        return !!(this._filterService && this._searchService && this.hasAttribute('search-field-keys') && this.hasAttribute('id'));
+        return !!(this._dataset && this._filterService && this._searchService && this.getAttribute('search-field-keys') &&
+            this.getAttribute('id'));
     }
 
     /**
@@ -542,7 +548,8 @@ export class NextCenturySearch extends NextCenturyElement {
             return [];
         }
 
-        const sharedFilters: AbstractFilter[] = this.hasAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
+        // Retrieve the filters that share this component's filter designs to ignore them if configured with enable-ignore-self-filter.
+        const sharedFilters: AbstractFilter[] = this.getAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
 
         const tableKey: FieldKey = this._retrieveTableKey();
 
@@ -608,11 +615,6 @@ export class NextCenturySearch extends NextCenturyElement {
             this._runningQuery = undefined;
         });
 
-        this._runningQuery.done((response) => {
-            this._handleQuerySuccess(this._searchService.transformQueryResultsValues(response, labels));
-            this._runningQuery = undefined;
-        });
-
         this._runningQuery.fail((response) => {
             if (response.statusText !== 'abort') {
                 this.dispatchEvent(new CustomEvent('error', {
@@ -623,6 +625,11 @@ export class NextCenturySearch extends NextCenturyElement {
                     }
                 }));
             }
+        });
+
+        this._runningQuery.done((response) => {
+            this._handleQuerySuccess(this._searchService.transformQueryResultsValues(response, labels));
+            this._runningQuery = undefined;
         });
     }
 

@@ -76,10 +76,10 @@ export class NextCenturyExample extends NextCenturyElement {
         this._shadowRoot.appendChild(this._visElement);
     }
 
-    public changeSelectedText(item: any|any[]): void {
-        // If item is "a", transform to ["a"]; if item is ["a", "b"], keep it; if item is [["a"], ["b", "c"]], transform to ["a", "b", "c"]
-        const selected: any[] = !Array.isArray(item) ? [item] : ((!item.length || !Array.isArray(item[0])) ? item :
-            item.reduce((list, part) => list.concat(part), []));
+    public changeSelectedText(text: any|any[]): void {
+        // If text is "a", transform to ["a"]; if text is ["a", "b"], keep it; if text is [["a"], ["b", "c"]], transform to ["a", "b", "c"]
+        const selected: any[] = !Array.isArray(text) ? [text] : text.reduce((list, part) => list.concat(part), []);
+        // Only redraw the visualization data if some of the selected text items have changed.
         if (this._selected.length !== selected.length || this._selected.some((value, index) => value !== selected[index])) {
             this._selected = selected;
             this._redrawData();
