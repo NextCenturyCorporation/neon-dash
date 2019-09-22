@@ -595,6 +595,18 @@ export class SimpleFilter extends AbstractFilter {
         return null;
     }
 
+    /**
+     * Creates and returns a simple filter object using the given field key and dataset.
+     */
+    static fromFieldKey(fieldKeyString: string, operator: string, value: string, dataset: Dataset): SimpleFilter {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+        if (fieldKey && fieldKey.field) {
+            const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
+            return new SimpleFilter(datastore.name, database, table, field, operator, value);
+        }
+        return null;
+    }
+
     constructor(
         public datastore: string,
         public database: DatabaseConfig,
@@ -975,6 +987,26 @@ export class CompoundFilter extends AbstractFilter {
 
 export class BoundsFilter extends CompoundFilter {
     /**
+     * Creates and returns a bounds filter object (and its nested filter objects) using the given arguments.
+     */
+    static fromArguments(
+        fieldKey1: string,
+        fieldKey2: string,
+        begin1: any,
+        begin2: any,
+        end1: any,
+        end2: any,
+        dataset: Dataset
+    ): BoundsFilter {
+        return new BoundsFilter(fieldKey1, fieldKey2, begin1, begin2, end1, end2, [
+            SimpleFilter.fromFieldKey(fieldKey1, '>=', begin1, dataset),
+            SimpleFilter.fromFieldKey(fieldKey1, '<=', end1, dataset),
+            SimpleFilter.fromFieldKey(fieldKey2, '>=', begin2, dataset),
+            SimpleFilter.fromFieldKey(fieldKey2, '<=', end2, dataset)
+        ]);
+    }
+
+    /**
      * Creates and returns a bounds filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): BoundsFilter {
@@ -1087,6 +1119,16 @@ export class BoundsFilter extends CompoundFilter {
 
 export class DomainFilter extends CompoundFilter {
     /**
+     * Creates and returns a domain filter object (and its nested filter objects) using the given arguments.
+     */
+    static fromArguments(fieldKey: string, begin: any, end: any, dataset: Dataset): DomainFilter {
+        return new DomainFilter(fieldKey, begin, end, [
+            SimpleFilter.fromFieldKey(fieldKey, '>=', begin, dataset),
+            SimpleFilter.fromFieldKey(fieldKey, '<=', end, dataset)
+        ]);
+    }
+
+    /**
      * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): DomainFilter {
@@ -1183,6 +1225,14 @@ export class DomainFilter extends CompoundFilter {
 }
 
 export class ListFilter extends CompoundFilter {
+    /**
+     * Creates and returns a list filter object (and its nested filter objects) using the given arguments.
+     */
+    static fromArguments(type: CompoundFilterType, fieldKey: string, operator: string, values: any[], dataset: Dataset): ListFilter {
+        return new ListFilter(type, fieldKey, operator, values, values.map((value) =>
+            SimpleFilter.fromFieldKey(fieldKey, operator, value, dataset)));
+    }
+
     /**
      * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
      */
@@ -1285,6 +1335,25 @@ export class ListFilter extends CompoundFilter {
 }
 
 export class PairFilter extends CompoundFilter {
+    /**
+     * Creates and returns a pair filter object (and its nested filter objects) using the given arguments.
+     */
+    static fromArguments(
+        type: CompoundFilterType,
+        fieldKey1: string,
+        fieldKey2: string,
+        operator1: any,
+        operator2: any,
+        value1: any,
+        value2: any,
+        dataset: Dataset
+    ): PairFilter {
+        return new PairFilter(type, fieldKey1, fieldKey2, operator1, operator2, value1, value2, [
+            SimpleFilter.fromFieldKey(fieldKey1, operator1, value1, dataset),
+            SimpleFilter.fromFieldKey(fieldKey2, operator2, value2, dataset)
+        ]);
+    }
+
     /**
      * Creates and returns a pair filter object using the given data list (or null if it is not the correct type of data list).
      */
