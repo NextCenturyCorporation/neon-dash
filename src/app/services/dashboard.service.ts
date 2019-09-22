@@ -153,7 +153,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: this.filterService.getFilters(),
+                filters: this.filterService.getFilters().map((filter) => filter.toConfig()),
                 layout: name
             }),
             projectTitle: name
@@ -170,7 +170,7 @@ export class DashboardService {
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
-        let filters: AbstractFilter[] = this.filterService.getRawFilters();
+        let filters: AbstractFilter[] = this.filterService.getFilters();
         return ConfigUtil.translate(JSON.stringify(filters.map((filter) => filter.toDataList())), ConfigUtil.encodeFiltersMap);
     }
 

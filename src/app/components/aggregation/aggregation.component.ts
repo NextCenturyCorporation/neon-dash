@@ -40,15 +40,13 @@ import {
     BoundsFilter,
     BoundsFilterDesign,
     BoundsValues,
-    CompoundFilter,
     DomainFilter,
     DomainFilterDesign,
     DomainValues,
     FilterCollection,
     FilterConfig,
-    ListFilterDesign,
-    SimpleFilter,
-    SimpleFilterDesign
+    ListFilter,
+    ListFilterDesign
 } from '../../library/core/models/filters';
 import { DatasetUtil } from '../../library/core/models/dataset';
 import { DateUtil } from '../../library/core/date.util';
@@ -190,8 +188,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private viewInitialized = false;
 
-    // Cached filtered items used to create new intersection (AND) filters.
-    private _filteredSingleItems: any[] = [];
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredLegendValues: any[] = [];
+    private _filteredSingleValues: any[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -254,12 +253,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let designs: FilterConfig[] = [];
 
         if (this.options.groupField.columnName) {
-            designs.push(this.createFilterConfigOnLegend());
+            designs.push(this.createFilterConfigOnLegendList());
         }
 
         if (this.options.xField.columnName) {
-            designs.push(this.createFilterConfigOnSingleItem());
-            designs.push(this.createFilterConfigOnMultipleItems());
+            designs.push(this.createFilterConfigOnItemList());
             designs.push(this.createFilterConfigOnDomain());
 
             if (this.options.yField.columnName) {
@@ -349,19 +347,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
     }
 
-    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.groupField.columnName, '!=', value);
-    }
-
-    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterConfigOnLegendList(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
-            this.options.table.name + '.' + this.options.xField.columnName, '=', values);
+            this.options.table.name + '.' + this.options.groupField.columnName, '!=', values);
     }
 
-    private createFilterConfigOnSingleItem(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.xField.columnName, '=', value);
+    private createFilterConfigOnItemList(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR, this.options.datastore.name +
+            '.' + this.options.database.name + '.' + this.options.table.name + '.' + this.options.xField.columnName, '=', values);
     }
 
     /**
@@ -642,7 +635,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     handleLegendItemSelected(event) {
         if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
-            this.toggleFilters([this.createFilterConfigOnLegend(event.value)]);
+            this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
+            if (this._filteredLegendValues.length) {
+                this.exchangeFilters([this.createFilterConfigOnLegendList(this._filteredLegendValues)]);
+            } else {
+                // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the group field.
+                this.exchangeFilters([], [this.createFilterConfigOnLegendList()]);
+            }
         }
     }
 
@@ -883,6 +882,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.legendGroups = groups;
         }
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         // Set the active groups to all the groups in the active data.
@@ -1032,8 +1032,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected redrawFilters(filters: FilterCollection): void {
         // Add or remove disabled legend groups depending on the filtered legend groups.
-        let legendFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend());
-        this.legendDisabledGroups = legendFilters.map((filter) => (filter as SimpleFilter).value);
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegendList()) as ListFilter[];
+        this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
+        this.legendDisabledGroups = [].concat(this._filteredLegendValues);
 
         // Set the active groups to all the groups that are NOT disabled/filtered since the group filters are all negative (!=).
         this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
@@ -1084,13 +1085,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Select individual filtered items.
-        // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
-        let singleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnSingleItem());
-        let multipleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnMultipleItems());
-        singleItemFilters = singleItemFilters.concat(multipleItemFilters.reduce((list, compoundFilter) =>
-            list.concat((compoundFilter as CompoundFilter).filters), []));
-        this._filteredSingleItems = singleItemFilters.map((simpleFilter) => (simpleFilter as SimpleFilter).value);
-        this.subcomponentMain.select(this._filteredSingleItems);
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnItemList()) as ListFilter[];
+        this._filteredSingleValues = CoreUtil.retrieveValuesFromListFilters(listFilters);
+        this.subcomponentMain.select(this._filteredSingleValues);
     }
 
     /**
@@ -1217,16 +1214,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this._filteredSingleItems.push(value);
-            if (this.options.requireAll) {
-                this.exchangeFilters([this.createFilterConfigOnMultipleItems(this._filteredSingleItems)]);
-            } else {
-                this.toggleFilters([this.createFilterConfigOnSingleItem(value)]);
-            }
+        this._filteredSingleValues = CoreUtil.changeOrToggleValues(value, this._filteredSingleValues, doNotReplace);
+        if (this._filteredSingleValues.length) {
+            this.exchangeFilters([this.createFilterConfigOnItemList(this._filteredSingleValues)]);
         } else {
-            this._filteredSingleItems = [value];
-            this.exchangeFilters([this.createFilterConfigOnSingleItem(value)]);
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the data field.
+            this.exchangeFilters([], [this.createFilterConfigOnItemList()]);
         }
     }
 
@@ -1240,7 +1233,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY: any, __doNotReplace?: boolean) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
@@ -1249,11 +1242,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this.toggleFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
-        } else {
-            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
-        }
+        // Always keep the existing filter (don't remove it) if the user happens to draw exactly the same bounding box twice.
+        this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)], [], true);
     }
 
     /**
@@ -1264,7 +1254,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, __doNotReplace?: boolean) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
@@ -1273,11 +1263,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this.toggleFilters([this.createFilterConfigOnDomain(beginX, endX)]);
-        } else {
-            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
-        }
+        this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
     }
 
     /**
