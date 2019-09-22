@@ -286,10 +286,10 @@ const datasetObject = new Dataset({
 }, connectionService, dataServer, relations);
 
 // Initialize each Filter Component with the Dataset and FilterService.
-document.getElementById('filter1').init(datasetObject, filterService);
+document.querySelector('filter1').init(datasetObject, filterService);
 
 // Initialize each Search Component with the Dataset, FilterService, and SearchService.
-document.getElementById('search1').init(datasetObject, filterService, searchService);
+document.querySelector('search1').init(datasetObject, filterService, searchService);
 ```
 
 #### Search
@@ -493,10 +493,10 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 ```
 
 ```js
-const textCloud1 = document.getElementById('textCloud1');
+const textCloud1 = document.querySelector('textCloud1');
 textCloud1.init(dataset, filterService, searchService);
 
-const textCloud2 = document.getElementById('textCloud2');
+const textCloud2 = document.querySelector('textCloud2');
 textCloud2.init(dataset, filterService, searchService);
 ```
 
@@ -522,10 +522,12 @@ textCloud2.init(dataset, filterService, searchService);
     <next-century-aggregation
         aggregation-field-key="es1.index_name.index_type.text_field"
         aggregation-name="_count"
-    ></next-century-aggregation>
+    >
+    </next-century-aggregation>
     <next-century-group
         group-field-key="es1.index_name.index_type.text_field"
-    ></next-century-group>
+    >
+    </next-century-group>
 </next-century-search>
 
 <next-century-filter
@@ -537,14 +539,15 @@ textCloud2.init(dataset, filterService, searchService);
     vis-element-id="textCloud1Vis"
     vis-filter-input-function="changeFilteredText"
     vis-filter-output-event="filter"
-></next-century-filter>
+>
+</next-century-filter>
 ```
 
 ```js
 public init(dataset: Dataset, filterService: FilterService, searchService: SearchService) {
-    const filterComponent = document.getElementById('textCloud1Filter');
+    const filterComponent = document.querySelector('textCloud1Filter');
     filterComponent.init(dataset, filterService);
-    const searchComponent = document.getElementById('textCloud1Search');
+    const searchComponent = document.querySelector('textCloud1Search');
     searchComponent.init(dataset, filterService, searchService);
 }
 ```
@@ -582,11 +585,11 @@ const transformSearchDataArray = function(searchDataArray) {
     const yourData = searchDataArray.reduce((searchDataObject) => { ... }, []);
     
     // Send the transformed visualization data to your visualization-element by whatever method you desire.
-    const vis1 = document.getElementById('vis1');
+    const vis1 = document.querySelector('vis1');
     vis1.drawData(yourData);
 };
 
-const search1 = document.getElementById('search1');
+const search1 = document.querySelector('search1');
 search1.addEventListener('dataReceived', transformSearchDataArray);
 ```
 
@@ -613,11 +616,11 @@ const transformFilterEventData = function(event) {
     const filterDataArray = [event.detail.your_property];
     
     // Send the filter data array to the Filter Component by calling updateFilters.
-    const filter1 = document.getElementById('filter1');
+    const filter1 = document.querySelector('filter1');
     filter1.updateFilters(filterDataArray);
 };
 
-const vis1 = document.getElementById('vis1');
+const vis1 = document.querySelector('vis1');
 vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 ```
 
@@ -657,11 +660,11 @@ const transformFilterDataArray = function(filterDataArray) {
     const yourData = filterDataArray.reduce((filterData) => { ... }, []);
     
     // Send the transformed filter data to your visualization-element by whatever method you desire.
-    const vis1 = document.getElementById('vis1');
+    const vis1 = document.querySelector('vis1');
     vis1.changeFilters(yourData);
 };
 
-const filter1 = document.getElementById('filter1');
+const filter1 = document.querySelector('filter1');
 filter1.addEventListener('valuesFiltered', transformFilterDataArray);
 ```
 
