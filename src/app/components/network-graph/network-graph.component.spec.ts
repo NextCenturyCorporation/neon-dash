@@ -593,7 +593,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -602,7 +602,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1', 'testType2'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('does create compound OR filter for graph when graph node is selected', (() => {
@@ -656,7 +656,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -665,7 +665,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1', 'testType2'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('does create compound AND filter for graph when graph node with data list is selected', (() => {
@@ -716,7 +716,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeA'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -725,7 +725,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('does create compound OR filter for graph when graph node with data list is selected', (() => {
@@ -775,7 +775,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeA'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -784,7 +784,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeA', 'testTypeB', 'testTypeC', 'testTypeD'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('does create compound AND filter on multiple filter fields for graph when graph node is selected', (() => {
@@ -841,7 +841,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -853,7 +853,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1', 'testType2'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('does create compound OR filter on multiple filter fields for graph when graph node is selected', (() => {
@@ -910,7 +910,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1'])
-        ], []]);
+        ], [], true]);
 
         component.onSelect({ nodes: ['testNode2'] });
 
@@ -922,7 +922,7 @@ describe('Component: NetworkGraph', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testType1', 'testType2'])
-        ], []]);
+        ], [], true]);
     }));
 
     it('designEachFilterWithNoValues does return expected object', () => {

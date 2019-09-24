@@ -562,7 +562,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1', 'testSubType2'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[0].children[0].checked).toEqual(false);
         expect(groups[0].children[0].children[0].checked).toEqual(false);
@@ -601,7 +601,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', [undefined])
-        ]]);
+        ], true]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].indeterminate).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(false);
@@ -682,7 +682,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1', 'testSubType2'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[0].children[0].checked).toEqual(false);
         expect(groups[0].children[0].children[0].checked).toEqual(false);
@@ -725,7 +725,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1', 'testSubType2'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].indeterminate).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(false);
@@ -769,7 +769,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
-        ]]);
+        ], true]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
         expect(groups[0].children[0].children[0].checked).toEqual(true);
@@ -811,7 +811,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
-        ]]);
+        ], true]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
         expect(groups[0].children[0].children[0].checked).toEqual(true);
@@ -852,7 +852,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', [undefined])
-        ]]);
+        ], true]);
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
         expect(groups[0].children[0].children[0].checked).toEqual(true);
@@ -883,7 +883,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['testCategoryI'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[1].checked).toEqual(true);
         expect(groups[2].checked).toEqual(true);
@@ -912,7 +912,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testTypeA', 'testTypeB'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[0].children[0].checked).toEqual(false);
         expect(groups[0].children[1].checked).toEqual(false);
@@ -983,7 +983,7 @@ describe('Component: TaxonomyViewer', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testSubType1', 'testSubType2'])
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[0].children[0].checked).toEqual(false);
         expect(groups[0].children[0].children[0].checked).toEqual(false);
@@ -1051,7 +1051,7 @@ describe('Component: TaxonomyViewer', () => {
                 '.' + DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=',
                 ['testTypeA', 'testTypeA.testSubType1', 'testTypeA.testSubType2', 'testTypeB']
             )
-        ], []]);
+        ], [], true]);
         expect(groups[0].checked).toEqual(false);
         expect(groups[0].children[0].checked).toEqual(false);
         expect(groups[0].children[0].children[0].checked).toEqual(false);
