@@ -15,7 +15,7 @@
 
 import { AbstractSearchService } from '../../core/services/abstract.search.service';
 import { CoreUtil } from '../../core/core.util';
-import { Dataset, DatasetUtil, FieldKey } from '../../core/models/dataset';
+import { Dataset, DatasetFieldKey, DatasetUtil, FieldKey } from '../../core/models/dataset';
 import { FilterService } from '../../core/services/filter.service';
 import { NextCenturyAggregation } from '../../core/components/aggregation.web-component';
 import { NextCenturyElement } from '../../core/components/element.web-component';
@@ -83,8 +83,9 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         if (aggregationType && aggregationType !== 'count') {
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(attributes['aggregation-field-key']);
             if (fieldKey && fieldKey.field) {
-                const configData = this._dataset.retrieveConfigDataFromFieldKey(fieldKey);
-                return aggregationType.substring(0, 1).toUpperCase() + aggregationType.substring(1) + ' of ' + configData[3].prettyName;
+                const datasetFieldKey: DatasetFieldKey = this._dataset.retrieveDatasetFieldKey(fieldKey);
+                return aggregationType.substring(0, 1).toUpperCase() + aggregationType.substring(1) + ' of ' +
+                    datasetFieldKey.field.prettyName;
             }
         }
         return undefined;

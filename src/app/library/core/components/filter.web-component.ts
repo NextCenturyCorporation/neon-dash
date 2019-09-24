@@ -25,7 +25,6 @@ import {
     FilterValues,
     ListFilterDesign,
     ListOfValues,
-    OneValue,
     PairFilterDesign,
     PairOfValues
 } from '../models/filters';
@@ -477,9 +476,6 @@ export class NextCenturyFilter extends NextCenturyElement {
      * Returns the boolean/number/string values from the given list of FilterValues.
      */
     private _retrieveValuesFromFilterValues(filterValues: FilterValues): any|any[] {
-        if (filterValues instanceof OneValue) {
-            return filterValues.value;
-        }
         if (filterValues instanceof ListOfValues) {
             return filterValues.values;
         }
