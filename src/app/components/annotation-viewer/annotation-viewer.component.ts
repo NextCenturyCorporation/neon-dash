@@ -27,13 +27,14 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldConfig } from '../../library/core/models/dataset';
 import { CoreUtil } from '../../library/core/core.util';
 import {
+    CompoundFilterType,
     OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -132,9 +133,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.visualizationQueryPaginates = true;
     }
 
-    private createFilterConfigOnAnnotationText(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.documentTextField.columnName, '=', value);
+    private createFilterConfigOnAnnotationText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + ',' + this.options.database.name + ',' +
+            this.options.table.name + ',' + this.options.documentTextField.columnName, '=', values);
     }
 
     /**
@@ -199,7 +200,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     onClick(item) {
         if (!this.options.respondMode) {
-            this.exchangeFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
+            this.exchangeFilters([this.createFilterConfigOnAnnotationText([item.documents])]);
         }
     }
 

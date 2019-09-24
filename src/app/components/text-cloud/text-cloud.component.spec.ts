@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection, ListFilter, ListFilterDesign, SimpleFilter } from '../../library/core/models/filters';
+import { FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 
 import { Injector } from '@angular/core';
@@ -247,8 +247,9 @@ describe('Component: TextCloud', () => {
 
         let testCollection = new FilterCollection();
         spyOn(testCollection, 'getCompatibleFilters').and.callFake((__design) => [
-            ListFilter.fromFilters([new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.TEXT, '=', 'key2')], CompoundFilterType.OR)
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1 + '.' + DashboardServiceMock.TABLES.testTable1 + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT, '=', ['key2'])
         ]);
 
         (component as any).redrawFilters(testCollection);

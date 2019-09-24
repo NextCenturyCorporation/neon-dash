@@ -26,7 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
@@ -34,6 +34,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
     SortOrder,
     WidgetFieldOption,
@@ -103,9 +104,9 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.initializeSubcomponent();
     }
 
-    private createFilterConfig(field: FieldConfig, value?: any): FilterConfig {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
-            '=', value);
+    private createFilterConfig(field: FieldConfig, values: any[] = [undefined]): FilterConfig {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '=', values);
     }
 
     /**
@@ -212,7 +213,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, __replaceAll = false) {
-        this.exchangeFilters([this.createFilterConfig(item.field, item.value)]);
+        this.exchangeFilters([this.createFilterConfig(item.field, [item.value])]);
     }
 
     /**
