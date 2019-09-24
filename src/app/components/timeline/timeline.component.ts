@@ -38,7 +38,7 @@ import {
     DomainValues,
     FilterCollection,
     FilterConfig,
-    SimpleFilterDesign
+    ListFilterDesign
 } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -48,6 +48,7 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { CoreUtil } from '../../library/core/core.util';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
     TimeInterval,
     WidgetFieldOption,
@@ -113,9 +114,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    private createFilterConfigOnItem(field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
-            '=', value);
+    private createFilterConfigOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '=', values);
     }
 
     private createFilterConfigOnTimeline(begin?: Date, end?: Date): DomainFilterDesign {
@@ -154,6 +155,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             designs.push(this.createFilterConfigOnTimeline());
         }
 
+        if (this.options.filterField.columnName) {
+            designs.push(this.createFilterConfigOnValues(this.options.filterField));
+        }
+
         return designs;
     }
 
@@ -186,7 +191,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }
 
             // Create a separate filter on each value because each value is a distinct item in the data (they've been aggregated together).
-            filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnItem(this.options.filterField, value)));
+            filters = filters.concat(this.createFilterConfigOnValues(this.options.filterField, filterValues));
         }
 
         this.exchangeFilters(filters);
