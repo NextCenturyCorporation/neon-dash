@@ -19,8 +19,8 @@ import {
     FilterConfig,
     FilterDataSource,
     FilterUtil,
-    SimpleFilter,
-    SimpleFilterDesign
+    ListFilter,
+    ListFilterDesign
 } from '../models/filters';
 import { CompoundFilterType } from '../models/widget-option';
 import { Dataset } from '../models/dataset';
@@ -52,16 +52,16 @@ describe('FilterService with filters', () => {
     let filterService: FilterService;
     let source1: FilterDataSource[];
     let source2: FilterDataSource[];
-    let config1A: SimpleFilterDesign;
-    let config1B: SimpleFilterDesign;
+    let config1A: ListFilterDesign;
+    let config1B: ListFilterDesign;
     let config2A: CompoundFilterDesign;
     let filter1A: any;
     let filter1B: any;
     let filter2A: any;
     let relationSource1: FilterDataSource[];
     let relationSource2: FilterDataSource[];
-    let relationConfig1: SimpleFilterDesign;
-    let relationConfig2: SimpleFilterDesign;
+    let relationConfig1: ListFilterDesign;
+    let relationConfig2: ListFilterDesign;
     let relationFilter1: any;
     let relationFilter2: any;
     let dataset: Dataset;
@@ -96,20 +96,20 @@ describe('FilterService with filters', () => {
             operator: '<'
         } as FilterDataSource];
 
-        config1A = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName,
-            '=', 'testId1');
-        config1B = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName,
-            '=', 'testId2');
+        config1A = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName, '=', ['testId1']);
+        config1B = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName, '=', ['testId2']);
         config2A = new CompoundFilterDesign(CompoundFilterType.AND, [
-            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.SIZE.columnName, '>',
-                10),
-            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.SIZE.columnName, '<',
-                20)
+            new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+                TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName, '>', [10]),
+            new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+                TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName, '<', [20])
         ]);
 
-        filter1A = FilterUtil.createFilterFromConfig(config1A, dataset);
-        filter1B = FilterUtil.createFilterFromConfig(config1B, dataset);
-        filter2A = FilterUtil.createFilterFromConfig(config2A, dataset);
+        filter1A = FilterUtil.createFilterFromConfig(config1A);
+        filter1B = FilterUtil.createFilterFromConfig(config1B);
+        filter2A = FilterUtil.createFilterFromConfig(config2A);
 
         config1A.id = filter1A.id;
         config1B.id = filter1B.id;
@@ -154,13 +154,13 @@ describe('FilterService with filters', () => {
             operator: '='
         } as FilterDataSource];
 
-        relationConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testRelation');
-        relationConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_B.columnName, '=', 'testRelation');
+        relationConfig1 = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName, '=', ['testRelation']);
+        relationConfig2 = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName, '=', ['testRelation']);
 
-        relationFilter1 = FilterUtil.createFilterFromConfig(relationConfig1, dataset);
-        relationFilter2 = FilterUtil.createFilterFromConfig(relationConfig2, dataset);
+        relationFilter1 = FilterUtil.createFilterFromConfig(relationConfig1);
+        relationFilter2 = FilterUtil.createFilterFromConfig(relationConfig2);
         relationFilter1.relations = [relationFilter2.id];
         relationFilter2.relations = [relationFilter1.id];
 
@@ -279,8 +279,8 @@ describe('FilterService with filters', () => {
     it('deleteFilters should not publish any event if no filters are affected', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let actual = filterService.deleteFilters('testCaller', [new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name,
-            TABLES.testTable1.name, FIELD_MAP.TEXT.columnName, '=')]);
+        let actual = filterService.deleteFilters('testCaller', [new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' +
+            DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '=', [undefined])]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -301,8 +301,8 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should add new filters and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.TEXT.columnName, '=', 'testText');
+        let testConfig = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '=', ['testText']);
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -319,11 +319,10 @@ describe('FilterService with filters', () => {
 
         let listComplete = filterService['filterCollection'].getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.TEXT);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testText');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testText']);
 
         testConfig.id = listComplete[0].id;
 
@@ -341,18 +340,17 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should delete old filters and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.ID.columnName, '=', 'testId5');
+        let testConfig = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName, '=', ['testId5']);
 
         let actual = filterService.exchangeFilters('testCaller', [testConfig], dataset);
 
         let listComplete = filterService['filterCollection'].getFilters(source1);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.ID);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testId5');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testId5']);
 
         testConfig.id = listComplete[0].id;
 
@@ -380,22 +378,20 @@ describe('FilterService with filters', () => {
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_A);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testRelation']);
 
         relationConfig1.id = listComplete[0].id;
         relationConfig1.relations = listComplete[0].relations;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_B);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testRelation']);
 
         relationConfig2.id = listComplete[0].id;
         relationConfig2.relations = listComplete[0].relations;
@@ -417,8 +413,8 @@ describe('FilterService with filters', () => {
 
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_B.columnName, '=', 'testExchangeRelation');
+        let testConfig2 = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName, '=', ['testExchangeRelation']);
 
         let actual = filterService.exchangeFilters('testCaller', [testConfig2], dataset);
 
@@ -427,22 +423,26 @@ describe('FilterService with filters', () => {
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_A);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testExchangeRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testExchangeRelation']);
 
-        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testExchangeRelation', listComplete[0].id, listComplete[0].relations);
+        let testConfig1 = new ListFilterDesign(
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName,
+            '=',
+            ['testExchangeRelation'],
+            listComplete[0].id,
+            listComplete[0].relations
+        );
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_B);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testExchangeRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testExchangeRelation']);
 
         testConfig2.id = listComplete[0].id;
         testConfig2.relations = listComplete[0].relations;
@@ -623,7 +623,7 @@ describe('FilterService with filters', () => {
 
     it('retrieveCompatibleFilterCollection should return expected filter collection', () => {
         // Remove the filter value to make the config compatible with each filter of its data source
-        config1A.value = undefined;
+        config1A.values = [undefined];
 
         let testCollection = filterService.retrieveCompatibleFilterCollection([config1A]);
 
@@ -633,7 +633,7 @@ describe('FilterService with filters', () => {
 
     it('retrieveCompatibleFilterCollection should copy multiple filters if multiple configs have compatible filters', () => {
         // Remove the filter value to make the config compatible with each filter of its data source
-        config1A.value = undefined;
+        config1A.values = [undefined];
 
         let testCollection = filterService.retrieveCompatibleFilterCollection([config1A, config2A]);
 
@@ -644,10 +644,11 @@ describe('FilterService with filters', () => {
 
     it('retrieveCompatibleFilterCollection should not copy the same filters if configs have the same data source', () => {
         // Remove the filter value to make the config compatible with each filter of its data source
-        config1A.value = undefined;
+        config1A.values = [undefined];
 
         let testConfig = new CompoundFilterDesign(CompoundFilterType.AND, [
-            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName, '=')
+            new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+                TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName, '=', [undefined])
         ]);
 
         let testCollection = filterService.retrieveCompatibleFilterCollection([config1A, testConfig]);
@@ -657,8 +658,8 @@ describe('FilterService with filters', () => {
     });
 
     it('retrieveCompatibleFilterCollection should do nothing with no compatible filters', () => {
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.TEXT.columnName, '=');
+        let testConfig = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '=', [undefined]);
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -681,51 +682,53 @@ describe('FilterService with filters', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([]);
 
         filterService.setFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1')
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId1'])
         ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(1);
-        expect(actual[0].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].table).toEqual(TABLES.testTable1);
-        expect(actual[0].field).toEqual(FIELD_MAP.ID);
+        expect(actual[0].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[0].operator).toEqual('=');
-        expect(actual[0].value).toEqual('testId1');
+        expect(actual[0].values).toEqual(['testId1']);
 
         filterService.setFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId2'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId3'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId4')
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId1']),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId2']),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId3']),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId4'])
         ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(4);
-        expect(actual[0].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].table).toEqual(TABLES.testTable1);
-        expect(actual[0].field).toEqual(FIELD_MAP.ID);
+        expect(actual[0].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[0].operator).toEqual('=');
-        expect(actual[0].value).toEqual('testId1');
-        expect(actual[1].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[1].table).toEqual(TABLES.testTable1);
-        expect(actual[1].field).toEqual(FIELD_MAP.ID);
+        expect(actual[0].values).toEqual(['testId1']);
+        expect(actual[1].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[1].operator).toEqual('=');
-        expect(actual[1].value).toEqual('testId2');
-        expect(actual[2].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[2].table).toEqual(TABLES.testTable1);
-        expect(actual[2].field).toEqual(FIELD_MAP.ID);
+        expect(actual[1].values).toEqual(['testId2']);
+        expect(actual[2].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[2].operator).toEqual('=');
-        expect(actual[2].value).toEqual('testId3');
-        expect(actual[3].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[3].table).toEqual(TABLES.testTable1);
-        expect(actual[3].field).toEqual(FIELD_MAP.ID);
+        expect(actual[2].values).toEqual(['testId3']);
+        expect(actual[3].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[3].operator).toEqual('=');
-        expect(actual[3].value).toEqual('testId4');
+        expect(actual[3].values).toEqual(['testId4']);
 
         filterService.setFilters([
             new CompoundFilter(CompoundFilterType.AND, [
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>', 10),
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<', 20)
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name +
+                    '.' + FIELD_MAP.SIZE.columnName, '>', [10]),
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name +
+                    '.' + FIELD_MAP.SIZE.columnName, '<', [20])
             ])
         ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source2]);
@@ -733,59 +736,57 @@ describe('FilterService with filters', () => {
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
-        expect(actual[0].filters[0].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].filters[0].table).toEqual(TABLES.testTable1);
-        expect(actual[0].filters[0].field).toEqual(FIELD_MAP.SIZE);
+        expect(actual[0].filters[0].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName);
         expect(actual[0].filters[0].operator).toEqual('>');
-        expect(actual[0].filters[0].value).toEqual(10);
-        expect(actual[0].filters[1].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].filters[1].table).toEqual(TABLES.testTable1);
-        expect(actual[0].filters[1].field).toEqual(FIELD_MAP.SIZE);
+        expect(actual[0].filters[0].values).toEqual([10]);
+        expect(actual[0].filters[1].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName);
         expect(actual[0].filters[1].operator).toEqual('<');
-        expect(actual[0].filters[1].value).toEqual(20);
+        expect(actual[0].filters[1].values).toEqual([20]);
 
         filterService.setFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId2'),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId1']),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testId2']),
             new CompoundFilter(CompoundFilterType.AND, [
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>', 10),
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<', 20)
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name +
+                    '.' + FIELD_MAP.SIZE.columnName, '>', [10]),
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name +
+                    '.' + FIELD_MAP.SIZE.columnName, '<', [20])
             ])
         ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(2);
-        expect(actual[0].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].table).toEqual(TABLES.testTable1);
-        expect(actual[0].field).toEqual(FIELD_MAP.ID);
+        expect(actual[0].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[0].operator).toEqual('=');
-        expect(actual[0].value).toEqual('testId1');
-        expect(actual[1].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[1].table).toEqual(TABLES.testTable1);
-        expect(actual[1].field).toEqual(FIELD_MAP.ID);
+        expect(actual[0].values).toEqual(['testId1']);
+        expect(actual[1].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.ID.columnName);
         expect(actual[1].operator).toEqual('=');
-        expect(actual[1].value).toEqual('testId2');
+        expect(actual[1].values).toEqual(['testId2']);
         actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
-        expect(actual[0].filters[0].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].filters[0].table).toEqual(TABLES.testTable1);
-        expect(actual[0].filters[0].field).toEqual(FIELD_MAP.SIZE);
+        expect(actual[0].filters[0].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName);
         expect(actual[0].filters[0].operator).toEqual('>');
-        expect(actual[0].filters[0].value).toEqual(10);
-        expect(actual[0].filters[1].database).toEqual(DATABASES.testDatabase1);
-        expect(actual[0].filters[1].table).toEqual(TABLES.testTable1);
-        expect(actual[0].filters[1].field).toEqual(FIELD_MAP.SIZE);
+        expect(actual[0].filters[0].values).toEqual([10]);
+        expect(actual[0].filters[1].fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName);
         expect(actual[0].filters[1].operator).toEqual('<');
-        expect(actual[0].filters[1].value).toEqual(20);
+        expect(actual[0].filters[1].values).toEqual([20]);
     });
 
     it('createFilters should add new filters to an existing data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.ID.columnName, '=', 'testId5');
+        let testConfig = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName, '=', ['testId5']);
 
         let actual = filterService.createFilters('testCaller', [testConfig], dataset);
 
@@ -793,11 +794,10 @@ describe('FilterService with filters', () => {
         expect(listComplete.length).toEqual(3);
         expect(listComplete[0]).toEqual(filter1A);
         expect(listComplete[1]).toEqual(filter1B);
-        expect((listComplete[2] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[2] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[2] as SimpleFilter).field).toEqual(FIELD_MAP.ID);
-        expect((listComplete[2] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[2] as SimpleFilter).value).toEqual('testId5');
+        expect((listComplete[2] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.ID.columnName);
+        expect((listComplete[2] as ListFilter).operator).toEqual('=');
+        expect((listComplete[2] as ListFilter).values).toEqual(['testId5']);
 
         testConfig.id = listComplete[2].id;
 
@@ -816,8 +816,8 @@ describe('FilterService with filters', () => {
     it('createFilters should add new filters to a new data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.TEXT.columnName, '=', 'testText');
+        let testConfig = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '=', ['testText']);
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -834,11 +834,10 @@ describe('FilterService with filters', () => {
 
         let listComplete = filterService['filterCollection'].getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.TEXT);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testText');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testText']);
 
         testConfig.id = listComplete[0].id;
 
@@ -865,22 +864,20 @@ describe('FilterService with filters', () => {
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_A);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testRelation']);
 
         relationConfig1.id = listComplete[0].id;
         relationConfig1.relations = listComplete[0].relations;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect((listComplete[0] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[0] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[0] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_B);
-        expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
+        expect((listComplete[0] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName);
+        expect((listComplete[0] as ListFilter).operator).toEqual('=');
+        expect((listComplete[0] as ListFilter).values).toEqual(['testRelation']);
 
         relationConfig2.id = listComplete[0].id;
         relationConfig2.relations = listComplete[0].relations;
@@ -902,8 +899,8 @@ describe('FilterService with filters', () => {
 
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_B.columnName, '=', 'testToggleRelation');
+        let testConfig2 = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName, '=', ['testToggleRelation']);
 
         let actual = filterService.createFilters('testCaller', [testConfig2], dataset);
 
@@ -913,23 +910,27 @@ describe('FilterService with filters', () => {
         let listComplete = filterService['filterCollection'].getFilters(relationSource1);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter1);
-        expect((listComplete[1] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[1] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[1] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_A);
-        expect((listComplete[1] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[1] as SimpleFilter).value).toEqual('testToggleRelation');
+        expect((listComplete[1] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName);
+        expect((listComplete[1] as ListFilter).operator).toEqual('=');
+        expect((listComplete[1] as ListFilter).values).toEqual(['testToggleRelation']);
 
-        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation', listComplete[1].id, listComplete[1].relations);
+        let testConfig1 = new ListFilterDesign(
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName,
+            '=',
+            ['testToggleRelation'],
+            listComplete[1].id,
+            listComplete[1].relations
+        );
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter2);
-        expect((listComplete[1] as SimpleFilter).database).toEqual(DATABASES.testDatabase1);
-        expect((listComplete[1] as SimpleFilter).table).toEqual(TABLES.testTable1);
-        expect((listComplete[1] as SimpleFilter).field).toEqual(FIELD_MAP.RELATION_B);
-        expect((listComplete[1] as SimpleFilter).operator).toEqual('=');
-        expect((listComplete[1] as SimpleFilter).value).toEqual('testToggleRelation');
+        expect((listComplete[1] as ListFilter).fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName);
+        expect((listComplete[1] as ListFilter).operator).toEqual('=');
+        expect((listComplete[1] as ListFilter).values).toEqual(['testToggleRelation']);
 
         testConfig2.id = listComplete[1].id;
         testConfig2.relations = listComplete[1].relations;

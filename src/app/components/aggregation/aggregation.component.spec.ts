@@ -32,8 +32,7 @@ import {
     DomainFilterDesign,
     FilterCollection,
     ListFilter,
-    ListFilterDesign,
-    SimpleFilter
+    ListFilterDesign
 } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -2065,16 +2064,15 @@ describe('Component: Aggregation', () => {
 
         let testStatus;
 
-        let simpleFilterA = new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-            DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'a');
-        let simpleFilterB = new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-            DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'b');
-        let simpleFilterC = new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-            DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'c');
-
-        let filterA = ListFilter.fromFilters([simpleFilterA], CompoundFilterType.AND);
-        let filterB = ListFilter.fromFilters([simpleFilterA, simpleFilterB], CompoundFilterType.AND);
-        let filterC = ListFilter.fromFilters([simpleFilterA, simpleFilterB, simpleFilterC], CompoundFilterType.AND);
+        let filterA = new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['a']);
+        let filterB = new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['a', 'b']);
+        let filterC = new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', ['a', 'b', 'c']);
 
         let testCollection = new FilterCollection();
         spyOn(testCollection, 'getCompatibleFilters').and.callFake((design) => {

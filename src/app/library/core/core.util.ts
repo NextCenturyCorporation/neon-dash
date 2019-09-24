@@ -14,7 +14,7 @@
  */
 
 import { FieldConfig } from './models/dataset';
-import { FilterCollection, ListFilter, ListFilterDesign, SimpleFilter } from './models/filters';
+import { FilterCollection, ListFilter, ListFilterDesign } from './models/filters';
 
 export class CoreUtil {
     // eslint-disable-next-line max-len
@@ -140,7 +140,7 @@ export class CoreUtil {
      * Returns the values in the given ListFilter objects.
      */
     static retrieveValuesFromListFilters(filters: ListFilter[]): any[] {
-        return filters.reduce((list, filter) => list.concat(filter.filters), []).map((filter) => (filter as SimpleFilter).value);
+        return filters.reduce((list, filter) => list.concat(filter.values), []);
     }
 
     /**
