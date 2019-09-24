@@ -177,10 +177,9 @@ export class DashboardService {
     private _translateFilters(filterConfigs: FilterConfig[] | string): AbstractFilter[] {
         if (typeof filterConfigs === 'string') {
             const stringFilters = ConfigUtil.translate(filterConfigs, ConfigUtil.decodeFiltersMap);
-            return (JSON.parse(stringFilters) as any[]).map((dataList) => FilterUtil.createFilterFromDataList(dataList,
-                this.state.asDataset()));
+            return (JSON.parse(stringFilters) as any[]).map((dataList) => FilterUtil.createFilterFromDataList(dataList));
         }
-        return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig, this.state.asDataset()));
+        return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig));
     }
 
     /**

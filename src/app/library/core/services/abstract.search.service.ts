@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-import { AbstractFilter, CompoundFilter, SimpleFilter } from '../models/filters';
+import { AbstractFilter, BoundsFilter, CompoundFilter, DomainFilter, ListFilter, PairFilter } from '../models/filters';
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { DatasetUtil, FieldKey } from '../models/dataset';
 import { RequestWrapper } from './connection.service';
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
@@ -96,15 +97,45 @@ export abstract class AbstractSearchService {
      * @return {FilterClause}
      */
     public generateFilterClauseFromFilter(filter: AbstractFilter): FilterClause {
-        if (filter instanceof SimpleFilter) {
-            let simpleFilter: SimpleFilter = filter;
-            return this.buildFilterClause(simpleFilter.field.columnName, simpleFilter.operator, simpleFilter.value);
+        if (filter instanceof BoundsFilter) {
+            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey1);
+            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey2);
+            return this.buildCompoundFilterClause([
+                this.buildFilterClause(fieldKey1.field, '>=', filter.begin1),
+                this.buildFilterClause(fieldKey1.field, '<=', filter.end1),
+                this.buildFilterClause(fieldKey2.field, '>=', filter.begin2),
+                this.buildFilterClause(fieldKey2.field, '<=', filter.end2)
+            ], CompoundFilterType.AND);
         }
+
+        if (filter instanceof DomainFilter) {
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey);
+            return this.buildCompoundFilterClause([
+                this.buildFilterClause(fieldKey.field, '>=', filter.begin),
+                this.buildFilterClause(fieldKey.field, '<=', filter.end)
+            ], CompoundFilterType.AND);
+        }
+
+        if (filter instanceof ListFilter) {
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey);
+            return this.buildCompoundFilterClause(filter.values.map((value) =>
+                this.buildFilterClause(fieldKey.field, filter.operator, value)), filter.type);
+        }
+
+        if (filter instanceof PairFilter) {
+            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey1);
+            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(filter.fieldKey2);
+            return this.buildCompoundFilterClause([
+                this.buildFilterClause(fieldKey1.field, filter.operator1, filter.value1),
+                this.buildFilterClause(fieldKey2.field, filter.operator2, filter.value2)
+            ], filter.type);
+        }
+
         if (filter instanceof CompoundFilter) {
-            let compoundFilter: CompoundFilter = filter;
-            return this.buildCompoundFilterClause(compoundFilter.filters.map((nested) => this.generateFilterClauseFromFilter(nested)),
-                compoundFilter.type);
+            return this.buildCompoundFilterClause(filter.filters.map((nested) => this.generateFilterClauseFromFilter(nested)),
+                filter.type);
         }
+
         return null;
     }
 
