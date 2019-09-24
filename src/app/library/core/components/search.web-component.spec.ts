@@ -683,13 +683,12 @@ describe('Search Component init should', () => {
 
     it('build and run query with filters from filterService', () => {
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2']),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1')
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -770,13 +769,12 @@ describe('Search Component init should', () => {
 
     it('build and run query with filters from updateFilters', () => {
         searchComponent.updateFilters('testFilterElementId', [
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2']),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1')
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -857,16 +855,15 @@ describe('Search Component init should', () => {
 
     it('build and run query with filters from filterService and updateFilters', () => {
         searchComponent.updateFilters('testFilterElementId', [
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2']),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1')
         ]);
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20)
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -955,7 +952,7 @@ describe('Search Component init should', () => {
         searchComponent.setAttribute('enable-hide-if-unfiltered', 'true');
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'])
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -969,8 +966,7 @@ describe('Search Component init should', () => {
         ]);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -1016,8 +1012,7 @@ describe('Search Component init should', () => {
         ]);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -1109,8 +1104,7 @@ describe('Search Component', () => {
         expect(searchService.searches).toEqual(1);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         expect(searchService.searches).toEqual(1);
@@ -1152,8 +1146,7 @@ describe('Search Component', () => {
 
     it('notifying filterService listeners should not build and run query if not initialized', () => {
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         expect(searchService.searches).toEqual(0);
@@ -1170,8 +1163,7 @@ describe('Search Component', () => {
         expect(searchService.searches).toEqual(1);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         expect(searchService.searches).toEqual(1);
@@ -1187,8 +1179,7 @@ describe('Search Component', () => {
         expect(searchService.searches).toEqual(1);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         expect(searchService.searches).toEqual(1);
@@ -1205,8 +1196,7 @@ describe('Search Component', () => {
         expect(searchService.searches).toEqual(1);
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         expect(searchService.searches).toEqual(1);
@@ -1222,13 +1212,12 @@ describe('Search Component', () => {
         expect(searchService.searches).toEqual(1);
 
         searchComponent.updateFilters('testFilterElementId', [
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2']),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1')
         ]);
 
         expect(searchService.searches).toEqual(2);
@@ -1307,7 +1296,7 @@ describe('Search Component', () => {
 
     it('updateFilterDesigns should set filtered status in response data', (done) => {
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'])
         ]);
 
         searchComponent.init(dataset, filterService, searchService);
@@ -1458,7 +1447,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1505,8 +1494,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1553,7 +1541,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1600,8 +1588,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1648,8 +1635,8 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset),
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type2'], dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1']),
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type2'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1712,8 +1699,8 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40)
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1777,10 +1764,10 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                30, 40, 50, 60, dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                30, 40, 50, 60)
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1836,7 +1823,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset)
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20)
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1891,8 +1878,8 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 20, 30, dataset)
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 20, 30)
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -1965,8 +1952,8 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            PairFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1', dataset)
+            new PairFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1')
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2040,8 +2027,8 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1', dataset)
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1')
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2095,10 +2082,10 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1', dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name2', 'type2', dataset)
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name1', 'type1'),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '=', 'name2', 'type2')
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2156,11 +2143,11 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testNameField', '=', ['name1'], dataset),
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testNameField', '=', ['name1']),
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2211,7 +2198,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '!=', ['type1'], dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTypeField', '!=', ['type1'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2266,8 +2253,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTextField', 'contains', ['a'],
-                dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTextField', 'contains', ['a'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
@@ -2322,8 +2308,7 @@ describe('Search Component should have expected filtered response data', () => {
         }];
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTextField', 'not contains', ['a'],
-                dataset)
+            new ListFilter(CompoundFilterType.AND, 'datastore1.testDatabase1.testTable1.testTextField', 'not contains', ['a'])
         ]);
 
         searchComponent.updateFilterDesigns('testFilterElementId', [
