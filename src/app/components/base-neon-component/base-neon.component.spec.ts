@@ -1456,7 +1456,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1467,7 +1467,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1478,7 +1478,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1489,7 +1489,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(0);
     });
@@ -1571,7 +1571,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = 5;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(1);
         expect(component['cachedPage']).toEqual(5);
@@ -1586,7 +1586,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = -1;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(1);
         expect(component['cachedPage']).toEqual(-1);
@@ -1599,7 +1599,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = 5;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(5);
         expect(component['cachedPage']).toEqual(-1);

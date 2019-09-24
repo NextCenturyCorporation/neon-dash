@@ -23,7 +23,7 @@ import {
     FilterUtil
 } from '../models/filters';
 
-export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) => void;
+export type FilterChangeListener = (callerId: string) => void;
 
 export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
@@ -41,9 +41,7 @@ export class FilterService {
     /**
      * Creates new filters and their relation filters using the given filter configs and adds them to the global filter collection.
      */
-    public createFilters(callerId: string, filterConfigs: FilterConfig[], dataset: Dataset): Map<FilterDataSource[], FilterConfig[]> {
-        let returnData: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
-
+    public createFilters(callerId: string, filterConfigs: FilterConfig[], dataset: Dataset): void {
         let intermediaryCollection: FilterCollection = this._createFiltersAndRelations(filterConfigs, dataset);
 
         // Loop over the data sources of the complete filter collection to delete the old relation filters in each data source.
@@ -52,16 +50,11 @@ export class FilterService {
             let newFilters: AbstractFilter[] = intermediaryCollection.getFilters(filterDataSourceList);
             let modifiedFilters: AbstractFilter[] = previousFilters.concat(newFilters);
             this.filterCollection.setFilters(filterDataSourceList, modifiedFilters);
-
-            // Add all the filters, both old and new, to the return variable.
-            returnData.set(filterDataSourceList, modifiedFilters.map((filter) => filter.toConfig()));
         });
 
         if (filterConfigs.length) {
-            this._notifier(callerId, returnData);
+            this._notifier(callerId);
         }
-
-        return returnData;
     }
 
     /**
@@ -71,7 +64,7 @@ export class FilterService {
         callerId: string,
         filterConfigToDelete: FilterConfig,
         savePreviousFilters: boolean = false
-    ): Map<FilterDataSource[], FilterConfig[]> {
+    ): void {
         let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterConfigToDelete);
         let filterIdsToDelete: string[] = filterConfigToDelete.id ? this._findFilterIdsAndRelationIdsWithId(filterDataSourceList,
             filterConfigToDelete) : this._findFilterIdsAndRelationIds(filterDataSourceList);
@@ -86,7 +79,7 @@ export class FilterService {
         callerId: string,
         filterConfigsToDelete: FilterConfig[] = [],
         savePreviousFilters: boolean = false
-    ): Map<FilterDataSource[], FilterConfig[]> {
+    ): void {
         let filterIdsToDelete = filterConfigsToDelete.length ? this._findFilterIdsAndRelationIdsInConfigs(filterConfigsToDelete) :
             this._findFilterIdsAndRelationIdsInDataSources(this.filterCollection.getDataSources());
         return this._deleteFilterIds(callerId, filterIdsToDelete, savePreviousFilters);
@@ -104,9 +97,7 @@ export class FilterService {
         filterConfigsToDelete: FilterConfig[] = [],
         keepSameFilters: boolean = false,
         applyPreviousFilter: boolean = false
-    ): Map<FilterDataSource[], FilterConfig[]> {
-        let returnData: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
-
+    ): void {
         let intermediaryCollection: FilterCollection = this._createFiltersAndRelations(filterConfigs, dataset);
 
         // Find the IDs of all the filters and their relation filters to delete in the exchange.
@@ -138,16 +129,11 @@ export class FilterService {
             }
 
             this.filterCollection.setFilters(filterDataSourceList, modifiedFilters);
-
-            // Add all the filters that were not deleted to the return variable.
-            returnData.set(filterDataSourceList, modifiedFilters.map((filter) => filter.toConfig()));
         });
 
         if (filterConfigs.length || filterConfigsToDelete.length) {
-            this._notifier(callerId, returnData);
+            this._notifier(callerId);
         }
-
-        return returnData;
     }
 
     /**
@@ -194,9 +180,9 @@ export class FilterService {
     /**
      * Notifies all the filter-change listeners using the given caller ID and change collection.
      */
-    public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
+    public notifyFilterChangeListeners(callerId: string): void {
         for (const listener of Array.from(this._listeners.values())) {
-            listener(callerId, changeCollection);
+            listener(callerId);
         }
     }
 
@@ -281,9 +267,7 @@ export class FilterService {
         callerId: string,
         filterIdsToDelete: string[],
         savePreviousFilters: boolean
-    ): Map<FilterDataSource[], FilterConfig[]> {
-        let returnData: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
-
+    ): void {
         // Loop over the data sources of the complete filter collection to delete the old relation filters in each data source.
         this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
             let previousFilters: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
@@ -294,16 +278,11 @@ export class FilterService {
             }
 
             this.filterCollection.setFilters(filterDataSourceList, modifiedFilters);
-
-            // Add all the filters that were not deleted to the return variable.
-            returnData.set(filterDataSourceList, modifiedFilters.map((filter) => filter.toConfig()));
         });
 
         if (filterIdsToDelete.length) {
-            this._notifier(callerId, returnData);
+            this._notifier(callerId);
         }
-
-        return returnData;
     }
 
     /**
