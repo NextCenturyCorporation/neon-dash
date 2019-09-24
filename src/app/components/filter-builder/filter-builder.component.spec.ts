@@ -22,7 +22,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
 import { CompoundFilterType } from '../../library/core/models/widget-option';
 
 describe('Component: Filter Builder', () => {
@@ -162,9 +162,9 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does call filterService.createFilters with a simple filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
-        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
-            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
-            'contains', '');
+        let filterConfig: ListFilterDesign = new ListFilterDesign(CompoundFilterType.AND, component.filterClauses[0].datastore.name + '.' +
+            component.filterClauses[0].database.name + '.' + component.filterClauses[0].table.name + '.' +
+            component.filterClauses[0].field.columnName, 'contains', ['']);
 
         // Act
         component.saveFilter();
@@ -183,10 +183,12 @@ describe('Component: Filter Builder', () => {
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
         component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
         let filterConfig: CompoundFilterDesign = new CompoundFilterDesign(CompoundFilterType.OR, [
-            new SimpleFilterDesign(component.filterClauses[0].datastore.name, component.filterClauses[0].database.name,
-                component.filterClauses[0].table.name, component.filterClauses[0].field.columnName, 'contains', ''),
-            new SimpleFilterDesign(component.filterClauses[1].datastore.name, component.filterClauses[1].database.name,
-                component.filterClauses[1].table.name, component.filterClauses[1].field.columnName, 'contains', '')
+            new ListFilterDesign(CompoundFilterType.OR, component.filterClauses[0].datastore.name + '.' +
+                component.filterClauses[0].database.name + '.' + component.filterClauses[0].table.name + '.' +
+                component.filterClauses[0].field.columnName, 'contains', ['']),
+            new ListFilterDesign(CompoundFilterType.OR, component.filterClauses[1].datastore.name + '.' +
+                component.filterClauses[1].database.name + '.' + component.filterClauses[1].table.name + '.' +
+                component.filterClauses[1].field.columnName, 'contains', [''])
         ]);
 
         // Act
@@ -205,10 +207,12 @@ describe('Component: Filter Builder', () => {
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
         component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
         let filterConfig: CompoundFilterDesign = new CompoundFilterDesign(CompoundFilterType.AND, [
-            new SimpleFilterDesign(component.filterClauses[0].datastore.name, component.filterClauses[0].database.name,
-                component.filterClauses[0].table.name, component.filterClauses[0].field.columnName, 'contains', ''),
-            new SimpleFilterDesign(component.filterClauses[1].datastore.name, component.filterClauses[1].database.name,
-                component.filterClauses[1].table.name, component.filterClauses[1].field.columnName, 'contains', '')
+            new ListFilterDesign(CompoundFilterType.AND, component.filterClauses[0].datastore.name + '.' +
+                component.filterClauses[0].database.name + '.' + component.filterClauses[0].table.name + '.' +
+                component.filterClauses[0].field.columnName, 'contains', ['']),
+            new ListFilterDesign(CompoundFilterType.AND, component.filterClauses[1].datastore.name + '.' +
+                component.filterClauses[1].database.name + '.' + component.filterClauses[1].table.name + '.' +
+                component.filterClauses[1].field.columnName, 'contains', [''])
         ]);
 
         // Act
@@ -226,9 +230,9 @@ describe('Component: Filter Builder', () => {
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
         component.filterClauses[0].operator = component.operators[3];
         component.filterClauses[0].value = '53';
-        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
-            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
-            '!=', 53);
+        let filterConfig: ListFilterDesign = new ListFilterDesign(CompoundFilterType.AND, component.filterClauses[0].datastore.name + '.' +
+            component.filterClauses[0].database.name + '.' + component.filterClauses[0].table.name + '.' +
+            component.filterClauses[0].field.columnName, '!=', [53]);
 
         // Act
         component.saveFilter();
@@ -242,9 +246,9 @@ describe('Component: Filter Builder', () => {
         // Arrange
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
         component.filterClauses[0].value = '53';
-        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
-            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
-            'contains', '53');
+        let filterConfig: ListFilterDesign = new ListFilterDesign(CompoundFilterType.AND, component.filterClauses[0].datastore.name + '.' +
+            component.filterClauses[0].database.name + '.' + component.filterClauses[0].table.name + '.' +
+            component.filterClauses[0].field.columnName, 'contains', ['53']);
 
         // Act
         component.saveFilter();

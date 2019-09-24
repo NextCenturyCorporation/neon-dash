@@ -18,22 +18,32 @@ import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from './mock.dataset
 import * as _ from 'lodash';
 
 describe('Dataset Tests', () => {
-    it('retrieveConfigDataFromFieldKey does return expected list', () => {
-        expect(DATASET.retrieveConfigDataFromFieldKey({
+    it('retrieveDatasetFieldKey does return expected list', () => {
+        expect(DATASET.retrieveDatasetFieldKey({
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase2.name,
             table: TABLES.testTable2.name,
             field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+        })).toEqual({
+            datastore: DATASTORE,
+            database: DATABASES.testDatabase2,
+            table: TABLES.testTable2,
+            field: FIELD_MAP.ID
+        });
     });
 
-    it('retrieveConfigDataFromFieldKey does work with empty datastore', () => {
-        expect(DATASET.retrieveConfigDataFromFieldKey({
+    it('retrieveDatasetFieldKey does work with empty datastore', () => {
+        expect(DATASET.retrieveDatasetFieldKey({
             datastore: '',
             database: DATABASES.testDatabase2.name,
             table: TABLES.testTable2.name,
             field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+        })).toEqual({
+            datastore: DATASTORE,
+            database: DATABASES.testDatabase2,
+            table: TABLES.testTable2,
+            field: FIELD_MAP.ID
+        });
     });
 
     it('retrieveDatabase does return expected object', () => {

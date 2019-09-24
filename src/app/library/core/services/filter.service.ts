@@ -263,7 +263,7 @@ export class FilterService {
 
         filterConfigs.forEach((filterConfig) => {
             // Create the new filters and new relation filters.
-            let newFilter: AbstractFilter = FilterUtil.createFilterFromConfig(filterConfig, dataset);
+            let newFilter: AbstractFilter = FilterUtil.createFilterFromConfig(filterConfig);
             let newRelationFilters: AbstractFilter[] = newFilter.createRelationFilterList(dataset);
 
             // Save the new filters and new relation filters in a filter collection to separate the filters by unique data source.

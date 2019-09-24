@@ -902,7 +902,7 @@ describe('Component: Map', () => {
                 DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
                 DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.Y.columnName,
                 1, 3, 2, 4
-            ), component['dataset'])] : []);
+            ))] : []);
 
         component['redrawFilters'](testCollection);
         expect(mapSpy.calls.count()).toEqual(1);
