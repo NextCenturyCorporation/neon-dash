@@ -20,12 +20,7 @@ import {
     QueryPayload
 } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import {
-    AbstractFilter,
-    FilterCollection,
-    FilterConfig,
-    FilterDataSource
-} from '../../library/core/models/filters';
+import { AbstractFilter, FilterCollection, FilterConfig } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -693,7 +688,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
+    private handleFiltersChanged(callerId: string): void {
         let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
 
         // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.

@@ -23,7 +23,7 @@ export interface FilterDataSource {
     database: string;
     table: string;
     field: string;
-    operator?: string;
+    operator: string;
 }
 
 export interface SimpleFilterConfig {
