@@ -21,13 +21,12 @@ import {
     DomainValues,
     FilterValues,
     ListOfValues,
-    OneValue,
     PairOfValues
 } from '../models/filters';
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../services/abstract.search.service';
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
 import { CoreUtil } from '../core.util';
-import { Dataset, DatasetUtil, FieldKey } from '../models/dataset';
+import { Dataset, DatasetFieldKey, DatasetUtil, FieldKey } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
 import { NextCenturyElement } from './element.web-component';
 import { RequestWrapper } from '../services/connection.service';
@@ -341,9 +340,6 @@ export class NextCenturySearch extends NextCenturyElement {
      */
     private _isFiltered(result: any, filterValuesList: FilterValues[]): boolean {
         for (const filterValues of filterValuesList) {
-            if (filterValues instanceof OneValue && this._isFilteredByOneValue(result, filterValues)) {
-                return true;
-            }
             if (filterValues instanceof ListOfValues && this._isFilteredByListOfValues(result, filterValues)) {
                 return true;
             }
@@ -430,20 +426,6 @@ export class NextCenturySearch extends NextCenturyElement {
                 if (listOfValues.type === CompoundFilterType.OR && isFilteredList.some((isFiltered) => isFiltered)) {
                     return true;
                 }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns if the given result is filtered in the given value.
-     */
-    private _isFilteredByOneValue(result: any, oneValue: OneValue): boolean {
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(oneValue.field);
-        if (fieldKey) {
-            const value = CoreUtil.deepFind(result, fieldKey.field);
-            if (typeof value !== 'undefined' && this._isFilteredWithOperator(value, oneValue.operator, oneValue.value)) {
-                return true;
             }
         }
         return false;
@@ -594,11 +576,10 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         const tableKey: FieldKey = this._retrieveTableKey();
-        // Returns a list of [DatastoreConfig, DatabaseConfig, TableConfig, FieldConfig]
-        const configData = tableKey ? this._dataset.retrieveConfigDataFromFieldKey(tableKey) : [null, null, null, null];
-        const dataHost = configData[0] ? configData[0].host : null;
-        const dataType = configData[0] ? configData[0].type : null;
-        const labels = configData[2] ? configData[2].labelOptions : {};
+        const datasetTableKey: DatasetFieldKey = tableKey ? this._dataset.retrieveDatasetFieldKey(tableKey) : null;
+        const dataHost = datasetTableKey ? datasetTableKey.datastore.host : null;
+        const dataType = datasetTableKey ? datasetTableKey.datastore.type : null;
+        const labels = datasetTableKey ? datasetTableKey.table.labelOptions : {};
         const hideIfUnfiltered = !!this.getAttribute('enable-hide-if-unfiltered');
 
         // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.

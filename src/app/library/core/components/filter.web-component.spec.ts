@@ -780,8 +780,8 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40)
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -807,10 +807,10 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                10, 20, 30, 40, dataset),
-            BoundsFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
-                50, 60, 70, 80, dataset)
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                10, 20, 30, 40),
+            new BoundsFilter('datastore1.testDatabase1.testTable1.testXField', 'datastore1.testDatabase1.testTable1.testYField',
+                50, 60, 70, 80)
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -835,7 +835,7 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset)
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20)
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -860,8 +860,8 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 10, 20, dataset),
-            DomainFilter.fromArguments('datastore1.testDatabase1.testTable1.testXField', 30, 40, dataset)
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 10, 20),
+            new DomainFilter('datastore1.testDatabase1.testTable1.testXField', 30, 40)
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -887,8 +887,7 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1', 'type2'])
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -914,9 +913,8 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1'], dataset),
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type2', 'type3'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type1']),
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', ['type2', 'type3'])
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -944,8 +942,8 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset)
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1')
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -973,10 +971,10 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1', dataset),
-            PairFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
-                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name2', 'type2', dataset)
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name1', 'type1'),
+            new PairFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField',
+                'datastore1.testDatabase1.testTable1.testTypeField', '=', '!=', 'name2', 'type2')
         ]);
 
         filterComponent.init(dataset, filterService);
@@ -1024,9 +1022,8 @@ describe('Filter Component notification from filterService should call filter fu
         });
 
         filterService.setFilters([
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField', '=', ['name1'], dataset),
-            ListFilter.fromArguments(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '!=', ['type2', 'type3'],
-                dataset)
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField', '=', ['name1']),
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '!=', ['type2', 'type3'])
         ]);
 
         filterComponent.init(dataset, filterService);
