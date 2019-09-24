@@ -28,7 +28,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, SimpleFilter } from '../../library/core/models/filters';
+import { FilterCollection, FilterConfig, ListFilter } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -36,6 +36,7 @@ import { NeonConfig } from '../../models/types';
 import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -556,10 +557,12 @@ describe('BaseNeonComponent', () => {
         }]);
 
         spyOn((component as any), 'retrieveApplicableFilters').and.returnValue([
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, 'contains', 'testValue1'),
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, 'not contains', 'testValue2')
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'contains', ['testValue1']),
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'not contains', ['testValue2'])
         ]);
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -983,10 +986,12 @@ describe('BaseNeonComponent', () => {
         expect(component['retrieveApplicableFilters'](component.options)).toEqual([]);
 
         let filters = [
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, '!=', 'testValue1'),
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, '=', 'testValue2')
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1 + '.' + DashboardServiceMock.TABLES.testTable1 + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT, '!=', ['testValue1']),
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1 + '.' + DashboardServiceMock.TABLES.testTable1 + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT, '=', ['testValue2'])
         ];
 
         spyOn(component['filterService'], 'getFiltersToSearch').and.returnValue(filters);
