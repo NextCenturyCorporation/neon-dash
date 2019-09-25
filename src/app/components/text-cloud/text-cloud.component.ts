@@ -28,7 +28,7 @@ import { AbstractSearchService, FilterClause, QueryPayload } from '../../library
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { CoreUtil } from '../../library/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -109,7 +109,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
         this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
         // Create a copy of each item.
@@ -139,7 +139,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterConfigOnText(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnText(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
             this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' +
             this.options.dataField.columnName, '=', values);
@@ -167,11 +167,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        return this.options.dataField.columnName ? [this.createFilterConfigOnText()] : [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        return this.options.dataField.columnName ? [this.createFilterDesignOnText()] : [];
     }
 
     /**
@@ -253,7 +253,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
-        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnText()) as ListFilter[];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
         this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
         const data: any[] = results.map((item) => {
@@ -284,10 +284,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     onClick(item) {
         this._filteredText = CoreUtil.changeOrToggleValues(item.key, this._filteredText, true);
         if (this._filteredText.length) {
-            this.exchangeFilters([this.createFilterConfigOnText(this._filteredText)]);
+            this.exchangeFilters([this.createFilterDesignOnText(this._filteredText)]);
         } else {
             // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the text field.
-            this.exchangeFilters([], [this.createFilterConfigOnText()]);
+            this.exchangeFilters([], [this.createFilterDesignOnText()]);
         }
     }
 

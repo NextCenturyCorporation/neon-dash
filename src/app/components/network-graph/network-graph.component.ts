@@ -28,7 +28,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -280,12 +280,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    private createFilterConfigOnLegend(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnLegend(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + this.options.edgeColorField.columnName, '!=', values);
     }
 
-    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
             this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' + field.columnName, '=',
             values);
@@ -378,10 +378,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         let filterFields: FieldConfig[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
@@ -394,10 +394,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return filterFields.reduce((designs, filterField) => {
             if (filterField && filterField.columnName) {
                 // Match a filter with one or more EQUALS filters on the specified filter field.
-                designs.push(this.createFilterConfigOnList(filterField));
+                designs.push(this.createFilterDesignOnList(filterField));
             }
             return designs;
-        }, this.options.edgeColorField.columnName ? [this.createFilterConfigOnLegend()] : [] as FilterConfig[]);
+        }, this.options.edgeColorField.columnName ? [this.createFilterDesignOnLegend()] : [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -561,12 +561,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend()) as ListFilter[];
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegend()) as ListFilter[];
         this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
         // TODO AIDA-751 Update the selected checkboxes in the legend using the filtered legend values.
 
         this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnList(field)) as ListFilter[];
+            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnList(field)) as ListFilter[];
             this._filterFieldsToFilteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
         });
         // TODO AIDA-752 Update the selected nodes in the network graph element using the filtered node values.
@@ -1361,10 +1361,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
             if (this._filteredLegendValues.length) {
-                this.exchangeFilters([this.createFilterConfigOnLegend(this._filteredLegendValues)]);
+                this.exchangeFilters([this.createFilterDesignOnLegend(this._filteredLegendValues)]);
             } else {
                 // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the color field.
-                this.exchangeFilters([], [this.createFilterConfigOnLegend()]);
+                this.exchangeFilters([], [this.createFilterDesignOnLegend()]);
             }
         }
     }
@@ -1380,8 +1380,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
 
-        let filters: FilterConfig[] = [];
-        let filtersToDelete: FilterConfig[] = [];
+        let filters: AbstractFilterDesign[] = [];
+        let filtersToDelete: AbstractFilterDesign[] = [];
 
         selectedNode.filterFields.filter((nodeFilterField) => !!nodeFilterField.field.columnName).forEach((nodeFilterField) => {
             // Get all the values for the filter field from the data item.
@@ -1395,10 +1395,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             if (filteredValues.length) {
                 // Create a single filter on the filtered values.
-                filters.push(this.createFilterConfigOnList(nodeFilterField.field, filteredValues));
+                filters.push(this.createFilterDesignOnList(nodeFilterField.field, filteredValues));
             } else {
                 // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
-                filtersToDelete.push(this.createFilterConfigOnList(nodeFilterField.field));
+                filtersToDelete.push(this.createFilterDesignOnList(nodeFilterField.field));
             }
         });
 

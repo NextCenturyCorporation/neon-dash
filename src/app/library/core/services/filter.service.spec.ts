@@ -13,14 +13,7 @@
  * limitations under the License.
  */
 
-import {
-    CompoundFilter,
-    CompoundFilterDesign,
-    FilterDataSource,
-    FilterUtil,
-    ListFilter,
-    ListFilterDesign
-} from '../models/filters';
+import { CompoundFilter, CompoundFilterDesign, FilterDataSource, ListFilter, ListFilterDesign } from '../models/filters';
 import { CompoundFilterType } from '../models/widget-option';
 import { Dataset } from '../models/dataset';
 import { FilterChangeListener, FilterService } from './filter.service';
@@ -106,9 +99,9 @@ describe('FilterService with filters', () => {
                 TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName, '<', [20])
         ]);
 
-        filter1A = FilterUtil.createFilterFromConfig(config1A);
-        filter1B = FilterUtil.createFilterFromConfig(config1B);
-        filter2A = FilterUtil.createFilterFromConfig(config2A);
+        filter1A = config1A.toFilter();
+        filter1B = config1B.toFilter();
+        filter2A = config2A.toFilter();
 
         config1A.id = filter1A.id;
         config1B.id = filter1B.id;
@@ -158,8 +151,8 @@ describe('FilterService with filters', () => {
         relationConfig2 = new ListFilterDesign(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
             TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName, '=', ['testRelation']);
 
-        relationFilter1 = FilterUtil.createFilterFromConfig(relationConfig1);
-        relationFilter2 = FilterUtil.createFilterFromConfig(relationConfig2);
+        relationFilter1 = relationConfig1.toFilter();
+        relationFilter2 = relationConfig2.toFilter();
         relationFilter1.relations = [relationFilter2.id];
         relationFilter2.relations = [relationFilter1.id];
 
@@ -430,34 +423,34 @@ describe('FilterService with filters', () => {
 
         let filters = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1');
         expect(filters.map((filter) => {
-            let config = filter.toConfig();
+            let config = filter.toDesign();
             config.id = undefined;
             return config;
-        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toConfig(), filter1B.toConfig()]),
-            new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toDesign(), filter1B.toDesign()]),
+            new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toDesign()])]);
     });
 
     it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
         let filters1 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1A]);
         expect(filters1.map((filter) => {
-            let config = filter.toConfig();
+            let config = filter.toDesign();
             config.id = undefined;
             return config;
-        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toDesign()])]);
 
         let filters2 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1B]);
         expect(filters2.map((filter) => {
-            let config = filter.toConfig();
+            let config = filter.toDesign();
             config.id = undefined;
             return config;
-        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toDesign()])]);
 
         let filters3 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config2A]);
         expect(filters3.map((filter) => {
-            let config = filter.toConfig();
+            let config = filter.toDesign();
             config.id = undefined;
             return config;
-        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toConfig(), filter1B.toConfig()])]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toDesign(), filter1B.toDesign()])]);
 
         expect(filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1A, config2A])).toEqual([]);
     });

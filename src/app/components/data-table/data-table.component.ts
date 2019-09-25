@@ -27,7 +27,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -126,7 +126,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    private createFilterConfigOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return new ListFilterDesign(compoundFilterType, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
@@ -177,17 +177,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         return this.options.filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
                 // Match a filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnValues(filterField));
+                designs.push(this.createFilterDesignOnValues(filterField));
             }
             return designs;
-        }, [] as FilterConfig[]);
+        }, [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -379,7 +379,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     protected redrawFilters(filters: FilterCollection): void {
         this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
-            this._filterFieldsToFilteredValues, this.createFilterConfigOnValues.bind(this));
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnValues.bind(this));
 
         // Update the filtered status of each table row.
         this.tableData.forEach((item) => {
@@ -491,7 +491,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         // Update the filtered values before transforming the data.
         this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
-            this._filterFieldsToFilteredValues, this.createFilterConfigOnValues.bind(this));
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnValues.bind(this));
 
         this.tableData = results.map((result) => {
             let item: any = {};
@@ -619,8 +619,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let dataObject = (this.tableData || []).filter((obj) => _.isEqual(obj[this.options.idField.columnName],
                 selected[0][this.options.idField.columnName]))[0];
 
-            let filters: FilterConfig[] = [];
-            let filtersToDelete: FilterConfig[] = [];
+            let filters: AbstractFilterDesign[] = [];
+            let filtersToDelete: AbstractFilterDesign[] = [];
 
             this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
                 // Get all the values for the filter field from the data object.
@@ -638,10 +638,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
                 if (filteredValues.length) {
                     // Create a single filter on the filtered values.
-                    filters.push(this.createFilterConfigOnValues(field, filteredValues));
+                    filters.push(this.createFilterDesignOnValues(field, filteredValues));
                 } else {
                     // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
-                    filtersToDelete.push(this.createFilterConfigOnValues(field));
+                    filtersToDelete.push(this.createFilterDesignOnValues(field));
                 }
             });
 
