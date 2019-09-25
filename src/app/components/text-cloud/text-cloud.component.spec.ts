@@ -129,12 +129,11 @@ describe('Component: TextCloud', () => {
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0]).type).toEqual(CompoundFilterType.AND);
-        expect((actual[0]).filters.length).toEqual(1);
-        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((actual[0]).filters[0].operator).toEqual('=');
-        expect((actual[0]).filters[0].value).toBeUndefined();
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).values).toEqual([undefined]);
     });
 
     it('onClick does call exchangeFilters with expected object', () => {

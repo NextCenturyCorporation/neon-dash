@@ -26,7 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
@@ -104,7 +104,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.initializeSubcomponent();
     }
 
-    private createFilterConfig(field: FieldConfig, values: any[] = [undefined]): FilterConfig {
+    private createFilterDesign(field: FieldConfig, values: any[] = [undefined]): AbstractFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
@@ -134,12 +134,12 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // Add a filter design callback on each specific filter field.
-        return this.options.sampleRequiredField.columnName ? [this.createFilterConfig(this.options.sampleRequiredField)] : [];
+        return this.options.sampleRequiredField.columnName ? [this.createFilterDesign(this.options.sampleRequiredField)] : [];
     }
 
     /**
@@ -213,7 +213,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, __replaceAll = false) {
-        this.exchangeFilters([this.createFilterConfig(item.field, [item.value])]);
+        this.exchangeFilters([this.createFilterDesign(item.field, [item.value])]);
     }
 
     /**
