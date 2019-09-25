@@ -880,7 +880,7 @@ describe('Dashboard Custom', () => {
 
     it('setting active dashboard does work as expected', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterDesign');
 
         const config = NeonConfig.get({
             projectTitle: 'Test Config',
@@ -964,7 +964,7 @@ describe('Dashboard Custom', () => {
 
     it('setting active dashboard does work with tabs', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterDesign');
 
         const config = NeonConfig.get({
             projectTitle: 'Test Config',

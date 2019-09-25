@@ -37,6 +37,7 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    AbstractFilterDesign,
     BoundsFilter,
     BoundsFilterDesign,
     BoundsValues,
@@ -44,7 +45,6 @@ import {
     DomainFilterDesign,
     DomainValues,
     FilterCollection,
-    FilterConfig,
     ListFilter,
     ListFilterDesign
 } from '../../library/core/models/filters';
@@ -246,22 +246,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        let designs: FilterConfig[] = [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        let designs: AbstractFilterDesign[] = [];
 
         if (this.options.groupField.columnName) {
-            designs.push(this.createFilterConfigOnLegendList());
+            designs.push(this.createFilterDesignOnLegendList());
         }
 
         if (this.options.xField.columnName) {
-            designs.push(this.createFilterConfigOnItemList());
-            designs.push(this.createFilterConfigOnDomain());
+            designs.push(this.createFilterDesignOnItemList());
+            designs.push(this.createFilterDesignOnDomain());
 
             if (this.options.yField.columnName) {
-                designs.push(this.createFilterConfigOnBounds());
+                designs.push(this.createFilterDesignOnBounds());
             }
         }
 
@@ -332,7 +332,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
+    private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
         return new BoundsFilterDesign(
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.yField.columnName}`,
@@ -340,19 +340,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
     }
 
-    private createFilterConfigOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
+    private createFilterDesignOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
         return new DomainFilterDesign(
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
             beginX, endX
         );
     }
 
-    private createFilterConfigOnLegendList(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnLegendList(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + this.options.groupField.columnName, '!=', values);
     }
 
-    private createFilterConfigOnItemList(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnItemList(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR, this.options.datastore.name +
             '.' + this.options.database.name + '.' + this.options.table.name + '.' + this.options.xField.columnName, '=', values);
     }
@@ -637,10 +637,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
             this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
             if (this._filteredLegendValues.length) {
-                this.exchangeFilters([this.createFilterConfigOnLegendList(this._filteredLegendValues)]);
+                this.exchangeFilters([this.createFilterDesignOnLegendList(this._filteredLegendValues)]);
             } else {
                 // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the group field.
-                this.exchangeFilters([], [this.createFilterConfigOnLegendList()]);
+                this.exchangeFilters([], [this.createFilterDesignOnLegendList()]);
             }
         }
     }
@@ -1032,7 +1032,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected redrawFilters(filters: FilterCollection): void {
         // Add or remove disabled legend groups depending on the filtered legend groups.
-        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegendList()) as ListFilter[];
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegendList()) as ListFilter[];
         this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
         this.legendDisabledGroups = [].concat(this._filteredLegendValues);
 
@@ -1040,8 +1040,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
 
         // Add or remove the selected bounds/domain on the chart depending on if the bounds/domain is filtered.
-        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBounds());
-        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnDomain());
+        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBounds());
+        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnDomain());
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
@@ -1085,7 +1085,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Select individual filtered items.
-        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnItemList()) as ListFilter[];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnItemList()) as ListFilter[];
         this._filteredSingleValues = CoreUtil.retrieveValuesFromListFilters(listFilters);
         this.subcomponentMain.select(this._filteredSingleValues);
     }
@@ -1216,10 +1216,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this._filteredSingleValues = CoreUtil.changeOrToggleValues(value, this._filteredSingleValues, doNotReplace);
         if (this._filteredSingleValues.length) {
-            this.exchangeFilters([this.createFilterConfigOnItemList(this._filteredSingleValues)]);
+            this.exchangeFilters([this.createFilterDesignOnItemList(this._filteredSingleValues)]);
         } else {
             // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the data field.
-            this.exchangeFilters([], [this.createFilterConfigOnItemList()]);
+            this.exchangeFilters([], [this.createFilterDesignOnItemList()]);
         }
     }
 
@@ -1243,7 +1243,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Always keep the existing filter (don't remove it) if the user happens to draw exactly the same bounding box twice.
-        this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)], [], true);
+        this.exchangeFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)], [], true);
     }
 
     /**
@@ -1263,7 +1263,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
+        this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
     }
 
     /**

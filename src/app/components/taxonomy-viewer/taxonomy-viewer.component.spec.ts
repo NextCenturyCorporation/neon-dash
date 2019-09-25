@@ -483,55 +483,49 @@ describe('Component: TaxonomyViewer', () => {
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0]).type).toEqual('and');
-        expect((actual[0]).filters.length).toEqual(1);
-        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).filters[0].operator).toEqual('!=');
-        expect((actual[0]).filters[0].value).toBeUndefined();
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).values).toEqual([undefined]);
 
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
         expect((actual[0]).type).toEqual('and');
-        expect((actual[0]).filters.length).toEqual(1);
-        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).filters[0].operator).toEqual('!=');
-        expect((actual[0]).filters[0].value).toBeUndefined();
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).values).toEqual([undefined]);
         expect((actual[1]).type).toEqual('and');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('!=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[1]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TYPE.columnName);
+        expect((actual[1]).operator).toEqual('!=');
+        expect((actual[1]).values).toEqual([undefined]);
 
         component.options.subTypeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(3);
         expect((actual[0]).type).toEqual('and');
-        expect((actual[0]).filters.length).toEqual(1);
-        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[0]).filters[0].operator).toEqual('!=');
-        expect((actual[0]).filters[0].value).toBeUndefined();
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).values).toEqual([undefined]);
         expect((actual[1]).type).toEqual('and');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('!=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[1]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TYPE.columnName);
+        expect((actual[1]).operator).toEqual('!=');
+        expect((actual[1]).values).toEqual([undefined]);
         expect((actual[2]).type).toEqual('and');
-        expect((actual[2]).filters.length).toEqual(1);
-        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
-        expect((actual[2]).filters[0].operator).toEqual('!=');
-        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[2]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[2]).operator).toEqual('!=');
+        expect((actual[2]).values).toEqual([undefined]);
     });
 
     it('checkRelatedNodes to deselect a category does call exchangeFilters with category / type / subtype filters', () => {

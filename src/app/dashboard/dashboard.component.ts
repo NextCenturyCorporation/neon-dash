@@ -235,7 +235,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
             }
 
-            this.simpleFilter.updateSimpleFilterConfig();
+            this.simpleFilter.updateSimpleFilterDesign();
             this.showDashboardSelector = false;
             this.refreshDashboard();
         } else if (this._filterChangeData) {
