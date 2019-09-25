@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -107,8 +107,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {string} text
      */
     createFilter(item: any) {
-        let filters: FilterConfig[] = [];
-        let filtersToDelete: FilterConfig[] = [];
+        let filters: AbstractFilterDesign[] = [];
+        let filtersToDelete: AbstractFilterDesign[] = [];
 
         this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
             // Get all the values for the filter field from the data item.
@@ -123,17 +123,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
             if (filteredValues.length) {
                 // Create a single filter on the filtered values.
-                filters.push(this.createFilterConfigOnList(field, filteredValues));
+                filters.push(this.createFilterDesignOnList(field, filteredValues));
             } else {
                 // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
-                filtersToDelete.push(this.createFilterConfigOnList(field));
+                filtersToDelete.push(this.createFilterDesignOnList(field));
             }
         });
 
         this.exchangeFilters(filters, filtersToDelete);
     }
 
-    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
@@ -216,17 +216,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         return this.options.filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
                 // Match a filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnList(filterField));
+                designs.push(this.createFilterDesignOnList(filterField));
             }
             return designs;
-        }, [] as FilterConfig[]);
+        }, [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -390,7 +390,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         // Update the filtered values before transforming the data.
         this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
-            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
 
         results.forEach((result) => {
             let item: any = {};
@@ -536,7 +536,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     protected redrawFilters(filters: FilterCollection): void {
         this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
-            this._filterFieldsToFilteredValues, this.createFilterConfigOnList.bind(this));
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
 
         // Update the filtered status of each grid item.
         this.gridArray.forEach((item) => {
