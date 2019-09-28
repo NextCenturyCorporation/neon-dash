@@ -19,7 +19,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FieldConfig } from '../../library/core/models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';

@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 
-import { CompoundFilterType } from '../library/core/models/widget-option';
+import { CompoundFilterType } from '../library/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../library/core/models/dataset';
 

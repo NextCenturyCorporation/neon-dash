@@ -14,7 +14,7 @@
  */
 
 import { CompoundFilter, CompoundFilterDesign, FilterDataSource, ListFilter, ListFilterDesign } from '../models/filters';
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../models/config-option';
 import { Dataset } from '../models/dataset';
 import { FilterChangeListener, FilterService } from './filter.service';
 

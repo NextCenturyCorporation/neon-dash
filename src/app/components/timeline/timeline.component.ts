@@ -51,11 +51,11 @@ import {
     CompoundFilterType,
     OptionChoices,
     TimeInterval,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { FieldConfig } from '../../library/core/models/dataset';
@@ -127,16 +127,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dateField', 'Date Field', true),
-            new WidgetFieldOption('idField', 'Id Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
-            new WidgetFreeTextOption('yLabel', 'Count', false, '')
+            new ConfigOptionField('dateField', 'Date Field', true),
+            new ConfigOptionField('idField', 'Id Field', false),
+            new ConfigOptionField('filterField', 'Filter Field', false),
+            new ConfigOptionSelect('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
+            new ConfigOptionFreeText('yLabel', 'Count', false, '')
         ];
     }
 

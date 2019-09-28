@@ -31,11 +31,7 @@ import { SearchServiceMock } from '../../library/core/services/mock.search.servi
 
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
-import {
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption
-} from '../../library/core/models/widget-option';
+import { ConfigOptionField, ConfigOptionFreeText, ConfigOptionNonPrimitive } from '../../library/core/models/config-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
@@ -148,10 +144,10 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', false, ''), '');
+        component['originalOptions'].append(new ConfigOptionFreeText('testOption', '', false, ''), '');
 
         component.modifiedOptions = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', false, ''), 'testText');
+        component.modifiedOptions.append(new ConfigOptionFreeText('testOption', '', false, ''), 'testText');
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -185,10 +181,10 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), FieldConfig.get());
+        component['originalOptions'].append(new ConfigOptionField('testField', '', true), FieldConfig.get());
 
         component.modifiedOptions = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
+        component.modifiedOptions.append(new ConfigOptionField('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -334,7 +330,7 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
 
         let layer: any = new WidgetOptionCollection(component['dashboardState'].asDataset());
-        layer.append(new WidgetFreeTextOption('testNestedOption', '', false, ''), '');
+        layer.append(new ConfigOptionFreeText('testNestedOption', '', false, ''), '');
         component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
@@ -420,17 +416,17 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', false, ''), '');
-        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), FieldConfig.get());
+        component['originalOptions'].append(new ConfigOptionFreeText('testOption', '', false, ''), '');
+        component['originalOptions'].append(new ConfigOptionField('testField', '', true), FieldConfig.get());
 
         component.modifiedOptions = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
-        component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', false, ''), 'testText');
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
+        component.modifiedOptions.append(new ConfigOptionFreeText('testOption', '', false, ''), 'testText');
+        component.modifiedOptions.append(new ConfigOptionField('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         let layer: any = new WidgetOptionCollection(component['dashboardState'].asDataset());
-        layer.append(new WidgetFreeTextOption('testNestedOption', '', false, ''), '');
+        layer.append(new ConfigOptionFreeText('testNestedOption', '', false, ''), '');
         component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
@@ -567,18 +563,18 @@ describe('Component: Gear Component', () => {
         component.comp = mock;
 
         component['originalOptions'] = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', false, ''), {});
+        component['originalOptions'].append(new ConfigOptionNonPrimitive('testOption1', 'TestOption', false, ''), {});
 
         component.modifiedOptions = new RootWidgetOptionCollection(component['dashboardState'].asDataset());
-        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', false, ''), {});
+        component.modifiedOptions.append(new ConfigOptionNonPrimitive('testOption1', 'TestOption', false, ''), {});
         expect(component.changeMade).toEqual(false);
         expect(component.modifiedOptions.testOption1).toEqual({});
         component.modifiedOptions['testOption1'] = { foo: true };
         component.updateOnChange('testOption1');
         expect(component.changeMade).toEqual(true);
 
-        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', false, ''), { foo: true });
-        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', false, ''), { foo: true });
+        component['originalOptions'].append(new ConfigOptionNonPrimitive('testOption2', 'TestOption', false, ''), { foo: true });
+        component.modifiedOptions.append(new ConfigOptionNonPrimitive('testOption2', 'TestOption', false, ''), { foo: true });
         component.updateOnChange('testOption2');
         expect(component.changeMade).toEqual(false);
         expect(component.modifiedOptions.testOption2).toEqual({ foo: true });
@@ -586,8 +582,8 @@ describe('Component: Gear Component', () => {
         component.updateOnChange('testOption2');
         expect(component.changeMade).toEqual(true);
 
-        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', false, ''), {});
-        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', false, ''), undefined);
+        component['originalOptions'].append(new ConfigOptionNonPrimitive('testOption3', 'TestOption', false, ''), {});
+        component.modifiedOptions.append(new ConfigOptionNonPrimitive('testOption3', 'TestOption', false, ''), undefined);
         component.updateOnChange('testOption3');
         expect(component.changeMade).toEqual(false);
     });

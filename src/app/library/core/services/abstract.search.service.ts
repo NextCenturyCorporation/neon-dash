@@ -14,7 +14,7 @@
  */
 
 import { AbstractFilter, BoundsFilter, CompoundFilter, DomainFilter, ListFilter, PairFilter } from '../models/filters';
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { DatasetUtil, FieldKey } from '../models/dataset';
 import { RequestWrapper } from './connection.service';
 

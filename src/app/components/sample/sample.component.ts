@@ -37,10 +37,10 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { MatDialog } from '@angular/material';
@@ -112,21 +112,21 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
-            new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false),
-            new WidgetSelectOption('subcomponentType', 'Subcomponent Type', true, 'Impl1', [{
+            new ConfigOptionField('sampleRequiredField', 'Sample Required Field', true),
+            new ConfigOptionField('sampleOptionalField', 'Sample Optional Field', false),
+            new ConfigOptionSelect('subcomponentType', 'Subcomponent Type', true, 'Impl1', [{
                 prettyName: 'Implementation 1',
                 variable: 'Impl1'
             }, {
                 prettyName: 'Implementation 2',
                 variable: 'Impl2'
             }]),
-            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue)
+            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue)
         ];
     }
 

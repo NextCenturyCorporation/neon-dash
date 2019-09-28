@@ -30,7 +30,7 @@ import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { TimelineModule } from './timeline.module';
 import { DomainFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
-import { CompoundFilterType, TimeInterval } from '../../library/core/models/widget-option';
+import { CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;

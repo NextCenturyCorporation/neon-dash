@@ -25,7 +25,7 @@ import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType, TimeInterval } from '../../library/core/models/widget-option';
+import { AggregationType, CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     BoundsFilterDesign,
