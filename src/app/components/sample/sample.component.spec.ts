@@ -31,7 +31,7 @@ import { FilterCollection, ListFilterDesign } from '../../library/core/models/fi
 import { FieldConfig } from '../../library/core/models/dataset';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
