@@ -27,7 +27,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
