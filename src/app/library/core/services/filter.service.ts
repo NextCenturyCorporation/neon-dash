@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../models/config-option';
 import { Dataset } from '../models/dataset';
 import {
     AbstractFilter,

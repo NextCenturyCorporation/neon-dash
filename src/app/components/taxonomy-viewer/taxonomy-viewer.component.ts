@@ -36,12 +36,12 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFieldArrayOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFieldArray,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -147,23 +147,23 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('categoryField', 'Category Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
-            new WidgetFieldOption('valueField', 'Value Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('ascending', 'Sort Ascending', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('categoryField', 'Category Field', true),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('sourceIdField', 'Source ID Field', false),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionField('subTypeField', 'Sub Type Field', false),
+            new ConfigOptionField('valueField', 'Value Field', false),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('ascending', 'Sort Ascending', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

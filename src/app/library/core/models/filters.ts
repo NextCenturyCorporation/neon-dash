@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from './widget-option';
+import { CompoundFilterType } from './config-option';
 import { Dataset, DatasetFieldKey, DatasetUtil, FieldKey } from './dataset';
 import { DateFormat, DateUtil } from '../date.util';
 import * as _ from 'lodash';

@@ -22,7 +22,7 @@ import { TextCloudComponent } from './text-cloud.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType } from '../../library/core/models/widget-option';
+import { AggregationType, CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 

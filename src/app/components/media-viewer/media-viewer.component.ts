@@ -37,14 +37,14 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
     SortOrder,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 import { MediaMetaData } from '../media-group/media-group.component';
 
@@ -198,29 +198,29 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
-            new WidgetFieldOption('maskField', 'Mask Field', false),
-            new WidgetFieldOption('nameField', 'Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true),
-            new WidgetSelectOption('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('border', 'Border', false, ''),
-            new WidgetSelectOption('clearMedia', 'Clear Media', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
-            new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', false, ''),
-            new WidgetSelectOption('resize', 'Resize Media to Fit', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('sliderValue', 'Slider Value', false, 0),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
-            new WidgetFreeTextOption('url', 'URL', false, '')
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('linkField', 'Link Field', false, true), // DEPRECATED
+            new ConfigOptionField('maskField', 'Mask Field', false),
+            new ConfigOptionField('nameField', 'Name Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionFieldArray('linkFields', 'Link Field(s)', true),
+            new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('border', 'Border', false, ''),
+            new ConfigOptionSelect('clearMedia', 'Clear Media', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionFreeText('delimiter', 'Link Delimiter', false, ','),
+            new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
+            new ConfigOptionFreeText('maskLinkPrefix', 'Mask Link Prefix', false, ''),
+            new ConfigOptionSelect('resize', 'Resize Media to Fit', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNumber('sliderValue', 'Slider Value', false, 0),
+            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {}),
+            new ConfigOptionFreeText('url', 'URL', false, '')
         ];
     }
 

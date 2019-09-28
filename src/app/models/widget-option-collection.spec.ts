@@ -15,15 +15,15 @@
 
 import { DatabaseConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
 import {
-    WidgetDatabaseOption,
-    WidgetFieldOption,
-    WidgetFieldArrayOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetNumberOption,
-    WidgetSelectOption,
-    WidgetTableOption
-} from '../library/core/models/widget-option';
+    ConfigOptionDatabase,
+    ConfigOptionField,
+    ConfigOptionFieldArray,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOptionNumber,
+    ConfigOptionSelect,
+    ConfigOptionTable
+} from '../library/core/models/config-option';
 import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
 import { DATABASES, DATABASES_LIST, DATASET, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../library/core/models/mock.dataset';
@@ -59,8 +59,8 @@ describe('OptionCollection', () => {
     });
 
     it('access does return widget option with given key', () => {
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
+        let widgetOption1 = new ConfigOptionSelect('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new ConfigOptionSelect('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -73,7 +73,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does add given widget option', () => {
-        options.append(new WidgetSelectOption('key1', 'label1', false, 'default1', []), 'current1');
+        options.append(new ConfigOptionSelect('key1', 'label1', false, 'default1', []), 'current1');
         expect(options.key1).toEqual('current1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -82,7 +82,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does ignore provided binding', () => {
-        options.append(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []), 'currentA');
+        options.append(new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []), 'currentA');
         expect(options.keyA).toEqual('currentA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -154,7 +154,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option with provided binding', () => {
-        options.inject(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []));
+        options.inject(new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []));
         expect(options.keyA).toEqual('provideA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -163,7 +163,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option without provided binding', () => {
-        options.inject(new WidgetSelectOption('key1', 'label1', false, 'default1', []));
+        options.inject(new ConfigOptionSelect('key1', 'label1', false, 'default1', []));
         expect(options.key1).toEqual('default1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -173,8 +173,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
-            new WidgetSelectOption('keyB', 'labelB', false, 'defaultB', [])
+            new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []),
+            new ConfigOptionSelect('keyB', 'labelB', false, 'defaultB', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.keyB).toEqual('provideB');
@@ -190,8 +190,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('key1', 'label1', false, 'default1', []),
-            new WidgetSelectOption('key2', 'label2', false, 'default2', [])
+            new ConfigOptionSelect('key1', 'label1', false, 'default1', []),
+            new ConfigOptionSelect('key2', 'label2', false, 'default2', [])
         ]);
         expect(options.key1).toEqual('default1');
         expect(options.key2).toEqual('default2');
@@ -207,8 +207,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with and without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
-            new WidgetSelectOption('key1', 'label1', false, 'default1', [])
+            new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []),
+            new ConfigOptionSelect('key1', 'label1', false, 'default1', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.key1).toEqual('default1');
@@ -223,14 +223,14 @@ describe('OptionCollection', () => {
     });
 
     it('list does return an array of all widget options', () => {
-        let databaseOption = new WidgetDatabaseOption();
+        let databaseOption = new ConfigOptionDatabase();
         databaseOption.valueCurrent = DatabaseConfig.get();
-        let tableOption = new WidgetTableOption();
+        let tableOption = new ConfigOptionTable();
         tableOption.valueCurrent = TableConfig.get();
         expect(options.list()).toEqual([databaseOption, tableOption]);
 
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
+        let widgetOption1 = new ConfigOptionSelect('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new ConfigOptionSelect('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -295,9 +295,9 @@ describe('WidgetOptionCollection', () => {
 
     beforeEach(() => {
         options = new WidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100, new OptionConfig({
             tableKey: 'table_key_2',
             limit: '1234',
@@ -389,9 +389,9 @@ describe('WidgetOptionCollection with no bindings', () => {
 
     beforeEach(() => {
         options = new WidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100);
     });
 
@@ -416,13 +416,13 @@ describe('RootWidgetOptionCollection', () => {
 
     beforeEach(() => {
         options = new RootWidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
-            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
-            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
+            new ConfigOptionField('testCustomLayerField', 'Test Custom Layer Field', false),
+            new ConfigOptionFieldArray('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new ConfigOptionFreeText('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true, new OptionConfig({
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
@@ -538,13 +538,13 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
     beforeEach(() => {
         options = new RootWidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
-            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
-            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
+            new ConfigOptionField('testCustomLayerField', 'Test Custom Layer Field', false),
+            new ConfigOptionFieldArray('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new ConfigOptionFreeText('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true);
     });
 
@@ -581,17 +581,17 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
 describe('NonPrimitive Fields', () => {
     it('Objects initialize properly', () => {
-        const optEmpty = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
+        const optEmpty = new ConfigOptionNonPrimitive('test', 'Test', false, {}, true);
         expect(optEmpty.valueDefault).toEqual({});
         expect(optEmpty.intermediateValue).toEqual('');
         expect(optEmpty.getValueToSaveInBindings()).toEqual({});
 
-        const optNull = new WidgetNonPrimitiveOption('test', 'Test', false, undefined, true);
+        const optNull = new ConfigOptionNonPrimitive('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual('');
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
 
-        const optComplex = new WidgetNonPrimitiveOption('test', 'Test', false, { a: 5, b: [1, 2, { c: 3 }] }, true);
+        const optComplex = new ConfigOptionNonPrimitive('test', 'Test', false, { a: 5, b: [1, 2, { c: 3 }] }, true);
         expect(optComplex.valueDefault).toEqual({ a: 5, b: [1, 2, { c: 3 }] });
         expect(optComplex.intermediateValue).toEqual(yaml.safeDump({ a: 5, b: [1, 2, { c: 3 }] }));
 
@@ -612,7 +612,7 @@ describe('NonPrimitive Fields', () => {
     });
 
     it('Objects update properly', () => {
-        const option = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
+        const option = new ConfigOptionNonPrimitive('test', 'Test', false, {}, true);
         expect(option.valueDefault).toEqual({});
         option.intermediateValue = 'a: [1,2,3]';
         expect(option.getValueToSaveInBindings()).toEqual({ a: [1, 2, 3] });
@@ -635,19 +635,19 @@ describe('NonPrimitive Fields', () => {
 
 describe('Number Fields', () => {
     it('Object initializes correctly', () => {
-        const optEmpty = new WidgetNumberOption('test', 'Test', false, 0, true);
+        const optEmpty = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(optEmpty.valueDefault).toEqual(0);
         expect(optEmpty.intermediateValue).toEqual(0);
         expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
 
-        const optNull = new WidgetNumberOption('test', 'Test', false, undefined, true);
+        const optNull = new ConfigOptionNumber('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual(undefined);
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
     });
 
     it('Object updates properly', () => {
-        const opt = new WidgetNumberOption('test', 'Test', false, 0, true);
+        const opt = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(opt.valueDefault).toEqual(0);
         opt.intermediateValue = 7;
         expect(opt.getValueToSaveInBindings()).toEqual(7);
