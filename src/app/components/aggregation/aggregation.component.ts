@@ -70,12 +70,12 @@ import {
     OptionChoices,
     SortOrder,
     TimeInterval,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -360,23 +360,23 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetFieldOption('groupField', 'Group Field', false),
-            new WidgetFieldOption('xField', 'X Field', true),
-            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
+            new ConfigOptionField('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
+            new ConfigOptionField('groupField', 'Group Field', false),
+            new ConfigOptionField('xField', 'X Field', true),
+            new ConfigOptionField('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
+            new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY.bind(this)),
-            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
+            new ConfigOptionSelect('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
                 this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('dualView', 'Dual View', false, '', [{
+            new ConfigOptionSelect('dualView', 'Dual View', false, '', [{
                 prettyName: 'Always Off',
                 variable: ''
             }, {
@@ -386,16 +386,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Only On Filter',
                 variable: 'filter'
             }], this.optionsTypeIsDualViewCompatible.bind(this)),
-            new WidgetSelectOption('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
+            new ConfigOptionSelect('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
+            new ConfigOptionSelect('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
+            new ConfigOptionFreeText('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionFreeText('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionSelect('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -423,28 +423,28 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: '0.9',
                 variable: 0.9
             }], this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionSelect('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsList.bind(this)),
-            new WidgetSelectOption('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('sortByAggregation', 'Sort By', false, false, [{
+            new ConfigOptionSelect('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('sortByAggregation', 'Sort By', false, false, [{
                 prettyName: 'Label',
                 variable: false
             }, {
                 prettyName: 'Aggregation',
                 variable: true
             }]),
-            new WidgetSelectOption('type', 'Visualization Type', true, 'line', [{
+            new ConfigOptionSelect('type', 'Visualization Type', true, 'line', [{
                 prettyName: 'Bar, Horizontal (Aggregations)',
                 variable: 'bar-h'
             }, {
@@ -475,7 +475,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Text List (Aggregations)',
                 variable: 'list'
             }]),
-            new WidgetSelectOption('yPercentage', 'Y-Axis Max Width', false, 0.3, [{
+            new ConfigOptionSelect('yPercentage', 'Y-Axis Max Width', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {

@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 
 import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 

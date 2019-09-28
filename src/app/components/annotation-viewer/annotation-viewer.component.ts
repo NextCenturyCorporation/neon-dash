@@ -36,11 +36,11 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {
@@ -141,24 +141,24 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('documentTextField', 'Document Text Field', true),
-            new WidgetFieldOption('endCharacterField', 'End Character Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('startCharacterField', 'Start Character Field', false),
-            new WidgetFieldOption('textField', 'Text Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
+            new ConfigOptionField('documentTextField', 'Document Text Field', true),
+            new ConfigOptionField('endCharacterField', 'End Character Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('startCharacterField', 'Start Character Field', false),
+            new ConfigOptionField('textField', 'Text Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
             // True if text should be highlighted on hover while responseMode is true, false otherwise.
-            new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, false,
+            new ConfigOptionSelect('highlightInRespondMode', 'Highlight in Respond Mode', false, false,
                 OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetSelectOption('respondMode', 'Respond Mode', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionSelect('respondMode', 'Respond Mode', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

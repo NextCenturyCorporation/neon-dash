@@ -37,15 +37,15 @@ import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
     CompoundFilterType,
-    OptionChoices,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetMultipleSelectOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOption,
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionMultipleSelect,
+    ConfigOptionNonPrimitive,
+    ConfigOptionSelect,
+    OptionChoices
+} from '../../library/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
@@ -91,7 +91,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return [];
     }
 
-    createOptions(): WidgetOption[] {
+    createOptions(): ConfigOption[] {
         return [];
     }
 
@@ -135,13 +135,13 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 class TestAdvancedNeonComponent extends TestBaseNeonComponent {
-    createOptions(): WidgetOption[] {
+    createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
-            new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
-            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
-            new WidgetFreeTextOption('testFreeText', 'Test Free Text', false, ''),
-            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', false, [], [{
+            new ConfigOptionField('testRequiredField', 'Test Required Field', true),
+            new ConfigOptionField('testOptionalField', 'Test Optional Field', false),
+            new ConfigOptionFieldArray('testMultipleFields', 'Test Multiple Fields', false),
+            new ConfigOptionFreeText('testFreeText', 'Test Free Text', false, ''),
+            new ConfigOptionMultipleSelect('testMultipleSelect', 'Test Multiple Select', false, [], [{
                 prettyName: 'A',
                 variable: 'a'
             }, {
@@ -151,9 +151,9 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'C',
                 variable: 'c'
             }]),
-            new WidgetNonPrimitiveOption('testArray', 'Test Array', false, []),
-            new WidgetNonPrimitiveOption('testObject', 'Test Object', false, {}),
-            new WidgetSelectOption('testSelect', 'Test Select', false, 'y', [{
+            new ConfigOptionNonPrimitive('testArray', 'Test Array', false, []),
+            new ConfigOptionNonPrimitive('testObject', 'Test Object', false, {}),
+            new ConfigOptionSelect('testSelect', 'Test Select', false, 'y', [{
                 prettyName: 'X',
                 variable: 'x'
             }, {
@@ -163,7 +163,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'Z',
                 variable: 'z'
             }]),
-            new WidgetSelectOption('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionSelect('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 }
@@ -304,10 +304,10 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
         component.options.customEventsToPublish = [{
@@ -759,10 +759,10 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
         component.options.customEventsToPublish = [{
@@ -955,15 +955,15 @@ describe('BaseNeonComponent', () => {
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([]);
 
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
-        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
+        component.options.append(new ConfigOptionField('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
         component.options.append(
-            new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false),
+            new ConfigOptionField('testRepeatedField', 'Test Repeated Field', false),
             DashboardServiceMock.FIELD_MAP.NAME
         );
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
 

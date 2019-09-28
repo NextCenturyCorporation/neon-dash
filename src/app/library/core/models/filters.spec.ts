@@ -34,7 +34,7 @@ import {
     PairOfValues
 } from './filters';
 
-import { CompoundFilterType } from './widget-option';
+import { CompoundFilterType } from './config-option';
 
 import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from './mock.dataset';
 

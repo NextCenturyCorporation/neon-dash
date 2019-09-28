@@ -37,10 +37,10 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { MatDialog } from '@angular/material';
 
@@ -148,18 +148,18 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation),
-            new WidgetSelectOption('andFilters', 'Filter Operator', false, true, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showCounts', 'Show Counts', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('dataField', 'Term Field', true),
+            new ConfigOptionField('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
+            new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation),
+            new ConfigOptionSelect('andFilters', 'Filter Operator', false, true, OptionChoices.OrFalseAndTrue),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('paragraphs', 'Show as Paragraphs', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('showCounts', 'Show Counts', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

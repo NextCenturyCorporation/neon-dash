@@ -36,12 +36,12 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption,
-    WidgetNonPrimitiveOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect,
+    ConfigOptionNonPrimitive
+} from '../../library/core/models/config-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
@@ -131,33 +131,33 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionField('contentField', 'Content Field', false),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('filterField', 'Filter Field', false),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('secondaryContentField', 'Secondary Content Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionField('titleContentField', 'Title Content Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('contentLabel', 'Content Label', false, ''),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
+            new ConfigOptionSelect('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('contentLabel', 'Content Label', false, ''),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
-            new WidgetFreeTextOption('id', 'ID', false, null),
-            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
-            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', false, ''),
-            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {})
+            new ConfigOptionFreeText('id', 'ID', false, null),
+            new ConfigOptionFreeText('delimiter', 'Link Delimiter', false, ','),
+            new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
+            new ConfigOptionFreeText('secondaryContentLabel', 'Secondary Content Label', false, ''),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {})
         ];
     }
 
