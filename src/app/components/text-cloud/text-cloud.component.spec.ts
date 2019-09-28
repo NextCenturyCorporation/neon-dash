@@ -28,7 +28,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { TextCloudModule } from './text-cloud.module';
 

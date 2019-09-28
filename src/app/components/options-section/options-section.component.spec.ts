@@ -20,7 +20,7 @@ import { Injector } from '@angular/core';
 import { AbstractColorThemeService } from '../../library/core/services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
