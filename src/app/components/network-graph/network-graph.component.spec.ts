@@ -25,7 +25,7 @@ import { FilterCollection, ListFilterDesign } from '../../library/core/models/fi
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { NetworkGraphModule } from './network-graph.module';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';

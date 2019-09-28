@@ -26,7 +26,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
 
