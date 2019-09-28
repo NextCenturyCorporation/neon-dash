@@ -28,12 +28,12 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -101,18 +101,18 @@ export class QueryBarComponent extends BaseNeonComponent {
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('filterField', 'Filter Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionField('filterField', 'Filter Field', true),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionSelect('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of FieldConfig objects!
-            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', false, []),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetFreeTextOption('placeHolder', 'Place Holder', false, 'Query')
+            new ConfigOptionNonPrimitive('extensionFields', 'Extension Fields', false, []),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionFreeText('placeHolder', 'Place Holder', false, 'Query')
         ];
     }
 

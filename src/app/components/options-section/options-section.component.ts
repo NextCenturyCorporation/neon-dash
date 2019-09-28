@@ -18,7 +18,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { WidgetOption } from '../../library/core/models/widget-option';
+import { ConfigOption } from '../../library/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -39,11 +39,11 @@ export class OptionsSectionComponent {
     /**
      * Removes option from display list. (must manually display options that are removed)
      *
-     * @param {WidgetOption[]}
-     * @returns {WidgetOption[]}
+     * @param {ConfigOption[]}
+     * @returns {ConfigOption[]}
      */
-    private removeOptionsFromList(optList: WidgetOption[]): WidgetOption[] {
-        let optionList: WidgetOption[] = optList;
+    private removeOptionsFromList(optList: ConfigOption[]): ConfigOption[] {
+        let optionList: ConfigOption[] = optList;
         optionList = this.removeOptions(optionList, 'bindingKey', 'title');
         optionList = this.removeOptions(optionList, 'hideFromMenu', true);
         optionList = this.removeOptions(optionList, 'bindingKey', 'limit');
@@ -53,7 +53,7 @@ export class OptionsSectionComponent {
     }
 
     public getRequiredFields(optionCollection: WidgetOptionCollection): string[] {
-        let requiredList: WidgetOption[] = optionCollection.list();
+        let requiredList: ConfigOption[] = optionCollection.list();
         requiredList = this.removeOptionsFromList(requiredList);
         return requiredList.filter((option) => option.isRequired &&
             (option['optionType'] === 'FIELD' || option['optionType'] === 'FIELD_ARRAY'))
@@ -61,7 +61,7 @@ export class OptionsSectionComponent {
     }
 
     public getOptionalFields(optionCollection: WidgetOptionCollection): string[] {
-        let optionalList: WidgetOption[] = optionCollection.list();
+        let optionalList: ConfigOption[] = optionCollection.list();
         optionalList = this.removeOptionsFromList(optionalList);
         return optionalList.filter((option) => !option.isRequired &&
             (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
@@ -69,7 +69,7 @@ export class OptionsSectionComponent {
     }
 
     public getRequiredNonFields(optionCollection: WidgetOptionCollection): string[] {
-        let requiredNonList: WidgetOption[] = optionCollection.list();
+        let requiredNonList: ConfigOption[] = optionCollection.list();
         requiredNonList = this.removeOptionsFromList(requiredNonList);
         return requiredNonList.filter((option) => option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
@@ -77,7 +77,7 @@ export class OptionsSectionComponent {
     }
 
     public getOptionalNonFields(optionCollection: WidgetOptionCollection): string[] {
-        let optionalNonList: WidgetOption[] = optionCollection.list();
+        let optionalNonList: ConfigOption[] = optionCollection.list();
         optionalNonList = this.removeOptionsFromList(optionalNonList);
         return optionalNonList.filter((option) => !option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))

@@ -23,7 +23,7 @@ import { } from 'jasmine-core';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';

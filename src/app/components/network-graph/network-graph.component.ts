@@ -38,14 +38,14 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetOption,
-    WidgetSelectOption,
-    WidgetColorOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOption,
+    ConfigOptionSelect,
+    ConfigOptionColor
+} from '../../library/core/models/config-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -294,64 +294,64 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('isReified', 'Data Format', false, false, [{
+            new ConfigOptionField('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('isReified', 'Data Format', false, false, [{
                 prettyName: 'Tabular',
                 variable: false
             }, {
                 prettyName: 'Reified',
                 variable: true
             }]),
-            new WidgetSelectOption('isDirected', 'Directed', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('isDirected', 'Directed', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('multiFilterOperator', 'Filter Operator', false, 'or', [{
+            new ConfigOptionSelect('multiFilterOperator', 'Filter Operator', false, 'or', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
+            new ConfigOptionSelect('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
                 this.optionsDoesHaveColorField.bind(this)),
-            new WidgetSelectOption('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetColorOption('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
+            new ConfigOptionSelect('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionColor('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetNumberOption('edgeWidth', 'Edge Width', false, 1),
-            new WidgetColorOption('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
+            new ConfigOptionNumber('edgeWidth', 'Edge Width', false, 1),
+            new ConfigOptionColor('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetColorOption('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+            new ConfigOptionColor('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetColorOption('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+            new ConfigOptionColor('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', false, 'box'),
-            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionFreeText('nodeShape', 'Node Shape', false, 'box'),
+            new ConfigOptionSelect('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', false, ''),
-            new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionFreeText('relationNodeIdentifier', 'Relation Node Identifier', false, ''),
+            new ConfigOptionField('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
@@ -359,18 +359,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     /**
      * Creates and returns an array of options for layers of visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [
-            new WidgetFieldOption('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetFreeTextOption('layerType', 'Layer Type', true, '', false)
+            new ConfigOptionField('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionFreeText('layerType', 'Layer Type', true, '', false)
         ];
     }
 

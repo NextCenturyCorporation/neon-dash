@@ -26,9 +26,9 @@ import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dat
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
-    OptionType,
-    WidgetOption
-} from '../../library/core/models/widget-option';
+    ConfigOption,
+    OptionType
+} from '../../library/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -411,7 +411,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {QueryPayload}
      */
     public createCompleteVisualizationQuery(options: WidgetOptionCollection): QueryPayload {
-        let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
+        let fields: string[] = options.list().reduce((list: string[], option: ConfigOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
             }
@@ -942,17 +942,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @abstract
      */
-    protected abstract createOptions(): WidgetOption[];
+    protected abstract createOptions(): ConfigOption[];
 
     /**
      * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [];
     }
 

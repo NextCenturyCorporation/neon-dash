@@ -14,7 +14,7 @@
  */
 
 import { ColorMap } from './color';
-import { CompoundFilterType } from '../library/core/models/widget-option';
+import { CompoundFilterType } from '../library/core/models/config-option';
 import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
 
 export interface CommonFilterConfig {

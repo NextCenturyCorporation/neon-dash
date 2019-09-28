@@ -37,12 +37,12 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -121,23 +121,23 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dataField', 'Text Field', true),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetSelectOption('showText', 'Main Document Text', false, false, OptionChoices.HideFalseShowTrue),
-            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', false, ''),
-            new WidgetSelectOption('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
+            new ConfigOptionField('dataField', 'Text Field', true),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionSelect('showText', 'Main Document Text', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionFreeText('nameWidthCss', 'Name (Left Column) Width CSS', false, ''),
+            new ConfigOptionSelect('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
             // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldConfig objects!
-            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', false, []),
-            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', false, [])
+            new ConfigOptionNonPrimitive('metadataFields', 'Metadata Fields', false, []),
+            new ConfigOptionNonPrimitive('popoutFields', 'Popout Fields', false, [])
         ];
     }
 

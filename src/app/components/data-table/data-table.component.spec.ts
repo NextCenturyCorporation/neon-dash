@@ -20,7 +20,7 @@ import { } from 'jasmine-core';
 import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';

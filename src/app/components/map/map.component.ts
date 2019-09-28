@@ -58,13 +58,13 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetNumberOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionNumber,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -729,50 +729,50 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     /**
      * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [
-            new WidgetFieldOption('latitudeField', 'Latitude Field', true),
-            new WidgetFieldOption('longitudeField', 'Longitude Field', true),
-            new WidgetFieldOption('colorField', 'Color Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sizeField', 'Size Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('cluster', 'Cluster', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('latitudeField', 'Latitude Field', true),
+            new ConfigOptionField('longitudeField', 'Longitude Field', true),
+            new ConfigOptionField('colorField', 'Color Field', false),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('hoverPopupField', 'Hover Popup Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('sizeField', 'Size Field', false),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('cluster', 'Cluster', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', false, 15),
-            new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionNumber('clusterPixelRange', 'Cluster Pixel Range', false, 15),
+            new ConfigOptionSelect('showPointDataOnHover', 'Coordinates on Point Hover', false, false, OptionChoices.HideFalseShowTrue),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
-            new WidgetNonPrimitiveOption('customServer', 'Custom Server', false, null),
-            new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('east', 'East', false, null),
+            new ConfigOptionNonPrimitive('customServer', 'Custom Server', false, null),
+            new ConfigOptionSelect('disableCtrlZoom', 'Disable Control Zoom', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNumber('east', 'East', false, null),
             // Properties of hoverSelect:  hoverTime: number
-            new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', false, null),
-            new WidgetNumberOption('minClusterSize', 'Minimum Cluster Size', false, 5),
-            new WidgetNumberOption('north', 'North', false, null),
-            new WidgetSelectOption('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('south', 'South', false, null),
-            new WidgetSelectOption('type', 'Map Type', true, MapType.Leaflet, [{
+            new ConfigOptionNonPrimitive('hoverSelect', 'Hover Select', false, null),
+            new ConfigOptionNumber('minClusterSize', 'Minimum Cluster Size', false, 5),
+            new ConfigOptionNumber('north', 'North', false, null),
+            new ConfigOptionSelect('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNumber('south', 'South', false, null),
+            new ConfigOptionSelect('type', 'Map Type', true, MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', false, null),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionNumber('west', 'West', false, null),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
