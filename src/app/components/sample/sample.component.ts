@@ -26,7 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
@@ -37,10 +37,10 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { MatDialog } from '@angular/material';
@@ -104,7 +104,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.initializeSubcomponent();
     }
 
-    private createFilterConfig(field: FieldConfig, values: any[] = [undefined]): FilterConfig {
+    private createFilterDesign(field: FieldConfig, values: any[] = [undefined]): AbstractFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
@@ -112,21 +112,21 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
-            new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false),
-            new WidgetSelectOption('subcomponentType', 'Subcomponent Type', true, 'Impl1', [{
+            new ConfigOptionField('sampleRequiredField', 'Sample Required Field', true),
+            new ConfigOptionField('sampleOptionalField', 'Sample Optional Field', false),
+            new ConfigOptionSelect('subcomponentType', 'Subcomponent Type', true, 'Impl1', [{
                 prettyName: 'Implementation 1',
                 variable: 'Impl1'
             }, {
                 prettyName: 'Implementation 2',
                 variable: 'Impl2'
             }]),
-            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue)
+            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue)
         ];
     }
 
@@ -134,12 +134,12 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // Add a filter design callback on each specific filter field.
-        return this.options.sampleRequiredField.columnName ? [this.createFilterConfig(this.options.sampleRequiredField)] : [];
+        return this.options.sampleRequiredField.columnName ? [this.createFilterDesign(this.options.sampleRequiredField)] : [];
     }
 
     /**
@@ -213,7 +213,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, __replaceAll = false) {
-        this.exchangeFilters([this.createFilterConfig(item.field, [item.value])]);
+        this.exchangeFilters([this.createFilterDesign(item.field, [item.value])]);
     }
 
     /**
