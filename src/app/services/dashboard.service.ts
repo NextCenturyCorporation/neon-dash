@@ -14,7 +14,8 @@
  */
 import { Injectable } from '@angular/core';
 
-import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { CompoundFilterType } from '../library/core/models/config-option';
+import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../library/core/models/dataset';
 
 import * as _ from 'lodash';
@@ -26,14 +27,271 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { AbstractFilter, FilterConfig, FilterUtil } from '../library/core/models/filters';
+import { AbstractFilter, BoundsFilter, CompoundFilter, DomainFilter, ListFilter, PairFilter } from '../library/core/models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
+
+/**
+ * Internal class with filter-specific dashboard util functions.
+ */
+class DashboardFilterUtil {
+    /**
+     * Creates and returns a new data list using the given Filter object.
+     */
+    public createDataListFromFilter(filter: AbstractFilter): any[] {
+        if (filter instanceof ListFilter) {
+            return this._createDataListFromListFilter(filter);
+        }
+        if (filter instanceof BoundsFilter) {
+            return this._createDataListFromBoundsFilter(filter);
+        }
+        if (filter instanceof DomainFilter) {
+            return this._createDataListFromDomainFilter(filter);
+        }
+        if (filter instanceof PairFilter) {
+            return this._createDataListFromPairFilter(filter);
+        }
+        if (filter instanceof CompoundFilter) {
+            return this._createDataListFromCompoundFilter(filter);
+        }
+        return [];
+    }
+
+    /**
+     * Creates and returns a new Filter object using the given FilterConfig object.
+     */
+    public createFilterFromConfig(filterConfig: FilterConfig): AbstractFilter {
+        if ('datastore' in filterConfig && 'database' in filterConfig && 'table' in filterConfig && 'field' in filterConfig &&
+            'operator' in filterConfig && 'value' in filterConfig) {
+            return new ListFilter(CompoundFilterType.OR, filterConfig.datastore + '.' + filterConfig.database + '.' + filterConfig.table +
+                '.' + filterConfig.field, filterConfig.operator, [filterConfig.value], filterConfig.id, filterConfig.relations);
+        }
+
+        if ('fieldKey1' in filterConfig && 'fieldKey2' in filterConfig && 'begin1' in filterConfig && 'begin2' in filterConfig &&
+            'end1' in filterConfig && 'end2' in filterConfig) {
+            return new BoundsFilter(filterConfig.fieldKey1, filterConfig.fieldKey2, filterConfig.begin1, filterConfig.begin2,
+                filterConfig.end1, filterConfig.end2, filterConfig.id, filterConfig.relations);
+        }
+
+        if ('fieldKey' in filterConfig && 'begin' in filterConfig && 'end' in filterConfig) {
+            return new DomainFilter(filterConfig.fieldKey, filterConfig.begin, filterConfig.end, filterConfig.id,
+                filterConfig.relations);
+        }
+
+        if ('fieldKey' in filterConfig && 'operator' in filterConfig && 'values' in filterConfig && 'type' in filterConfig) {
+            return new ListFilter(filterConfig.type, filterConfig.fieldKey, filterConfig.operator, filterConfig.values,
+                filterConfig.id, filterConfig.relations);
+        }
+
+        if ('fieldKey1' in filterConfig && 'fieldKey2' in filterConfig && 'operator1' in filterConfig && 'operator2' in filterConfig &&
+            'value1' in filterConfig && 'value2' in filterConfig && 'type' in filterConfig) {
+            return new PairFilter(filterConfig.type, filterConfig.fieldKey1, filterConfig.fieldKey2, filterConfig.operator1,
+                filterConfig.operator2, filterConfig.value1, filterConfig.value2, filterConfig.id, filterConfig.relations);
+        }
+
+        if ('filters' in filterConfig && 'type' in filterConfig) {
+            return new CompoundFilter(filterConfig.type, filterConfig.filters.map((nestedConfig) =>
+                this.createFilterFromConfig(nestedConfig)), filterConfig.id, filterConfig.relations);
+        }
+
+        return null;
+    }
+
+    /**
+     * Creates and returns a new Filter object using the given data list.
+     */
+    public createFilterFromDataList(dataList: any[]): AbstractFilter {
+        const functions = [
+            // Bind functions to "this" for any recursive calls.
+            this._createListFilterFromDataList.bind(this),
+            this._createBoundsFilterFromDataList.bind(this),
+            this._createDomainFilterFromDataList.bind(this),
+            this._createPairFilterFromDataList.bind(this),
+            this._createCompoundFilterFromDataList.bind(this)
+        ];
+        for (const func of functions) {
+            const filter = func(dataList);
+            if (filter) {
+                return filter;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates and returns a new BoundsFilter object using the given data list (or null if it is not the correct type of data list).
+     */
+    private _createBoundsFilterFromDataList(dataList: any[]): BoundsFilter {
+        if (dataList.length === 9 && dataList[0] === 'bounds') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const fieldKeyString1 = dataList[3];
+            const begin1 = dataList[4];
+            const end1 = dataList[5];
+            const fieldKeyString2 = dataList[6];
+            const begin2 = dataList[7];
+            const end2 = dataList[8];
+
+            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
+            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
+            if (fieldKey1 && fieldKey1.field && fieldKey2 && fieldKey2.field) {
+                return new BoundsFilter(fieldKeyString1, fieldKeyString2, begin1, begin2, end1, end2, id, relations);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates and returns a new CompoundFilter object using the given data list (or null if it is not the correct type of data list).
+     */
+    private _createCompoundFilterFromDataList(dataList: any[]): CompoundFilter {
+        if (dataList.length && (dataList[0] === 'and' || dataList[0] === 'or')) {
+            const [type, id, relations, ...filters] = dataList;
+            return new CompoundFilter(type, filters.map((filter) => this.createFilterFromDataList(filter)), id, relations);
+        }
+        return null;
+    }
+
+    /**
+     * Creates and returns a new data list using the given BoundsFilter object.
+     */
+    private _createDataListFromBoundsFilter(filter: BoundsFilter): any[] {
+        return [
+            'bounds',
+            filter.id,
+            filter.relations,
+            filter.fieldKey1,
+            filter.begin1,
+            filter.end1,
+            filter.fieldKey2,
+            filter.begin2,
+            filter.end2
+        ];
+    }
+
+    /**
+     * Creates and returns a new data list using the given CompoundFilter object.
+     */
+    private _createDataListFromCompoundFilter(filter: CompoundFilter): any[] {
+        return ([filter.type, filter.id, filter.relations] as any[]).concat(filter.filters.map((nestedFilter) =>
+            this.createDataListFromFilter(nestedFilter)));
+    }
+
+    /**
+     * Creates and returns a new data list using the given DomainFilter object.
+     */
+    private _createDataListFromDomainFilter(filter: DomainFilter): any[] {
+        return ['domain', filter.id, filter.relations, filter.fieldKey, filter.begin, filter.end];
+    }
+
+    /**
+     * Creates and returns a new data list using the given ListFilter object.
+     */
+    private _createDataListFromListFilter(filter: ListFilter): any[] {
+        return ['list', filter.id, filter.relations, filter.type, filter.fieldKey, filter.operator]
+            .concat(filter.values.map((value) => value));
+    }
+
+    /**
+     * Creates and returns a new data list using the given PairFilter object.
+     */
+    private _createDataListFromPairFilter(filter: PairFilter): any[] {
+        return [
+            'pair',
+            filter.id,
+            filter.relations,
+            filter.type,
+            filter.fieldKey1,
+            filter.operator1,
+            filter.value1,
+            filter.fieldKey2,
+            filter.operator2,
+            filter.value2
+        ];
+    }
+
+    /**
+     * Creates and returns a new DomainFilter object using the given data list (or null if it is not the correct type of data list).
+     */
+    private _createDomainFilterFromDataList(dataList: any[]): DomainFilter {
+        if (dataList.length === 6 && dataList[0] === 'domain') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const fieldKeyString = dataList[3];
+            const begin = dataList[4];
+            const end = dataList[5];
+
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+            if (fieldKey && fieldKey.field) {
+                return new DomainFilter(fieldKeyString, begin, end, id, relations);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates and returns a new ListFilter object using the given data list (or null if it is not the correct type of data list).
+     */
+    private _createListFilterFromDataList(dataList: any[]): ListFilter {
+        if (dataList.length >= 7 && dataList[0] === 'list') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const type = dataList[3];
+            const fieldKeyString = dataList[4];
+            const operator = dataList[5];
+            const values = dataList.slice(6);
+
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+            if (fieldKey && fieldKey.field) {
+                return new ListFilter(type, fieldKeyString, operator, values, id, relations);
+            }
+        }
+        // Backwards compatibility (simple filter data list)
+        if (dataList.length === 5 && !(dataList[0] === 'and' || dataList[0] === 'or')) {
+            const id = dataList[0];
+            const relations = dataList[1];
+            const fieldKeyString = dataList[2];
+            const operator = dataList[3];
+            const value = dataList[4];
+
+            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+            if (fieldKey && fieldKey.field) {
+                return new ListFilter(CompoundFilterType.OR, fieldKeyString, operator, [value], id, relations);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates and returns a new PairFilter object using the given data list (or null if it is not the correct type of data list).
+     */
+    private _createPairFilterFromDataList(dataList: any[]): PairFilter {
+        if (dataList.length === 10 && dataList[0] === 'pair') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const type = dataList[3];
+            const fieldKeyString1 = dataList[4];
+            const operator1 = dataList[5];
+            const value1 = dataList[6];
+            const fieldKeyString2 = dataList[7];
+            const operator2 = dataList[8];
+            const value2 = dataList[9];
+
+            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
+            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
+            if (fieldKey1 && fieldKey1.field && fieldKey2 && fieldKey2.field) {
+                return new PairFilter(type, fieldKeyString1, fieldKeyString2, operator1, operator2, value1, value2, id, relations);
+            }
+        }
+        return null;
+    }
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class DashboardService {
     static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
+    static DASHBOARD_FILTER_UTIL = new DashboardFilterUtil();
 
     public readonly config = NeonConfig.get();
     public readonly state = new DashboardState();
@@ -153,7 +411,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: this.filterService.getFilters().map((filter) => filter.toConfig()),
+                filters: this.filterService.getFilters().map((filter) => filter.toDesign()),
                 layout: name
             }),
             projectTitle: name
@@ -171,15 +429,17 @@ export class DashboardService {
      */
     public getFiltersToSaveInURL(): string {
         let filters: AbstractFilter[] = this.filterService.getFilters();
-        return ConfigUtil.translate(JSON.stringify(filters.map((filter) => filter.toDataList())), ConfigUtil.encodeFiltersMap);
+        return ConfigUtil.translate(JSON.stringify(filters.map((filter) =>
+            DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(filter))), ConfigUtil.encodeFiltersMap);
     }
 
     private _translateFilters(filterConfigs: FilterConfig[] | string): AbstractFilter[] {
         if (typeof filterConfigs === 'string') {
             const stringFilters = ConfigUtil.translate(filterConfigs, ConfigUtil.decodeFiltersMap);
-            return (JSON.parse(stringFilters) as any[]).map((dataList) => FilterUtil.createFilterFromDataList(dataList));
+            return (JSON.parse(stringFilters) as any[]).map((dataList) =>
+                DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList(dataList));
         }
-        return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig));
+        return filterConfigs.map((filterConfig) => DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig(filterConfig));
     }
 
     /**
@@ -249,3 +509,4 @@ export class DashboardService {
         return null;
     }
 }
+

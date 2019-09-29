@@ -18,8 +18,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterDesign, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -197,7 +197,7 @@ export class FilterBuilderComponent {
         });
 
         // Create a compound filter design from multiple list filters designs if needed.
-        let filterDesign: FilterConfig = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] :
+        let filterDesign: AbstractFilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] :
             new CompoundFilterDesign(type, filterDesigns));
 
         if (filterDesign) {

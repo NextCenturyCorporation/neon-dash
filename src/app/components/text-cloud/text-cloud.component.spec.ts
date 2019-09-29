@@ -22,13 +22,13 @@ import { TextCloudComponent } from './text-cloud.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType } from '../../library/core/models/widget-option';
+import { AggregationType, CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { TextCloudModule } from './text-cloud.module';
 
@@ -129,12 +129,11 @@ describe('Component: TextCloud', () => {
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0]).type).toEqual(CompoundFilterType.AND);
-        expect((actual[0]).filters.length).toEqual(1);
-        expect((actual[0]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((actual[0]).filters[0].operator).toEqual('=');
-        expect((actual[0]).filters[0].value).toBeUndefined();
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).values).toEqual([undefined]);
     });
 
     it('onClick does call exchangeFilters with expected object', () => {

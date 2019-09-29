@@ -33,11 +33,11 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    AbstractFilterDesign,
     DomainFilter,
     DomainFilterDesign,
     DomainValues,
     FilterCollection,
-    FilterConfig,
     ListFilterDesign
 } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -51,11 +51,11 @@ import {
     CompoundFilterType,
     OptionChoices,
     TimeInterval,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { FieldConfig } from '../../library/core/models/dataset';
@@ -114,12 +114,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    private createFilterConfigOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
 
-    private createFilterConfigOnTimeline(begin?: Date, end?: Date): DomainFilterDesign {
+    private createFilterDesignOnTimeline(begin?: Date, end?: Date): DomainFilterDesign {
         return new DomainFilterDesign(this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name +
             '.' + this.options.dateField.columnName, begin, end);
     }
@@ -127,16 +127,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dateField', 'Date Field', true),
-            new WidgetFieldOption('idField', 'Id Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
-            new WidgetFreeTextOption('yLabel', 'Count', false, '')
+            new ConfigOptionField('dateField', 'Date Field', true),
+            new ConfigOptionField('idField', 'Id Field', false),
+            new ConfigOptionField('filterField', 'Filter Field', false),
+            new ConfigOptionSelect('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
+            new ConfigOptionFreeText('yLabel', 'Count', false, '')
         ];
     }
 
@@ -144,19 +144,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        let designs: FilterConfig[] = [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        let designs: AbstractFilterDesign[] = [];
 
         if (this.options.dateField.columnName) {
             // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
-            designs.push(this.createFilterConfigOnTimeline());
+            designs.push(this.createFilterDesignOnTimeline());
         }
 
         if (this.options.filterField.columnName) {
-            designs.push(this.createFilterConfigOnValues(this.options.filterField));
+            designs.push(this.createFilterDesignOnValues(this.options.filterField));
         }
 
         return designs;
@@ -176,7 +176,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     onTimelineSelection(beginDate: Date, endDate: Date, selectedData: TimelineItem[]): void {
-        let filters: FilterConfig[] = [this.createFilterConfigOnTimeline(beginDate, endDate)];
+        let filters: AbstractFilterDesign[] = [this.createFilterDesignOnTimeline(beginDate, endDate)];
 
         this.selected = [beginDate, endDate];
 
@@ -191,7 +191,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }
 
             // Create a separate filter on each value because each value is a distinct item in the data (they've been aggregated together).
-            filters = filters.concat(this.createFilterConfigOnValues(this.options.filterField, filterValues));
+            filters = filters.concat(this.createFilterDesignOnValues(this.options.filterField, filterValues));
         }
 
         this.exchangeFilters(filters);
@@ -216,7 +216,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     protected redrawFilters(filters: FilterCollection): void {
         // Add or remove the timeline chart brush depending on if the timeline is filtered.
-        let timelineFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnTimeline());
+        let timelineFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnTimeline());
         if (timelineFilters.length) {
             // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
             for (const timelineFilter of timelineFilters) {
