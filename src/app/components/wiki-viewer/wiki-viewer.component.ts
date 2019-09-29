@@ -29,18 +29,18 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
@@ -96,10 +96,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // This visualization does not filter.
         return [];
     }
@@ -107,15 +107,15 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetSelectOption('useWikipediaPageID', 'Use Wikipedia Page ID', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('linkField', 'Link Field', true),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionSelect('useWikipediaPageID', 'Use Wikipedia Page ID', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

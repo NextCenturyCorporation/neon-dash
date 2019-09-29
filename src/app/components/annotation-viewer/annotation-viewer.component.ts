@@ -27,7 +27,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -36,11 +36,11 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {
@@ -133,7 +133,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.visualizationQueryPaginates = true;
     }
 
-    private createFilterConfigOnAnnotationText(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnAnnotationText(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + ',' + this.options.database.name + ',' +
             this.options.table.name + ',' + this.options.documentTextField.columnName, '=', values);
     }
@@ -141,24 +141,24 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('documentTextField', 'Document Text Field', true),
-            new WidgetFieldOption('endCharacterField', 'End Character Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('startCharacterField', 'Start Character Field', false),
-            new WidgetFieldOption('textField', 'Text Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
+            new ConfigOptionField('documentTextField', 'Document Text Field', true),
+            new ConfigOptionField('endCharacterField', 'End Character Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('startCharacterField', 'Start Character Field', false),
+            new ConfigOptionField('textField', 'Text Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
             // True if text should be highlighted on hover while responseMode is true, false otherwise.
-            new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, false,
+            new ConfigOptionSelect('highlightInRespondMode', 'Highlight in Respond Mode', false, false,
                 OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetSelectOption('respondMode', 'Respond Mode', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionSelect('respondMode', 'Respond Mode', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -166,16 +166,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // TODO THOR-1099 Should filtered text have specific HTML styles?
-        return this.options.documentTextField.columnName ? [this.createFilterConfigOnAnnotationText()] : [];
+        return this.options.documentTextField.columnName ? [this.createFilterDesignOnAnnotationText()] : [];
 
         // TODO THOR-1098
-        // return this.options.documentTextField.columnName ? [this.createFilterConfigOnAnnotationText(),
-        //     this.createFilterConfigOnAnnotationPart()] : [];
+        // return this.options.documentTextField.columnName ? [this.createFilterDesignOnAnnotationText(),
+        //     this.createFilterDesignOnAnnotationPart()] : [];
     }
 
     /**
@@ -200,14 +200,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     onClick(item) {
         if (!this.options.respondMode) {
-            this.exchangeFilters([this.createFilterConfigOnAnnotationText([item.documents])]);
+            this.exchangeFilters([this.createFilterDesignOnAnnotationText([item.documents])]);
         }
     }
 
     onClickPart(part, item) {
         if (part.annotation) {
             // TODO THOR-1098
-            // this.exchangeFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
+            // this.exchangeFilters([this.createFilterDesignOnAnnotationPart(part.type, part.text)]);
         } else {
             this.onClick(item);
         }

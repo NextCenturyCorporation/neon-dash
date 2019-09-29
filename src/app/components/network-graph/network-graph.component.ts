@@ -28,7 +28,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -38,14 +38,14 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetOption,
-    WidgetSelectOption,
-    WidgetColorOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOption,
+    ConfigOptionSelect,
+    ConfigOptionColor
+} from '../../library/core/models/config-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -280,12 +280,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    private createFilterConfigOnLegend(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnLegend(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + this.options.edgeColorField.columnName, '!=', values);
     }
 
-    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
             this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' + field.columnName, '=',
             values);
@@ -294,64 +294,64 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('isReified', 'Data Format', false, false, [{
+            new ConfigOptionField('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('isReified', 'Data Format', false, false, [{
                 prettyName: 'Tabular',
                 variable: false
             }, {
                 prettyName: 'Reified',
                 variable: true
             }]),
-            new WidgetSelectOption('isDirected', 'Directed', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('isDirected', 'Directed', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('multiFilterOperator', 'Filter Operator', false, 'or', [{
+            new ConfigOptionSelect('multiFilterOperator', 'Filter Operator', false, 'or', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
+            new ConfigOptionSelect('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
                 this.optionsDoesHaveColorField.bind(this)),
-            new WidgetSelectOption('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetColorOption('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
+            new ConfigOptionSelect('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionColor('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetNumberOption('edgeWidth', 'Edge Width', false, 1),
-            new WidgetColorOption('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
+            new ConfigOptionNumber('edgeWidth', 'Edge Width', false, 1),
+            new ConfigOptionColor('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetColorOption('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+            new ConfigOptionColor('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetColorOption('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+            new ConfigOptionColor('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', false, 'box'),
-            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionFreeText('nodeShape', 'Node Shape', false, 'box'),
+            new ConfigOptionSelect('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', false, ''),
-            new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionFreeText('relationNodeIdentifier', 'Relation Node Identifier', false, ''),
+            new ConfigOptionField('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
@@ -359,18 +359,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     /**
      * Creates and returns an array of options for layers of visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [
-            new WidgetFieldOption('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetFreeTextOption('layerType', 'Layer Type', true, '', false)
+            new ConfigOptionField('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionFreeText('layerType', 'Layer Type', true, '', false)
         ];
     }
 
@@ -378,10 +378,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         let filterFields: FieldConfig[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
@@ -394,10 +394,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return filterFields.reduce((designs, filterField) => {
             if (filterField && filterField.columnName) {
                 // Match a filter with one or more EQUALS filters on the specified filter field.
-                designs.push(this.createFilterConfigOnList(filterField));
+                designs.push(this.createFilterDesignOnList(filterField));
             }
             return designs;
-        }, this.options.edgeColorField.columnName ? [this.createFilterConfigOnLegend()] : [] as FilterConfig[]);
+        }, this.options.edgeColorField.columnName ? [this.createFilterDesignOnLegend()] : [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -561,12 +561,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend()) as ListFilter[];
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegend()) as ListFilter[];
         this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
         // TODO AIDA-751 Update the selected checkboxes in the legend using the filtered legend values.
 
         this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnList(field)) as ListFilter[];
+            const listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnList(field)) as ListFilter[];
             this._filterFieldsToFilteredValues.set(field.columnName, CoreUtil.retrieveValuesFromListFilters(listFilters));
         });
         // TODO AIDA-752 Update the selected nodes in the network graph element using the filtered node values.
@@ -1361,10 +1361,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
             if (this._filteredLegendValues.length) {
-                this.exchangeFilters([this.createFilterConfigOnLegend(this._filteredLegendValues)]);
+                this.exchangeFilters([this.createFilterDesignOnLegend(this._filteredLegendValues)]);
             } else {
                 // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the color field.
-                this.exchangeFilters([], [this.createFilterConfigOnLegend()]);
+                this.exchangeFilters([], [this.createFilterDesignOnLegend()]);
             }
         }
     }
@@ -1380,8 +1380,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
 
-        let filters: FilterConfig[] = [];
-        let filtersToDelete: FilterConfig[] = [];
+        let filters: AbstractFilterDesign[] = [];
+        let filtersToDelete: AbstractFilterDesign[] = [];
 
         selectedNode.filterFields.filter((nodeFilterField) => !!nodeFilterField.field.columnName).forEach((nodeFilterField) => {
             // Get all the values for the filter field from the data item.
@@ -1395,10 +1395,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             if (filteredValues.length) {
                 // Create a single filter on the filtered values.
-                filters.push(this.createFilterConfigOnList(nodeFilterField.field, filteredValues));
+                filters.push(this.createFilterDesignOnList(nodeFilterField.field, filteredValues));
             } else {
                 // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
-                filtersToDelete.push(this.createFilterConfigOnList(nodeFilterField.field));
+                filtersToDelete.push(this.createFilterDesignOnList(nodeFilterField.field));
             }
         });
 
