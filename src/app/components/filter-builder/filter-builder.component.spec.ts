@@ -23,7 +23,7 @@ import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
 import { CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;

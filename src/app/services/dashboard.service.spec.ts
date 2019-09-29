@@ -14,8 +14,8 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from '../library/core/models/widget-option';
-import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { CompoundFilterType } from '../library/core/models/config-option';
+import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { DatastoreConfig } from '../library/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
@@ -26,13 +26,15 @@ import { ConfigService } from './config.service';
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
 import {
+    BoundsFilter,
     CompoundFilter,
     CompoundFilterDesign,
-    FilterConfig,
-    FilterUtil,
+    DomainFilter,
     ListFilter,
-    ListFilterDesign
+    ListFilterDesign,
+    PairFilter
 } from '../library/core/models/filters';
+import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from '../library/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;
@@ -60,16 +62,16 @@ describe('Service: DashboardService', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
         spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
-            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.ID.columnName, '=', ['testValue'], 'id1', ['relation1']),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '=', ['testValue'], 'id1', ['relation1']),
             new CompoundFilter(CompoundFilterType.AND, [
-                new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                    DashboardServiceMock.DATABASES.testDatabase2.name + '.' + DashboardServiceMock.TABLES.testTable2.name + '.' +
-                    DashboardServiceMock.FIELD_MAP.NAME.columnName, 'contains', ['testName1'], 'id3'),
-                new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                    DashboardServiceMock.DATABASES.testDatabase2.name + '.' + DashboardServiceMock.TABLES.testTable2.name + '.' +
-                    DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testType1'], 'id4')
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                    DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+                    FIELD_MAP.NAME.columnName, 'contains', ['testName1'], 'id3'),
+                new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                    DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+                    FIELD_MAP.TYPE.columnName, '!=', ['testType1'], 'id4')
             ], 'id2', ['relation2'])
         ]);
 
@@ -87,18 +89,18 @@ describe('Service: DashboardService', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
         spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([
-            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.ID.columnName, '!=', [false], 'id1'),
-            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.ID.columnName, '!=', [''], 'id2'),
-            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.ID.columnName, '!=', [null], 'id3'),
-            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
-                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
-                DashboardServiceMock.FIELD_MAP.ID.columnName, '!=', [1234], 'id4')
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '!=', [false], 'id1'),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '!=', [''], 'id2'),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '!=', [null], 'id3'),
+            new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' +
+                DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+                FIELD_MAP.ID.columnName, '!=', [1234], 'id4')
         ]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
@@ -121,11 +123,11 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active datastore at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(DashboardServiceMock.DATASTORE);
+        expect(dashboardService.state.datastore).toEqual(DATASTORE);
     });
 
     it('should return active datastores by name', () => {
-        expect(dashboardService.config.datastores.datastore1).toEqual(DashboardServiceMock.DATASTORE);
+        expect(dashboardService.config.datastores.datastore1).toEqual(DATASTORE);
     });
 
     it('should have active dashboard at creation', () => {
@@ -169,37 +171,14 @@ describe('Service: DashboardService with Mock Data', () => {
 
         expect(spy.calls.count()).toEqual(1);
         const filters = spy.calls.argsFor(0)[0];
-        expect(filters).toEqual([FilterUtil.createFilterFromConfig({
-            id: 'id1',
-            relations: ['relation1'],
-            datastore: 'datastore1',
-            database: 'testDatabase1',
-            table: 'testTable1',
-            field: 'testNameField',
-            operator: '=',
-            value: 'testValue'
-        }), FilterUtil.createFilterFromConfig({
-            id: 'id2',
-            relations: ['relation2'],
-            type: CompoundFilterType.AND,
-            filters: [{
-                id: 'id3',
-                datastore: 'datastore1',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                field: 'testTypeField',
-                operator: '!=',
-                value: ''
-            }, {
-                id: 'id4',
-                datastore: 'datastore1',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                field: 'testTypeField',
-                operator: '!=',
-                value: null
-            }]
-        })]);
+        expect(filters).toEqual([
+            new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testNameField', '=', ['testValue'], 'id1',
+                ['relation1']),
+            new CompoundFilter(CompoundFilterType.AND, [
+                new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase2.testTable2.testTypeField', '!=', [''], 'id3'),
+                new ListFilter(CompoundFilterType.OR, 'datastore1.testDatabase2.testTable2.testTypeField', '!=', [null], 'id4')
+            ], 'id2', ['relation2'])
+        ]);
     });
 
     function getConfig(filters: string | FilterConfig[]) {
@@ -462,3 +441,515 @@ describe('Service: DashboardService with Mock Data', () => {
         localConfigService.setActive(config);
     });
 });
+
+describe('DashboardService DASHBOARD_FILTER_UTIL', () => {
+    it('createDataListFromFilter on bounds filter does return expected list', () => {
+        let boundsFilterA = new BoundsFilter(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -50, -100, 50, 100
+        );
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(boundsFilterA)).toEqual([
+            'bounds',
+            boundsFilterA.id,
+            [],
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            -50,
+            50,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -100,
+            100
+        ]);
+    });
+
+    it('createDataListFromFilter on domain filter does return expected list', () => {
+        let domainFilterA = new DomainFilter(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.SIZE.columnName, -100, 100);
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(domainFilterA)).toEqual([
+            'domain',
+            domainFilterA.id,
+            [],
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+            -100,
+            100
+        ]);
+    });
+
+    it('createDataListFromFilter on list filter does return expected list', () => {
+        let listFilterA = new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '!=', ['testText1', 'testText2', 'testText3']);
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(listFilterA)).toEqual([
+            'list',
+            listFilterA.id,
+            [],
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            '!=',
+            'testText1',
+            'testText2',
+            'testText3'
+        ]);
+    });
+
+    it('createDataListFromFilter on pair filter does return expected list', () => {
+        let pairFilterA = new PairFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName, '=', '!=', 'testName', 'testType');
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(pairFilterA)).toEqual([
+            'pair',
+            pairFilterA.id,
+            [],
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            '=',
+            'testName',
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            '!=',
+            'testType'
+        ]);
+    });
+
+    it('createDataListFromFilter on compound filter does return expected list', () => {
+        let boundsFilterA = new BoundsFilter(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -50, -100, 50, 100
+        );
+
+        let domainFilterA = new DomainFilter(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.SIZE.columnName, -100, 100);
+
+        let listFilterA = new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '!=', ['testText1', 'testText2', 'testText3']);
+
+        let pairFilterA = new PairFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName, '=', '!=', 'testName', 'testType');
+
+        let compoundFilterA = new CompoundFilter(CompoundFilterType.AND, [boundsFilterA, domainFilterA, listFilterA, pairFilterA]);
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(compoundFilterA)).toEqual([
+            'and',
+            compoundFilterA.id,
+            [],
+            [
+                'bounds',
+                boundsFilterA.id,
+                [],
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+                -50,
+                50,
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+                -100,
+                100
+            ],
+            [
+                'domain',
+                domainFilterA.id,
+                [],
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+                -100,
+                100
+            ],
+            [
+                'list',
+                listFilterA.id,
+                [],
+                CompoundFilterType.OR,
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+                '!=',
+                'testText1',
+                'testText2',
+                'testText3'
+            ],
+            [
+                'pair',
+                pairFilterA.id,
+                [],
+                CompoundFilterType.OR,
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+                '=',
+                'testName',
+                DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+                '!=',
+                'testType'
+            ]
+        ]);
+    });
+
+    it('createDataListFromFilter on compound filter with nested filters does return expected list', () => {
+        let boundsFilterA = new BoundsFilter(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -50, -100, 50, 100
+        );
+
+        let domainFilterA = new DomainFilter(DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' +
+            FIELD_MAP.SIZE.columnName, -100, 100);
+
+        let listFilterA = new ListFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName, '!=', ['testText1', 'testText2', 'testText3']);
+
+        let pairFilterA = new PairFilter(CompoundFilterType.OR, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName, DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' +
+            TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName, '=', '!=', 'testName', 'testType');
+
+        let compoundFilterB = new CompoundFilter(CompoundFilterType.OR, [boundsFilterA, domainFilterA]);
+
+        let compoundFilterC = new CompoundFilter(CompoundFilterType.OR, [listFilterA, pairFilterA]);
+
+        let compoundFilterD = new CompoundFilter(CompoundFilterType.AND, [compoundFilterB, compoundFilterC]);
+
+        expect(DashboardService.DASHBOARD_FILTER_UTIL.createDataListFromFilter(compoundFilterD)).toEqual([
+            'and',
+            compoundFilterD.id,
+            [],
+            [
+                'or',
+                compoundFilterB.id,
+                [],
+                [
+                    'bounds',
+                    boundsFilterA.id,
+                    [],
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+                    -50,
+                    50,
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+                    -100,
+                    100
+                ],
+                [
+                    'domain',
+                    domainFilterA.id,
+                    [],
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+                    -100,
+                    100
+                ]
+            ],
+            [
+                'or',
+                compoundFilterC.id,
+                [],
+                [
+                    'list',
+                    listFilterA.id,
+                    [],
+                    CompoundFilterType.OR,
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+                    '!=',
+                    'testText1',
+                    'testText2',
+                    'testText3'
+                ],
+                [
+                    'pair',
+                    pairFilterA.id,
+                    [],
+                    CompoundFilterType.OR,
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+                    '=',
+                    'testName',
+                    DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+                    '!=',
+                    'testType'
+                ]
+            ]
+        ]);
+    });
+
+    it('createFilterFromDataList on simple filter data does return list filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'filterId1',
+            ['relationId1'],
+            'datastore1.testDatabase2.testTable2.testIdField',
+            '=',
+            'testValue'
+        ]);
+        expect(actual instanceof ListFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as ListFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testIdField');
+        expect((actual as ListFilter).operator).toEqual('=');
+        expect((actual as ListFilter).values).toEqual(['testValue']);
+    });
+
+    it('createFilterFromDataList does return bounds filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'bounds',
+            'filterId1',
+            ['relationId1'],
+            'datastore1.testDatabase2.testTable2.testXField',
+            'testBegin1',
+            'testEnd1',
+            'datastore1.testDatabase2.testTable2.testYField',
+            'testBegin2',
+            'testEnd2'
+        ]);
+        expect(actual instanceof BoundsFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as BoundsFilter).fieldKey1).toEqual('datastore1.testDatabase2.testTable2.testXField');
+        expect((actual as BoundsFilter).fieldKey2).toEqual('datastore1.testDatabase2.testTable2.testYField');
+        expect((actual as BoundsFilter).begin1).toEqual('testBegin1');
+        expect((actual as BoundsFilter).begin2).toEqual('testBegin2');
+        expect((actual as BoundsFilter).end1).toEqual('testEnd1');
+        expect((actual as BoundsFilter).end2).toEqual('testEnd2');
+    });
+
+    it('createFilterFromDataList does return domain filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'domain',
+            'filterId1',
+            ['relationId1'],
+            'datastore1.testDatabase2.testTable2.testSizeField',
+            'testBegin',
+            'testEnd'
+        ]);
+        expect(actual instanceof DomainFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as DomainFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testSizeField');
+        expect((actual as DomainFilter).begin).toEqual('testBegin');
+        expect((actual as DomainFilter).end).toEqual('testEnd');
+    });
+
+    it('createFilterFromDataList does return list filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'list',
+            'filterId1',
+            ['relationId1'],
+            'and',
+            'datastore1.testDatabase2.testTable2.testTextField',
+            '!=',
+            'testValue1',
+            'testValue2'
+        ]);
+        expect(actual instanceof ListFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as ListFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testTextField');
+        expect((actual as ListFilter).operator).toEqual('!=');
+        expect((actual as ListFilter).values).toEqual(['testValue1', 'testValue2']);
+    });
+
+    it('createFilterFromDataList does return pair filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'pair',
+            'filterId1',
+            ['relationId1'],
+            'and',
+            'datastore1.testDatabase2.testTable2.testNameField',
+            'contains',
+            'testValue1',
+            'datastore1.testDatabase2.testTable2.testTypeField',
+            'not contains',
+            'testValue2'
+        ]);
+        expect(actual instanceof PairFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as PairFilter).fieldKey1).toEqual('datastore1.testDatabase2.testTable2.testNameField');
+        expect((actual as PairFilter).fieldKey2).toEqual('datastore1.testDatabase2.testTable2.testTypeField');
+        expect((actual as PairFilter).operator1).toEqual('contains');
+        expect((actual as PairFilter).operator2).toEqual('not contains');
+        expect((actual as PairFilter).value1).toEqual('testValue1');
+        expect((actual as PairFilter).value2).toEqual('testValue2');
+    });
+
+    it('createFilterFromDataList does return compound filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromDataList([
+            'and',
+            'filterId1',
+            ['relationId1'],
+            ['and',
+                'id2',
+                ['relationId2'],
+                ['id3', [], 'datastore1.testDatabase2.testTable2.testNameField', 'contains', 'testValue1'],
+                ['id4', [], 'datastore1.testDatabase2.testTable2.testTypeField', 'not contains', 'testValue2']],
+            ['id5', [], 'datastore1.testDatabase2.testTable2.testIdField', '=', 'testValue3']
+        ]);
+        expect(actual instanceof CompoundFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof CompoundFilter).toEqual(true);
+        expect((actual as any).filters[0].id).toEqual('id2');
+        expect((actual as any).filters[0].relations).toEqual(['relationId2']);
+        expect((actual as any).filters[0].type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters[0].filters.length).toEqual(2);
+        expect((actual as any).filters[0].filters[0] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[0].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testNameField');
+        expect((actual as any).filters[0].filters[0].operator).toEqual('contains');
+        expect((actual as any).filters[0].filters[0].values).toEqual(['testValue1']);
+        expect((actual as any).filters[0].filters[1] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[1].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testTypeField');
+        expect((actual as any).filters[0].filters[1].operator).toEqual('not contains');
+        expect((actual as any).filters[0].filters[1].values).toEqual(['testValue2']);
+        expect((actual as any).filters[1] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[1].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testIdField');
+        expect((actual as any).filters[1].operator).toEqual('=');
+        expect((actual as any).filters[1].values).toEqual(['testValue3']);
+    });
+
+    it('createFilterFromConfig on simple filter config does return list filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            datastore: 'datastore1',
+            database: 'testDatabase2',
+            table: 'testTable2',
+            field: 'testIdField',
+            operator: '=',
+            value: 'testValue'
+        });
+        expect(actual instanceof ListFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as ListFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testIdField');
+        expect((actual as ListFilter).operator).toEqual('=');
+        expect((actual as ListFilter).values).toEqual(['testValue']);
+    });
+
+    it('createFilterFromConfig does return bounds filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            fieldKey1: 'datastore1.testDatabase2.testTable2.testXField',
+            begin1: 'testBegin1',
+            end1: 'testEnd1',
+            fieldKey2: 'datastore1.testDatabase2.testTable2.testYField',
+            begin2: 'testBegin2',
+            end2: 'testEnd2'
+        });
+        expect(actual instanceof BoundsFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as BoundsFilter).fieldKey1).toEqual('datastore1.testDatabase2.testTable2.testXField');
+        expect((actual as BoundsFilter).fieldKey2).toEqual('datastore1.testDatabase2.testTable2.testYField');
+        expect((actual as BoundsFilter).begin1).toEqual('testBegin1');
+        expect((actual as BoundsFilter).begin2).toEqual('testBegin2');
+        expect((actual as BoundsFilter).end1).toEqual('testEnd1');
+        expect((actual as BoundsFilter).end2).toEqual('testEnd2');
+    });
+
+    it('createFilterFromConfig does return domain filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            fieldKey: 'datastore1.testDatabase2.testTable2.testSizeField',
+            begin: 'testBegin',
+            end: 'testEnd'
+        });
+        expect(actual instanceof DomainFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as DomainFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testSizeField');
+        expect((actual as DomainFilter).begin).toEqual('testBegin');
+        expect((actual as DomainFilter).end).toEqual('testEnd');
+    });
+
+    it('createFilterFromConfig does return list filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            type: CompoundFilterType.AND,
+            fieldKey: 'datastore1.testDatabase2.testTable2.testTextField',
+            operator: '!=',
+            values: ['testValue1', 'testValue2']
+        });
+        expect(actual instanceof ListFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as ListFilter).fieldKey).toEqual('datastore1.testDatabase2.testTable2.testTextField');
+        expect((actual as ListFilter).operator).toEqual('!=');
+        expect((actual as ListFilter).values).toEqual(['testValue1', 'testValue2']);
+    });
+
+    it('createFilterFromConfig does return pair filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            type: CompoundFilterType.AND,
+            fieldKey1: 'datastore1.testDatabase2.testTable2.testNameField',
+            operator1: 'contains',
+            value1: 'testValue1',
+            fieldKey2: 'datastore1.testDatabase2.testTable2.testTypeField',
+            operator2: 'not contains',
+            value2: 'testValue2'
+        });
+        expect(actual instanceof PairFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as PairFilter).fieldKey1).toEqual('datastore1.testDatabase2.testTable2.testNameField');
+        expect((actual as PairFilter).fieldKey2).toEqual('datastore1.testDatabase2.testTable2.testTypeField');
+        expect((actual as PairFilter).operator1).toEqual('contains');
+        expect((actual as PairFilter).operator2).toEqual('not contains');
+        expect((actual as PairFilter).value1).toEqual('testValue1');
+        expect((actual as PairFilter).value2).toEqual('testValue2');
+    });
+
+    it('createFilterFromConfig does return compound filter object', () => {
+        const actual = DashboardService.DASHBOARD_FILTER_UTIL.createFilterFromConfig({
+            id: 'filterId1',
+            relations: ['relationId1'],
+            type: CompoundFilterType.AND,
+            filters: [{
+                id: 'id2',
+                relations: ['relationId2'],
+                type: CompoundFilterType.AND,
+                filters: [{
+                    id: 'id3',
+                    relations: [],
+                    type: CompoundFilterType.OR,
+                    fieldKey: 'datastore1.testDatabase2.testTable2.testNameField',
+                    operator: 'contains',
+                    values: ['testValue1']
+                }, {
+                    id: 'id4',
+                    relations: [],
+                    type: CompoundFilterType.OR,
+                    fieldKey: 'datastore1.testDatabase2.testTable2.testTypeField',
+                    operator: 'not contains',
+                    values: ['testValue2']
+                }]
+            }, {
+                id: 'id5',
+                relations: [],
+                type: CompoundFilterType.OR,
+                fieldKey: 'datastore1.testDatabase2.testTable2.testIdField',
+                operator: '=',
+                values: ['testValue3']
+            }]
+        });
+        expect(actual instanceof CompoundFilter).toEqual(true);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof CompoundFilter).toEqual(true);
+        expect((actual as any).filters[0].id).toEqual('id2');
+        expect((actual as any).filters[0].relations).toEqual(['relationId2']);
+        expect((actual as any).filters[0].type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters[0].filters.length).toEqual(2);
+        expect((actual as any).filters[0].filters[0] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[0].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testNameField');
+        expect((actual as any).filters[0].filters[0].operator).toEqual('contains');
+        expect((actual as any).filters[0].filters[0].values).toEqual(['testValue1']);
+        expect((actual as any).filters[0].filters[1] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[1].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testTypeField');
+        expect((actual as any).filters[0].filters[1].operator).toEqual('not contains');
+        expect((actual as any).filters[0].filters[1].values).toEqual(['testValue2']);
+        expect((actual as any).filters[1] instanceof ListFilter).toEqual(true);
+        expect((actual as any).filters[1].fieldKey).toEqual('datastore1.testDatabase2.testTable2.testIdField');
+        expect((actual as any).filters[1].operator).toEqual('=');
+        expect((actual as any).filters[1].values).toEqual(['testValue3']);
+    });
+});
+

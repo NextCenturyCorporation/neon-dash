@@ -16,16 +16,16 @@ import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, Tab
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
+    ConfigOption,
+    ConfigOptionDatabase,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOptionSelect,
+    ConfigOptionTable,
     isFieldOption,
     OptionChoices,
-    OptionType,
-    WidgetDatabaseOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption,
-    WidgetTableOption
-} from '../library/core/models/widget-option';
+    OptionType
+} from '../library/core/models/config-option';
 
 export class OptionConfig {
     constructor(protected config: any) { }
@@ -41,7 +41,7 @@ export class OptionConfig {
  */
 export class OptionCollection {
     // An object containing strings mapped to WidgetOption objects.
-    private _collection: { [bindingKey: string]: WidgetOption } = {};
+    private _collection: { [bindingKey: string]: ConfigOption } = {};
 
     public _id: string;
     public database: DatabaseConfig = null;
@@ -59,8 +59,8 @@ export class OptionCollection {
     constructor(protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = this.config.get('_id', uuidv4());
-        this.append(new WidgetDatabaseOption(), DatabaseConfig.get());
-        this.append(new WidgetTableOption(), TableConfig.get());
+        this.append(new ConfigOptionDatabase(), DatabaseConfig.get());
+        this.append(new ConfigOptionTable(), TableConfig.get());
     }
 
     [key: string]: any; // Ordering demands it be placed here
@@ -69,19 +69,19 @@ export class OptionCollection {
      * Returns the option with the given binding key.
      *
      * @arg {string} bindingKey
-     * @return {WidgetOption}
+     * @return {ConfigOption}
      */
-    public access(bindingKey: string): WidgetOption {
+    public access(bindingKey: string): ConfigOption {
         return this._collection[bindingKey];
     }
 
     /**
      * Appends the given option with the given current value into this collection and creates accessor methods.
      *
-     * @arg {WidgetOption} option
+     * @arg {ConfigOption} option
      * @arg {any} valueCurrent
      */
-    public append(option: WidgetOption, valueCurrent: any): void {
+    public append(option: ConfigOption, valueCurrent: any): void {
         option.valueCurrent = valueCurrent;
         this._collection[option.bindingKey] = option;
         Object.defineProperty(this, option.bindingKey, {
@@ -101,7 +101,7 @@ export class OptionCollection {
         copy.fields = this.fields;
         copy.table = this.table;
         copy.tables = this.tables;
-        this.list().forEach((option: WidgetOption) => {
+        this.list().forEach((option: ConfigOption) => {
             copy.append(_.cloneDeep(option), option.valueCurrent);
         });
         return copy;
@@ -162,9 +162,9 @@ export class OptionCollection {
     /**
      * Injects the given option(s) into this collection.
      *
-     * @arg {WidgetOption|WidgetOption[]} options
+     * @arg {ConfigOption|ConfigOption[]} options
      */
-    public inject(options: WidgetOption | WidgetOption[]): void {
+    public inject(options: ConfigOption | ConfigOption[]): void {
         (Array.isArray(options) ? options : [options]).forEach((option) => {
             this.append(option, this.config.get(option.bindingKey, option.valueDefault));
         });
@@ -173,9 +173,9 @@ export class OptionCollection {
     /**
      * Returns the list of options in this collection.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      */
-    public list(): WidgetOption[] {
+    public list(): ConfigOption[] {
         return Object.values(this._collection);
     }
 
@@ -302,7 +302,7 @@ export class WidgetOptionCollection extends OptionCollection {
      */
     constructor(
         protected dataset: Dataset = new Dataset({}),
-        protected createOptionsCallback: () => WidgetOption[] = () => [],
+        protected createOptionsCallback: () => ConfigOption[] = () => [],
         defaultTitle: string = '',
         defaultLimit: number = 0,
         config: OptionConfig = new OptionConfig({})
@@ -312,8 +312,8 @@ export class WidgetOptionCollection extends OptionCollection {
         let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
         this.inject([
-            new WidgetFreeTextOption('title', 'Title', true, defaultTitle),
-            new WidgetFreeTextOption('limit', 'Limit', true, defaultLimit),
+            new ConfigOptionFreeText('title', 'Title', true, defaultTitle),
+            new ConfigOptionFreeText('limit', 'Limit', true, defaultLimit),
             ...nonFieldOptions
         ]);
 
@@ -334,7 +334,7 @@ export class WidgetOptionCollection extends OptionCollection {
     /**
      * Creates and returns a WidgetOption list for the collection.
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return this.createOptionsCallback();
     }
 
@@ -376,8 +376,8 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      */
     constructor(
         dataset: Dataset = new Dataset({}),
-        createOptionsCallback: () => WidgetOption[] = () => [],
-        protected createOptionsForLayerCallback: () => WidgetOption[] = () => [],
+        createOptionsCallback: () => ConfigOption[] = () => [],
+        protected createOptionsForLayerCallback: () => ConfigOption[] = () => [],
         defaultTitle: string = '',
         defaultLimit: number = 0,
         defaultLayer: boolean = false,
@@ -432,13 +432,13 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      *
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', false, [], true),
-            new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', false, [], true),
-            new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', false, null),
-            new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', false, null, true),
+            new ConfigOptionNonPrimitive('customEventsToPublish', 'Custom Events To Publish', false, [], true),
+            new ConfigOptionNonPrimitive('customEventsToReceive', 'Custom Events To Receive', false, [], true),
+            new ConfigOptionNonPrimitive('filter', 'Custom Widget Filter', false, null),
+            new ConfigOptionSelect('hideUnfiltered', 'Hide Widget if Unfiltered', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNonPrimitive('contributionKeys', 'Contribution Keys', false, null, true),
             ...super.createOptions()
         ];
     }

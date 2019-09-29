@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -80,7 +80,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.messenger.subscribe(neonEvents.TOGGLE_SIMPLE_SEARCH, this.updateShowSimpleSearch.bind(this));
         // Show search on init if option is configured.
-        this.updateSimpleFilterConfig();
+        this.updateSimpleFilterDesign();
     }
 
     public removeFilter(): void {
@@ -91,7 +91,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
         this.cachedFilter = null;
     }
 
-    public updateSimpleFilterConfig(): void {
+    public updateSimpleFilterDesign(): void {
         this.updateShowSimpleSearch({
             show: this.validateSimpleFilter((this.dashboardState.getOptions() || {}).simpleFilter || {})
         });

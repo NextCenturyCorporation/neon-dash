@@ -26,7 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -36,12 +36,12 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFieldArrayOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFieldArray,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -132,14 +132,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    private createFilterConfigsForField(field: FieldConfig): FilterConfig[] {
-        let designs: FilterConfig[] = [];
+    private createFilterDesignsForField(field: FieldConfig): AbstractFilterDesign[] {
+        let designs: AbstractFilterDesign[] = [];
         // Match a filter with one or more NOT EQUALS filters on the specific filter field.
-        designs.push(this.createFilterConfigOnList(field));
+        designs.push(this.createFilterDesignOnList(field));
         return designs;
     }
 
-    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '!=', values);
     }
@@ -147,23 +147,23 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('categoryField', 'Category Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
-            new WidgetFieldOption('valueField', 'Value Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('ascending', 'Sort Ascending', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('categoryField', 'Category Field', true),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('sourceIdField', 'Source ID Field', false),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionField('subTypeField', 'Sub Type Field', false),
+            new ConfigOptionField('valueField', 'Value Field', false),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('ascending', 'Sort Ascending', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -171,22 +171,22 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        let designs: FilterConfig[] = [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        let designs: AbstractFilterDesign[] = [];
 
         if (this.options.categoryField.columnName) {
-            designs = designs.concat(this.createFilterConfigsForField(this.options.categoryField));
+            designs = designs.concat(this.createFilterDesignsForField(this.options.categoryField));
         }
 
         if (this.options.typeField.columnName) {
-            designs = designs.concat(this.createFilterConfigsForField(this.options.typeField));
+            designs = designs.concat(this.createFilterDesignsForField(this.options.typeField));
         }
 
         if (this.options.subTypeField.columnName) {
-            designs = designs.concat(this.createFilterConfigsForField(this.options.subTypeField));
+            designs = designs.concat(this.createFilterDesignsForField(this.options.subTypeField));
         }
 
         return designs;
@@ -248,7 +248,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     private isTaxonomyNodeFiltered(filters: FilterCollection, field: FieldConfig, value: any) {
-        return filters.getCompatibleFilters(this.createFilterConfigOnList(field, [value])).length;
+        return filters.getCompatibleFilters(this.createFilterDesignOnList(field, [value])).length;
     }
 
     /**
@@ -572,32 +572,33 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         });
 
         // Create a single compound AND filter (with a pretty name) for all the filters on each filterable field.
-        const categoryFilter: FilterConfig = categoryValues.length ? this.createFilterConfigOnList(this.options.categoryField,
+        const categoryFilter: AbstractFilterDesign = categoryValues.length ? this.createFilterDesignOnList(this.options.categoryField,
             categoryValues) : null;
 
         // Ignore the type filters if the type field is the same as the category field.
         const typeIsDuplicated = !!(this.options.typeField.columnName === this.options.categoryField.columnName && categoryValues.length);
-        const typeFilter: FilterConfig = (typeValues.length && !typeIsDuplicated) ? this.createFilterConfigOnList(this.options.typeField,
-            typeValues) : null;
+        const typeFilter: AbstractFilterDesign = (typeValues.length && !typeIsDuplicated) ? this.createFilterDesignOnList(
+            this.options.typeField, typeValues
+        ) : null;
 
         // Ignore the subtype filters if the subtype field is the same as the type field or the category field.
         const subTypeIsDuplicated = !!(this.options.subTypeField.columnName === this.options.typeField.columnName && typeValues.length) ||
             !!(this.options.subTypeField.columnName === this.options.categoryField.columnName && categoryValues.length);
-        const subTypeFilter: FilterConfig = (subTypeValues.length && !subTypeIsDuplicated) ? this.createFilterConfigOnList(
+        const subTypeFilter: AbstractFilterDesign = (subTypeValues.length && !subTypeIsDuplicated) ? this.createFilterDesignOnList(
             this.options.subTypeField, subTypeValues
         ) : null;
 
         // If we don't need to filter a valid filterable field, ensure that we delete all previous filters that were set on that field.
-        const filterConfigListToDelete: FilterConfig[] = [];
+        const filterConfigListToDelete: AbstractFilterDesign[] = [];
         if (!categoryFilter && this.options.categoryField.columnName) {
-            filterConfigListToDelete.push(this.createFilterConfigOnList(this.options.categoryField));
+            filterConfigListToDelete.push(this.createFilterDesignOnList(this.options.categoryField));
         }
         // Don't accidentally delete filters from duplicated fields!
         if (!typeFilter && !typeIsDuplicated && this.options.typeField.columnName) {
-            filterConfigListToDelete.push(this.createFilterConfigOnList(this.options.typeField));
+            filterConfigListToDelete.push(this.createFilterDesignOnList(this.options.typeField));
         }
         if (!subTypeFilter && !subTypeIsDuplicated && this.options.subTypeField.columnName) {
-            filterConfigListToDelete.push(this.createFilterConfigOnList(this.options.subTypeField));
+            filterConfigListToDelete.push(this.createFilterDesignOnList(this.options.subTypeField));
         }
 
         this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterConfigListToDelete, true);

@@ -24,13 +24,13 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { TimelineModule } from './timeline.module';
 import { DomainFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
-import { CompoundFilterType, TimeInterval } from '../../library/core/models/widget-option';
+import { CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;

@@ -14,8 +14,62 @@
  */
 
 import { ColorMap } from '../library/core/models/color';
+import { CompoundFilterType } from '../library/core/models/config-option';
 import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
-import { FilterConfig } from '../library/core/models/filters';
+
+export interface CommonFilterConfig {
+    id?: string;
+    relations?: string[];
+}
+
+export interface SimpleFilterConfig extends CommonFilterConfig {
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator: string;
+    value?: any;
+}
+
+export interface CompoundFilterConfig extends CommonFilterConfig {
+    filters: FilterConfig[];
+    type: CompoundFilterType;
+}
+
+export interface BoundsFilterConfig extends CommonFilterConfig {
+    begin1: any;
+    begin2: any;
+    fieldKey1: string;
+    fieldKey2: string;
+    end1: any;
+    end2: any;
+}
+
+export interface DomainFilterConfig extends CommonFilterConfig {
+    begin: any;
+    fieldKey: string;
+    end: any;
+}
+
+export interface ListFilterConfig extends CommonFilterConfig {
+    fieldKey: string;
+    operator: string;
+    type: CompoundFilterType;
+    values: any[];
+}
+
+export interface PairFilterConfig extends CommonFilterConfig {
+    fieldKey1: string;
+    fieldKey2: string;
+    operator1: string;
+    operator2: string;
+    type: CompoundFilterType;
+    value1: any;
+    value2: any;
+}
+
+export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig | BoundsFilterConfig | DomainFilterConfig | ListFilterConfig |
+PairFilterConfig;
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
