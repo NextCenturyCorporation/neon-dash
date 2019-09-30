@@ -15,8 +15,8 @@
 
 import {
     AbstractFilter,
+    AbstractFilterDesign,
     BoundsValues,
-    CompoundFilterDesign,
     CompoundValues,
     DomainValues,
     FilterValues,
@@ -24,7 +24,7 @@ import {
     PairOfValues
 } from '../models/filters';
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../services/abstract.search.service';
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { CoreUtil } from '../core.util';
 import { Dataset, DatasetFieldKey, DatasetUtil, FieldKey } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
@@ -51,7 +51,7 @@ export class NextCenturySearch extends NextCenturyElement {
     private _dataset: Dataset;
     private _filterService: FilterService;
     private _idsToFilters: Map<string, AbstractFilter[]> = new Map<string, AbstractFilter[]>();
-    private _idsToFilterDesigns: Map<string, CompoundFilterDesign[]> = new Map<string, CompoundFilterDesign[]>();
+    private _idsToFilterDesigns: Map<string, AbstractFilterDesign[]> = new Map<string, AbstractFilterDesign[]>();
     private _runningQuery: RequestWrapper;
     private _searchService: AbstractSearchService;
 
@@ -156,7 +156,7 @@ export class NextCenturySearch extends NextCenturyElement {
     /**
      * Updates the filter designs of this search element (used to find shared filters) with the given filter designs.
      */
-    public updateFilterDesigns(id: string, filterDesigns: CompoundFilterDesign[]): void {
+    public updateFilterDesigns(id: string, filterDesigns: AbstractFilterDesign[]): void {
         this._idsToFilterDesigns.set(id, filterDesigns);
         this._startQuery();
     }
@@ -536,7 +536,7 @@ export class NextCenturySearch extends NextCenturyElement {
         const tableKey: FieldKey = this._retrieveTableKey();
 
         return !tableKey ? [] : this._filterService.getFiltersToSearch(tableKey.datastore, tableKey.database, tableKey.table,
-            sharedFilters.map((filter) => filter.toConfig()));
+            sharedFilters.map((filter) => filter.toDesign()));
     }
 
     /**
@@ -547,7 +547,7 @@ export class NextCenturySearch extends NextCenturyElement {
             return [];
         }
 
-        const filterDesigns: CompoundFilterDesign[] = Array.from(this._idsToFilterDesigns.values())
+        const filterDesigns: AbstractFilterDesign[] = Array.from(this._idsToFilterDesigns.values())
             .reduce((completeFilterDesignList, filterDesignList) => completeFilterDesignList.concat(filterDesignList), []);
 
         return this._filterService.retrieveCompatibleFilterCollection(filterDesigns).getFilters();

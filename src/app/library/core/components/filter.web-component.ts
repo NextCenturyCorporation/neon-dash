@@ -15,9 +15,9 @@
 
 import {
     AbstractFilter,
+    AbstractFilterDesign,
     BoundsFilterDesign,
     BoundsValues,
-    CompoundFilterDesign,
     CompoundValues,
     DomainFilterDesign,
     DomainValues,
@@ -28,7 +28,7 @@ import {
     PairFilterDesign,
     PairOfValues
 } from '../models/filters';
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../models/config-option';
 import { CoreUtil } from '../core.util';
 import { Dataset } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
@@ -39,7 +39,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     static ELEMENT_NAME = 'next-century-filter';
 
     private _dataset: Dataset;
-    private _filterDesigns: CompoundFilterDesign[] = [];
+    private _filterDesigns: AbstractFilterDesign[] = [];
     private _filterService: FilterService;
 
     private _handleFilterEventFromVisualizationCallback: (event: any) => void;
@@ -194,7 +194,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     /**
      * Returns an array of filter designs with the given values using the current attributes.
      */
-    private _createFilterDesigns(values: any|any[]): CompoundFilterDesign[] {
+    private _createFilterDesigns(values: any|any[]): AbstractFilterDesign[] {
         const filterType = this._retrieveFilterType();
         if (this._isFilterTypeList(filterType)) {
             return this._createFilterDesignsOnList(!!this.getAttribute('list-intersection'), this.getAttribute('list-field-key'),
@@ -218,7 +218,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     /**
      * Returns an array of zero or more bounds filter design with the given attributes.
      */
-    private _createFilterDesignsOnBounds(fieldKey1: string, fieldKey2: string, values: any|any[]): CompoundFilterDesign[] {
+    private _createFilterDesignsOnBounds(fieldKey1: string, fieldKey2: string, values: any|any[]): AbstractFilterDesign[] {
         if (fieldKey1 && fieldKey2 && Array.isArray(values) && values.length) {
             // Handle a nested array like [[1, 2, 3, 4], [5, 6, 7, 8]]
             if (Array.isArray(values[0])) {
@@ -237,7 +237,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     /**
      * Returns an array of zero or more domain filter design with the given attributes.
      */
-    private _createFilterDesignsOnDomain(fieldKey: string, values: any|any[]): CompoundFilterDesign[] {
+    private _createFilterDesignsOnDomain(fieldKey: string, values: any|any[]): AbstractFilterDesign[] {
         if (fieldKey && Array.isArray(values) && values.length) {
             // Handle a nested array like [[1, 2], [3, 4]]
             if (Array.isArray(values[0])) {
@@ -261,7 +261,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         fieldKey: string,
         operator: string,
         values: any|any[]
-    ): CompoundFilterDesign[] {
+    ): AbstractFilterDesign[] {
         if (fieldKey && operator && !!(Array.isArray(values) ? values.length : values)) {
             // Handle a nested array like [[a, b], [c], [d, e, f]]
             if (Array.isArray(values) && values.some((value) => Array.isArray(value))) {
@@ -286,7 +286,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         operator1: string,
         operator2: string,
         values: any|any[]
-    ): CompoundFilterDesign[] {
+    ): AbstractFilterDesign[] {
         if (fieldKey1 && fieldKey2 && operator1 && operator2 && Array.isArray(values) && values.length) {
             // Handle a nested array like [[a, b], [c, d]]
             if (Array.isArray(values[0])) {
@@ -307,7 +307,7 @@ export class NextCenturyFilter extends NextCenturyElement {
     /**
      * Deletes all the filters in the FilterService with the given filter designs.
      */
-    private _deleteFilters(filterDesigns: CompoundFilterDesign[]): void {
+    private _deleteFilters(filterDesigns: AbstractFilterDesign[]): void {
         this._filterService.deleteFilters(this.getAttribute('search-element-id'), filterDesigns);
         this.dispatchEvent(new CustomEvent('filtersDeleted', {
             bubbles: true,
@@ -342,7 +342,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _handleDeleteFilters(values?: any|any[]): void {
         if (this._isReady()) {
-            const filterDesigns: CompoundFilterDesign[] = this._createFilterDesigns(typeof values !== 'undefined' ? values :
+            const filterDesigns: AbstractFilterDesign[] = this._createFilterDesigns(typeof values !== 'undefined' ? values :
                 this._generateFilterDesignValues(this._retrieveFilterType()));
             if (filterDesigns.length) {
                 this._deleteFilters(filterDesigns);
@@ -355,7 +355,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _handleExchangeFilters(values: any|any[]): void {
         if (this._isReady()) {
-            const filterDesigns: CompoundFilterDesign[] = this._createFilterDesigns(values);
+            const filterDesigns: AbstractFilterDesign[] = this._createFilterDesigns(values);
             if (filterDesigns.length) {
                 this._filterService.exchangeFilters(this.getAttribute('search-element-id'), filterDesigns, this._dataset);
                 this.dispatchEvent(new CustomEvent('filtersChanged', {

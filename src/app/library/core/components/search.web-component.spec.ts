@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../models/config-option';
 import { Dataset } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
 import {
@@ -34,7 +34,7 @@ import { QueryPayload } from '../services/abstract.search.service';
 import { RequestWrapper } from '../services/connection.service';
 
 import { DATASET } from '../models/mock.dataset';
-import { SearchServiceMock } from '../services/mock.search-service';
+import { SearchServiceMock } from '../services/mock.search.service';
 
 if (!window.customElements.get('next-century-element-mock')) {
     window.customElements.define('next-century-element-mock', NextCenturyElement);
@@ -1109,7 +1109,7 @@ describe('Search Component', () => {
 
         expect(searchService.searches).toEqual(1);
 
-        filterService.notifyFilterChangeListeners('testFilterElementId', null);
+        filterService.notifyFilterChangeListeners('testFilterElementId');
 
         expect(searchService.searches).toEqual(2);
         expect(searchService.searchArguments).toEqual({
@@ -1151,7 +1151,7 @@ describe('Search Component', () => {
 
         expect(searchService.searches).toEqual(0);
 
-        filterService.notifyFilterChangeListeners('testFilterElementId', null);
+        filterService.notifyFilterChangeListeners('testFilterElementId');
 
         expect(searchService.searches).toEqual(0);
     });
@@ -1168,7 +1168,7 @@ describe('Search Component', () => {
 
         expect(searchService.searches).toEqual(1);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
 
         expect(searchService.searches).toEqual(1);
     });
@@ -1184,7 +1184,7 @@ describe('Search Component', () => {
 
         expect(searchService.searches).toEqual(1);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
 
         expect(searchService.searches).toEqual(2);
     });
@@ -1201,7 +1201,7 @@ describe('Search Component', () => {
 
         expect(searchService.searches).toEqual(1);
 
-        filterService.notifyFilterChangeListeners('testFilterElementId', null);
+        filterService.notifyFilterChangeListeners('testFilterElementId');
 
         expect(searchService.searches).toEqual(2);
     });
