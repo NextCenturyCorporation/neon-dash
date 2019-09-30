@@ -289,7 +289,7 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         // Don't run the search query if the event was sent with this element's ID and if filter-self is false.
-        if (callerId === this.getAttribute('id') && this.getAttribute('enable-ignore-self-filter')) {
+        if (callerId === this.getAttribute('id') && this.hasAttribute('enable-ignore-self-filter')) {
             return;
         }
 
@@ -531,7 +531,7 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         // Retrieve the filters that share this component's filter designs to ignore them if configured with enable-ignore-self-filter.
-        const sharedFilters: AbstractFilter[] = this.getAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
+        const sharedFilters: AbstractFilter[] = this.hasAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
 
         const tableKey: FieldKey = this._retrieveTableKey();
 
@@ -580,7 +580,7 @@ export class NextCenturySearch extends NextCenturyElement {
         const dataHost = datasetTableKey ? datasetTableKey.datastore.host : null;
         const dataType = datasetTableKey ? datasetTableKey.datastore.type : null;
         const labels = datasetTableKey ? datasetTableKey.table.labelOptions : {};
-        const hideIfUnfiltered = !!this.getAttribute('enable-hide-if-unfiltered');
+        const hideIfUnfiltered = !!this.hasAttribute('enable-hide-if-unfiltered');
 
         // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.
         if (dataHost && dataType && !this._searchService.canRunSearch(dataType, dataHost) || (hideIfUnfiltered && !isFiltered)) {
