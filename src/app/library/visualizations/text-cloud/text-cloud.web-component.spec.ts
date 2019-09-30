@@ -18,7 +18,7 @@ import { FilterService } from '../../core/services/filter.service';
 import { NextCenturyTextCloud } from './text-cloud.web-component';
 
 import { DATASET } from '../../core/models/mock.dataset';
-import { SearchServiceMock } from '../../core/services/mock.search-service';
+import { SearchServiceMock } from '../../core/services/mock.search.service';
 
 describe('Text Cloud Web Component', () => {
     let dataset: Dataset;
