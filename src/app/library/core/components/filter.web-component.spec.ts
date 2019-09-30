@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from '../models/widget-option';
+import { CompoundFilterType } from '../models/config-option';
 import { Dataset } from '../models/dataset';
 import { FilterService } from '../services/filter.service';
 import {
@@ -786,7 +786,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with multiple bounds filters', (done) => {
@@ -815,7 +815,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with one domain filter', (done) => {
@@ -840,7 +840,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with multiple domain filters', (done) => {
@@ -866,7 +866,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with one list filter', (done) => {
@@ -892,7 +892,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with multiple list filters', (done) => {
@@ -919,7 +919,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with one pair filter', (done) => {
@@ -948,7 +948,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with multiple pair filters', (done) => {
@@ -979,7 +979,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with no filters', (done) => {
@@ -1001,7 +1001,7 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 
     it('with filters that are not equivalent to internal filter designs', (done) => {
@@ -1028,6 +1028,6 @@ describe('Filter Component notification from filterService should call filter fu
 
         filterComponent.init(dataset, filterService);
 
-        filterService.notifyFilterChangeListeners('testSearchElementId', null);
+        filterService.notifyFilterChangeListeners('testSearchElementId');
     });
 });
