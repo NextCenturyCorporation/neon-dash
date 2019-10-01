@@ -223,7 +223,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
             let title = options.title.split(':').join(' ') + '-' + options._id;
-            return query ? this.searchService.transformQueryPayloadToExport(this.getExportFields(options), query, title) : null;
+            let hostName = this.options.datastore.host;
+            let dataStoreType = this.options.datastore.type;
+            return query ?
+                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
+                null;
         }).filter((exportObject) => !!exportObject);
     }
 
