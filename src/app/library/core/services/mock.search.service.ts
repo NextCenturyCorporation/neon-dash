@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from './abstract.search.service';
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { RequestWrapper } from './connection.service';
 import { Injectable } from '@angular/core';
 

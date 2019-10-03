@@ -30,7 +30,6 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterConfig } from '../library/core/models/filters';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -132,7 +131,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     private _filterChangeData: {
         callerId: string;
-        changeCollection: Map<FilterDataSource[], FilterConfig[]>;
     };
 
     constructor(
@@ -237,11 +235,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
             }
 
-            this.simpleFilter.updateSimpleFilterConfig();
+            this.simpleFilter.updateSimpleFilterDesign();
             this.showDashboardSelector = false;
             this.refreshDashboard();
         } else if (this._filterChangeData) {
-            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId, this._filterChangeData.changeCollection);
+            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId);
             this._filterChangeData = null;
         }
 
@@ -474,10 +472,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) {
+    onFiltersChanged(callerId: string) {
         this._filterChangeData = {
-            callerId: callerId,
-            changeCollection: changeCollection
+            callerId: callerId
         };
         const { paths } = ConfigUtil.getUrlState(window.location);
         this.router.navigate(['/'], {

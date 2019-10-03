@@ -27,7 +27,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -37,13 +37,13 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetNumberOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionNumber,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -91,6 +91,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public duplicateNumber = 0;
     public seenValues = [];
 
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filterFieldsToFilteredValues: Map<string, any[]> = new Map<string, any[]>();
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -123,55 +126,50 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    private createFilterConfigOnArrayValue(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return new ListFilterDesign(compoundFilterType, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
 
-    private createFilterConfigOnOneValue(field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
-            '=', value);
-    }
-
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('colorField', 'Color Field', false),
-            new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
-            new WidgetFieldArrayOption('showFields', 'Show Field(s)', true),
-            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
+            new ConfigOptionField('colorField', 'Color Field', false),
+            new ConfigOptionField('heatmapField', 'Heatmap Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionFieldArray('filterFields', 'Filter Field(s)', false),
+            new ConfigOptionFieldArray('showFields', 'Show Field(s)', true),
+            new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', false, 'and', [{
+            new ConfigOptionSelect('arrayFilterOperator', 'Filter Operator', false, 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
-            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
-            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('skinny', 'Table Style', false, false, [{
+            new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+            new ConfigOptionSelect('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('skinny', 'Table Style', false, false, [{
                 prettyName: 'Normal',
                 variable: false
             }, {
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', false, [], true)
+            new ConfigOptionNonPrimitive('customColumnWidths', 'Custom Column Widths', false, [], true)
         ];
     }
 
@@ -179,19 +177,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         return this.options.filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
-                // Match a single EQUALS filter on the specific filter field.
-                designs.push(this.createFilterConfigOnOneValue(filterField));
-                // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnArrayValue(filterField));
+                // Match a filter with one or more EQUALS filters on the specific filter field.
+                designs.push(this.createFilterDesignOnValues(filterField));
             }
             return designs;
-        }, [] as FilterConfig[]);
+        }, [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -382,15 +378,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnValues.bind(this));
+
+        // Update the filtered status of each table row.
         this.tableData.forEach((item) => {
-            item._filtered = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
-                if (filterField.columnName) {
-                    let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, item[filterField.columnName]);
-                    let listFilterConfig: FilterConfig = this.createFilterConfigOnArrayValue(filterField, [item[filterField.columnName]]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                }
-                return false;
-            });
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
         });
     }
 
@@ -496,25 +489,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
+        // Update the filtered values before transforming the data.
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnValues.bind(this));
+
         this.tableData = results.map((result) => {
-            let row = {
-                _filtered: !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
-                    if (filterField.columnName) {
-                        let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, result[filterField.columnName]);
-                        let listFilterConfig: FilterConfig = this.createFilterConfigOnArrayValue(filterField,
-                            [result[filterField.columnName]]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                    }
-                    return false;
-                })
-            };
+            let item: any = {};
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
                 }
             }
-            return row;
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
+            return item;
         });
         return this.tableData.length;
     }
@@ -631,27 +619,33 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let dataObject = (this.tableData || []).filter((obj) => _.isEqual(obj[this.options.idField.columnName],
                 selected[0][this.options.idField.columnName]))[0];
 
-            this.options.filterFields.forEach((filterField) => {
-                if (filterField && filterField.columnName) {
-                    let rowValue = !this.options.idField.columnName ? selected[0][filterField.columnName] :
-                        dataObject[filterField.columnName];
+            let filters: AbstractFilterDesign[] = [];
+            let filtersToDelete: AbstractFilterDesign[] = [];
 
-                    if (typeof rowValue === 'string' && rowValue.indexOf('[') === 0 && rowValue.indexOf(']') === (rowValue.length - 1)) {
-                        rowValue = rowValue.substring(1, rowValue.length - 1).split(',');
-                    }
+            this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+                // Get all the values for the filter field from the data object.
+                let rowValue = !this.options.idField.columnName ? selected[0][field.columnName] : dataObject[field.columnName];
 
-                    let filterConfig: FilterConfig = (Array.isArray(rowValue) ? this.createFilterConfigOnArrayValue(filterField,
-                        rowValue) : this.createFilterConfigOnOneValue(filterField, rowValue));
+                if (typeof rowValue === 'string' && rowValue.indexOf('[') === 0 && rowValue.indexOf(']') === (rowValue.length - 1)) {
+                    rowValue = rowValue.substring(1, rowValue.length - 1).split(',');
+                }
 
-                    if (filterConfig) {
-                        if (this.options.singleFilter) {
-                            this.exchangeFilters([filterConfig]);
-                        } else {
-                            this.toggleFilters([filterConfig]);
-                        }
-                    }
+                // Change or toggle the filtered values for the filter field.
+                const filteredValues: any[] = CoreUtil.changeOrToggleMultipleValues(Array.isArray(rowValue) ? rowValue : [rowValue],
+                    this._filterFieldsToFilteredValues.get(field.columnName) || [], !this.options.singleFilter);
+
+                this._filterFieldsToFilteredValues.set(field.columnName, filteredValues);
+
+                if (filteredValues.length) {
+                    // Create a single filter on the filtered values.
+                    filters.push(this.createFilterDesignOnValues(field, filteredValues));
+                } else {
+                    // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+                    filtersToDelete.push(this.createFilterDesignOnValues(field));
                 }
             });
+
+            this.exchangeFilters(filters, filtersToDelete);
         }
 
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);

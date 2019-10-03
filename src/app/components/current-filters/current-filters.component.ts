@@ -15,8 +15,9 @@
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { CompoundFilterType } from '../../library/core/models/widget-option';
 import { AbstractFilter } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/config-option';
+import { Dataset } from '../../library/core/models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { eventing } from 'neon-framework';
@@ -40,6 +41,8 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public groups: FilterGroup[] = [];
 
+    public dataset: Dataset;
+
     constructor(
         public filterService: InjectableFilterService,
         public dashboardService: DashboardService
@@ -54,26 +57,31 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
-        this.dashboardService.stateSource.subscribe(() => this.updateFilters());
+        this.dashboardService.stateSource.subscribe((dashboardState) => {
+            this.dataset = dashboardState.asDataset();
+            this.updateFilters();
+        });
         this.filterService.registerFilterChangeListener('FilterList', this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.updateFilters.bind(this));
-        this.updateFilters();
     }
 
     remove(filter: AbstractFilter) {
-        this.filterService.deleteFilter('FilterList', filter.toConfig());
+        this.filterService.deleteFilter('FilterList', filter.toDesign());
     }
 
     removeAll() {
         this.filterService.deleteFilters('FilterList', this.groups
             .reduce((acc, group) => acc.concat(group.filters), [] as AbstractFilter[])
-            .map((filter) => filter.toConfig()));
+            .map((filter) => filter.toDesign()));
     }
 
     updateFilters() {
+        if (!this.dataset) {
+            return;
+        }
         this.groups = [];
-        for (const filter of this.filterService.getRawFilters()) {
-            const filterFieldLabel = filter.getLabelForField(true);
+        for (const filter of this.filterService.getFilters()) {
+            const filterFieldLabel = filter.getLabelForField(this.dataset, true);
             const fieldGroup = this.groups.find((group) => group.name === filterFieldLabel);
             if (!fieldGroup) {
                 this.groups.push({
@@ -84,7 +92,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 fieldGroup.multi = true;
                 fieldGroup.filters.push(filter);
                 fieldGroup.filters.sort((group1, group2) =>
-                    `${group1.getLabelForValue(true)}`.localeCompare(`${group2.getLabelForValue(true)}`));
+                    `${group1.getLabelForValue(this.dataset, true)}`.localeCompare(`${group2.getLabelForValue(this.dataset, true)}`));
             }
         }
         this.groups.sort((group1, group2) => group1.name.localeCompare(group2.name));

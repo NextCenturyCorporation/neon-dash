@@ -25,7 +25,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ConfirmationDialogModule } from '../../components/confirmation-dialog/confirmation-dialog.module';

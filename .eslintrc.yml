@@ -51,7 +51,7 @@ rules:
     comma-style: error
     complexity:
         - error
-        - 25 # TODO THOR-1205 This should probably be less...
+        - 30 # TODO THOR-1205 This should probably be less...
     computed-property-spacing: error
     consistent-return: error
     curly: error
