@@ -25,7 +25,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 export class VisualizationInjectorComponent {
     currentComponent: ComponentRef<BaseNeonComponent> = null;
 
-    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer: ViewContainerRef;
 
     // Component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
