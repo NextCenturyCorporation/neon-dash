@@ -20,20 +20,15 @@ import {
     QueryPayload
 } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import {
-    AbstractFilter,
-    FilterCollection,
-    FilterConfig,
-    FilterDataSource
-} from '../../library/core/models/filters';
+import { AbstractFilter, AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
-    OptionType,
-    WidgetOption
-} from '../../library/core/models/widget-option';
+    ConfigOption,
+    OptionType
+} from '../../library/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -321,21 +316,20 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Deletes the given filters from the widget and the dash (or all the filters if no args are given) and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public deleteFilters(filterConfigListToDelete?: FilterConfig[]) {
-        this.filterService.deleteFilters(this.id, filterConfigListToDelete);
+    public deleteFilters(filterDesignListToDelete?: AbstractFilterDesign[]) {
+        this.filterService.deleteFilters(this.id, filterDesignListToDelete);
     }
 
     /**
-     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterConfigListToDelete is
+     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
      * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[], keepSameFilters?: boolean): void {
+    public exchangeFilters(
+        filterDesignList: AbstractFilterDesign[],
+        filterDesignListToDelete?: AbstractFilterDesign[],
+        keepSameFilters?: boolean
+    ): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -345,27 +339,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete,
+        this.filterService.exchangeFilters(this.id, filterDesignList, this.dataset, filterDesignListToDelete,
             keepSameFilters, this.options.applyPreviousFilter);
-    }
-
-    /**
-     * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
-     * in the widget and the dash and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     */
-    public toggleFilters(filterConfigList: FilterConfig[]): void {
-        if (this.cachedPage <= 0) {
-            this.cachedPage = this.page;
-        }
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
-
-        // Update the filters only once the page is changed.
-        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
     }
 
     /**
@@ -440,7 +415,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {QueryPayload}
      */
     public createCompleteVisualizationQuery(options: WidgetOptionCollection): QueryPayload {
-        let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
+        let fields: string[] = options.list().reduce((list: string[], option: ConfigOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
             }
@@ -506,7 +481,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
 
         return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
-            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toConfig()));
+            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toDesign()));
     }
 
     private retrieveCompatibleFilters(): FilterCollection {
@@ -716,7 +691,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
+    private handleFiltersChanged(callerId: string): void {
         let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
 
         // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
@@ -743,9 +718,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      */
-    protected abstract designEachFilterWithNoValues(): FilterConfig[];
+    protected abstract designEachFilterWithNoValues(): AbstractFilterDesign[];
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
@@ -971,17 +946,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @abstract
      */
-    protected abstract createOptions(): WidgetOption[];
+    protected abstract createOptions(): ConfigOption[];
 
     /**
      * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [];
     }
 

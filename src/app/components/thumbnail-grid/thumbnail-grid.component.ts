@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -39,14 +39,14 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -76,6 +76,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public view: any = ViewType;
     public constructedLinkField: string = 'constructedUrl';
 
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filterFieldsToFilteredValues: Map<string, any[]> = new Map<string, any[]>();
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -104,30 +107,33 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {string} text
      */
     createFilter(item: any) {
-        let filters: FilterConfig[] = [];
+        let filters: AbstractFilterDesign[] = [];
+        let filtersToDelete: AbstractFilterDesign[] = [];
 
-        this.options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-            let filterValues: any[] = typeof item[filterField.columnName] === 'undefined' ? [] :
-                (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
-            if (filterValues.length) {
-                filters.push(filterValues.length === 1 ? this.createFilterConfigOnItem(filterField, filterValues[0]) :
-                    this.createFilterConfigOnList(filterField, filterValues));
+        this.options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+            // Get all the values for the filter field from the data item.
+            const values: any[] = typeof item[field.columnName] === 'undefined' ? [] : (Array.isArray(item[field.columnName]) ?
+                item[field.columnName] : [item[field.columnName]]);
+
+            // Change or toggle the filtered values for the filter field.
+            const filteredValues: any[] = CoreUtil.changeOrToggleMultipleValues(values,
+                this._filterFieldsToFilteredValues.get(field.columnName) || [], this.options.toggleFiltered);
+
+            this._filterFieldsToFilteredValues.set(field.columnName, filteredValues);
+
+            if (filteredValues.length) {
+                // Create a single filter on the filtered values.
+                filters.push(this.createFilterDesignOnList(field, filteredValues));
+            } else {
+                // If we won't add any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+                filtersToDelete.push(this.createFilterDesignOnList(field));
             }
         });
 
-        if (this.options.toggleFiltered) {
-            this.toggleFilters(filters);
-        } else {
-            this.exchangeFilters(filters);
-        }
+        this.exchangeFilters(filters, filtersToDelete);
     }
 
-    private createFilterConfigOnItem(field: FieldConfig, value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
-            '=', value);
-    }
-
-    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
@@ -135,36 +141,36 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('categoryField', 'Category Field', false),
-            new WidgetFieldOption('compareField', 'Comparison Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false), // Deprecated
-            new WidgetFieldOption('flagLabel', 'Flag Field', false),
-            new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
-            new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
-            new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('nameField', 'Name Field', false),
-            new WidgetFieldOption('objectIdField', 'Object ID Field', false),
-            new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
-            new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
-            new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('border', 'Border', false, ''),
-            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', false, '',
+            new ConfigOptionField('categoryField', 'Category Field', false),
+            new ConfigOptionField('compareField', 'Comparison Field', false),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('filterField', 'Filter Field', false), // Deprecated
+            new ConfigOptionField('flagLabel', 'Flag Field', false),
+            new ConfigOptionField('flagSubLabel1', 'Flag Sub-Label Field 1', false),
+            new ConfigOptionField('flagSubLabel2', 'Flag Sub-Label Field 2', false),
+            new ConfigOptionField('flagSubLabel3', 'Flag Sub-Label Field 3', false),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('nameField', 'Name Field', false),
+            new ConfigOptionField('objectIdField', 'Object ID Field', false),
+            new ConfigOptionField('objectNameField', 'Actual Name Field', false),
+            new ConfigOptionField('percentField', 'Predicted Probability Field', false),
+            new ConfigOptionField('predictedNameField', 'Predicted Name Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+            new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('border', 'Border', false, ''),
+            new ConfigOptionFreeText('borderCompareValue', 'Border Comparison Field Equals', false, '',
                 this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
-            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
+            new ConfigOptionNumber('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
                 this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
-            new WidgetSelectOption('cropAndScale', 'Crop or Scale', false, '', [{
+            new ConfigOptionSelect('cropAndScale', 'Crop or Scale', false, '', [{
                 prettyName: 'None',
                 variable: ''
             }, {
@@ -177,18 +183,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Both',
                 variable: 'both'
             }]),
-            new WidgetFreeTextOption('defaultLabel', 'Default Label', false, ''),
-            new WidgetFreeTextOption('defaultPercent', 'Default Percent', false, ''),
-            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
-            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', false, true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('showLabelName', 'Label Names', false, false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetNonPrimitiveOption('textMap', 'Text Map', false, {}),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
-            new WidgetSelectOption('viewType', 'View', false, ViewType.TITLE, [{
+            new ConfigOptionFreeText('defaultLabel', 'Default Label', false, ''),
+            new ConfigOptionFreeText('defaultPercent', 'Default Percent', false, ''),
+            new ConfigOptionSelect('detailedThumbnails', 'Detailed Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
+            new ConfigOptionSelect('openOnMouseClick', 'Open Media on Mouse Click', false, true, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('showLabelName', 'Label Names', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionNonPrimitive('textMap', 'Text Map', false, {}),
+            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {}),
+            new ConfigOptionSelect('viewType', 'View', false, ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {
@@ -198,10 +204,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Card',
                 variable: ViewType.CARD
             }]),
-            new WidgetNumberOption('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 }),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionNumber('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
+            new ConfigOptionNonPrimitive('truncateLabel', 'Truncate Label', false, { value: false, length: 0 }),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
@@ -210,19 +216,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         return this.options.filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
-                // Match a single EQUALS filter on the specific filter field.
-                designs.push(this.createFilterConfigOnItem(filterField));
-                // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnList(filterField));
+                // Match a filter with one or more EQUALS filters on the specific filter field.
+                designs.push(this.createFilterDesignOnList(filterField));
             }
             return designs;
-        }, [] as FilterConfig[]);
+        }, [] as AbstractFilterDesign[]);
     }
 
     /**
@@ -384,17 +388,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.gridArray = [];
 
+        // Update the filtered values before transforming the data.
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
+
         results.forEach((result) => {
-            let item = {
-                _filtered: this.options.filterFields.length ? this.options.filterFields.every((filterField) => {
-                    if (filterField.columnName) {
-                        let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, result[filterField.columnName]);
-                        let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [result[filterField.columnName]]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                    }
-                    return false;
-                }) : false
-            };
+            let item: any = {};
+            options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
+                item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
+            });
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
@@ -408,9 +411,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             if (options.compareField.columnName) {
                 item[options.compareField.columnName] = CoreUtil.deepFind(result, options.compareField.columnName);
             }
-            options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-                item[filterField.columnName] = CoreUtil.deepFind(result, filterField.columnName);
-            });
             if (options.idField.columnName) {
                 item[options.idField.columnName] = CoreUtil.deepFind(result, options.idField.columnName);
             }
@@ -535,15 +535,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
+            this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
+
+        // Update the filtered status of each grid item.
         this.gridArray.forEach((item) => {
-            item._filtered = this.options.filterFields.every((filterField) => {
-                if (filterField.columnName) {
-                    let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, item[filterField.columnName]);
-                    let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [item[filterField.columnName]]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
-                }
-                return false;
-            });
+            item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
         });
     }
 

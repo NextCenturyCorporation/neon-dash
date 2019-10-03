@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { FieldConfig } from '../../library/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { WidgetOption } from '../../library/core/models/widget-option';
+import { ConfigOption } from '../../library/core/models/config-option';
 
 @Component({
     selector: 'app-options-list',
@@ -45,12 +45,12 @@ export class OptionsListComponent {
     }
 
     /**
-     * Returns the WidgetOption at the given binding key.
+     * Returns the ConfigOption at the given binding key.
      *
      * @arg {string} bindingKey
-     * @return {WidgetOption}
+     * @return {ConfigOption}
      */
-    public getOption(bindingKey: string): WidgetOption {
+    public getOption(bindingKey: string): ConfigOption {
         return this.options.access(bindingKey);
     }
 

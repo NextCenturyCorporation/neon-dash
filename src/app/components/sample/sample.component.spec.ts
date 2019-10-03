@@ -26,11 +26,12 @@ import { AbstractSearchService } from '../../library/core/services/abstract.sear
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/config-option';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
@@ -176,11 +177,10 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name +
+            '.' + DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.FILTER.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
@@ -272,7 +272,6 @@ describe('Component: Sample', () => {
 
     it('filterOnItem does call exchangeFilters if replaceAll=true', () => {
         let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -281,26 +280,9 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
-        ]]);
-        expect(spyToggle.calls.count()).toEqual(0);
-    });
-
-    it('filterOnItem does call toggleFilters if replaceAll=false', () => {
-        let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
-
-        (component as any).filterOnItem({
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
-            value: 'testFilterValue'
-        });
-
-        expect(spyExchange.calls.count()).toEqual(0);
-        expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testFilterValue'])
         ]]);
     });
 
