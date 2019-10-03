@@ -108,7 +108,7 @@ export enum OptionType {
     TABLE = 'TABLE'
 }
 
-export class WidgetOption {
+export class ConfigOption {
     public valueCurrent: any;
 
     constructor(
@@ -131,7 +131,7 @@ export class WidgetOption {
     }
 }
 
-export class WidgetColorOption extends WidgetOption {
+export class ConfigOptionColor extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -143,7 +143,7 @@ export class WidgetColorOption extends WidgetOption {
     }
 }
 
-export class WidgetDatabaseOption extends WidgetOption {
+export class ConfigOptionDatabase extends ConfigOption {
     constructor() {
         // Value default and choices are set elsewhere.
         super(OptionType.DATABASE, true, 'database', 'Database', undefined, undefined, false);
@@ -160,7 +160,7 @@ export class WidgetDatabaseOption extends WidgetOption {
     }
 }
 
-export class WidgetFieldArrayOption extends WidgetOption {
+export class ConfigOptionFieldArray extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -182,7 +182,7 @@ export class WidgetFieldArrayOption extends WidgetOption {
     }
 }
 
-export class WidgetFieldOption extends WidgetOption {
+export class ConfigOptionField extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -204,7 +204,7 @@ export class WidgetFieldOption extends WidgetOption {
     }
 }
 
-export class WidgetFreeTextOption extends WidgetOption {
+export class ConfigOptionFreeText extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -216,7 +216,7 @@ export class WidgetFreeTextOption extends WidgetOption {
     }
 }
 
-export class WidgetMultipleSelectOption extends WidgetOption {
+export class ConfigOptionMultipleSelect extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -229,7 +229,7 @@ export class WidgetMultipleSelectOption extends WidgetOption {
     }
 }
 
-export class WidgetNonPrimitiveOption extends WidgetOption {
+export class ConfigOptionNonPrimitive extends ConfigOption {
     private _intermediateValue: string;
 
     constructor(
@@ -271,7 +271,7 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
     }
 }
 
-export class WidgetNumberOption extends WidgetOption {
+export class ConfigOptionNumber extends ConfigOption {
     private _intermediateValue: number | string;
 
     constructor(
@@ -313,7 +313,7 @@ export class WidgetNumberOption extends WidgetOption {
     }
 }
 
-export class WidgetSelectOption extends WidgetOption {
+export class ConfigOptionSelect extends ConfigOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
@@ -326,7 +326,7 @@ export class WidgetSelectOption extends WidgetOption {
     }
 }
 
-export class WidgetTableOption extends WidgetOption {
+export class ConfigOptionTable extends ConfigOption {
     constructor() {
         // Value default and choices are set elsewhere.
         super(OptionType.TABLE, true, 'table', 'Table', undefined, undefined, false);
@@ -344,7 +344,7 @@ export class WidgetTableOption extends WidgetOption {
 }
 
 /**
- * Returns whether the given WidgetOption object is a FIELD or FIELD_ARRAY.
+ * Returns whether the given ConfigOption object is a FIELD or FIELD_ARRAY.
  */
 export function isFieldOption(option) {
     return option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY;

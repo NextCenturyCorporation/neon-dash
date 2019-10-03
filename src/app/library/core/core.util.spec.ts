@@ -15,6 +15,9 @@
 
 import { CoreUtil } from './core.util';
 
+import { FieldConfig } from './models/dataset';
+import { FilterCollection } from './models/filters';
+
 describe('CoreUtil', () => {
     it('returns an empty array from flatten if given undefined or empty input', () => {
         expect(CoreUtil.flatten(undefined)).toEqual([]);
@@ -355,6 +358,64 @@ describe('CoreUtil', () => {
         ]);
     });
 
+    it('changeOrToggleMultipleValues does change given values array to given value and return values', () => {
+        let valuesA = [1, 2];
+        let resultA = CoreUtil.changeOrToggleMultipleValues([1], valuesA);
+        expect(valuesA).toEqual([1]);
+        expect(resultA).toEqual(valuesA);
+
+        let valuesB = [1, 2];
+        let resultB = CoreUtil.changeOrToggleMultipleValues([3], valuesB);
+        expect(valuesB).toEqual([3]);
+        expect(resultB).toEqual(valuesB);
+
+        let valuesC = [1, 2];
+        let resultC = CoreUtil.changeOrToggleMultipleValues([2, 3], valuesC);
+        expect(valuesC).toEqual([2, 3]);
+        expect(resultC).toEqual(valuesC);
+    });
+
+    it('changeOrToggleMultipleValues does toggle given value in given values array and return values', () => {
+        let valuesA = [1, 2];
+        let resultA = CoreUtil.changeOrToggleMultipleValues([1], valuesA, true);
+        expect(valuesA).toEqual([2]);
+        expect(resultA).toEqual(valuesA);
+
+        let valuesB = [1, 2];
+        let resultB = CoreUtil.changeOrToggleMultipleValues([3], valuesB, true);
+        expect(valuesB).toEqual([1, 2, 3]);
+        expect(resultB).toEqual(valuesB);
+
+        let valuesC = [1, 2];
+        let resultC = CoreUtil.changeOrToggleMultipleValues([2, 3], valuesC, true);
+        expect(valuesC).toEqual([1, 3]);
+        expect(resultC).toEqual(valuesC);
+    });
+
+    it('changeOrToggleValues does change given values array to given value and return values', () => {
+        let valuesA = [1, 2];
+        let resultA = CoreUtil.changeOrToggleValues(1, valuesA);
+        expect(valuesA).toEqual([1]);
+        expect(resultA).toEqual(valuesA);
+
+        let valuesB = [1, 2];
+        let resultB = CoreUtil.changeOrToggleValues(3, valuesB);
+        expect(valuesB).toEqual([3]);
+        expect(resultB).toEqual(valuesB);
+    });
+
+    it('changeOrToggleValues does toggle given value in given values array and return values', () => {
+        let valuesA = [1, 2];
+        let resultA = CoreUtil.changeOrToggleValues(1, valuesA, true);
+        expect(valuesA).toEqual([2]);
+        expect(resultA).toEqual(valuesA);
+
+        let valuesB = [1, 2];
+        let resultB = CoreUtil.changeOrToggleValues(3, valuesB, true);
+        expect(valuesB).toEqual([1, 2, 3]);
+        expect(resultB).toEqual(valuesB);
+    });
+
     it('checkStringForUrl returns an array of occurrences of urls in the string', () => {
         let testString = 'Hello World, https://www.google.com Goodbye world https://www.yahoo.com';
         expect(CoreUtil.checkStringForUrl(testString)).toEqual(['https://www.google.com', 'https://www.yahoo.com']);
@@ -398,5 +459,91 @@ describe('CoreUtil', () => {
         testOut = CoreUtil.hasUrl(fileString);
         expect(testOut.url).toEqual(['file://document.pdf']);
         expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
+    });
+
+    it('isItemFilteredInEveryField does return expected boolean', () => {
+        let fields = [
+            FieldConfig.get({ columnName: 'field1' }),
+            FieldConfig.get({ columnName: 'field2' })
+        ];
+        expect(CoreUtil.isItemFilteredInEveryField({}, fields, new Map<string, any[]>())).toEqual(true);
+
+        let itemA = {
+            field1: 1,
+            field2: 2
+        };
+        let itemB = {
+            field1: 3,
+            field2: 4
+        };
+        let itemC = {
+            field1: 1
+        };
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, fields, new Map<string, any[]>())).toEqual(false);
+
+        let fieldsToValuesA = new Map<string, any[]>();
+        fieldsToValuesA.set('field1', [1]);
+        fieldsToValuesA.set('field2', [2]);
+
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, fields, fieldsToValuesA)).toEqual(true);
+        expect(CoreUtil.isItemFilteredInEveryField(itemB, fields, fieldsToValuesA)).toEqual(false);
+        expect(CoreUtil.isItemFilteredInEveryField(itemC, fields, fieldsToValuesA)).toEqual(false);
+
+        let fieldsToValuesB = new Map<string, any[]>();
+        fieldsToValuesB.set('field1', [3]);
+        fieldsToValuesB.set('field2', [4]);
+
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, fields, fieldsToValuesB)).toEqual(false);
+        expect(CoreUtil.isItemFilteredInEveryField(itemB, fields, fieldsToValuesB)).toEqual(true);
+        expect(CoreUtil.isItemFilteredInEveryField(itemC, fields, fieldsToValuesB)).toEqual(false);
+
+        let fieldsToValuesC = new Map<string, any[]>();
+        fieldsToValuesC.set('field1', [1]);
+
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, fields, fieldsToValuesC)).toEqual(false);
+        expect(CoreUtil.isItemFilteredInEveryField(itemB, fields, fieldsToValuesC)).toEqual(false);
+        expect(CoreUtil.isItemFilteredInEveryField(itemC, fields, fieldsToValuesC)).toEqual(true);
+
+        let fieldsToValuesD = new Map<string, any[]>();
+        fieldsToValuesD.set('field1', [1, 3]);
+        fieldsToValuesD.set('field2', [2, 4]);
+
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, fields, fieldsToValuesD)).toEqual(true);
+        expect(CoreUtil.isItemFilteredInEveryField(itemB, fields, fieldsToValuesD)).toEqual(true);
+        expect(CoreUtil.isItemFilteredInEveryField(itemC, fields, fieldsToValuesD)).toEqual(false);
+    });
+
+    it('isItemFilteredInEveryField does return false if fields are empty', () => {
+        let itemA = {
+            field1: 1,
+            field2: 2
+        };
+        let fieldsToValuesA = new Map<string, any[]>();
+        fieldsToValuesA.set('field1', [1]);
+        fieldsToValuesA.set('field2', [2]);
+        expect(CoreUtil.isItemFilteredInEveryField(itemA, [], fieldsToValuesA)).toEqual(false);
+    });
+
+    it('retrieveValuesFromListFilters does return expected array', () => {
+        expect(CoreUtil.retrieveValuesFromListFilters([])).toEqual([]);
+    });
+
+    it('updateValuesFromListFilters does return expected Map', () => {
+        let fields = [FieldConfig.get({ columnName: 'field1' })];
+        let filters = new FilterCollection();
+        spyOn(filters, 'getCompatibleFilters').and.callFake((__design) => []);
+
+        spyOn(CoreUtil, 'retrieveValuesFromListFilters').and.callFake((__filters) => [1, 2]);
+
+        let fieldsToValuesA = new Map<string, any[]>();
+        let resultA = CoreUtil.updateValuesFromListFilters(fields, filters, fieldsToValuesA, () => null);
+        expect(fieldsToValuesA.get('field1')).toEqual([1, 2]);
+        expect(resultA).toEqual(fieldsToValuesA);
+
+        let fieldsToValuesB = new Map<string, any[]>();
+        fieldsToValuesB.set('field1', [3, 4]);
+        let resultB = CoreUtil.updateValuesFromListFilters(fields, filters, fieldsToValuesB, () => null);
+        expect(fieldsToValuesB.get('field1')).toEqual([1, 2]);
+        expect(resultB).toEqual(fieldsToValuesB);
     });
 });

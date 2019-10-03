@@ -20,7 +20,7 @@ import { map, startWith } from 'rxjs/operators';
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -28,12 +28,12 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -58,8 +58,8 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     private previousText: string = '';
 
-    private extensionFiltersToDelete: FilterConfig[];
-    private extensionFiltersCollection: Map<string, FilterConfig[]> = new Map<string, FilterConfig[]>();
+    private extensionFiltersToDelete: AbstractFilterDesign[];
+    private extensionFiltersCollection: Map<string, AbstractFilterDesign[]> = new Map<string, AbstractFilterDesign[]>();
     private filtersRemoved: boolean = false;
 
     constructor(
@@ -83,16 +83,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         this.filterFormControl = new FormControl();
     }
 
-    private createFilterConfigOnExtensionField(
-        databaseName: string,
-        tableName: string,
-        fieldName: string,
-        value?: any
-    ): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.dashboardState.datastore.name, databaseName, tableName, fieldName, '=', value);
-    }
-
-    private createFilterConfigOnList(
+    private createFilterDesignOnList(
         databaseName: string,
         tableName: string,
         fieldName: string,
@@ -102,26 +93,26 @@ export class QueryBarComponent extends BaseNeonComponent {
             '.' + fieldName, '=', values);
     }
 
-    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.filterField.columnName, '=', value);
+    private createFilterDesignOnText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.filterField.columnName, '=', values);
     }
 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('filterField', 'Filter Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionField('filterField', 'Filter Field', true),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionSelect('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of FieldConfig objects!
-            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', false, []),
-            new WidgetFreeTextOption('id', 'ID', false, ''),
-            new WidgetFreeTextOption('placeHolder', 'Place Holder', false, 'Query')
+            new ConfigOptionNonPrimitive('extensionFields', 'Extension Fields', false, []),
+            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionFreeText('placeHolder', 'Place Holder', false, 'Query')
         ];
     }
 
@@ -129,21 +120,17 @@ export class QueryBarComponent extends BaseNeonComponent {
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // Match a single EQUALS filter on the filter field.
-        let designs: FilterConfig[] = this.options.filterField.columnName ? [this.createFilterConfigOnText()] : [];
+        let designs: AbstractFilterDesign[] = this.options.filterField.columnName ? [this.createFilterDesignOnText()] : [];
 
         if (this.options.extendedFilter) {
             this.options.extensionFields.forEach((extensionField) => {
-                // Match a single EQUALS filter on the extension database/table/field.
-                designs.push(this.createFilterConfigOnExtensionField(extensionField.database, extensionField.table,
-                    extensionField.idField));
-
                 // Match a compound OR filter with one or more EQUALS filters on the extension database/table/field.
-                designs.push(this.createFilterConfigOnList(extensionField.database, extensionField.table, extensionField.idField));
+                designs.push(this.createFilterDesignOnList(extensionField.database, extensionField.table, extensionField.idField));
             });
         }
 
@@ -301,7 +288,7 @@ export class QueryBarComponent extends BaseNeonComponent {
 
         if (values.length) {
             this.extensionFiltersCollection.clear();
-            this.extensionFiltersCollection.set('', [this.createFilterConfigOnText(text)]);
+            this.extensionFiltersCollection.set('', [this.createFilterDesignOnText([text])]);
             this.extensionFiltersToDelete = [];
 
             // Gathers ids from the filtered query text in order to extend filtering to the other components
@@ -311,12 +298,12 @@ export class QueryBarComponent extends BaseNeonComponent {
                         this.extensionFilter(text, extensionField, values, extensionField.database + '.' + extensionField.table + '.' +
                             extensionField.idField);
                     } else {
-                        let extendedFilter: FilterConfig = this.extensionAddFilter(text, extensionField, values);
+                        let extendedFilter: AbstractFilterDesign = this.extensionAddFilter(text, extensionField, values);
                         if (extendedFilter) {
                             this.extensionFiltersCollection.set('', this.extensionFiltersCollection.get('').concat(extendedFilter));
                         } else {
-                            this.extensionFiltersToDelete.push(this.createFilterConfigOnExtensionField(extensionField.database,
-                                extensionField.table, extensionField.idField));
+                            this.extensionFiltersToDelete.push(this.createFilterDesignOnList(extensionField.database, extensionField.table,
+                                extensionField.idField));
                         }
                     }
                 });
@@ -367,7 +354,7 @@ export class QueryBarComponent extends BaseNeonComponent {
             }
 
             responseValues = responseValues.filter((value, index, items) => items.indexOf(value) === index);
-            const filter: FilterConfig = this.extensionAddFilter(text, extensionField, responseValues);
+            const filter: AbstractFilterDesign = this.extensionAddFilter(text, extensionField, responseValues);
             this.extensionFiltersCollection.set(collectionId, [filter]);
             this.updateFiltersIfDone();
         });
@@ -376,20 +363,19 @@ export class QueryBarComponent extends BaseNeonComponent {
     /**
      * Adds extension filters for the visualization
      */
-    private extensionAddFilter(__text: string, extensionField: any, values: any[]): FilterConfig {
+    private extensionAddFilter(__text: string, extensionField: any, values: any[]): AbstractFilterDesign {
         let filterValues: any[] = values.map((value) => ((typeof value === 'object' && value.hasOwnProperty(extensionField.idField)) ?
             value[extensionField.idField] : value));
 
-        return filterValues.length ? this.createFilterConfigOnList(extensionField.database, extensionField.table, extensionField.idField,
+        return filterValues.length ? this.createFilterDesignOnList(extensionField.database, extensionField.table, extensionField.idField,
             filterValues) : null;
     }
 
     public removeFilters() {
-        let removeFilterList: FilterConfig[] = [this.createFilterConfigOnText()];
+        let removeFilterList: AbstractFilterDesign[] = [this.createFilterDesignOnText()];
 
         this.options.extensionFields.forEach((extensionField) => {
-            removeFilterList.push(this.createFilterConfigOnExtensionField(extensionField.database, extensionField.table,
-                extensionField.idField));
+            removeFilterList.push(this.createFilterDesignOnList(extensionField.database, extensionField.table, extensionField.idField));
         });
 
         this.deleteFilters(removeFilterList);
@@ -416,7 +402,7 @@ export class QueryBarComponent extends BaseNeonComponent {
     }
 
     private updateFiltersIfDone(): void {
-        const filterLists: FilterConfig[][] = Array.from(this.extensionFiltersCollection.values());
+        const filterLists: AbstractFilterDesign[][] = Array.from(this.extensionFiltersCollection.values());
         if (filterLists.some((filterList) => filterList === null)) {
             return;
         }

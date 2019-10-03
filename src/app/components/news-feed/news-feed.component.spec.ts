@@ -19,13 +19,14 @@ import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
 
@@ -67,22 +68,32 @@ describe('Component: NewsFeed', () => {
         expect(component.options.sortField).toEqual(FieldConfig.get());
     });
 
-    it('createFilter does call filterService.toggleFilters as expected', () => {
+    it('createFilter does call filterService.exchangeFilters as expected', () => {
         component.options.toggleFiltered = true;
-        let spy = spyOn((component as any), 'toggleFilters');
+        let spy = spyOn((component as any), 'exchangeFilters');
 
-        component.createFilter('testText');
+        component.createFilter('testText1');
 
         expect(spy.calls.count()).toEqual(0);
 
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
-        component.createFilter('testText');
+        component.createFilter('testText1');
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testText')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testText1'])
+        ]]);
+
+        component.createFilter('testText2');
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testText1', 'testText2'])
         ]]);
     });
 
@@ -92,11 +103,12 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).type).toEqual(CompoundFilterType.OR);
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.FILTER.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {

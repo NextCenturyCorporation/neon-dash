@@ -24,13 +24,13 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { DomainFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
-import { TimeInterval } from '../../library/core/models/widget-option';
+import { CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -133,8 +133,9 @@ describe('Component: Timeline', () => {
             new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
                 DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate),
             // TODO NEON-36
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', '')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', [''])
         ]]);
     });
 
@@ -168,12 +169,9 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[
             new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
                 DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue1'),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue2'),
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue3')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['filterValue1', 'filterValue2', 'filterValue3'])
         ]]);
     });
 

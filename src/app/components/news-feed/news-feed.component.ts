@@ -27,20 +27,21 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { FilterCollection, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CoreUtil } from '../../library/core/core.util';
 import {
+    CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetOption,
-    WidgetSelectOption,
-    WidgetNonPrimitiveOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect,
+    ConfigOptionNonPrimitive
+} from '../../library/core/models/config-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
@@ -73,6 +74,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public text: string[] = [];
 
     private _expandedIdList: any[] = [];
+
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredText: any[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -110,48 +114,50 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return;
         }
 
-        if (this.options.toggleFiltered) {
-            this.toggleFilters([this.createFilterConfigOnText(text)]);
+        this._filteredText = CoreUtil.changeOrToggleValues(text, this._filteredText, this.options.toggleFiltered);
+        if (this._filteredText.length) {
+            this.exchangeFilters([this.createFilterDesignOnText(this._filteredText)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnText(text)]);
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the filter field.
+            this.exchangeFilters([], [this.createFilterDesignOnText()]);
         }
     }
 
-    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.filterField.columnName, '=', value);
+    private createFilterDesignOnText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.filterField.columnName, '=', values);
     }
 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+            new ConfigOptionField('contentField', 'Content Field', false),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('filterField', 'Filter Field', false),
+            new ConfigOptionField('idField', 'ID Field', true),
+            new ConfigOptionField('linkField', 'Link Field', false),
+            new ConfigOptionField('secondaryContentField', 'Secondary Content Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionField('titleContentField', 'Title Content Field', false),
+            new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('contentLabel', 'Content Label', false, ''),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
+            new ConfigOptionSelect('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('contentLabel', 'Content Label', false, ''),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
-            new WidgetFreeTextOption('id', 'ID', false, null),
-            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
-            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', false, ''),
-            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {})
+            new ConfigOptionFreeText('id', 'ID', false, null),
+            new ConfigOptionFreeText('delimiter', 'Link Delimiter', false, ','),
+            new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
+            new ConfigOptionFreeText('secondaryContentLabel', 'Secondary Content Label', false, ''),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {})
         ];
     }
 
@@ -159,11 +165,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        return this.options.filterField.columnName ? [this.createFilterConfigOnText()] : [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        return this.options.filterField.columnName ? [this.createFilterDesignOnText()] : [];
     }
 
     /**
@@ -261,11 +267,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this._expandedIdList = [];
 
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
+
         this.newsFeedData = results.map((result) => {
-            let item = {
-                _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
-                    result[this.options.filterField.columnName]
-                ))),
+            let item: any = {
                 field: {},
                 media: undefined
             };
@@ -307,6 +313,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     item.media.selected = item.media.list[0];
                 }
             }
+
+            item._filtered = !!this.options.filterField.columnName && !!item.field[this.options.filterField.columnName] &&
+                (this._filteredText.indexOf(item.field[this.options.filterField.columnName]) >= 0);
+
             return item;
         });
         return this.newsFeedData.length;
@@ -340,10 +350,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
+
         this.newsFeedData.forEach((item) => {
-            item._filtered = this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
-                item[this.options.filterField.columnName]
-            ));
+            item._filtered = this.options.filterField.columnName && item.field[this.options.filterField.columnName] &&
+                this._filteredText.indexOf(item.field[this.options.filterField.columnName]) >= 0;
         });
     }
 
