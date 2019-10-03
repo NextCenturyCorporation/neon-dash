@@ -2,18 +2,17 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 
 | Software  | License |
 | ---  | --- |
-| @angular/animations@7.2.15 | [MIT](https://github.com/angular/angular) |
+| @angular/animations@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/cdk@7.3.7 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/common@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/compiler@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/core@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/forms@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/http@7.2.15 | [MIT](https://github.com/angular/angular) |
+| @angular/common@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/compiler@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/core@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/forms@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/material@7.3.7 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
-| @angular/platform-browser-dynamic@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-browser@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/platform-server@7.2.15 | [MIT](https://github.com/angular/angular) |
-| @angular/router@7.2.15 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-browser-dynamic@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-browser@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/platform-server@8.2.9 | [MIT](https://github.com/angular/angular) |
+| @angular/router@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @wishtack/reactive-component-loader@1.0.0 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
 | @wishtack/rx-scavenger@1.0.5 | [MIT](https://github.com/wishtack/wishtack-steroids) |
@@ -40,7 +39,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | node-sass@4.12.0 | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
 | npx@10.2.0 | [ISC](https://github.com/zkat/npx/raw/master/LICENSE.md) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
-| rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.5.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.3 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
