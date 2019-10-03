@@ -23,103 +23,103 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         ReactiveComponentLoaderModule.forRoot(),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'aggregation',
-            loadChildren: './components/aggregation/aggregation.module#AggregationModule'
+            loadChildren: () => import('./components/aggregation/aggregation.module').then(m => m.AggregationModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'annotation-viewer',
-            loadChildren: './components/annotation-viewer/annotation-viewer.module#AnnotationViewerModule'
+            loadChildren: () => import('./components/annotation-viewer/annotation-viewer.module').then(m => m.AnnotationViewerModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'data-table',
-            loadChildren: './components/data-table/data-table.module#DataTableModule'
+            loadChildren: () => import('./components/data-table/data-table.module').then(m => m.DataTableModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'document-viewer',
-            loadChildren: './components/document-viewer/document-viewer.module#DocumentViewerModule'
+            loadChildren: () => import('./components/document-viewer/document-viewer.module').then(m => m.DocumentViewerModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'filter-builder',
-            loadChildren: './components/filter-builder/filter-builder.module#FilterBuilderModule'
+            loadChildren: () => import('./components/filter-builder/filter-builder.module').then(m => m.FilterBuilderModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'map',
-            loadChildren: './components/map/map.module#MapModule'
+            loadChildren: () => import('./components/map/map.module').then(m => m.MapModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'media-viewer',
-            loadChildren: './components/media-viewer/media-viewer.module#MediaViewerModule'
+            loadChildren: () => import('./components/media-viewer/media-viewer.module').then(m => m.MediaViewerModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'network-graph',
-            loadChildren: './components/network-graph/network-graph.module#NetworkGraphModule'
+            loadChildren: () => import('./components/network-graph/network-graph.module').then(m => m.NetworkGraphModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'news-feed',
-            loadChildren: './components/news-feed/news-feed.module#NewsFeedModule'
+            loadChildren: () => import('./components/news-feed/news-feed.module').then(m => m.NewsFeedModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'query-bar',
-            loadChildren: './components/query-bar/query-bar.module#QueryBarModule'
+            loadChildren: () => import('./components/query-bar/query-bar.module').then(m => m.QueryBarModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'taxonomy-viewer',
-            loadChildren: './components/taxonomy-viewer/taxonomy-viewer.module#TaxonomyViewerModule'
+            loadChildren: () => import('./components/taxonomy-viewer/taxonomy-viewer.module').then(m => m.TaxonomyViewerModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'text-cloud',
-            loadChildren: './components/text-cloud/text-cloud.module#TextCloudModule'
+            loadChildren: () => import('./components/text-cloud/text-cloud.module').then(m => m.TextCloudModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'thumbnail-grid',
-            loadChildren: './components/thumbnail-grid/thumbnail-grid.module#ThumbnailGridModule'
+            loadChildren: () => import('./components/thumbnail-grid/thumbnail-grid.module').then(m => m.ThumbnailGridModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'timeline',
-            loadChildren: './components/timeline/timeline.module#TimelineModule'
+            loadChildren: () => import('./components/timeline/timeline.module').then(m => m.TimelineModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'wiki-viewer',
-            loadChildren: './components/wiki-viewer/wiki-viewer.module#WikiViewerModule'
+            loadChildren: () => import('./components/wiki-viewer/wiki-viewer.module').then(m => m.WikiViewerModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'about-neon',
-            loadChildren: './components/about-neon/about-neon.module#AboutNeonModule'
+            loadChildren: () => import('./components/about-neon/about-neon.module').then(m => m.AboutNeonModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'custom-requests',
-            loadChildren: './components/custom-requests/custom-requests.module#CustomRequestsModule'
+            loadChildren: () => import('./components/custom-requests/custom-requests.module').then(m => m.CustomRequestsModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'gear',
-            loadChildren: './components/gear/gear.module#GearModule'
+            loadChildren: () => import('./components/gear/gear.module').then(m => m.GearModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'save-state',
-            loadChildren: './components/save-state/save-state.module#SaveStateModule'
+            loadChildren: () => import('./components/save-state/save-state.module').then(m => m.SaveStateModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'settings',
-            loadChildren: './components/settings/settings.module#SettingsModule'
+            loadChildren: () => import('./components/settings/settings.module').then(m => m.SettingsModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'add-visualization',
-            loadChildren: './components/add-visualization/add-visualization.module#AddVisualizationModule'
+            loadChildren: () => import('./components/add-visualization/add-visualization.module').then(m => m.AddVisualizationModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'config-editor',
-            loadChildren: './components/config-editor/config-editor.module#ConfigEditorModule'
+            loadChildren: () => import('./components/config-editor/config-editor.module').then(m => m.ConfigEditorModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'confirmation-dialog',
-            loadChildren: './components/confirmation-dialog/confirmation-dialog.module#ConfirmationDialogModule'
+            loadChildren: () => import('./components/confirmation-dialog/confirmation-dialog.module').then(m => m.ConfirmationDialogModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'contribution-dialog',
-            loadChildren: './components/contribution-dialog/contribution-dialog.module#ContributionDialogModule'
+            loadChildren: () => import('./components/contribution-dialog/contribution-dialog.module').then(m => m.ContributionDialogModule)
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'custom-connection',
-            loadChildren: './components/custom-connection/custom-connection.module#CustomConnectionModule'
+            loadChildren: () => import('./components/custom-connection/custom-connection.module').then(m => m.CustomConnectionModule)
         })
     ]
 })

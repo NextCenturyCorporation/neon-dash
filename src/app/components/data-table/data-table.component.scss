@@ -36,15 +36,15 @@
     position: fixed;
 }
 
-/deep/ .datatable-row-even {
+::ng-deep .datatable-row-even {
     background-color: var(--color-background-contrast, white);
 }
 
-/deep/ .datatable-header-inner {
+::ng-deep .datatable-header-inner {
     border-right: 1px solid var(--color-text, lightgrey);
 }
 
-/deep/ .datatable-header-cell {
+::ng-deep .datatable-header-cell {
     opacity: 1;
     background: var(--color-background, white);
     border-bottom: 1px solid var(--color-text, lightgrey);
@@ -64,26 +64,26 @@
     }
 }
 
-/deep/ .datatable-header-cell > div {
+::ng-deep .datatable-header-cell > div {
     display: flex;
     flex-direction: row;
     justify-content: center;
     width: 100%;
 }
 
-/deep/ .datatable-header-cell-wrapper {
+::ng-deep .datatable-header-cell-wrapper {
     padding: 5px;
     width: 100%;
 }
 
-/deep/ .sort-active {
+::ng-deep .sort-active {
     .datatable-header-cell-wrapper {
         width: calc(100% - 20px);
     }
 }
 
-/deep/ .datatable-header-cell-label,
-/deep/ .datatable-body-cell-label > span {
+::ng-deep .datatable-header-cell-label,
+::ng-deep .datatable-body-cell-label > span {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -102,14 +102,14 @@
     /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
-/deep/ .datatable-icon-up,
-/deep/ .datatable-icon-down {
+::ng-deep .datatable-icon-up,
+::ng-deep .datatable-icon-down {
     display: inline-flex;
     height: 30px;
     padding: 7px;
 }
 
-/deep/ .datatable-icon-up {
+::ng-deep .datatable-icon-up {
     &::before {
         font-family: 'Material Icons';
         font-size: 16px;
@@ -117,7 +117,7 @@
     }
 }
 
-/deep/ .datatable-icon-down {
+::ng-deep .datatable-icon-down {
     &::before {
         font-family: 'Material Icons';
         font-size: 16px;
@@ -125,13 +125,13 @@
     }
 }
 
-/deep/ .datatable-body-cell {
+::ng-deep .datatable-body-cell {
     border-right: 1px solid var(--color-background, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
 
-/deep/ .datatable-body-row {
+::ng-deep .datatable-body-row {
     &.heat-1 {
         .datatable-row-group {
             color: #01579B; // light-blue-900
@@ -201,16 +201,16 @@
     }
 }
 
-/deep/ .datatable-body {
+::ng-deep .datatable-body {
     height: 100%;
     font-size: 14px;
 }
 
-/deep/ .mat-drawer-content {
+::ng-deep .mat-drawer-content {
     height: 100%;
 }
 
-/deep/ .color-field {
+::ng-deep .color-field {
     &::before {
         border: 2px solid black;
         border-radius: 16px;
@@ -224,31 +224,31 @@
 .skinny {
     font-size: 14px;
 
-    /deep/ .datatable-row-odd {
+    ::ng-deep .datatable-row-odd {
         background-color: var(--color-background-contrast, white);
     }
 
-    /deep/ .datatable-header-cell {
+    ::ng-deep .datatable-header-cell {
         height: 20px;
     }
 
-    /deep/ .datatable-header-cell-wrapper {
+    ::ng-deep .datatable-header-cell-wrapper {
         padding: 2px 5px;
     }
 
-    /deep/ .datatable-icon-up,
-    /deep/ .datatable-icon-down {
+    ::ng-deep .datatable-icon-up,
+    ::ng-deep .datatable-icon-down {
         height: 20px;
         margin-right: 0;
         padding: 2px 7px;
     }
 
-    /deep/ .datatable-header-cell,
-    /deep/ .datatable-body-cell {
+    ::ng-deep .datatable-header-cell,
+    ::ng-deep .datatable-body-cell {
         line-height: 16px !important;
     }
 
-    /deep/ .datatable-body-cell {
+    ::ng-deep .datatable-body-cell {
         border-right-style: solid;
     }
 }
@@ -256,47 +256,47 @@
 .selectable {
     // sass-lint:disable-block force-element-nesting, force-pseudo-nesting
 
-    /deep/ .datatable-body-row:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active:hover .datatable-row-group {
         background-color: var(--color-data-item-selectable, lightgrey);
         color: var(--color-data-item-selectable-text, dimgrey);
         cursor: pointer;
     }
 
-    /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row.heat-1:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active.heat-1:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.heat-1:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active.heat-1:hover .datatable-row-group {
         background-color: #29B6F6; // light-blue-400
     }
 
-    /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row.heat-2:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active.heat-2:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.heat-2:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active.heat-2:hover .datatable-row-group {
         background-color: #5C6BC0; // indigo-400
     }
 
-    /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row.heat-3:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active.heat-3:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.heat-3:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active.heat-3:hover .datatable-row-group {
         background-color: #AB47BC; // purple-400
     }
 
-    /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row.heat-4:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active.heat-4:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.heat-4:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active.heat-4:hover .datatable-row-group {
         background-color: #EF5350; // red-400
     }
 
-    /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group {
+    ::ng-deep .datatable-body-row.heat-5:hover .datatable-row-group,
+    ::ng-deep .datatable-body-row.active.heat-5:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.heat-5:hover .datatable-row-group,
+    &.skinny ::ng-deep .datatable-body-row.active.heat-5:hover .datatable-row-group {
         background-color: #FFA726; // orange-400
     }
 }

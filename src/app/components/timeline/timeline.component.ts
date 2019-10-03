@@ -71,10 +71,10 @@ import * as d3 from 'd3';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('svg') svg: ElementRef;
+    @ViewChild('svg', { static: true }) svg: ElementRef;
 
     protected selected: Date[] = null;
 
