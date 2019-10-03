@@ -181,6 +181,8 @@ export abstract class AbstractSearchService {
      * @abstract
      */
     public abstract transformQueryPayloadToExport(
+        hostName: string,
+        dataStoreType: string,
         fields: { columnName: string, prettyName: string }[],
         queryPayload: QueryPayload,
         uniqueName: string

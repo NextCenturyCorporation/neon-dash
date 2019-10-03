@@ -413,23 +413,21 @@ describe('BaseNeonComponent', () => {
         }]);
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Mock Superclass-' + component.options._id,
+                fileName: 'Mock Superclass-' + component.options._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(1);
@@ -470,43 +468,39 @@ describe('BaseNeonComponent', () => {
         });
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 1-' + component.options.layers[0]._id,
+                fileName: 'Layer 1-' + component.options.layers[0]._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }, {
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_3',
                     pretty: 'Export 3'
                 }, {
                     query: 'export_4',
                     pretty: 'Export 4'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 2-' + component.options.layers[1]._id,
+                fileName: 'Layer 2-' + component.options.layers[1]._id,
                 query: {
                     database: 'testDatabase2',
                     table: 'testTable2',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(2);
