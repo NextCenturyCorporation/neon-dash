@@ -385,8 +385,9 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
     ) {
         super(dataset, createOptionsCallback, defaultTitle, defaultLimit, config);
 
-        // Backwards compatibility (configFilter deprecated and renamed to filter).
-        this.filter = this.filter || this.config.get('configFilter', null);
+        //TODO: don't seem to be used anywhere and causing compile error with the stricter type script 3.4 rule
+        //verify and remove.
+        //this.filter = this.filter || this.config.get('configFilter', null);
 
         this.config.get('layers', []).forEach((layerBindings) => {
             this.addLayer(layerBindings);
