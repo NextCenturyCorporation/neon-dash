@@ -726,6 +726,49 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
+            zulu_sf:
+                prettyName: Zulu Situation Frame
+                tables:
+                     ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: DocumentID
+                              prettyName: Document ID
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: JustificationEN
+                              prettyName: Translated Text
+                            - columnName: JustificationIL
+                              prettyName: Original Text
+                            - columnName: Type
+                              prettyName: Type
+                            - columnName: Status
+                              prettyName: Status
+                            - columnName: Urgent
+                              prettyName: Urgent
+                            - columnName: mediaEntities.displayURL
+                              prettyName: Media URLs
+                            - columnName: geoLocation.lat
+                              prettyName: Latitude
+                            - columnName: geoLocation.lon
+                              prettyName: Longitude
+                        labelOptions:
+                            Type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
 
 
 dashboards:
@@ -1490,6 +1533,52 @@ dashboards:
                                     contactEmail: 'danroth@seas.upenn.edu'
                                     website: 'https://www.upenn.edu/'
                                     logo: 'UPenn-logo.jpg'
+                zulu:
+                    name: 'Zulu'
+                    category: 'Select a datastore...'
+                    choices:
+                        zulu:
+                            name: Zulu ELISA
+                            layout: zulu_layout
+                            tables:
+                                table_key_1: es1.zulu_sf.ui_output
+                            options:
+                                connectOnLoad: true
+                                customRequests:
+                                    - endpoint: http://localhost:4200/lorelei-service/
+                                      pretty: THOR Data Input
+                                      properties:
+                                        - name: originalText
+                                          pretty: Original Text
+                                        - name: createdAt
+                                          pretty: Date Created
+                                        - name: id
+                                          pretty: ID
+                            fields:
+                                original_text_key: es1.zulu_sf.ui_output.JustificationIL
+                                translated_text_key: es1.zulu_sf.ui_output.JustificationEN
+                                date_field_key: es1.zulu_sf.ui_output.createdAt
+                                id_field_key_1: es1.zulu_sf.ui_output.id
+                                id_field_key_DocumentID: es1.zulu_sf.ui_output.DocumentID
+                                latitude_key: es1.zulu_sf.ui_output.geoLocation.lat
+                                longitude_key: es1.zulu_sf.ui_output.geoLocation.lon
+                                group_field_key_topics: es1.zulu_sf.ui_output.Type
+                                sf_location: es1.zulu_sf.ui_output.location
+                            contributors:
+                                USC-ISI:
+                                    orgName: 'University of Southern California, Information Sciences Institute'
+                                    abbreviation: 'USC/ISI'
+                                    contactName: 'Jonathan May'
+                                    contactEmail: 'jonmay@isi.edu'
+                                    website: 'https://www.isi.edu/'
+                                    logo: 'ISI-logo.png'
+                                rpi:
+                                    orgName: 'Rensselaer Polytechnic Institute'
+                                    abbreviation: 'RPI'
+                                    contactName: 'Heng Ji'
+                                    contactEmail: 'jih@rpi.edu'
+                                    website: 'http://nlp.cs.rpi.edu/'
+                                    logo: 'RPI-logo.png'
 
 layouts:
     darpa60-uyghur-sd:
@@ -3676,4 +3765,107 @@ layouts:
                 preFilter: false
                 contributionKeys:
                   - rpi
-        
+    zulu_layout:
+          - name: News Feed
+            type: newsFeed
+            icon: newsFeed64
+            col: 1
+            row: 1
+            sizex: 4
+            sizey: 14
+            bindings:
+                title: Document Feed
+                tableKey: table_key_1
+                idField: id_field_key_1
+                contentField: translated_text_key
+                secondaryContentField: original_text_key
+                sortField: date_field_key
+                dateField: date_field_key
+                filterField: id_field_key_DocumentID
+                titleContentField: translated_text_key
+                limit: 100
+          - name: Map
+            type: map
+            icon: Map64
+            col: 5
+            row: 1
+            sizex: 5
+            sizey: 10
+            bindings:
+                title: Locations
+                tableKey: table_key_2
+                filterable: true
+                name: EVENTS
+                show: true
+                type: cluster
+                limit: 5000
+                layers:
+                    - title: Map
+                      tableKey: table_key_1
+                      latitudeField: latitude_key
+                      longitudeField: longitude_key
+                      colorField: group_field_key_topics
+                mapType: leaflet
+                west: 90
+                north: 22
+                east: 147
+                south: 0
+          - name: Data Table
+            type: dataTable
+            icon: ViewData64
+            col: 10
+            row: 1
+            sizex: 3
+            sizey: 8
+            bindings:
+              title: Situation Frames
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: id_field_key_1
+              limit: 100
+              showFields:
+                  - sf_location
+                  - group_field_key_topics
+              customColumnWidths:
+                  - - sf_location
+                    - 160
+                  - - group_field_key_topics
+                    - 80
+              filterable: true
+              singleFilter: true
+              ignoreSelf: false
+              filterFields:
+                  - id_field_key_DocumentID
+          - name: Bar Chart
+            type: aggregation
+            icon: bar_chart
+            col: 10
+            row: 10
+            sizex: 3
+            sizey: 6
+            bindings:
+                title: Situation Types
+                type: bar-h
+                tableKey: table_key_1
+                xField: group_field_key_topics
+                limit: 11
+                groupField: group_field_key_topics
+                sortByAggregation: true
+                ignoreSelf: true
+                contributionKeys:
+                  - USC-ISI
+          - name: Text Cloud
+            type: textCloud
+            icon: TagCloud64
+            col: 5
+            row: 11
+            sizex: 5
+            sizey: 4
+            selected: true
+            bindings:
+                title: Locations
+                tableKey: table_key_1
+                dataField: sf_location
+                preFilter: false
+                contributionKeys:
+                  - rpi
