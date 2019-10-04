@@ -3,12 +3,12 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | Software  | License |
 | ---  | --- |
 | @angular/animations@8.2.9 | [MIT](https://github.com/angular/angular) |
-| @angular/cdk@7.3.7 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
+| @angular/cdk@8.2.2 | [MIT](https://github.com/angular/components/raw/master/LICENSE) |
 | @angular/common@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/compiler@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/core@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/forms@8.2.9 | [MIT](https://github.com/angular/angular) |
-| @angular/material@7.3.7 | [MIT](https://github.com/angular/material2/raw/master/LICENSE) |
+| @angular/material@8.2.2 | [MIT](https://github.com/angular/components/raw/master/LICENSE) |
 | @angular/platform-browser-dynamic@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/platform-browser@8.2.9 | [MIT](https://github.com/angular/angular) |
 | @angular/platform-server@8.2.9 | [MIT](https://github.com/angular/angular) |
