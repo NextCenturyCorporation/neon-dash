@@ -397,51 +397,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-            somali092019:
-                prettyName: 'Somali'
-                tables:
-                    ui_output:
-                        prettyName: UI out
-                        fields:
-                            - columnName: createdAt
-                              prettyName: Date Created
-                            - columnName: type
-                              prettyName: Type
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: translatedText
-                              prettyName: Translated Text
-                            - columnName: originalText
-                              prettyName: Original Text
-                            - columnName: cluster_name
-                              prettyName: Cluster Name
-                            - columnName: cluster
-                              prettyName: Cluster
-                            - columnName: geoLocation.lat
-                              prettyName: Latitude
-                            - columnName: geoLocation.lon
-                              prettyName: Longitude
-                            - columnName: id
-                              prettyName: ES ID
-                            - columnName: id
-                              prettyName: THOR ID
-                            - columnName: wikipediaURLs
-                              prettyName: Wikipedia URLs
-                            - columnName: wikipediaIDs
-                              prettyName: Wikipedia IDs
-                        labelOptions:
-                            type:
-                                food: Food
-                                water: Water
-                                shelter: Shelter
-                                med: Medicine
-                                search: Search and Rescue
-                                evac: Evacuation
-                                infra: Infrastructure
-                                utils: Utilities
-                                crimeviolence: Crime / Violence
-                                terrorism: Terrorism
-                                regimechange: Regime Change
             apan052019:
                 prettyName: 'APAN'
                 tables:
@@ -1434,8 +1389,8 @@ dashboards:
                                     contactEmail: 'jonmay@isi.edu'
                                     website: 'https://www.isi.edu/'
                                     logo: 'ISI-logo.png'
-                september-demo:
-                    name: 'September Demo'
+                ilocano:
+                    name: 'Ilocano'
                     category: 'Select a datastore...'
                     choices:
                         ilocano:
@@ -1468,7 +1423,6 @@ dashboards:
                                 group_field_key_topics_2: es1.ilocano_tab.ui_output.Type
                                 sf_location: es1.ilocano_sf.ui_output.location
                                 entity_name_tab: es1.ilocano_tab.ui_output.EntityName
-                                cluster_name_field: es1.ilocano_sf.ui_output.cluster_name
                             contributors:
                                 USC-ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
@@ -1484,34 +1438,39 @@ dashboards:
                                     contactEmail: 'jih@rpi.edu'
                                     website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
-                        Somali:
-                            name: Somali GRACE
-                            layout: september-som
+                zulu:
+                    name: 'Zulu'
+                    category: 'Select a datastore...'
+                    choices:
+                        zulu:
+                            name: Zulu ELISA
+                            layout: zulu_layout
                             tables:
-                                table_key_1: es1.somali092019.ui_output
-                            fields:
-                                original_text_key: es1.somali092019.ui_output.originalText
-                                translated_text_key: es1.somali092019.ui_output.translatedText
-                                date_field_key: es1.somali092019.ui_output.createdAt
-                                id_field_key_1: es1.somali092019.ui_output.id
-                                id_field_key_2: es1.somali092019.ui_output.id
-                                filter_field_key: es1.somali092019.ui_output.id
-                                group_field_key: es1.somali092019.ui_output.type
-                                latitude_key: es1.somali092019.ui_output.geoLocation.lat
-                                longitude_key: es1.somali092019.ui_output.geoLocation.lon
-                                text_cloud_data_key: es1.somali092019.ui_output.location
-                                location_key: es1.somali092019.ui_output.location
-                                color_field_topic_key: es1.somali092019.ui_output.type
-                                cluster_name_key: es1.somali092019.ui_output.cluster_name
-                                cluster_topics_key: es1.somali092019.ui_output.type
-                                wikipedia_id_key: es1.somali092019.ui_output.wikipediaIDs
+                                table_key_1: es1.zulu_sf.ui_output
                             options:
                                 connectOnLoad: true
-                                simpleFilter:
-                                    tableKey: table_key_1
-                                    fieldKey: translated_text_key
-                                    placeHolder: Search
+                                customRequests:
+                                    - endpoint: http://localhost:4200/lorelei-service/
+                                      pretty: THOR Data Input
+                                      properties:
+                                        - name: originalText
+                                          pretty: Original Text
+                                        - name: createdAt
+                                          pretty: Date Created
+                                        - name: id
+                                          pretty: ID
+                            fields:
+                                original_text_key: es1.zulu_sf.ui_output.JustificationIL
+                                translated_text_key: es1.zulu_sf.ui_output.JustificationEN
+                                date_field_key: es1.zulu_sf.ui_output.createdAt
+                                id_field_key_1: es1.zulu_sf.ui_output.id
+                                id_field_key_DocumentID: es1.zulu_sf.ui_output.DocumentID
+                                latitude_key: es1.zulu_sf.ui_output.geoLocation.lat
+                                longitude_key: es1.zulu_sf.ui_output.geoLocation.lon
+                                group_field_key_topics: es1.zulu_sf.ui_output.Type
+                                sf_location: es1.zulu_sf.ui_output.location
                             contributors:
+<<<<<<< HEAD
                                 ldc:
                                     orgName: 'Linguistic Data Consortium'
                                     abbreviation: 'LDC'
@@ -1565,6 +1524,8 @@ dashboards:
                                 group_field_key_topics: es1.zulu_sf.ui_output.Type
                                 sf_location: es1.zulu_sf.ui_output.location
                             contributors:
+=======
+>>>>>>> 0256d548622df168c47fe3b8c98aa75727916d74
                                 USC-ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
@@ -1579,6 +1540,10 @@ dashboards:
                                     contactEmail: 'jih@rpi.edu'
                                     website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0256d548622df168c47fe3b8c98aa75727916d74
 layouts:
     darpa60-uyghur-sd:
         - name: Data Table
@@ -2160,139 +2125,6 @@ layouts:
               limit: 100
               groupField: cluster_topics_key
               sortByAggregation: true
-    september-som:
-        - name: News Feed
-          type: newsFeed
-          icon: newFeed64
-          col: 1
-          row: 1
-          sizex: 3
-          sizey: 10
-          bindings:
-              title: Document Feed
-              tableKey: table_key_1
-              contentField: translated_text_key
-              dateField: date_field_key
-              idField: id_field_key_1
-              secondaryContentField: original_text_key
-              secondaryContentLabel: Original Text
-              sortField: date_field_key
-              titleContentField: translated_text_key
-              ignoreSelf: false
-              limit: 100
-        - name: Map
-          type: map
-          icon: Map64
-          col: 4
-          row: 1
-          sizex: 6
-          sizey: 11
-          bindings:
-              title: Situation Locations
-              tableKey: table_key_1
-              filterable: true
-              name: EVENTS
-              show: true
-              type: cluster
-              limit: 5000
-              layers:
-                  - title: Map
-                    tableKey: table_key_1
-                    latitudeField: latitude_key
-                    longitudeField: longitude_key
-                    colorField: color_field_topic_key
-              mapType: leaflet
-              west: 10.5
-              north: 25
-              east: 78
-              south: 5
-        - name: Text Cloud
-          type: textCloud
-          icon: TagCloud64
-          col: 4
-          row: 12
-          sizex: 3
-          sizey: 4
-          selected: true
-          bindings:
-              title: Locations
-              tableKey: table_key_1
-              dataField: location_key
-              preFilter: false
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 7
-          row: 12
-          sizex: 3
-          sizey: 4
-          bindings:
-              title: Situation Types
-              type: bar-h
-              tableKey: table_key_1
-              xField: color_field_topic_key
-              limit: 11
-              groupField: color_field_topic_key
-              sortByAggregation: true
-              ignoreSelf: true
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
-          col: 10
-          row: 1
-          sizex: 3
-          sizey: 9
-          bindings:
-              title: Situation Frames
-              tableKey: table_key_1
-              idField: id_field_key_1
-              sortField: id_field_key_1
-              limit: 100
-              showFields:
-                  - location_key
-                  - color_field_topic_key
-                  - wikipedia_id_key
-              customColumnWidths:
-                  - - location_key
-                    - 150
-                  - - color_field_topic_key
-                    - 90
-                  - - wikipedia_id_key
-                    - 120
-              filterable: true
-              filterFields:
-                  - id_field_key_1
-              singleFilter: true
-              ignoreSelf: false
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 1
-          row: 11
-          sizex: 3
-          sizey: 5
-          bindings:
-              title: Situation Clusters
-              type: bar-h
-              tableKey: table_key_1
-              xField: cluster_name_key
-              limit: 100
-              groupField: cluster_topics_key
-              sortByAggregation: true
-        - name: Wiki Viewer
-          type: wikiViewer
-          icon: wiki
-          col: 0
-          row: 11
-          sizex: 3
-          sizey: 6
-          bindings:
-              title: Wikipedia Viewer
-              tableKey: table_key_1
-              linkField: wikipedia_id_key
-              limit: 10
-              idField: id_field_key_1
-              useWikipediaPageID: true
     elisa_macedonia:
         - name: News Feed
           type: newsFeed
@@ -3649,36 +3481,18 @@ layouts:
             col: 1
             row: 1
             sizex: 4
-            sizey: 8
+            sizey: 14
             bindings:
                 title: Document Feed
                 tableKey: table_key_1
                 idField: id_field_key_1
                 contentField: translated_text_key
                 secondaryContentField: original_text_key
-                secondaryContentLabel: Original Text
                 sortField: date_field_key
                 dateField: date_field_key
                 filterField: id_field_key_DocumentID
                 titleContentField: translated_text_key
                 limit: 100
-          - name: Bar Chart
-            type: aggregation
-            icon: bar_chart
-            col: 1
-            row: 9
-            sizex: 4
-            sizey: 6
-            bindings:
-                title: Situation Cluster
-                type: bar-h
-                tableKey: table_key_1
-                xField: cluster_name_field
-                limit: 11
-                sortByAggregation: true
-                ignoreSelf: true
-                contributionKeys:
-                  - USC-ISI
           - name: Map
             type: map
             icon: Map64
@@ -3867,5 +3681,113 @@ layouts:
                 dataField: sf_location
                 preFilter: false
                 contributionKeys:
+<<<<<<< HEAD
+                  - rpi
+    zulu_layout:
+          - name: News Feed
+            type: newsFeed
+            icon: newsFeed64
+            col: 1
+            row: 1
+            sizex: 4
+            sizey: 14
+            bindings:
+                title: Document Feed
+                tableKey: table_key_1
+                idField: id_field_key_1
+                contentField: translated_text_key
+                secondaryContentField: original_text_key
+                sortField: date_field_key
+                dateField: date_field_key
+                filterField: id_field_key_DocumentID
+                titleContentField: translated_text_key
+                limit: 100
+          - name: Map
+            type: map
+            icon: Map64
+            col: 5
+            row: 1
+            sizex: 5
+            sizey: 10
+            bindings:
+                title: Locations
+                tableKey: table_key_2
+                filterable: true
+                name: EVENTS
+                show: true
+                type: cluster
+                limit: 5000
+                layers:
+                    - title: Map
+                      tableKey: table_key_1
+                      latitudeField: latitude_key
+                      longitudeField: longitude_key
+                      colorField: group_field_key_topics
+                mapType: leaflet
+                west: 90
+                north: 22
+                east: 147
+                south: 0
+          - name: Data Table
+            type: dataTable
+            icon: ViewData64
+            col: 10
+            row: 1
+            sizex: 3
+            sizey: 8
+            bindings:
+              title: Situation Frames
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: id_field_key_1
+              limit: 100
+              showFields:
+                  - sf_location
+                  - group_field_key_topics
+              customColumnWidths:
+                  - - sf_location
+                    - 160
+                  - - group_field_key_topics
+                    - 80
+              filterable: true
+              singleFilter: true
+              ignoreSelf: false
+              filterFields:
+                  - id_field_key_DocumentID
+          - name: Bar Chart
+            type: aggregation
+            icon: bar_chart
+            col: 10
+            row: 10
+            sizex: 3
+            sizey: 6
+            bindings:
+                title: Situation Types
+                type: bar-h
+                tableKey: table_key_1
+                xField: group_field_key_topics
+                limit: 11
+                groupField: group_field_key_topics
+                sortByAggregation: true
+                ignoreSelf: true
+                contributionKeys:
+                  - USC-ISI
+          - name: Text Cloud
+            type: textCloud
+            icon: TagCloud64
+            col: 5
+            row: 11
+            sizex: 5
+            sizey: 4
+            selected: true
+            bindings:
+                title: Locations
+                tableKey: table_key_1
+                dataField: sf_location
+                preFilter: false
+                contributionKeys:
                   - rpi
         
+=======
+                  - rpi
+>>>>>>> 0256d548622df168c47fe3b8c98aa75727916d74
