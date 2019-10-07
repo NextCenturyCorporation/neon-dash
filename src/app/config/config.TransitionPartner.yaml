@@ -744,10 +744,6 @@ datastores:
                               prettyName: Translated Text
                             - columnName: JustificationIL
                               prettyName: Original Text
-                            - columnName: clusterName
-                              prettyName: Cluster Name
-                            - columnName: cluster
-                              prettyName: Cluster ID
                             - columnName: Type
                               prettyName: Type
                             - columnName: Status
@@ -1568,7 +1564,7 @@ dashboards:
                                 longitude_key: es1.zulu_sf.ui_output.geoLocation.lon
                                 group_field_key_topics: es1.zulu_sf.ui_output.Type
                                 sf_location: es1.zulu_sf.ui_output.location
-                                cluster_name_field: es1.zulu_sf.ui_output.cluster_name
+                                cluster_name_field: es1.ilocano_sf.ui_output.cluster_name
                             contributors:
                                 USC-ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
@@ -1584,7 +1580,6 @@ dashboards:
                                     contactEmail: 'jih@rpi.edu'
                                     website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
-
 layouts:
     darpa60-uyghur-sd:
         - name: Data Table
@@ -3777,18 +3772,37 @@ layouts:
             col: 1
             row: 1
             sizex: 4
-            sizey: 14
+            sizey: 8
             bindings:
                 title: Document Feed
                 tableKey: table_key_1
                 idField: id_field_key_1
                 contentField: translated_text_key
                 secondaryContentField: original_text_key
+                secondaryContentLabel: Original Text
                 sortField: date_field_key
                 dateField: date_field_key
                 filterField: id_field_key_DocumentID
                 titleContentField: translated_text_key
                 limit: 100
+          - name: Bar Chart
+            type: aggregation
+            icon: bar_chart
+            col: 1
+            row: 9
+            sizex: 4
+            sizey: 6
+            bindings:
+                title: Situation Cluster
+                type: bar-h
+                tableKey: table_key_1
+                xField: cluster_name_field
+                limit: 11
+                groupField: group_field_key_topics
+                sortByAggregation: true
+                ignoreSelf: true
+                contributionKeys:
+                  - USC-ISI
           - name: Map
             type: map
             icon: Map64
@@ -3811,10 +3825,10 @@ layouts:
                       longitudeField: longitude_key
                       colorField: group_field_key_topics
                 mapType: leaflet
-                west: 90
-                north: 0
-                east: 80
-                south: 22
+                west: 10.5
+                north: 10
+                east: 50
+                south: -35
           - name: Data Table
             type: dataTable
             icon: ViewData64
@@ -3848,11 +3862,13 @@ layouts:
             row: 10
             sizex: 3
             sizey: 6
-            title: Situation Cluster
+            bindings:
+                title: Situation Types
                 type: bar-h
                 tableKey: table_key_1
-                xField: cluster_name_field
+                xField: group_field_key_topics
                 limit: 11
+                groupField: group_field_key_topics
                 sortByAggregation: true
                 ignoreSelf: true
                 contributionKeys:
@@ -3872,3 +3888,5 @@ layouts:
                 preFilter: false
                 contributionKeys:
                   - rpi
+
+        
