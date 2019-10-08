@@ -17,4 +17,31 @@
 
 .upload-data-container {
     width: 410px;
+    height: 100%;
+    padding: 7px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.fileInput {
+    width: 400px;
+}
+
+.data-viewer {
+    height:100%;
+    width: 100%;
+}
+
+.data-viewer-footer {
+    text-align: right;
+
+    button {
+        margin: 5px 10px;
+    }
+}
+
+ngx-monaco-editor {
+    width: 100%;
+    height: 100%;
 }

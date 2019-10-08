@@ -17,7 +17,9 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
+    Injector,
     OnDestroy,
+    OnInit,
     ViewEncapsulation,
     Input
 } from '@angular/core';
@@ -42,11 +44,12 @@ import * as Papa from 'papaparse';
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.Emulated
 })
-export class UploadDataComponent implements OnDestroy {
+export class UploadDataComponent implements OnInit, OnDestroy {
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
 
     private messenger: eventing.Messenger;
+    public uploadedData = {};
 
     public readonly dashboardState: DashboardState;
     constructor(
@@ -61,8 +64,11 @@ export class UploadDataComponent implements OnDestroy {
         this.messenger.unsubscribeAll();
     }
 
+    ngOnInit() {
+        this.changeDetection.detectChanges();
+    }
+
     public changeListener() {
-        //console.log(files);
         let file = (<HTMLInputElement>document.getElementById('fileInput')).files[0];
         // console.log(file.name);
         // console.log(file.size);
@@ -72,13 +78,16 @@ export class UploadDataComponent implements OnDestroy {
         reader.onload = (e) => {
             let csv: string = reader.result as string;
             // console.log(csv);
-            Papa.parse(file, {
+            Papa.parse(file, { header: true,
                 complete: function (results) {
                     // console.log("Finished:", results.data);
                     // console.log(results);
+                    this.uploadedData = results.data;
+                    // console.log(this.uploadedData);
                 }
             });
         }
+        this.changeDetection.detectChanges();
     }
 
 }
