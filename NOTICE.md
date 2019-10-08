@@ -39,10 +39,11 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | node-sass@4.12.0 | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
 | npx@10.2.0 | [ISC](https://github.com/zkat/npx/raw/master/LICENSE.md) |
+| papaparse@5.1.0 | [MIT](https://github.com/mholt/PapaParse/raw/master/LICENSE) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
-| uuid@3.3.3 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
+| uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
 | visjs-network@4.24.10 | [(Apache-2.0 OR MIT)](https://github.com/visjs-community/visjs-network/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.9.1 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
