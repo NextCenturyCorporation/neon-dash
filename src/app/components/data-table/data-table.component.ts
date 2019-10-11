@@ -33,6 +33,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { CoreUtil } from '../../library/core/core.util';
+import { DateUtil, DateFormat } from '../../library/core/date.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -46,6 +47,7 @@ import {
 } from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-data-table',
@@ -478,6 +480,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return base;
     }
 
+    buildDate(day: any){
+        var bDate: string = day.toUTCString();
+        var bDate_split = bDate.split(" ");
+        var emptyDate = '';
+        var retDate = emptyDate.concat(bDate_split[2], '. ', bDate_split[1], ', ', bDate_split[3], ', ', bDate_split[4], ' ', bDate_split[5])
+        return retDate;
+    }
+
     /**
      * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
      * Returns the count of elements shown in the visualization.
@@ -499,6 +509,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    if(field.type === 'date'){
+                        item[field.columnName] = DateUtil.retrievePastTime(item[field.columnName], DateFormat.MINUTE);
+                    }
                 }
             }
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
