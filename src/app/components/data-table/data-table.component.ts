@@ -480,14 +480,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return base;
     }
 
-    buildDate(day: any){
-        var bDate: string = day.toUTCString();
-        var bDate_split = bDate.split(" ");
-        var emptyDate = '';
-        var retDate = emptyDate.concat(bDate_split[2], '. ', bDate_split[1], ', ', bDate_split[3], ', ', bDate_split[4], ' ', bDate_split[5])
-        return retDate;
-    }
-
     /**
      * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
      * Returns the count of elements shown in the visualization.
