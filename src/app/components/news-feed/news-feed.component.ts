@@ -101,7 +101,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     relativeTime(date: Date) {
-        return DateUtil.retrievePastTime(date, DateFormat.SHORT);
+        return DateUtil.retrievePastTime(date, DateFormat.MINUTE);
     }
 
     /**
