@@ -33,6 +33,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { CoreUtil } from '../../library/core/core.util';
+import { DateUtil, DateFormat } from '../../library/core/date.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -46,6 +47,7 @@ import {
 } from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-data-table',
@@ -499,6 +501,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    if(field.type === 'date'){
+                        item[field.columnName] = DateUtil.retrievePastTime(item[field.columnName], DateFormat.MINUTE);
+                    }
                 }
             }
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
