@@ -1,0 +1,3 @@
+- install docker for your platform: https://docs.docker.com/v17.09/engine/installation/
+- run install.sh to install neon system on your docker
+- open your browser at http://localhost:4199
