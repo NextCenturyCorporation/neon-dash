@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { FieldConfig } from '../../library/core/models/dataset';
@@ -38,10 +38,8 @@ describe('Component: NetworkGraph', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            InjectableColorThemeService,
-            { provide: 'limit', useValue: 'testLimit' }
+            InjectableColorThemeService
         ],
         imports: [
             NetworkGraphModule
@@ -69,7 +67,7 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
         expect(component.options.edgeWidth).toEqual(1);
-        expect(component.options.limit).toEqual('testLimit');
+        expect(component.options.limit).toEqual(500000);
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.physics).toEqual(true);
         expect(component.options.filterable).toEqual(false);
