@@ -47,7 +47,6 @@ import {
 } from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-data-table',
@@ -501,7 +500,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
-                    if(field.type === 'date'){
+                    if (field.type === 'date') {
                         item[field.columnName] = DateUtil.retrievePastTime(item[field.columnName], DateFormat.MINUTE);
                     }
                 }

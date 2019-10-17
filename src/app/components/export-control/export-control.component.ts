@@ -65,7 +65,7 @@ export class ExportControlComponent {
 
     exportSuccess(queryResults) {
         let link = document.createElement('a');
-        var url = URL.createObjectURL(new Blob([queryResults.data], {type:"text/plain;charset=utf-8"}));
+        let url = URL.createObjectURL(new Blob([queryResults.data], { type: 'text/plain;charset=utf-8' }));
         link.href = url;
         link.target = '_blank';
         link.download = queryResults.fileName;
