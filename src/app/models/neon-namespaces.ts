@@ -20,6 +20,7 @@ export namespace neonEvents {
     export const TOGGLE_FILTER_TRAY = 'TOGGLE_FILTER_TRAY';
     export const TOGGLE_SIMPLE_SEARCH = 'TOGGLE_SIMPLE_SEARCH';
     export const TOGGLE_VISUALIZATIONS_SHORTCUT = 'TOGGLE_VISUALIZATIONS_SHORTCUT';
+    export const TOGGLE_LOCAL_TIMES = 'TOGGLE_LOCAL_TIMES';
     export const WIDGET_ADD = 'WIDGET_ADD';
     export const WIDGET_CONFIGURED = 'WIDGET_CONFIGURED';
     export const WIDGET_DELETE = 'WIDGET_DELETE';
