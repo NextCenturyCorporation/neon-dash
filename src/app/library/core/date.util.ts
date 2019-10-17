@@ -27,6 +27,7 @@ export enum DateFormat {
 
 export class DateUtil {
     static STANDARD_FORMAT: DateFormat = DateFormat.ISO;
+    static USE_LOCAL_TIME: boolean = false;
 
     /**
      * Add one of the given interval (minute/hour/day/month/year) to the given date object, subtract one second, and
@@ -43,8 +44,13 @@ export class DateUtil {
      * Returns the date string for the given date object (or a date string formatted using the standard date format)
      * formatted using the given output date format (or the standard date format if no date format is given).
      */
-    static fromDateToString(input: Date|string, outputFormat: DateFormat = DateUtil.STANDARD_FORMAT): string {
-        return moment.utc(input, DateUtil.STANDARD_FORMAT as string).format(outputFormat as string);
+    static fromDateToString(input: Date|string, outputFormat: DateFormat = DateUtil.STANDARD_FORMAT): any {
+        if(this.USE_LOCAL_TIME){
+            return moment.parseZone(input).local().format(outputFormat as string)
+        }
+        else{
+            return moment.utc(input, DateUtil.STANDARD_FORMAT as string).format(outputFormat as string);
+        }
     }
 
     /**
