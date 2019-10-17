@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -66,7 +65,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog,
@@ -76,7 +74,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -91,8 +88,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     initializeProperties() {
         // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
-        let sortOrder = this.injector.get('sortOrder', null);
-        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        if (typeof this.options.sortOrder !== 'undefined') {
+            let sortOrder = this.options.sortOrder;
+            this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        }
     }
 
     /**

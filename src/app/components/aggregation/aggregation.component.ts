@@ -18,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -196,7 +195,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: InjectableColorThemeService,
@@ -206,7 +204,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
