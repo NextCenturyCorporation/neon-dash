@@ -16,6 +16,9 @@ terraform/lambda.zip
 docker/build.sh
 docker/run.sh
 
+# ignore zip files under quick-install
+quick-install/*.gz
+
 # dependencies
 /node_modules
 /bower_components
