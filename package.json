@@ -112,7 +112,7 @@
     "protractor": "~5.4.2",
     "replace-in-file": "^4.1.1",
     "sass-lint": "^1.13.1",
-    "sass-lint-auto-fix": "^0.17.0",
+    "sass-lint-auto-fix": "0.17.0",
     "ts-node": "^8.3.0",
     "typedoc": "~0.14.2",
     "typescript": "~3.2.0",
