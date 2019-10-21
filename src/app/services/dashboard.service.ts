@@ -425,6 +425,30 @@ export class DashboardService {
     }
 
     /**
+     * Creates and returns a new config object with the existing datastores and an empty dashboard object.
+     */
+    public createEmptyDashboardConfig(name: string): NeonConfig {
+        let choices = {};
+        choices[name] = {
+            layout: 'empty',
+            options: {
+                connectOnLoad: true
+            }
+        };
+
+        return NeonConfig.get({
+            dashboards: NeonDashboardChoiceConfig.get({
+                choices
+            }),
+            datastores: this.config.datastores,
+            layouts: {
+                empty: []
+            },
+            projectTitle: name
+        });
+    }
+
+    /**
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
