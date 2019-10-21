@@ -91,7 +91,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     return [root, ...res];
                 }
             }
-        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+        } else if (this.dashboardChoice && _.isEqual(root.fullTitle, this.dashboardChoice.fullTitle)) {
             return [root];
         }
         return [];
@@ -105,7 +105,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     return [key, ...res];
                 }
             }
-        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+        } else if (this.dashboardChoice && _.isEqual(root.fullTitle, this.dashboardChoice.fullTitle)) {
             return [];
         }
         return undefined;

@@ -1,10 +1,14 @@
-<form #optionsForm="ngForm" (submit)="saveState(stateName.value, false)">
+<form #optionsForm="ngForm">
     <mat-form-field>
-        <input #stateName matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent">
+        <input #stateName matInput placeholder="Dashboard Name" maxlength="100" name="stateToSave" dividerColor="accent">
     </mat-form-field>
 
-    <button mat-raised-button class="neon-button-small" type="submit">
-        <span>Save State</span>
+    <button mat-raised-button class="neon-button-small" (click)="saveState(stateName.value, false)" [disabled]="!stateName.value">
+        <span>Save Current Dashboard</span>
+    </button>
+
+    <button mat-raised-button class="neon-button-small" (click)="createState(stateName.value)" [disabled]="!stateName.value">
+        <span>Create New Dashboard</span>
     </button>
 </form>
 
