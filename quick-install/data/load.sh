@@ -13,4 +13,4 @@ curl -H 'Content-Type: application/json' \
      -d @/data/${DATA_SET}_mapping.json \
      ${HOST}/${DATA_SET}
 
-npx elasticdump --input=/data/${DATA_SET}.json --output=${HOST}
+npx elasticdump --input=/data/${DATA_SET}.json --output=${HOST} --limit=10000
