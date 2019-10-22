@@ -1,6 +1,6 @@
 datastores:
     es1:
-        host: elasticsearch
+        host: neon-es
         type: elasticsearchrest
         databases:
             earthquakes:
