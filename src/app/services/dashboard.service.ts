@@ -345,9 +345,24 @@ export class DashboardService {
             dashboards: this._validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
                 NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })),
             datastores: Object.values(config.datastores || {}).reduce((datastores, datastore) => {
-                // Ignore the datastore if another datastore with the same name already exists.  Assume that each name is unique.
+                // If the datastore doesn't already exist, add it.
                 if (!datastores[datastore.name]) {
                     datastores[datastore.name] = datastore;
+                } else if (datastores[datastore.name].host === datastore.host && datastores[datastore.name].type === datastore.type) {
+                    Object.keys(datastore.databases).forEach((databaseName) => {
+                        // If the database doesn't already exist, add it.
+                        if (!datastores[datastore.name].databases[databaseName]) {
+                            datastores[datastore.name].databases[databaseName] = datastore.databases[databaseName];
+                        } else {
+                            Object.keys(datastore.databases[databaseName].tables).forEach((tableName) => {
+                                // If the table doesn't already exist, add it.
+                                if (!datastores[datastore.name].databases[databaseName].tables[tableName]) {
+                                    datastores[datastore.name].databases[databaseName].tables[tableName] =
+                                        datastore.databases[databaseName].tables[tableName];
+                                }
+                            });
+                        }
+                    });
                 }
                 return datastores;
             }, this.config.datastores || {}),
