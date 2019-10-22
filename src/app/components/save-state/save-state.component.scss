@@ -27,7 +27,7 @@ form {
     grid-gap: 1em;
     margin-bottom: 0.5em;
 
-    mat-form-field {
+    .expanded {
         grid-column: 1 / 3;
     }
 }
