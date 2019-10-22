@@ -1,5 +1,5 @@
 #!/bin/sh
-HOST="http://elasticsearch:9200"
+HOST="http://neon-es:9200"
 DATA_SET="earthquakes"
 
 until curl -s ${HOST} > /dev/null
