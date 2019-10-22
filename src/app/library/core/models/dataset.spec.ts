@@ -653,42 +653,6 @@ describe('Dataset Util Misc Tests', () => {
         });
     });
 
-    it('deconstructTableOrFieldKeySafely with key map should work as expected', () => {
-        const keyMap = {
-            key1: 'a.b.c',
-            key2: 'a.b.c.d',
-            key3: 'a.b.c.d.e.f'
-        };
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key1', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: ''
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key2', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: 'd'
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key3', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: 'd.e.f'
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('w.x.y.z', keyMap)).toEqual({
-            datastore: 'w',
-            database: 'x',
-            table: 'y',
-            field: 'z'
-        });
-    });
-
     it('deconstructTableOrFieldKey should work as expected', () => {
         expect(DatasetUtil.deconstructTableOrFieldKey(null)).toEqual(null);
         expect(DatasetUtil.deconstructTableOrFieldKey('')).toEqual(null);
