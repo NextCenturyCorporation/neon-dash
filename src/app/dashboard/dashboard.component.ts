@@ -557,7 +557,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     showVizSettings(cmp: NeonGridItem) {
         this.configurableComponent = this.widgets.get(cmp.id).getOptions();
-        this.setPanel('gear', 'Component Settings');
+        this.setPanel('gear', 'Widget Settings');
     }
 
     refreshViz(item: NeonGridItem) {
