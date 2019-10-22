@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -99,7 +98,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -108,7 +106,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
