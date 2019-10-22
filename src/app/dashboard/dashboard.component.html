@@ -56,8 +56,8 @@
                 id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large">filter_list</mat-icon>
             </button>
-
-            <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+            <button mat-icon-button class="neon-icon-button-large" matTooltip="Dashboard Menu" matTooltipPosition="below"
+                [matMenuTriggerFor]="appMenu">
                 <mat-icon class="neon-icon-large">menu</mat-icon>
             </button>
 
