@@ -88,6 +88,18 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
+    /**
+     * Creates an empty dashboard state using the given name, automatically loads it, and closes the saved state menu.
+     */
+    public createState(name: string): void {
+        const config = this.dashboardService.createEmptyDashboardConfig(name);
+        this.configService.save(config)
+            .subscribe(() => {
+                this.openNotification(name, 'created');
+                this.loadState(name);
+            }, this.handleStateFailure.bind(this, name));
+    }
+
     get currentFilename() {
         return this.dashboardService.config.fileName;
     }
