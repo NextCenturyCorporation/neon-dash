@@ -25,8 +25,7 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 * The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
 ## Quick Install
-* For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](./quick-install/neon.tar.gz) package
-to a folder and follow the instruction in the README file.
+* For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](https://portal.nextcentury.com/owncloud/index.php/apps/files/ajax/download.php?dir=%2F&files=neon.zip) package to a folder and follow the instruction in the README file.
 
 ## Initial Setup Instructions
 
