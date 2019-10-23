@@ -1,54 +1,25 @@
-<div class="about-container" align="left">
-    <div class="about-body-container">
-        <div class="about-subheader">
-            <H2>Technical Section</H2>
-        </div>
-        <p>Version 1.3.1</p>
-        <p>Build Date: {{ buildDate }}</p>
-        <p>GIT Commit ID: {{ commitId }}</p>
+<div class="about-container">
+    <p>
+        The Neon Dashboard is a highly configurable, open-source data analysis application that allows users to explore massive, complex
+        datasets using a collection of data visualization widgets in a common web-based environment. The Neon Dashboard is powered by the
+        Next Century Component Library, an open-source JavaScript library that offers aggregated search and filter behavior along with
+        customizable data visualization components that operate directly on your own datastores and integrate into any JavaScript
+        application.
+    </p>
+    <p><a href="https://github.com/NextCenturyCorporation/neon-dash-internal" target="_blank">Click here to visit our website</a></p>
+    <p><img class="center" src="./assets/icons/dashboard/ncc_logo.png"></p>
 
-        <hr>
+    <hr>
 
-        <div class="about-subheader">
-            <H2>Program</H2>
-        </div>
-        <p>This version of NEON is sponsored by Darpa's program
-            <br><b>LORELEI - Low Resource Languages for Emergent Incidents.</b>
-            <br><a href="https://www.darpa.mil/program/low-resource-languages-for-emergent-incidents" target="_blank">Read about LORELEI
-                ></a></p>
-
-        <p>PM: Dr. Boyan Onyshkevych</p>
-        <p><img class="center" src="./assets/icons/dashboard/darpa_logo.png"></p>
-
-        <div class="about-subheader">
-            <H2>Performers</H2>
-        </div>
-        <p>BBN Technologies
-            <br>Carnegie Mellon University
-            <br>MIT Lincoln Laboratory
-            <br>Next Century Corporation
-            <br>Rensselaer Polytechnic Institute
-            <br>University of Southern California, Information Sciences Institute</p>
-
-        <hr>
-
-        <div class="about-subheader">
-            <H2>Neon</H2>
-        </div>
-        <p>Neon is an open-source framework used to develop custom data analysis applications. The Neon framework can incorporate a variety
-            of data analysis and visualization widgets in a common webtop environment to allow analysts to explore complex data sets.</p>
-        <p><a href="https://neon.nextcentury.com/" target="_blank">Visit our website ></a></p>
-        <p><img class="center" src="./assets/icons/dashboard/ncc_logo.png"></p>
-
-        <!-- TODO THOR-1134 -->
-
-        <!-- TODO THOR-1079
-        <p>Neon Server: {{ backendVersion }}</p>
-        -->
-
-        <!-- TODO THOR-1011
-        <p>Neon Dashboard: {{ dashboardVersion }}</p>
-        -->
-
+    <div class="about-subheader">
+        <H2>Technical Information</H2>
     </div>
+    <p>Neon Dash Build Date: {{ buildDate }}</p>
+    <p>Neon Dash GIT Commit: {{ commitId }}</p>
+    <p>Neon Server Build Date: TODO</p>
+    <p>Neon Server GIT Commit: TODO</p>
+
+    <hr>
+
+    <div #customAboutTextDiv></div>
 </div>

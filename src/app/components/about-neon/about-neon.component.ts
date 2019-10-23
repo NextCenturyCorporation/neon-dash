@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { ConfigService } from '../../services/config.service';
+import { NeonConfig } from '../../models/types';
 import { environment } from '../../../environments/environment';
 import { util } from 'neon-framework';
 
@@ -24,9 +26,15 @@ import { util } from 'neon-framework';
 export class AboutNeonComponent implements OnInit {
     @Input() public dashboardVersion: string = 'Unavailable...';
 
+    @ViewChild('customAboutTextDiv') customAboutTextDiv: ElementRef;
+
     public backendVersion: string = 'Unavailable...';
     public buildDate: string = environment.buildDate;
     public commitId: string = environment.recentGit;
+
+    constructor(private configService: ConfigService) {
+        // Do nothing.
+    }
 
     ngOnInit() {
         if (!this.backendVersion) {
@@ -34,5 +42,8 @@ export class AboutNeonComponent implements OnInit {
                 this.backendVersion = result;
             });
         }
+        this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
+            this.customAboutTextDiv.nativeElement.innerHTML = neonConfig.about;
+        });
     }
 }
