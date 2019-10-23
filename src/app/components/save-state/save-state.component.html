@@ -1,5 +1,5 @@
 <form #optionsForm="ngForm">
-    <mat-form-field>
+    <mat-form-field class="expanded">
         <input #stateName matInput placeholder="Dashboard Name" maxlength="100" name="stateToSave" dividerColor="accent">
     </mat-form-field>
 
@@ -9,6 +9,10 @@
 
     <button mat-raised-button class="neon-button-small" (click)="createState(stateName.value)" [disabled]="!stateName.value">
         <span>Create New Dashboard</span>
+    </button>
+
+    <button mat-raised-button class="neon-button-small expanded" (click)="openConfigEditor()">
+        <span>Edit Current Dashboard Configuration</span>
     </button>
 </form>
 
@@ -21,11 +25,11 @@
 
     <div class="date">Last Modified - {{ state.lastModified ? (state.lastModified | date: 'yyyy-M-d h:mm') : "N/A" }}</div>
     <div class="actions">
-        <button mat-icon-button class="update-button" (click)="saveState(state.dashboards.name, true);"
+        <button mat-icon-button class="update-button" matTooltip="Save Dashboard Changes" (click)="saveState(state.dashboards.name, true);"
             *ngIf="(currentFilename === state.fileName && dashboardState.modified)">
             <mat-icon>save</mat-icon>
         </button>
-        <button mat-icon-button class="delete-button" (click)="deleteState(state.fileName, true);">
+        <button mat-icon-button class="delete-button" matTooltip="Delete Saved Dashboard" (click)="deleteState(state.fileName, true);">
             <mat-icon>delete</mat-icon>
         </button>
     </div>
