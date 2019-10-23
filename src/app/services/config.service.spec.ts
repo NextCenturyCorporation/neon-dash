@@ -30,7 +30,7 @@ describe('Service: ConfigService', () => {
         configService = getConfigService();
     });
 
-    it('deleteState does validate the state name', () => {
+    it('delete does validate the state name and call openConnection().deleteState', () => {
         let calls = 0;
         spyOn(configService, 'openConnection').and.callFake(() => ({
             deleteState: (data, __successCallback) => {
@@ -43,7 +43,30 @@ describe('Service: ConfigService', () => {
         expect(calls).toEqual(1);
     });
 
-    it('load does validate the state name', () => {
+    it('list does call openConnection().listStates', () => {
+        let calls = 0;
+        spyOn(configService, 'openConnection').and.callFake(() => ({
+            listStates: (limit, offset, __successCallback) => {
+                calls++;
+                if (calls === 1) {
+                    expect(limit).toEqual(100);
+                    expect(offset).toEqual(0);
+                }
+                if (calls === 2) {
+                    expect(limit).toEqual(12);
+                    expect(offset).toEqual(34);
+                }
+            }
+        }));
+
+        configService.list();
+        expect(calls).toEqual(1);
+
+        configService.list(12, 34);
+        expect(calls).toEqual(2);
+    });
+
+    it('load does validate the state name and call openConnection().loadState', () => {
         let calls = 0;
         spyOn(configService, 'openConnection').and.callFake(() => ({
             loadState: (data, __successCallback) => {
@@ -56,16 +79,33 @@ describe('Service: ConfigService', () => {
         expect(calls).toEqual(1);
     });
 
-    it('saveState does validate the state name', () => {
+    it('save does validate the state name and call openConnection().saveState', () => {
         let calls = 0;
         spyOn(configService, 'openConnection').and.callFake(() => ({
             saveState: (data, __successCallback) => {
                 calls++;
                 expect(data.projectTitle).toEqual('folder.my-test.state_name1234');
+                expect(data.stateName).toEqual('folder.my-test.state_name1234');
             }
         }));
 
-        configService.save(NeonConfig.get({ projectTitle: '../folder/my-test.!@#$%^&*state_name`~?\\1234' }));
+        const projectTitle = '../folder/my-test.!@#$%^&*state_name`~?\\1234';
+        configService.save(NeonConfig.get({ projectTitle }), '');
+        expect(calls).toEqual(1);
+    });
+
+    it('save does set the projectTitle and stateName to the given state name', () => {
+        let calls = 0;
+        spyOn(configService, 'openConnection').and.callFake(() => ({
+            saveState: (data, __successCallback) => {
+                calls++;
+                expect(data.projectTitle).toEqual('folder.my-test.state_name1234');
+                expect(data.stateName).toEqual('folder.my-test.state_name1234');
+            }
+        }));
+
+        const projectTitle = '../folder/my-test.!@#$%^&*state_name`~?\\1234';
+        configService.save(NeonConfig.get({ projectTitle: 'whatever' }), projectTitle);
         expect(calls).toEqual(1);
     });
 
