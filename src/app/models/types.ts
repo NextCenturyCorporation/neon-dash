@@ -206,18 +206,19 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonConfig {
-    projectTitle?: string;
-    projectIcon?: string;
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
     datastores: Record<string, DatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
+
+    about?: any;
     errors?: any[];
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
     neonServerUrl?: string;
-    version: string;
+    projectIcon?: string;
+    projectTitle?: string;
+    version?: string;
 }
 
 export class NeonConfig {
