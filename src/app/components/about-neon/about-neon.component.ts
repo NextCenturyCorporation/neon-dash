@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ConfigService } from '../../services/config.service';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { NeonConfig } from '../../models/types';
 import { environment } from '../../../environments/environment';
-import { util } from 'neon-framework';
 
 @Component({
     selector: 'app-about-neon',
@@ -24,26 +24,29 @@ import { util } from 'neon-framework';
     styleUrls: ['about-neon.component.scss']
 })
 export class AboutNeonComponent implements OnInit {
-    @Input() public dashboardVersion: string = 'Unavailable...';
-
     @ViewChild('customAboutTextDiv') customAboutTextDiv: ElementRef;
 
-    public backendVersion: string = 'Unavailable...';
-    public buildDate: string = environment.buildDate;
-    public commitId: string = environment.recentGit;
+    public dashBuildDate = environment.buildDate;
+    public dashGitCommit = environment.recentGit;
+    public serverBuildDate = '?';
+    public serverGitCommit = '?';
 
-    constructor(private configService: ConfigService) {
+    constructor(private configService: ConfigService, private connectionService: InjectableConnectionService) {
         // Do nothing.
     }
 
+    getCustomAboutTextDivElement(): HTMLElement {
+        return this.customAboutTextDiv.nativeElement;
+    }
+
     ngOnInit() {
-        if (!this.backendVersion) {
-            util.infoUtils.getNeonVersion((result) => {
-                this.backendVersion = result;
-            });
-        }
+        let divElement = this.getCustomAboutTextDivElement();
         this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
-            this.customAboutTextDiv.nativeElement.innerHTML = neonConfig.about;
+            divElement.innerHTML = neonConfig.about;
+        });
+        this.connectionService.getServerStatus((response) => {
+            this.serverBuildDate = response['Build Date'] || '?';
+            this.serverGitCommit = response['Git Commit'] || '?';
         });
     }
 }
