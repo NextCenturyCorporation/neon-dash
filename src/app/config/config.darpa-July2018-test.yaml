@@ -1,5 +1,4 @@
 projectTitle: 'Test Custom Title'
-projectIcon: 'assets/favicon.medifor.ico'
 
 datastores:
     es1:

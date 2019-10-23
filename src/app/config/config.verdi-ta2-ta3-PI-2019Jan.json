@@ -3,7 +3,7 @@
         {
             "name": "Seedling LDC TA2",
             "connectOnLoad": true,
-            "icon": "assets/images/verdi-favicon.ico",
+            "icon": "assets/custom/verdi-favicon.ico",
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
