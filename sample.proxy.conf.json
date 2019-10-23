@@ -3,7 +3,7 @@
     "target": "http://localhost:8090/",
     "secure": false
   },
-  "/lorelei-service/**": {
+  "/data-pipeline/**": {
     "target": "http://localhost:10000/",
     "secure": false
   }
