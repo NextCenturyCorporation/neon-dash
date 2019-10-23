@@ -490,7 +490,7 @@ about: |
     <p>This version of Neon is sponsored by DARPA's <b>LORELEI</b> (Low Resource Languages for Emergent Incidents) program.</p>
     <p><a href="https://www.darpa.mil/program/low-resource-languages-for-emergent-incidents" target="_blank">Click here to learn about LORELEI</a></p>
     <p>Program Manager: Dr. Boyan Onyshkevych</p>
-    <p><img class="center" src="./assets/icons/dashboard/darpa_logo.png"></p>
+    <p><img class="center" src="./assets/custom/darpa_logo.png"></p>
     <hr>
     <div class="about-subheader">
     <H2>Performers</H2>
