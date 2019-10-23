@@ -3,7 +3,7 @@
         {
             "title": "VERDI",
             "name": "VERDI LDC TA1",
-            "icon": "assets/images/verdi-favicon.ico",
+            "icon": "assets/custom/verdi-favicon.ico",
             "connectOnLoad": false,
             "layout": "verdi-ta1-layout",
             "datastore": "elasticsearch",
@@ -101,7 +101,7 @@
         {
             "title": "VERDI",
             "name": "VERDI LDC TA3",
-            "icon": "assets/images/verdi-favicon.ico",
+            "icon": "assets/custom/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",

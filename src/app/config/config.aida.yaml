@@ -1,4 +1,4 @@
-projectIcon: "assets/images/verdi-favicon.ico"
+projectIcon: "assets/custom/verdi-favicon.ico"
 projectTitle: AIDA NEON
 datastores:
     es1:
