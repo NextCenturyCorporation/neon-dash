@@ -153,7 +153,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.dashboardState.getActiveFields();
+            this.fields = [];
+            this.searchField = undefined;
+            this.showSimpleSearch = false;
         }
     }
 }
