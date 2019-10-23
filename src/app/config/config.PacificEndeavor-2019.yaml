@@ -90,7 +90,7 @@ dashboards:
                     options:
                         connectOnLoad: true
                         customRequests:
-                            - endpoint: ../lorelei-service
+                            - endpoint: ../data-pipeline
                               date: createdAt
                               id: id
                               notes:
