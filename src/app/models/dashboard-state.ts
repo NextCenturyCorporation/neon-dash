@@ -62,13 +62,6 @@ export class DashboardState {
     }
 
     /**
-     * Returns the active table fields
-     */
-    public getActiveFields(): FieldConfig[] {
-        return this.datastore.databases[0].tables[0].fields;
-    }
-
-    /**
      * Returns whether a datastore is active.
      */
     public hasDatastore(): boolean {
