@@ -1,3 +1,5 @@
+projectIcon: 'assets/custom/favicon.medifor.ico'
+
 datasets:
   -
     name: MFC_2018_EVAL_PART1_REPORT
