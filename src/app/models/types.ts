@@ -224,12 +224,13 @@ export interface NeonConfig {
 export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
+            about: '',
             errors: [],
             layouts: {},
-            version: '',
             neonServerUrl: '',
             projectIcon: '',
             projectTitle: '',
+            version: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
             datastores: translateValues(config.datastores || {}, DatastoreConfig.get.bind(null), true)
