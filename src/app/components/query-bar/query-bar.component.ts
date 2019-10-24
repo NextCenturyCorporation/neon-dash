@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
@@ -66,7 +66,6 @@ export class QueryBarComponent extends BaseNeonComponent {
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog
@@ -75,7 +74,6 @@ export class QueryBarComponent extends BaseNeonComponent {
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );

@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -73,7 +72,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer,
@@ -84,7 +82,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
