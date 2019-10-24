@@ -41,6 +41,7 @@
     * [**Wiki Viewer Bindings**](#wiki-viewer-bindings)
     * [**Document Viewer Metadata Object Options**](#document-viewer-metadata-object-options)
     * [**Map Layer Object Options**](#map-layer-object-options)
+  * [**Other Properties**](#other-properties)
 
 To load a preconfigured Neon Dashboard, create a Neon Dashboard configuration file at [**app/config/config.json**] or [**app/config/config.yaml**].  If **config.json** is present, **config.yaml** will be ignored.
 
@@ -48,10 +49,12 @@ Sample configuration files are available in the git repository at [**app/config/
 
 ## **The Configuration File**
 
-The configuration file contains the following properties:
+The configuration file contains the following required properties:
 * **"datastores"** - (Object, Required) Configures the datastores that are available in the Neon Dashboard.  Please see [**Datastores Object**](#datastores-object) for details.
 * **"dashboards"** - (Object, Required) Configures the dashboards that are available in the Neon Dashboard.  Please see [**Dashboards Object**](#dashboards-object) for details.
 * **"layouts"** - (Object, Required) Configures the visualization layouts that are available in the Neon Dashboard.  The **"layouts"** property is a JSON object that maps unique layout names to arrays of visualization objects.  Please see [**Visualization Object**](#visualization-object) for details.
+
+Please see [**Other Properties**](#other-properties) for details about other optional configuration file properties.
 
 ### **Note on Elasticsearch**
 
@@ -608,3 +611,51 @@ Optional:
 * **idField** - The name of the ID field.
 * **sizeField** - The name of the size field.
 * **title** - A label for the map layer displayed in the UI. Default: The map **title**.
+
+### **Other Properties**
+
+Optional configuration file properties:
+* **about** - A string or object containing data for the About panel.  Please see the [**About Property Examples**](#about-property-examples) for examples.
+* **neonServerUrl** - The URL for the Neon Server.  Default: `"../neon"`
+* **projectIcon** - The icon for the application tab in the web browser.  Default: `"src/assets/favicon.blue.ico"`
+* **projectTitle** - The text for the application tab in the web browser.  Default: `"Neon"`
+
+#### **About Property Examples**
+
+String example:
+
+```yaml
+about: |
+    <div class="about-subheader">
+    <H2>Team</H2>
+    </div>
+    <p>This version of Neon is sponsored by Next Century Corporation.</p>
+    <p><a href="http://nextcentury.com" target="_blank">Website</a></p>
+    <p>Team Lead:  Thomas Schellenberg</p>
+    <p><img class="center" src="./assets/icons/dashboard/ncc_logo.png"></p>
+    <hr>
+```
+
+Object example:
+
+```yaml
+about:
+    info:
+        data: "This version of Neon is sponsored by Next Century Corporation."
+        header: "Team"
+        icon: "./assets/icons/dashboard/ncc_logo.png"
+        leader: "Team Lead:  Thomas Schellenberg"
+        link: "http://nextcentury.com"
+    memberList:
+        data:
+          - Person 1
+          - Person 2
+          - Person 3
+          - Person 4
+        header: Team Members
+    misc:
+        - data: "Description for Section X"
+          header: "Section X"
+        - data: "Description for Section Y"
+          header: "Section Y"
+```
