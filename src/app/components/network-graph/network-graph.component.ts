@@ -18,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -241,7 +240,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
@@ -251,7 +249,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -275,7 +272,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
 
         this.displayGraph = !this.options.hideUnfiltered;
     }
@@ -1437,10 +1436,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     resetColors() {
-        this.options.linkColor = this.injector.get('linkColor', NetworkGraphComponent.DEFAULT_NODE_COLOR);
-        this.options.nodeColor = this.injector.get('nodeColor', NetworkGraphComponent.DEFAULT_NODE_COLOR);
-        this.options.edgeColor = this.injector.get('edgeColor', NetworkGraphComponent.DEFAULT_EDGE_COLOR);
-        this.options.fontColor = this.injector.get('fontColor', NetworkGraphComponent.DEFAULT_FONT_COLOR);
+        this.options.linkColor = this.options.access('linkColor').valueDefault;
+        this.options.nodeColor = this.options.access('nodeColor').valueDefault;
+        this.options.edgeColor = this.options.access('edgeColor').valueDefault;
+        this.options.fontColor = this.options.access('fontColor').valueDefault;
         this.reloadGraph();
     }
 }

@@ -1083,7 +1083,7 @@ dashboards:
                             options:
                                 connectOnLoad: true
                                 customRequests:
-                                    - endpoint: http://localhost:4200/lorelei-service/
+                                    - endpoint: http://localhost:4200/data-pipeline/
                                       pretty: THOR Data Input
                                       properties:
                                         - name: originalText
@@ -1140,7 +1140,7 @@ dashboards:
                             options:
                                 connectOnLoad: true
                                 customRequests:
-                                    - endpoint: http://localhost:4200/lorelei-service/
+                                    - endpoint: http://localhost:4200/data-pipeline/
                                       pretty: THOR Data Input
                                       properties:
                                         - name: originalText

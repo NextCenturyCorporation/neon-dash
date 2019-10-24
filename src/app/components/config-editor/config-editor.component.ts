@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -37,11 +38,12 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
     public CONFIG_PROP_NAME: string = 'config';
     public currentConfig: NeonConfig;
     public configText: string;
+    public dashboardName: string = '';
     destroy = new Subject();
 
     private messenger: eventing.Messenger;
 
-    constructor(private configService: ConfigService) {
+    constructor(private configService: ConfigService, private router: Router) {
         this.messenger = new eventing.Messenger();
     }
 
@@ -53,7 +55,7 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
                 if (this.currentConfig.errors) {
                     delete this.currentConfig.errors;
                 }
-                this.reset();
+                this.cancel();
             });
     }
 
@@ -64,11 +66,19 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
     public save() {
         const settings = yaml.safeLoad(this.configText);
 
-        this.configService.save(settings)
+        this.configService.save(settings, this.dashboardName)
             .subscribe(() => {
-                this.configService.setActive(settings);
                 this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                    message: 'New configuration saved successfully.  Refresh to see changes.'
+                    message: 'Dashboard ' + this.dashboardName + ' saved successfully.'
+                });
+                this.configService.load(this.dashboardName).subscribe((config) => {
+                    this.router.navigate(['/'], {
+                        fragment: '',
+                        queryParams: {
+                            dashboard: config.fileName
+                        },
+                        relativeTo: this.router.routerState.root
+                    });
                 });
             },
             (response) => {
@@ -79,7 +89,7 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
             });
     }
 
-    public reset() {
+    public cancel() {
         this.configText = yaml.safeDump(this.currentConfig);
     }
 }
