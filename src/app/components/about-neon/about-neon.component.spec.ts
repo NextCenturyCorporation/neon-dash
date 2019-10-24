@@ -39,11 +39,77 @@ describe('Component: AboutNeonComponent', () => {
         expect(component.serverGitCommit).toEqual('?');
     });
 
-    it('ngOnInit does set element innerHTML with text from config and update expected properties from getServerStatus response', () => {
+    it('ngOnInit does set element innerHTML with data from config if "about" property is string', () => {
         let divElement = document.createElement('div');
         spyOn(component, 'getCustomAboutTextDivElement').and.returnValue(divElement);
 
         spyOn(configService, 'getActive').and.returnValue(of(NeonConfig.get({ about: '<p>Test HTML</p>' })));
+
+        spyOn(connectionService, 'getServerStatus');
+
+        component.ngOnInit();
+
+        expect(divElement.innerHTML).toEqual('<p>Test HTML</p>');
+    });
+
+    it('ngOnInit does update expected properties with data from config if "about" property is object', () => {
+        let divElement = document.createElement('div');
+        spyOn(component, 'getCustomAboutTextDivElement').and.returnValue(divElement);
+
+        spyOn(configService, 'getActive').and.returnValue(of(NeonConfig.get({ about: {
+            info: {
+                data: 'testInfoData',
+                header: 'testInfoHeader',
+                icon: 'testInfoIcon',
+                leader: 'testInfoLeader',
+                link: 'testInfoLink',
+                property: 'ignoreInfoProperty'
+            },
+            memberList: {
+                data: ['testMember1', 'testMember2'],
+                header: 'testMemberHeader',
+                property: 'ignoreMemberProperty'
+            },
+            misc: [{
+                data: 'testMiscData1',
+                header: 'testMiscHeader1',
+                property: 'ignoreMiscProperty1'
+            }, {
+                data: 'testMiscData2',
+                header: 'testMiscHeader2',
+                property: 'ignoreMiscProperty2'
+            }]
+        } })));
+
+        spyOn(connectionService, 'getServerStatus');
+
+        component.ngOnInit();
+
+        expect(component.info).toEqual({
+            data: 'testInfoData',
+            header: 'testInfoHeader',
+            icon: 'testInfoIcon',
+            leader: 'testInfoLeader',
+            link: 'testInfoLink'
+        });
+        expect(component.memberList).toEqual({
+            data: ['testMember1', 'testMember2'],
+            header: 'testMemberHeader'
+        });
+        expect(component.misc).toEqual([{
+            data: 'testMiscData1',
+            header: 'testMiscHeader1'
+        }, {
+            data: 'testMiscData2',
+            header: 'testMiscHeader2'
+        }]);
+        expect(divElement.innerHTML).toEqual('');
+    });
+
+    it('ngOnInit does update expected properties from getServerStatus response', () => {
+        spyOn(component, 'getCustomAboutTextDivElement').and.returnValue(null);
+
+        spyOn(configService, 'getActive').and.returnValue(of(NeonConfig.get()));
 
         spyOn(connectionService, 'getServerStatus').and.callFake((onSuccess, __onFailure) => {
             onSuccess({
@@ -53,8 +119,6 @@ describe('Component: AboutNeonComponent', () => {
         });
 
         component.ngOnInit();
-
-        expect(divElement.innerHTML).toEqual('<p>Test HTML</p>');
 
         expect(component.serverBuildDate).toEqual('testBuildDate');
         expect(component.serverGitCommit).toEqual('testGitCommit');
