@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
     AbstractSearchService,
@@ -41,13 +41,6 @@ import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../library/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
-
-export class InjectorOptionConfig extends OptionConfig {
-    public get(bindingKey: string, defaultValue: any): any {
-        // Assume config is an Angular Injector
-        return this.config.get(bindingKey, defaultValue);
-    }
-}
 
 /**
  * @class BaseNeonComponent
@@ -87,6 +80,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected lastPage: boolean = true;
     protected page: number = 1;
 
+    @Input() configOptions: { [key: string]: any };
     public options: RootWidgetOptionCollection & { [key: string]: any };
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
@@ -97,7 +91,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         protected dashboardService: DashboardService,
         protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService,
-        protected injector: Injector,
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
@@ -123,7 +116,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public ngOnInit(): void {
         this.initializing = true;
 
-        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options = this.createWidgetOptions(this.configOptions, this.getVisualizationDefaultTitle(),
+            this.getVisualizationDefaultLimit());
         this.options.title = this.getVisualizationTitle(this.options.title);
         this.id = this.options._id;
 
@@ -218,7 +212,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
             let title = options.title.split(':').join(' ') + '-' + options._id;
-            return query ? this.searchService.transformQueryPayloadToExport(this.getExportFields(options), query, title) : null;
+            let hostName = this.options.datastore.host;
+            let dataStoreType = this.options.datastore.type;
+            return query ?
+                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
+                null;
         }).filter((exportObject) => !!exportObject);
     }
 
@@ -958,15 +956,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
-     *
-     * @arg {Injector} injector
-     * @arg {string} visualizationTitle
-     * @arg {number} defaultLimit
-     * @return {any}
      */
-    private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
+    private createWidgetOptions(configOptions: any, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
+            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new OptionConfig(configOptions));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
@@ -1114,16 +1107,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected getContributorsForComponent() {
         let allContributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(allContributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(allContributors);
 
         return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
 
     protected getContributorAbbreviations() {
         let contributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(contributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(contributors);
 
         let contributorAbbreviations = contributorKeys.filter((key) =>
             !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);

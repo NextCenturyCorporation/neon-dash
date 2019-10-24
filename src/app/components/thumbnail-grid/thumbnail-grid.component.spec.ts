@@ -16,7 +16,6 @@ import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilterCollection } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
@@ -40,9 +39,7 @@ describe('Component: ThumbnailGrid', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             ThumbnailGridModule
@@ -757,38 +754,7 @@ describe('Component: ThumbnailGrid with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'limit', useValue: 10 },
-            { provide: 'border', useValue: 'percentCompare' },
-            { provide: 'borderCompareValue', useValue: 'Test Compare Value' },
-            { provide: 'borderPercentThreshold', useValue: 0.25 },
-            { provide: 'categoryField', useValue: 'testCategoryField' },
-            { provide: 'compareField', useValue: 'testCategoryField' },
-            { provide: 'cropAndScale', useValue: 'both' },
-            { provide: 'dateField', useValue: 'testDateField' },
-            { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
-            { provide: 'defaultPercent', useValue: 'testDefaultPercent' },
-            { provide: 'filterFields', useValue: ['testFilterField'] },
-            { provide: 'id', useValue: 'testId' },
-            { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'ignoreSelf', useValue: true },
-            { provide: 'linkField', useValue: 'testLinkField' },
-            { provide: 'linkPrefix', useValue: 'prefix/' },
-            { provide: 'nameField', useValue: 'testNameField' },
-            { provide: 'objectIdField', useValue: 'testIdField' },
-            { provide: 'objectNameField', useValue: 'testNameField' },
-            { provide: 'openOnMouseClick', useValue: false },
-            { provide: 'percentField', useValue: 'testSizeField' },
-            { provide: 'predictedNameField', useValue: 'testNameField' },
-            { provide: 'sortDescending', useValue: false },
-            { provide: 'sortField', useValue: 'testSortField' },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'typeField', useValue: 'testTypeField' },
-            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             ThumbnailGridModule
@@ -798,6 +764,38 @@ describe('Component: ThumbnailGrid with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(ThumbnailGridComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            limit: 10,
+            border: 'percentCompare',
+            borderCompareValue: 'Test Compare Value',
+            borderPercentThreshold: 0.25,
+            categoryField: 'testCategoryField',
+            compareField: 'testCategoryField',
+            cropAndScale: 'both',
+            dateField: 'testDateField',
+            defaultLabel: 'testDefaultLabel',
+            defaultPercent: 'testDefaultPercent',
+            filterFields: ['testFilterField'],
+            id: 'testId',
+            idField: 'testIdField',
+            ignoreSelf: true,
+            linkField: 'testLinkField',
+            linkPrefix: 'prefix/',
+            nameField: 'testNameField',
+            objectIdField: 'testIdField',
+            objectNameField: 'testNameField',
+            openOnMouseClick: false,
+            percentField: 'testSizeField',
+            predictedNameField: 'testNameField',
+            sortDescending: false,
+            sortField: 'testSortField',
+            tableKey: 'table_key_2',
+            textMap: { actual: 'Truth', percentage: 'Score' },
+            title: 'Test Title',
+            typeField: 'testTypeField',
+            typeMap: { jpg: 'img', mov: 'vid' }
+        };
         fixture.detectChanges();
     });
 

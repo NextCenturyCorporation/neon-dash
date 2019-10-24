@@ -25,7 +25,6 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -99,18 +98,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.changeDetection.detectChanges();
     }
 
-    openEditConfigDialog() {
-        this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'config-editor'
-            },
-            height: '80%',
-            width: '80%',
-            hasBackdrop: true,
-            disableClose: true
-        });
-    }
-
     publishShowFilterTray() {
         this.showFilterTray = !this.showFilterTray;
         this.messenger.publish(neonEvents.TOGGLE_FILTER_TRAY, {
@@ -153,7 +140,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.dashboardState.getActiveFields();
+            this.fields = [];
+            this.searchField = undefined;
+            this.showSimpleSearch = false;
         }
     }
 }

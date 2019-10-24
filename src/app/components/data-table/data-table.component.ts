@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -33,6 +32,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { CoreUtil } from '../../library/core/core.util';
+import { DateUtil, DateFormat } from '../../library/core/date.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -98,7 +98,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -107,7 +106,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -499,6 +497,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    if (field.type === 'date') {
+                        item[field.columnName] = DateUtil.retrievePastTime(item[field.columnName], DateFormat.MINUTE);
+                    }
                 }
             }
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);

@@ -108,9 +108,11 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this._dataset);
-        filterClause.changeTable = filterClause.table;
+        if (filterClause.changeDatabase && filterClause.changeDatabase.name) {
+            filterClause.database = filterClause.changeDatabase;
+            filterClause.updateTables(this._dataset);
+            filterClause.changeTable = filterClause.table;
+        }
     }
 
     /**
@@ -128,7 +130,9 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeFieldOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.field = filterClause.changeField;
+        if (filterClause.changeField && filterClause.changeField.columnName) {
+            filterClause.field = filterClause.changeField;
+        }
     }
 
     /**
@@ -137,8 +141,10 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.table = filterClause.changeTable;
-        filterClause.updateFields();
+        if (filterClause.changeTable && filterClause.changeTable.name) {
+            filterClause.table = filterClause.changeTable;
+            filterClause.updateFields();
+        }
     }
 
     /**
