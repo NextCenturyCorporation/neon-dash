@@ -1,23 +1,23 @@
 version: '3'
 
 networks:
-  esnet:
+  neon-net:
 
 services:
-  neon-ui:
-    container_name: e2e-ui
+  neon-dash:
+    container_name: neon-dash
     image: nginx:alpine
     ports: 
       - 4199:80
     networks:
-      esnet:
+      neon-net:
     volumes:
-      - ../../dist:/var/www:ro
+      - ${NEON_DASH_DIST:-../../dist}:/var/www:ro
       - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./resources/config.yaml:/var/www/app/config/config.yaml
-  elasticsearch:
+  neon-es:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.7.2
-    container_name: e2e-es
+    container_name: neon-es
     environment:
       - discovery.type=single-node
       - cluster.name=docker-cluster
@@ -33,7 +33,7 @@ services:
     expose:
       - 9200      
     networks:
-      esnet:
+      neon-net:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 1s
@@ -46,20 +46,20 @@ services:
     volumes:
       - ./resources:/config
     image: com.ncc.neon/server:latest
-    container_name: e2e-neon-server
+    container_name: neon-server
     expose:
       - 80
     networks:
-      esnet:
-  data-load:
+      neon-net:
+  neon-data-load:
     volumes:
       - ./data:/data
     image: node:12.4.0-slim
     depends_on:
-      - elasticsearch
+      - neon-es
     entrypoint: []
     command: /bin/bash /data/load.sh
-    container_name: e2e-data-load
+    container_name: neon-data-load
     networks:
-      esnet:
+      neon-net:
   
