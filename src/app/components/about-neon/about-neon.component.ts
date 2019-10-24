@@ -31,6 +31,10 @@ export class AboutNeonComponent implements OnInit {
     public serverBuildDate = '?';
     public serverGitCommit = '?';
 
+    public info = null;
+    public memberList = null;
+    public misc = null;
+
     constructor(private configService: ConfigService, private connectionService: InjectableConnectionService) {
         // Do nothing.
     }
@@ -42,7 +46,27 @@ export class AboutNeonComponent implements OnInit {
     ngOnInit() {
         let divElement = this.getCustomAboutTextDivElement();
         this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
-            divElement.innerHTML = neonConfig.about;
+            if (typeof neonConfig.about === 'string') {
+                divElement.innerHTML = neonConfig.about;
+            }
+
+            if (typeof neonConfig.about === 'object') {
+                this.info = (neonConfig.about.info && typeof neonConfig.about.info === 'object') ? {
+                    data: neonConfig.about.info.data,
+                    header: neonConfig.about.info.header,
+                    icon: neonConfig.about.info.icon,
+                    leader: neonConfig.about.info.leader,
+                    link: neonConfig.about.info.link
+                } : null;
+                this.memberList = (neonConfig.about.memberList && typeof neonConfig.about.memberList === 'object') ? {
+                    data: neonConfig.about.memberList.data,
+                    header: neonConfig.about.memberList.header
+                } : null;
+                this.misc = (neonConfig.about.misc && Array.isArray(neonConfig.about.misc)) ? neonConfig.about.misc.map((item) => ({
+                    data: item.data,
+                    header: item.header
+                })) : null;
+            }
         });
         this.connectionService.getServerStatus((response) => {
             this.serverBuildDate = response['Build Date'] || '?';
