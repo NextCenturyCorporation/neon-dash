@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -115,7 +114,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -124,7 +122,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -697,7 +694,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     initializeProperties() {
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
-        this.options.limit = this.injector.get('documentLimit', this.options.limit);
+        if (typeof this.options.documentLimit !== 'undefined') {
+            this.options.limit = this.options.documentLimit;
+        }
     }
 
     /**

@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -76,7 +75,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -85,7 +83,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
