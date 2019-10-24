@@ -16,8 +16,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 
-import { Injector } from '@angular/core';
-
 import { TextCloudComponent } from './text-cloud.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
@@ -39,14 +37,9 @@ describe('Component: TextCloud', () => {
     initializeTestBed('Text Cloud', {
         providers: [
             InjectableColorThemeService,
-            {
-                provide: DashboardService,
-                useClass: DashboardServiceMock
-            },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             TextCloudModule

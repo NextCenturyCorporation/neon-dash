@@ -14,7 +14,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewEncapsulation } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
@@ -83,7 +83,6 @@ class TestSampleComponent extends SampleComponent {
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         visualization: ElementRef
@@ -92,7 +91,6 @@ class TestSampleComponent extends SampleComponent {
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog,
             visualization
@@ -132,8 +130,7 @@ describe('Component: Sample', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
 
         ],
         imports: [
@@ -524,19 +521,7 @@ describe('Component: Sample with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
-            { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'hideUnfiltered', useValue: true },
-            { provide: 'limit', useValue: 1234 },
-            { provide: 'sampleOptionalField', useValue: 'testNameField' },
-            { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
-            { provide: 'sortDescending', useValue: true },
-            { provide: 'subcomponentType', useValue: 'Impl2' },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'title', useValue: 'Test Title' }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             CommonWidgetModule
@@ -546,6 +531,19 @@ describe('Component: Sample with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            customEventsToPublish: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }],
+            customEventsToReceive: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }],
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            hideUnfiltered: true,
+            limit: 1234,
+            sampleOptionalField: 'testNameField',
+            sampleRequiredField: 'testCategoryField',
+            sortDescending: true,
+            subcomponentType: 'Impl2',
+            tableKey: 'table_key_2',
+            title: 'Test Title'
+        };
         fixture.detectChanges();
     });
 

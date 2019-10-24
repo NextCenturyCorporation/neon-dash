@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -47,7 +46,6 @@ import {
 } from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-data-table',
@@ -100,7 +98,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -109,7 +106,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
