@@ -1,4 +1,7 @@
 <div class="about-container">
+    <div class="about-subheader">
+        <H2>Neon Dashboard</H2>
+    </div>
     <p>
         The Neon Dashboard is a highly configurable, open-source data analysis application that allows users to explore massive, complex
         datasets using a collection of data visualization widgets in a common web-based environment. The Neon Dashboard is powered by the
@@ -20,6 +23,42 @@
     <p>Neon Server GIT Commit ID: {{ serverGitCommit }}</p>
 
     <hr>
+
+    <div *ngIf="info">
+        <div class="about-subheader" *ngIf="info.header">
+            <H2>{{ info.header }}</H2>
+        </div>
+
+        <p *ngIf="info.data">{{ info.data }}</p>
+
+        <p *ngIf="info.link"><a [href]="info.link" target="_blank">Website</a></p>
+
+        <p *ngIf="info.leader">{{ info.leader }}</p>
+
+        <p *ngIf="info.icon"><img class="center" [src]="info.icon"></p>
+
+        <hr>
+    </div>
+
+    <div *ngIf="memberList">
+        <div class="about-subheader" *ngIf="memberList.header">
+            <H2>{{ memberList.header }}</H2>
+        </div>
+
+        <p *ngFor="let member of memberList.data">{{ member }}</p>
+
+        <hr>
+    </div>
+
+    <div *ngFor="let item of misc">
+        <div class="about-subheader" *ngIf="item.header">
+            <H2>{{ item.header }}</H2>
+        </div>
+
+        <p *ngIf="item.data">{{ item.data }}</p>
+
+        <hr>
+    </div>
 
     <div #customAboutTextDiv></div>
 </div>
