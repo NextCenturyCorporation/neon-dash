@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -83,7 +82,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         dialog: MatDialog,
@@ -93,7 +91,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -521,7 +518,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
 
         // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).
         if (this.options.filterField.columnName && !this.options.filterFields.length) {

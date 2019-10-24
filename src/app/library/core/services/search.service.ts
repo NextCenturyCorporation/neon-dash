@@ -293,19 +293,23 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public transformQueryPayloadToExport(
+        hostName: string,
+        dataStoreType: string,
         fields: { columnName: string, prettyName: string }[],
         queryPayload: CoreQueryWrapper,
         uniqueName: string
     ): any {
         return {
             data: {
-                fields: this.findExportFields(queryPayload.query, fields),
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: uniqueName,
+                // IgnoreFilters: undefined,
+                // ignoredFilterIds: [],
+                fileName: uniqueName,
+                dataStoreType: dataStoreType,
+                hostName: hostName,
                 query: queryPayload.query,
-                selectionOnly: undefined,
-                type: 'query'
+                fieldNamePrettyNamePairs: this.findExportFields(queryPayload.query, fields)
+                // SelectionOnly: undefined,
+                // type: 'query'
             }
         };
     }

@@ -14,7 +14,6 @@
  */
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { AggregationModule } from './aggregation.module';
@@ -55,8 +54,7 @@ describe('Component: Aggregation', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             AggregationModule
@@ -91,10 +89,10 @@ describe('Component: Aggregation', () => {
         expect(component.options.notFilterable).toEqual(false);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
-        expect(component.options.scaleMaxX).toEqual(null);
-        expect(component.options.scaleMaxY).toEqual(null);
-        expect(component.options.scaleMinX).toEqual(null);
-        expect(component.options.scaleMinY).toEqual(null);
+        expect(component.options.scaleMaxX).toEqual(undefined);
+        expect(component.options.scaleMaxY).toEqual(undefined);
+        expect(component.options.scaleMinX).toEqual(undefined);
+        expect(component.options.scaleMinY).toEqual(undefined);
         expect(component.options.showHeat).toEqual(false);
         expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
@@ -3837,38 +3835,7 @@ describe('Component: Aggregation with config', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'limit', useValue: 1234 },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'aggregationField', useValue: 'testSizeField' },
-            { provide: 'groupField', useValue: 'testCategoryField' },
-            { provide: 'xField', useValue: 'testXField' },
-            { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
-            { provide: 'hideGridLines', useValue: true },
-            { provide: 'hideGridTicks', useValue: true },
-            { provide: 'ignoreSelf', useValue: true },
-            { provide: 'lineCurveTension', useValue: 0 },
-            { provide: 'lineFillArea', useValue: true },
-            { provide: 'logScaleX', useValue: true },
-            { provide: 'logScaleY', useValue: true },
-            { provide: 'notFilterable', useValue: true },
-            { provide: 'requireAll', useValue: true },
-            { provide: 'savePrevious', useValue: true },
-            { provide: 'scaleMaxX', useValue: '44' },
-            { provide: 'scaleMaxY', useValue: '33' },
-            { provide: 'scaleMinX', useValue: '22' },
-            { provide: 'scaleMinY', useValue: '11' },
-            { provide: 'showHeat', useValue: true },
-            { provide: 'showLegend', useValue: true },
-            { provide: 'sortByAggregation', useValue: true },
-            { provide: 'timeFill', useValue: true },
-            { provide: 'type', useValue: 'scatter' },
-            { provide: 'yPercentage', useValue: 0.5 }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             AggregationModule
@@ -3878,6 +3845,38 @@ describe('Component: Aggregation with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(AggregationComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            tableKey: 'table_key_2',
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            limit: 1234,
+            title: 'Test Title',
+            aggregationField: 'testSizeField',
+            groupField: 'testCategoryField',
+            xField: 'testXField',
+            yField: 'testYField',
+            aggregation: AggregationType.SUM,
+            granularity: TimeInterval.DAY_OF_MONTH,
+            hideGridLines: true,
+            hideGridTicks: true,
+            ignoreSelf: true,
+            lineCurveTension: 0,
+            lineFillArea: true,
+            logScaleX: true,
+            logScaleY: true,
+            notFilterable: true,
+            requireAll: true,
+            savePrevious: true,
+            scaleMaxX: '44',
+            scaleMaxY: '33',
+            scaleMinX: '22',
+            scaleMinY: '11',
+            showHeat: true,
+            showLegend: true,
+            sortByAggregation: true,
+            timeFill: true,
+            type: 'scatter',
+            yPercentage: 0.5
+        };
         fixture.detectChanges();
     });
 
@@ -3938,42 +3937,49 @@ describe('Component: Aggregation with XY config', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'limit', useValue: 1234 },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'aggregationField', useValue: 'testSizeField' },
-            { provide: 'groupField', useValue: 'testCategoryField' },
-            { provide: 'xField', useValue: 'testXField' },
-            { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
-            { provide: 'hideGridLines', useValue: true },
-            { provide: 'hideGridTicks', useValue: true },
-            { provide: 'ignoreSelf', useValue: true },
-            { provide: 'lineCurveTension', useValue: 0 },
-            { provide: 'lineFillArea', useValue: true },
-            { provide: 'logScaleX', useValue: true },
-            { provide: 'logScaleY', useValue: true },
-            { provide: 'notFilterable', useValue: true },
-            { provide: 'requireAll', useValue: true },
-            { provide: 'savePrevious', useValue: true },
-            { provide: 'scaleMaxX', useValue: '44' },
-            { provide: 'scaleMaxY', useValue: '33' },
-            { provide: 'scaleMinX', useValue: '22' },
-            { provide: 'scaleMinY', useValue: '11' },
-            { provide: 'showHeat', useValue: true },
-            { provide: 'showLegend', useValue: true },
-            { provide: 'sortByAggregation', useValue: true },
-            { provide: 'timeFill', useValue: true },
-            { provide: 'type', useValue: 'scatter-xy' },
-            { provide: 'yPercentage', useValue: 0.5 }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             AggregationModule
         ]
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(AggregationComponent);
+        component = fixture.componentInstance;
+        component.configOptions = {
+            tableKey: 'table_key_2',
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            limit: 1234,
+            title: 'Test Title',
+            aggregationField: 'testSizeField',
+            groupField: 'testCategoryField',
+            xField: 'testXField',
+            yField: 'testYField',
+            aggregation: AggregationType.SUM,
+            granularity: TimeInterval.DAY_OF_MONTH,
+            hideGridLines: true,
+            hideGridTicks: true,
+            ignoreSelf: true,
+            lineCurveTension: 0,
+            lineFillArea: true,
+            logScaleX: true,
+            logScaleY: true,
+            notFilterable: true,
+            requireAll: true,
+            savePrevious: true,
+            scaleMaxX: '44',
+            scaleMaxY: '33',
+            scaleMinX: '22',
+            scaleMinY: '11',
+            showHeat: true,
+            showLegend: true,
+            sortByAggregation: true,
+            timeFill: true,
+            type: 'scatter-xy',
+            yPercentage: 0.5
+        };
+        fixture.detectChanges();
     });
 
     it('custom XY class options properties are set to expected values from config', () => {
@@ -4022,12 +4028,6 @@ describe('Component: Aggregation with XY config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(AggregationComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
 });
 
 describe('Component: Aggregation with date config', () => {
@@ -4039,38 +4039,7 @@ describe('Component: Aggregation with date config', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'limit', useValue: 1234 },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'aggregationField', useValue: 'testSizeField' },
-            { provide: 'groupField', useValue: 'testCategoryField' },
-            { provide: 'xField', useValue: 'testDateField' },
-            { provide: 'yField', useValue: 'testYField' },
-            { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
-            { provide: 'hideGridLines', useValue: true },
-            { provide: 'hideGridTicks', useValue: true },
-            { provide: 'ignoreSelf', useValue: true },
-            { provide: 'lineCurveTension', useValue: 0 },
-            { provide: 'lineFillArea', useValue: true },
-            { provide: 'logScaleX', useValue: true },
-            { provide: 'logScaleY', useValue: true },
-            { provide: 'notFilterable', useValue: true },
-            { provide: 'requireAll', useValue: true },
-            { provide: 'savePrevious', useValue: true },
-            { provide: 'scaleMaxX', useValue: '44' },
-            { provide: 'scaleMaxY', useValue: '33' },
-            { provide: 'scaleMinX', useValue: '22' },
-            { provide: 'scaleMinY', useValue: '11' },
-            { provide: 'showHeat', useValue: true },
-            { provide: 'showLegend', useValue: true },
-            { provide: 'sortByAggregation', useValue: true },
-            { provide: 'timeFill', useValue: true },
-            { provide: 'type', useValue: 'scatter' },
-            { provide: 'yPercentage', useValue: 0.5 }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             AggregationModule
@@ -4080,6 +4049,38 @@ describe('Component: Aggregation with date config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(AggregationComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            tableKey: 'table_key_2',
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            limit: 1234,
+            title: 'Test Title',
+            aggregationField: 'testSizeField',
+            groupField: 'testCategoryField',
+            xField: 'testDateField',
+            yField: 'testYField',
+            aggregation: AggregationType.SUM,
+            granularity: TimeInterval.DAY_OF_MONTH,
+            hideGridLines: true,
+            hideGridTicks: true,
+            ignoreSelf: true,
+            lineCurveTension: 0,
+            lineFillArea: true,
+            logScaleX: true,
+            logScaleY: true,
+            notFilterable: true,
+            requireAll: true,
+            savePrevious: true,
+            scaleMaxX: '44',
+            scaleMaxY: '33',
+            scaleMinX: '22',
+            scaleMinY: '11',
+            showHeat: true,
+            showLegend: true,
+            sortByAggregation: true,
+            timeFill: true,
+            type: 'scatter',
+            yPercentage: 0.5
+        };
         fixture.detectChanges();
     });
 

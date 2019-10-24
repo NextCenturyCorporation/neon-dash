@@ -132,7 +132,7 @@ export interface NeonContributor {
 }
 
 export interface NeonDashboardBaseConfig {
-    fullTitle?: string; // Added to dashboard in validateDashboards()
+    fullTitle?: string[]; // The fullTitle is added to the dashboard object during runtime.
     name?: string;
 }
 
@@ -157,7 +157,7 @@ export class NeonDashboardLeafConfig {
             options: {},
             visualizationTitles: {},
             contributors: {},
-            fullTitle: '',
+            fullTitle: [],
             ...dash
         } as NeonDashboardLeafConfig;
     }
@@ -171,7 +171,7 @@ export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
 export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
-            fullTitle: '',
+            fullTitle: [],
             ...dash,
             choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
         } as NeonDashboardChoiceConfig;

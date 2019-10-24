@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 import { Component, OnInit, Input } from '@angular/core';
-
 import { MatDialog, MatSidenav } from '@angular/material';
+import { Router } from '@angular/router';
 
+import { filter } from 'rxjs/operators';
+
+import { ConfigService } from '../../services/config.service';
 import { DashboardService } from '../../services/dashboard.service';
-
+import { DashboardState } from '../../models/dashboard-state';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { NeonConfig } from '../../models/types';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
-import { filter } from 'rxjs/operators';
-import { NeonConfig } from '../../models/types';
-import { DashboardState } from '../../models/dashboard-state';
-import { ConfigService } from '../../services/config.service';
-import { Router } from '@angular/router';
 
 export function Confirm(config: {
     title: string | ((arg: any) => string);
@@ -88,6 +87,18 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
+    /**
+     * Creates an empty dashboard state using the given name, automatically loads it, and closes the saved state menu.
+     */
+    public createState(name: string): void {
+        const config = this.dashboardService.createEmptyDashboardConfig(name);
+        this.configService.save(config, name)
+            .subscribe(() => {
+                this.openNotification(name, 'created');
+                this.loadState(name);
+            }, this.handleStateFailure.bind(this, name));
+    }
+
     get currentFilename() {
         return this.dashboardService.config.fileName;
     }
@@ -103,7 +114,7 @@ export class SaveStateComponent implements OnInit {
     })
     public saveState(name: string, __confirm = true): void {
         const config = this.dashboardService.exportToConfig(name);
-        this.configService.save(config)
+        this.configService.save(config, name)
             .subscribe(() => {
                 this.dashboardState.modified = false;
                 this.openNotification(name, 'saved');
@@ -170,6 +181,18 @@ export class SaveStateComponent implements OnInit {
                 this.isLoading = false;
                 this.states = items;
             }, this.handleStateFailure.bind(this, 'load states'));
+    }
+
+    public openConfigEditor() {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
+            height: '95%',
+            width: '95%',
+            hasBackdrop: true,
+            disableClose: true
+        });
     }
 
     public openConfirmationDialog(config: { title: string, message: string, confirmText: string, cancelText?: string }) {

@@ -98,9 +98,54 @@ Please see the documentation on [End-to-End Testing in the Neon Dashboard](./doc
 
 ## Production Deployment Instructions
 
-The Neon Dashboard is deployed as either a [docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-docker-container) (together with the Neon Server) or a [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-war-in-apache-tomcat) (independently from the Neon Server).
+The Neon Dashboard can be deployed as either:
 
-### Deploy as Docker Container
+- A [single Docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-single-docker-container).  This is useful if you want to separately deploy both the Neon Server and a datastore.
+- A [Docker container with the Neon Server, but not a datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server).  This is useful if you already have a datastore that you want to link to the Neon system.
+- A [Docker container with the Neon Server and an Elasticsearch datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server-and-elasticsearch).  This is useful if you want to deploy the entire Neon system on a clean machine (like a new AWS EC2 instance).
+- A [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-war-file-in-apache-tomcat).  This is useful if you want to deploy the Neon Dashboard alongside other applications in Tomcat.
+
+### Deploy the Dashboard as a Single Docker Container
+
+#### 1. Perform All Initial Setup
+
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+
+#### 2. Build the Neon Dashboard
+
+```
+cd <neon-dash-internal>
+npm run-script build
+```
+
+This will generate the `<neon-dash-internal>/dist` directory.
+
+#### 3. Build the Neon Dashboard Docker Container
+
+```
+cd <neon-dash-internal>
+docker build -t neon-dash .
+```
+
+**Note**: By default, the Docker container runs the Neon Dashboard on port `4200`.  If you want to use a different port:
+
+- In `<neon-dash-internal>/nginx.dash-only.conf`, change the number `4200` in the line `listen 4200;` to your port.
+
+**Note**: By default, the Docker container assumes the Neon Server is running with hostname and port `http://localhost:8090`.  If you want to use a different port:
+
+- In `<neon-dash-internal>/nginx.dash-only.conf`, change the hostname and port `http://localhost:8090` in the line `proxy_pass http://localhost:8090/neon` to your hostname and port.
+
+#### 4. Run the Neon Dashboard Docker Container
+
+```
+docker run --network=host neon-dash:latest -d
+```
+
+#### 5. Verify Deployment
+
+Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser by going to http://localhost:4200/ (if still using the default port)
+
+### Deploy the Dashboard as a Docker Container with the Server
 
 #### 1. Perform All Initial Setup
 
@@ -114,7 +159,7 @@ If you have a dashboard configuration file (`src/app/config/config.yaml` or `src
 
 ```yaml
 datastores:
-    elasticsearch_primary_datastore:
+    elasticsearch_datastore:
         host: 1.2.3.4
         type: elasticsearchrest
         databases:
@@ -132,7 +177,7 @@ npm run-script build
 
 This will generate the `<neon-dash-internal>/dist` directory.
 
-#### 5. Run the Neon Server and the Neon Dashboard Simultaneously with Docker Compose
+#### 5. Run the Neon Server and Neon Dashboard Docker Containers with Docker Compose
 
 This option uses Docker Compose to deploy the Neon Dashboard within an Nginx docker image alongside your existing Neon Server docker image.
 
@@ -140,18 +185,95 @@ Run the following commands:
 
 ```
 cd <neon-dash-internal>
-docker-compose up -d
+docker-compose -f docker-compose-neon-only.yml up -d
 ```
 
-**Note**: By default, docker-compose runs the Neon Dashboard on port `4100`.  If you want to use a different port:
+**Note**: By default, docker-compose runs the Neon Dashboard on port `80`.  If you want to use a different port:
 
-- In `<neon-dash-internal>/docker-compose.yml`, change the `4100` in the line `- 4100:80` to your port.
+- In `<neon-dash-internal>/docker-compose-neon-only.yml`, change the first `80` in the line `- 80:80` to your port.
+
+**Note**: By default, docker-compose runs the Neon Server on port `8090`.  If you want to use a different port:
+
+- In `<neon-dash-internal>/docker-compose-neon-only.yml`, change both of the `8090` in the line `- 8090:8090` to your port and change the `8090` in the line `SERVER_PORT: 8090` to your port.
 
 #### 6. Verify Deployment
 
-Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser by going to http://localhost:4100/
+Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser by going to http://localhost/ (if still using the default port)
 
-### Deploy as WAR in Apache Tomcat
+### Deploy the Dashboard as a Docker Container with the Server and Elasticsearch
+
+*Note: I tested this on an AWS EC2 instance with the "Amazon Linux 2 AMI"*
+
+#### Assumptions
+
+- The UI (Neon Dashboard) runs on port 80.
+- The Neon Server runs on port 8090. You don't need to worry about this unless you have another application running on port 8090.
+- Elasticsearch runs on port 9200.
+
+*Note: If you need to change any of the above ports, update the `docker-compose.yml` and `nginx.conf` files in the `neon-dash-internal` repository as needed.*
+
+#### 1. Install Dependencies
+
+- Java (v1.8+, preferably v1.11+)
+- [Docker](https://docs.docker.com/v17.09/engine/installation/), and see note below
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- [NPM](https://www.npmjs.com/get-npm)
+- [Elasticdump](https://www.npmjs.com/package/elasticdump), installed globally by running `npm install -g elasticdump`
+
+*Note: I followed [these steps](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html) to install Docker on my AWS EC2 instance but had to logout and log back in again to make it work.*
+
+#### 2. Build the Neon Server Docker Container
+
+```
+git clone https://github.com/NextCenturyCorporation/neon-server.git
+cd neon-server
+./gradlew clean docker
+cd -
+```
+
+*Note: The above gradlew command failed in my testing unless I ran `sudo chmod 777 /var/run/docker.sock` first.*
+
+#### 3. Build the Neon Dashboard
+
+```
+git clone https://github.com/NextCenturyCorporation/neon-dash-internal.git
+cd neon-dash-internal
+npm install
+```
+
+Next, copy the `config.yaml` file you were given by the Neon development team (specific to your data bundle) into `src/app/config/config.yaml` in the `neon-dash-internal` repository.  Open the `src/app/config/config.yaml` file in a text editor to ensure that the `host` of each datastore in the `config.yaml` file (usually on line 3) is set to `neon-elasticsearch-container`, like so:
+
+```yaml
+datastores:
+    elasticsearch_datastore:
+        host: neon-elasticsearch-container
+        type: elasticsearchrest
+        databases:
+            # etc.
+```
+
+Then, build the Neon Dashboard with:
+
+```
+npm run-script build
+```
+
+#### 4. Deploy All the Docker Containers with Docker Compose
+
+```
+docker-compose up -d
+```
+
+#### 5. Ingest Your Data into the Elasticsearch Docker Container
+
+- Download and untar the data bundle you were given by the Neon development team.
+- Inside the untarred folder, run the `ingest_data.sh` script. This script will use elasticdump to load all of the data into your Elasticsearch Docker container. (Note: If you changed the Elasticsearch port, add the host and port as a script argument, like: `./ingest_data.sh http://localhost:1234`)
+
+*Note: If you remove the running Elasticsearch Docker container (for example, with `docker-compose down`), you'll need to rerun the `ingest_data.sh` script whenever you run the Docker container again.*
+
+### Deploy the Dashboard as a WAR File in Apache Tomcat
+
+**Note**:  These instructions assume that you've already installed the Neon Server and your datastores on your machine.
 
 #### 1. Perform All Initial Setup
 

@@ -18,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -108,7 +107,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
@@ -118,7 +116,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -151,7 +148,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
-        this.options.type = this.injector.get('mapType', this.options.type);
+        if (typeof this.options.mapType !== 'undefined') {
+            this.options.type = this.options.mapType;
+        }
     }
 
     /**

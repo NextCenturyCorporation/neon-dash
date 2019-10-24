@@ -98,6 +98,7 @@ export const OptionChoices = {
 export enum OptionType {
     COLOR = 'COLOR',
     DATABASE = 'DATABASE',
+    DATASTORE = 'DATASTORE',
     FIELD = 'FIELD',
     FIELD_ARRAY = 'FIELD_ARRAY',
     FREE_TEXT = 'FREE_TEXT',
@@ -119,7 +120,12 @@ export class ConfigOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public hideFromMenu: boolean | OptionCallback = false
-    ) { }
+    ) {
+        // Change null to undefined or else the YAML library will consider it a string.
+        if (this.valueDefault === null) {
+            this.valueDefault = undefined;
+        }
+    }
 
     /**
      * Returns the current value to save in the bindings.
@@ -127,7 +133,8 @@ export class ConfigOption {
      * @return {any}
      */
     getValueToSaveInBindings() {
-        return this.valueCurrent;
+        // Change null to undefined or else the YAML library will consider it a string.
+        return this.valueCurrent === null ? undefined : this.valueCurrent;
     }
 }
 
@@ -156,7 +163,25 @@ export class ConfigOptionDatabase extends ConfigOption {
      * @override
      */
     getValueToSaveInBindings() {
-        return this.valueCurrent.name;
+        return this.valueCurrent ? this.valueCurrent.name : undefined;
+    }
+}
+
+export class ConfigOptionDatastore extends ConfigOption {
+    constructor() {
+        // Value default and choices are set elsewhere.
+        // TODO THOR-1047 Show datastore in widget option menu
+        super(OptionType.DATASTORE, true, 'datastore', 'Datastore', undefined, undefined, true);
+    }
+
+    /**
+     * Returns the current value to save in the bindings.
+     *
+     * @return {any}
+     * @override
+     */
+    getValueToSaveInBindings() {
+        return this.valueCurrent ? this.valueCurrent.name : undefined;
     }
 }
 
@@ -339,7 +364,7 @@ export class ConfigOptionTable extends ConfigOption {
      * @override
      */
     getValueToSaveInBindings() {
-        return this.valueCurrent.name;
+        return this.valueCurrent ? this.valueCurrent.name : undefined;
     }
 }
 

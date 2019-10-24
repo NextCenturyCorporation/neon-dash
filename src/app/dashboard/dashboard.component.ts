@@ -49,6 +49,8 @@ import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
 
+import * as _ from 'lodash';
+
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
@@ -127,7 +129,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentDashboardId: string;
+    private currentDashboardId: string[];
 
     private _filterChangeData: {
         callerId: string;
@@ -215,7 +217,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         // Clean on different dashboard
-        if (this.currentDashboardId !== state.id) {
+        if (!_.isEqual(this.currentDashboardId, state.id)) {
             this.dashboardService.state.modified = false;
 
             this.pendingInitialRegistrations = this.widgets.size;
@@ -530,6 +532,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the full dashboard title to show in the navbar.
+     */
+    public retrieveFullDashboardTitle(fullTitle: string[]): string {
+        return (fullTitle || []).slice(1, fullTitle.length).join(' / ');
+    }
+
+    /**
      * Indicates to the dashboard that there is new data available
      */
     dataAvailableDashboard(event: { message: MessageEvent }) {
@@ -557,7 +566,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     showVizSettings(cmp: NeonGridItem) {
         this.configurableComponent = this.widgets.get(cmp.id).getOptions();
-        this.setPanel('gear', 'Component Settings');
+        this.setPanel('gear', 'Widget Settings');
     }
 
     refreshViz(item: NeonGridItem) {

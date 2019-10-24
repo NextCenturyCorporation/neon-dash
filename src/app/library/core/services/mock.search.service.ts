@@ -81,19 +81,19 @@ export class SearchServiceMock extends AbstractSearchService {
     }
 
     public transformQueryPayloadToExport(
+        hostName: string,
+        dataStoreType: string,
         fields: { columnName: string, prettyName: string }[],
         queryPayload: QueryPayload,
         uniqueName: string
     ): any {
         return {
             data: {
-                fields: fields.map((field) => ({ query: field.columnName, pretty: field.prettyName })),
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: uniqueName,
+                fileName: uniqueName,
+                dataStoreType: dataStoreType,
+                hostName: hostName,
                 query: queryPayload,
-                selectionOnly: undefined,
-                type: 'query'
+                queryFieldNameMap: fields.map((field) => ({ query: field.columnName, pretty: field.prettyName }))
             }
         };
     }
