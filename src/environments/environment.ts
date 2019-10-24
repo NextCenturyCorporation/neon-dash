@@ -15,8 +15,8 @@
 
 import { DateUtil, DateFormat } from '../app/library/core/date.util';
 function buildDate(){
-    var okDate: string = new Date().toISOString();
-    var bDate: string = DateUtil.retrievePastTime(okDate, DateFormat.MINUTE);
+    let okDate: string = new Date().toISOString();
+    let bDate: string = DateUtil.retrievePastTime(okDate, DateFormat.MINUTE);
     return bDate;
 }
 
