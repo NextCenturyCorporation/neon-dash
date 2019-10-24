@@ -1017,23 +1017,20 @@ layouts:
         row: 15
         col: 1
 
-about: |
-    <div class="about-subheader">
-    <H2>Program</H2>
-    </div>
-    <p>This version of Neon is sponsored by DARPA's <b>LORELEI</b> (Low Resource Languages for Emergent Incidents) program.</p>
-    <p><a href="https://www.darpa.mil/program/low-resource-languages-for-emergent-incidents" target="_blank">Click here to learn about LORELEI</a></p>
-    <p>Program Manager: Dr. Boyan Onyshkevych</p>
-    <p><img class="center" src="./assets/icons/dashboard/darpa_logo.png"></p>
-    <hr>
-    <div class="about-subheader">
-    <H2>Performers</H2>
-    </div>
-    <p>BBN Technologies</p>
-    <p>Carnegie Mellon University</p>
-    <p>MIT Lincoln Laboratory</p>
-    <p>Next Century Corporation</p>
-    <p>Rensselaer Polytechnic Institute</p>
-    <p>University of Southern California, Information Sciences Institute</p>
-    <hr>
+about:
+    info:
+        data: "This version of Neon is sponsored by DARPA's LORELEI (Low Resource Languages for Emergent Incidents) program."
+        header: Program
+        icon: "./assets/icons/dashboard/darpa_logo.png"
+        leader: "Program Manager: Dr. Boyan Onyshkevych"
+        link: "https://www.darpa.mil/program/low-resource-languages-for-emergent-incidents"
+    memberList:
+        data:
+          - BBN Technologies
+          - Carnegie Mellon University
+          - MIT Lincoln Laboratory
+          - Next Century Corporation
+          - Rensselaer Polytechnic Institute
+          - University of Southern California, Information Sciences Institute
+        header: Performers
 
