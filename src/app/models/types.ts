@@ -206,29 +206,31 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonConfig {
-    projectTitle?: string;
-    projectIcon?: string;
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
     datastores: Record<string, DatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
+
+    about?: any;
     errors?: any[];
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
     neonServerUrl?: string;
-    version: string;
+    projectIcon?: string;
+    projectTitle?: string;
+    version?: string;
 }
 
 export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
+            about: '',
             errors: [],
             layouts: {},
-            version: '',
             neonServerUrl: '',
             projectIcon: '',
             projectTitle: '',
+            version: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
             datastores: translateValues(config.datastores || {}, DatastoreConfig.get.bind(null), true)
