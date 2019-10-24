@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -110,7 +109,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -119,7 +117,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );

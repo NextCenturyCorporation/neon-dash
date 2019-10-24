@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -89,7 +88,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         dialog: MatDialog,
@@ -99,7 +97,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );

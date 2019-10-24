@@ -86,7 +86,7 @@ dashboards:
                     options:
                         connectOnLoad: true
                         customRequests:
-                            - endpoint: http://localhost:4200/lorelei-service/
+                            - endpoint: http://localhost:4200/data-pipeline/
                               date: createdAt
                               id: ID
                               notes:

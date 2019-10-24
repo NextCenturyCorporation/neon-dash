@@ -19,7 +19,6 @@ import {
     Component,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    Injector,
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
@@ -73,7 +72,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         changeDetection: ChangeDetectorRef,
         dialog: MatDialog
     ) {
@@ -81,7 +79,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             dashboardService,
             filterService,
             searchService,
-            injector,
             changeDetection,
             dialog
         );
@@ -186,7 +183,6 @@ describe('BaseNeonComponent', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -235,7 +231,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.options.filter).toEqual(null);
+        expect(component.options.filter).toEqual(undefined);
         expect(component.options.hideUnfiltered).toEqual(false);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -413,23 +409,21 @@ describe('BaseNeonComponent', () => {
         }]);
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Mock Superclass-' + component.options._id,
+                fileName: 'Mock Superclass-' + component.options._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(1);
@@ -470,43 +464,39 @@ describe('BaseNeonComponent', () => {
         });
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 1-' + component.options.layers[0]._id,
+                fileName: 'Layer 1-' + component.options.layers[0]._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }, {
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_3',
                     pretty: 'Export 3'
                 }, {
                     query: 'export_4',
                     pretty: 'Export 4'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 2-' + component.options.layers[1]._id,
+                fileName: 'Layer 2-' + component.options.layers[1]._id,
                 query: {
                     database: 'testDatabase2',
                     table: 'testTable2',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(2);
@@ -1642,49 +1632,44 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: DashboardService, useValue: dashboardService },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: getConfigService(testConfig) },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
-            { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
-            {
-                provide: 'customEventsToPublish',
-                useValue: [{
-                    id: 'testPublishId',
-                    fields: [{
-                        columnName: 'testPublishColumnName',
-                        prettyName: 'testPublishPrettyName'
-                    }]
-                }]
-            },
-            {
-                provide: 'customEventsToReceive',
-                useValue: [{
-                    id: 'testReceiveId',
-                    fields: [{
-                        columnName: 'testReceiveColumnName',
-                        type: 'testReceiveType'
-                    }]
-                }]
-            },
-            { provide: 'hideUnfiltered', useValue: true },
-            { provide: 'limit', useValue: 10 },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'testArray', useValue: [4, 3, 2, 1] },
-            { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
-            { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
-            { provide: 'testMultipleSelect', useValue: ['b', 'c'] },
-            { provide: 'testObject', useValue: { key: 'value' } },
-            { provide: 'testOptionalField', useValue: 'testNameField' },
-            { provide: 'testRequiredField', useValue: 'testSizeField' },
-            { provide: 'testSelect', useValue: 'z' },
-            { provide: 'testToggle', useValue: true },
-            { provide: 'title', useValue: 'VisualizationTitle' }
+            { provide: ConfigService, useValue: getConfigService(testConfig) }
         ]
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestAdvancedNeonComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            configFilter: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' },
+            contributionKeys: ['organization1', 'organization2'],
+            customEventsToPublish: [{
+                id: 'testPublishId',
+                fields: [{
+                    columnName: 'testPublishColumnName',
+                    prettyName: 'testPublishPrettyName'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'testReceiveId',
+                fields: [{
+                    columnName: 'testReceiveColumnName',
+                    type: 'testReceiveType'
+                }]
+            }],
+            hideUnfiltered: true,
+            limit: 10,
+            tableKey: 'table_key_2',
+            testArray: [4, 3, 2, 1],
+            testFreeText: 'the quick brown fox jumps over the lazy dog',
+            testMultipleFields: ['testXField', 'testYField'],
+            testMultipleSelect: ['b', 'c'],
+            testObject: { key: 'value' },
+            testOptionalField: 'testNameField',
+            testRequiredField: 'testSizeField',
+            testSelect: 'z',
+            testToggle: true,
+            title: 'VisualizationTitle'
+        };
         fixture.detectChanges();
     });
 
