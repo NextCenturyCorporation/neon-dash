@@ -20,7 +20,7 @@ A unique string for the aggregation's name.
 
 **aggregation-type**
 
-A string [aggregation type](#aggregation-type).  Default `"count"`
+A string [aggregation type](../../README.md#aggregation-type).  Default `"count"`
 
 ## Filter Component
 
@@ -72,15 +72,15 @@ The ID attribute of the Search Component corresponding to this Filter Component.
 
 **vis-element-id**
 
-The ID attribute of the visualization element corresponding to this Filter Component.  Required unless you are [using custom data transformations](#using-custom-data-transformations).
+The ID attribute of the visualization element corresponding to this Filter Component.  Required unless you are [using custom data transformations](../../README.md#using-custom-data-transformations).
 
 **vis-filter-input-function**
 
-The function in the visualization element corresponding to this Filter Component that sets new [filtered values](../../README.md#filtered-values).  Required unless you are [using custom data transformations](#using-custom-data-transformations).
+The function in the visualization element corresponding to this Filter Component that sets new [filtered values](../../README.md#filtered-values).  Required unless you are [using custom data transformations](../../README.md#using-custom-data-transformations).
 
 **vis-filter-output-event**
 
-The event from the visualization element corresponding to this Filter Component that contains its [filtered values](../../README.md#filtered-values).  Required unless you are [using custom data transformations](#using-custom-data-transformations).
+The event from the visualization element corresponding to this Filter Component that contains its [filtered values](../../README.md#filtered-values).  Required unless you are [using custom data transformations](../../README.md#using-custom-data-transformations).
 
 ### Filter Optional Properties
 
@@ -120,11 +120,11 @@ A string [field key](../../README.md#field-key), or a string containing multiple
 
 **vis-draw-function**
 
-The function in the visualization element corresponding to this Search Component that draws data.  Required unless you are [using custom data transformations](#using-custom-data-transformations).
+The function in the visualization element corresponding to this Search Component that draws data.  Required unless you are [using custom data transformations](../../README.md#using-custom-data-transformations).
 
 **vis-element-id**
 
-The ID attribute of the visualization element corresponding to this Search Component.  Required unless you are [using custom data transformations](#using-custom-data-transformations).
+The ID attribute of the visualization element corresponding to this Search Component.  Required unless you are [using custom data transformations](../../README.md#using-custom-data-transformations).
 
 ### Search Optional Properties
 
