@@ -34,7 +34,7 @@ export class NextCenturyTextCloud extends NextCenturyElement {
     static get observedAttributes(): string[] {
         return ['text-field-key'].concat(NextCenturySearch.requiredAttributes).concat(NextCenturySearch.optionalAttributes)
             .concat(NextCenturyFilter.requiredAttributes).concat(NextCenturyFilter.optionalAttributes)
-            .concat(NextCenturyAggregation.observedAttributes).concat(NextCenturyFilter.observedAttributes)
+            .concat(NextCenturyAggregation.observedAttributes).concat(NextCenturyGroup.observedAttributes)
             .concat(NextCenturyTextCloudVisualization.observedAttributes);
     }
 
