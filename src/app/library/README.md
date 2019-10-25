@@ -28,6 +28,7 @@
 * [Definitions](#definitions)
   * [Aggregation Type](#aggregation-type)
   * [Datastore Type](#datastore-type)
+  * [Dotted Path](#dotted-path)
   * [Externally Filtered Data](#externally-filtered-data)
   * [Field Key](#field-key)
   * [Filter Data Array](#filter-data-array)
@@ -716,6 +717,40 @@ TODO
 ### Datastore Type
 
 * Elasticsearch 6+ (`'elasticsearchrest'`)
+
+### Dotted Path
+
+A **dotted path** is a string that denotes a specific top-level or nested property within an unclassed JavaScript JSON object (TypeScript Record).  A top-level property is just the property's name.  A nested property is the property path separated by periods.
+
+For example, given the following object:
+
+```js
+const obj = {
+    a: 1,
+    b: {
+        c: 2
+    },
+    d: {
+        e: 3,
+        f: [4, 5, 6],
+        g: [{
+            h: 7
+        }, {
+            h: 8
+        }]
+    }
+}
+};
+```
+
+The following dotted paths would denote the values in `obj`:
+
+- `"a"` is `1`
+- `"b"` is `{ c: 2 }`
+- `"b.c"` is `2`
+- `"d.e"` is `3`
+- `"d.f"` is `[4, 5, 6]`
+- `"d.g.h"` is `[7, 8]`
 
 ### Externally Filtered Data
 
