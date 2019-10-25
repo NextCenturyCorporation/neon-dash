@@ -46,7 +46,7 @@ The string [field key](../../README.md#field-key) containing the text in the dat
 
 ### Text Cloud Web Component Optional Properties
 
-All [Text Cloud Visualization Optional Properties](#text-cloud-visualization-optional-properties)
+**All of the [Text Cloud Visualization Optional Properties](#text-cloud-visualization-optional-properties)**
 
 **aggregation-field-key**
 
@@ -54,7 +54,7 @@ A string [field key](../../README.md#field-key) on which to aggregate.  Required
 
 **aggregation-type**
 
-A string [aggregation type](#aggregation-type).  Default `"count"`
+A string [aggregation type](../../README.md#aggregation-type).  Default `"count"`
 
 **enable-hide-if-unfiltered**
 
