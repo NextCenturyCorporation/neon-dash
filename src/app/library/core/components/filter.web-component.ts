@@ -510,6 +510,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             const searchElement: NextCenturySearch = this.parentElement.querySelector('#' + this.getAttribute('search-element-id'));
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
             if (searchElement && this._filterDesigns.length) {
+                this._handleFilterChangeFromServices(this.getAttribute('search-element-id'));
                 searchElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
                 this.dispatchEvent(new CustomEvent('designsChanged', {
                     bubbles: true,
