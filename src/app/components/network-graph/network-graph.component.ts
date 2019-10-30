@@ -827,7 +827,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let elementLabel = this.getVisualizationElementLabel(totalDataCount);
 
         if (this.options.isReified) {
-            return super.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
+            return CoreUtil.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
 

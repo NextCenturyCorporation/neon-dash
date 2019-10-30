@@ -524,6 +524,31 @@ describe('CoreUtil', () => {
         expect(CoreUtil.isItemFilteredInEveryField(itemA, [], fieldsToValuesA)).toEqual(false);
     });
 
+    it('isNumber does return expected boolean', () => {
+        expect(CoreUtil.isNumber(true)).toEqual(false);
+        expect(CoreUtil.isNumber('a')).toEqual(false);
+        expect(CoreUtil.isNumber([1, 2])).toEqual(false);
+        expect(CoreUtil.isNumber({
+            value: 1
+        })).toEqual(false);
+
+        expect(CoreUtil.isNumber(1)).toEqual(true);
+        expect(CoreUtil.isNumber(12.34)).toEqual(true);
+        expect(CoreUtil.isNumber(-12.34)).toEqual(true);
+        expect(CoreUtil.isNumber('1')).toEqual(true);
+        expect(CoreUtil.isNumber('12.34')).toEqual(true);
+        expect(CoreUtil.isNumber('-12.34')).toEqual(true);
+    });
+
+    it('prettifyInteger does return expected string', () => {
+        expect(CoreUtil.prettifyInteger(0)).toEqual('0');
+        expect(CoreUtil.prettifyInteger(1)).toEqual('1');
+        expect(CoreUtil.prettifyInteger(12)).toEqual('12');
+        expect(CoreUtil.prettifyInteger(123)).toEqual('123');
+        expect(CoreUtil.prettifyInteger(1234)).toEqual('1,234');
+        expect(CoreUtil.prettifyInteger(1234567890)).toEqual('1,234,567,890');
+    });
+
     it('retrieveValuesFromListFilters does return expected array', () => {
         expect(CoreUtil.retrieveValuesFromListFilters([])).toEqual([]);
     });
