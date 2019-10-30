@@ -27,6 +27,8 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
+import { Dataset, DatasetUtil, FieldConfig, TableConfig, DatabaseConfig } from '../../library/core/models/dataset';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { OptionType } from '../../library/core/models/config-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
@@ -48,16 +50,24 @@ export class UploadDataComponent implements OnInit, OnDestroy {
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
 
+    protected dataset: Dataset;
     private messenger: eventing.Messenger;
     public uploadedData = {};
+    public database: DatabaseConfig = null;
+    public table: TableConfig = null;
 
     public readonly dashboardState: DashboardState;
     constructor(
         private changeDetection: ChangeDetectorRef,
-        dashboardService: DashboardService
+        dashboardService: DashboardService,
+        protected connectionService: InjectableConnectionService
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        this.dataset = this.dashboardState.asDataset();
+        dashboardService.stateSource.subscribe((dashboardState) => {
+            this.dataset = dashboardState.asDataset();
+        });
     }
 
     ngOnDestroy() {
@@ -69,25 +79,59 @@ export class UploadDataComponent implements OnInit, OnDestroy {
     }
 
     public changeListener() {
+        // Console.log(this.dataset);
         let file = (<HTMLInputElement>document.getElementById('fileInput')).files[0];
-        // console.log(file.name);
+        // Console.log(file.name);
         // console.log(file.size);
         // console.log(file.type);
         let reader: FileReader = new FileReader();
         reader.readAsText(file);
         reader.onload = (e) => {
             let csv: string = reader.result as string;
-            // console.log(csv);
+            // Console.log(csv);
             Papa.parse(file, { header: true,
-                complete: function (results) {
-                    // console.log("Finished:", results.data);
+                complete: function(results) {
+                    // Console.log("Finished:", results.data);
                     // console.log(results);
                     this.uploadedData = results.data;
-                    // console.log(this.uploadedData);
-                }
-            });
-        }
+                    // Console.log(this.uploadedData);
+                } });
+        };
+        this.uploadToDatabase();
         this.changeDetection.detectChanges();
     }
 
+    updateDatabase(DatabaseConfig) {
+        this.database = DatabaseConfig;
+    }
+
+    uploadToDatabase() {
+        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
+            this.dashboardState.getDatastoreHost());
+        // Console.log('upload to database');
+        // console.log(this.dataset);
+        // console.log(this.dataset.datastores.es1.databases.somali092019.name);
+        // console.log(this.dataset.datastores.es1.databases.somali092019.tables.ui_output.name);
+        // TODO: Get rid of hardcoded database and table.
+        connection.runUploadData(this.dataset.datastores, this.dataset.datastores.es1.databases.somali092019.name,
+            this.dataset.datastores.es1.databases.somali092019.tables.ui_output.name,
+            this.uploadedData,
+            this.uploadSuccess.bind(this), this.uploadFail.bind(this));
+    }
+
+    uploadSuccess(queryResults) {
+        let link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURI(queryResults.data);
+        link.target = '_blank';
+        link.download = queryResults.fileName;
+        link.click();
+        link.remove();
+    }
+
+    uploadFail(response) {
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            error: response,
+            message: 'Upload Failed'
+        });
+    }
 }
