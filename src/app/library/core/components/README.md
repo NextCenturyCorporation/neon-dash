@@ -92,6 +92,30 @@ If truthy, each record in the data must match each value in this list filter in 
 
 If truthy, each record in the data must match each value in this pair filter in order to be returned by the search query.  Otherwise, each record in the data need only match one value in this pair filter.  Optional if **filter-type** is `"pair"`.  Default `false`
 
+### Filter Output Events
+
+**designsChanged**
+
+Dispatched whenever valueless [filter designs](../../README.md#filter-design) are changed in this Filter Component.  The `event.detail.designs` property contains an array of valueless [filter designs](../../README.md#filter-design).
+
+**filtersChanged**
+
+Dispatched whenever filters are exchanged or deleted in this Filter Component.  The `event.detail.filters` property contains an array of [filter designs](../../README.md#filter-design).
+
+**valuesFiltered**
+
+Dispatched whenever filters that are compatible with the designs in this Filter Component are set in the Filter Service (see [externally filtered data](../../README.md#externally-filtered-data)).  The `event.detail.values` property contains an array of [filtered values](../../README.md#filtered-values).
+
+### Filter Public Functions
+
+**init(dataset: Dataset, filterService: FilterService): void**
+
+Initializes this Filter Component.
+
+**updateFilters(values: any|any[]): void**
+
+Creates and/or deletes filters using the given [filtered values](../../README.md#filtered-values).
+
 ## Group Component
 
 ### Group Required Properties
@@ -155,4 +179,36 @@ A string [field key](../../README.md#field-key) on which to sort.  Needed to con
 **sort-order**
 
 Either `"ascending"` or `"descending"`.  Default `"descending"`
+
+### Search Output Events
+
+**searchCanceled**
+
+Dispatched whenever a search is canceled in this Search Component.
+
+**searchFailed**
+
+Dispatched whenever a search failed (and wasn't cancelled) in this Search Component.  The `event.detail.message` property contains a string error message and the `event.detail.error` property contains an error stacktrace as a JSON string.
+
+**searchFinished**
+
+Dispatched whenever a search is finished in this Search Component.  The `event.detail.data` property contains an array of [search data objects](../../README.md#search-data-object) and the `event.detail.size` property contains the size of the data.
+
+**searchLaunched**
+
+Dispatched whenever a search is launched in this Search Component.
+
+### Search Public Functions
+
+**init(dataset: Dataset, filterService: FilterService, searchService: SearchService): void**
+
+Initializes this Search Component.
+
+**updateFilters(id: string, filters: AbstractFilter[]): void**
+
+Sets the unshared filters of this Search Component corresponding with the given ID to the given filter objects.
+
+**updateFilterDesigns(id: string, filterDesigns: AbstractFilterDesign[]): void**
+
+Sets the [filter designs](../../README.md#filter-design) of this Search Component corresponding with the given ID to the given filter designs.
 

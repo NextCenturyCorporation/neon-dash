@@ -126,7 +126,7 @@ describe('Filter Component', () => {
     });
 
     it('init should do nothing without id, filter-type, search-element-id, dataset, or filterService', () => {
-        filterComponent.addEventListener('dataReceived', (__event: any) => {
+        filterComponent.addEventListener('searchFinished', (__event: any) => {
             fail();
         });
 
@@ -174,8 +174,8 @@ describe('Filter Component', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('init should emit designsUpdated', (done) => {
-        filterComponent.addEventListener('designsUpdated', (event: any) => {
+    it('init should emit designsChanged', (done) => {
+        filterComponent.addEventListener('designsChanged', (event: any) => {
             expect(event.detail.designs).toEqual([
                 new ListFilterDesign(CompoundFilterType.OR, 'datastore1.testDatabase1.testTable1.testTypeField', '=', [undefined])
             ]);
