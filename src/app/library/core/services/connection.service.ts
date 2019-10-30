@@ -257,6 +257,17 @@ export class CoreConnection<T extends { query: any } = { query: any }> implement
         return this.connection.executeQuery(queryPayload.query, null);
     }
 
+    public runUploadData(
+        uploadData: any,
+        databaseName: string,
+        tableName: string,
+        source: any,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper {
+        return this.connection.uploadData(uploadData, databaseName, tableName, source, onSuccess, onError);
+    }
+
     /**
      * Saves (or overwrites) a state with the given data.
      *
