@@ -33,6 +33,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { CoreUtil } from '../../library/core/core.util';
+import { FieldConfig } from '../../library/core/models/dataset';
 import {
     OptionChoices,
     SortOrder,
@@ -266,7 +267,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
+                name: name || (this.options.findField(field) || FieldConfig.get()).prettyName || field,
                 text: activeItemText
             });
         }

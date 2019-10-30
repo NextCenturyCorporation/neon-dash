@@ -159,7 +159,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     constructVisualization() {
-        if (!super.isNumber(this.options.type)) {
+        if (!CoreUtil.isNumber(this.options.type)) {
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
         switch (this.options.type) {
@@ -482,7 +482,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterMap: Map<string, any>, idValue: string, lat: number, lng: number,
         colorField: string, colorValue: string, hoverPopupValue: string) {
-        if (!super.isNumber(lat) || !super.isNumber(lng)) {
+        if (!CoreUtil.isNumber(lat) || !CoreUtil.isNumber(lng)) {
             return;
         }
 
