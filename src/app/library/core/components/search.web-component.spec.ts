@@ -36,6 +36,8 @@ import { RequestWrapper } from '../services/connection.service';
 import { DATASET } from '../models/mock.dataset';
 import { SearchServiceMock } from '../services/mock.search.service';
 
+import * as _ from 'lodash';
+
 if (!window.customElements.get('next-century-element-mock')) {
     window.customElements.define('next-century-element-mock', NextCenturyElement);
 }
@@ -136,7 +138,7 @@ describe('Search Component init should', () => {
     });
 
     it('do nothing without id, search-field-keys, dataset, or services', () => {
-        searchComponent.addEventListener('dataReceived', (__event: any) => {
+        searchComponent.addEventListener('searchFinished', (__event: any) => {
             fail();
         });
 
@@ -167,7 +169,7 @@ describe('Search Component init should', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('emit dataReceived with transformed response data', (done) => {
+    it('emit searchFinished with transformed response data', (done) => {
         const expected = [{
             aggregations: {},
             fields: {
@@ -179,8 +181,10 @@ describe('Search Component init should', () => {
             filtered: false
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(1);
             done();
         });
 
@@ -328,8 +332,10 @@ describe('Search Component init should', () => {
             filtered: false
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(1);
             done();
         });
 
@@ -393,8 +399,10 @@ describe('Search Component init should', () => {
             filtered: false
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(1);
             done();
         });
 
@@ -942,8 +950,46 @@ describe('Search Component init should', () => {
         });
     });
 
-    it('not build and run query if it is not filtered and enable-hide-if-unfiltered', () => {
+    it('not build and run query if datastore host is invalid', (done) => {
+        let datasetCopy = _.cloneDeep(dataset);
+        datasetCopy.datastores.datastore1.host = '';
+
+        searchComponent.addEventListener('searchFinished', (event: any) => {
+            expect(event.detail.data).toEqual([]);
+            expect(event.detail.info).toEqual('Cannot Connect to Datastore');
+            expect(event.detail.size).toEqual(0);
+            done();
+        });
+
+        searchComponent.init(datasetCopy, filterService, searchService);
+        expect(searchService.searches).toEqual(0);
+    });
+
+    it('not build and run query if datastore type is invalid', (done) => {
+        let datasetCopy = _.cloneDeep(dataset);
+        datasetCopy.datastores.datastore1.type = '';
+
+        searchComponent.addEventListener('searchFinished', (event: any) => {
+            expect(event.detail.data).toEqual([]);
+            expect(event.detail.info).toEqual('Cannot Connect to Datastore');
+            expect(event.detail.size).toEqual(0);
+            done();
+        });
+
+        searchComponent.init(datasetCopy, filterService, searchService);
+        expect(searchService.searches).toEqual(0);
+    });
+
+    it('not build and run query if it is not filtered and enable-hide-if-unfiltered', (done) => {
         searchComponent.setAttribute('enable-hide-if-unfiltered', 'true');
+
+        searchComponent.addEventListener('searchFinished', (event: any) => {
+            expect(event.detail.data).toEqual([]);
+            expect(event.detail.info).toEqual('Please Filter');
+            expect(event.detail.size).toEqual(0);
+            done();
+        });
+
         searchComponent.init(dataset, filterService, searchService);
         expect(searchService.searches).toEqual(0);
     });
@@ -1070,10 +1116,10 @@ describe('Search Component', () => {
         searchComponent.setAttribute('search-field-keys', 'datastore1.testDatabase1.testTable1.testTypeField');
         expect(searchService.searches).toEqual(3);
 
-        searchComponent.setAttribute('enable-hide-if-unfiltered', '');
+        searchComponent.setAttribute('enable-ignore-self-filter', 'true');
         expect(searchService.searches).toEqual(4);
 
-        searchComponent.setAttribute('enable-ignore-self-filter', 'true');
+        searchComponent.removeAttribute('enable-ignore-self-filter');
         expect(searchService.searches).toEqual(5);
 
         searchComponent.setAttribute('search-limit', '10000');
@@ -1323,8 +1369,10 @@ describe('Search Component', () => {
             filtered: false
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(2);
             done();
         });
 
@@ -1372,8 +1420,10 @@ describe('Search Component', () => {
             filtered: false
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(2);
             done();
         });
 
@@ -1433,8 +1483,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -1480,8 +1532,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -1527,8 +1581,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -1574,8 +1630,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -1621,8 +1679,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -1679,8 +1739,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -1744,8 +1806,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -1807,8 +1871,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -1862,8 +1928,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -1929,8 +1997,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(5);
             done();
         });
 
@@ -2004,8 +2074,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(5);
             done();
         });
 
@@ -2065,8 +2137,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -2126,8 +2200,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -2184,8 +2260,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(3);
             done();
         });
 
@@ -2237,8 +2315,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
@@ -2292,8 +2372,10 @@ describe('Search Component should have expected filtered response data', () => {
             filtered: true
         }];
 
-        searchComponent.addEventListener('dataReceived', (event: any) => {
+        searchComponent.addEventListener('searchFinished', (event: any) => {
             expect(event.detail.data).toEqual(expected);
+            expect(event.detail.info).toEqual(null);
+            expect(event.detail.size).toEqual(4);
             done();
         });
 
