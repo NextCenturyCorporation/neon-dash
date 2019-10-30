@@ -21,6 +21,17 @@ export class CoreUtil {
     static URL_PATTERN = /(?:(?:http:\/\/)|(?:https:\/\/)|(?:ftp:\/\/)|(?:file:\/\/)|(?:www\.).)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_+.~#?&\\/=]*/g;
 
     /**
+     * Adds a listener on the given event to the given child element that dispatches a copy of the event using the given parent element.
+     */
+    static addEventPropagationListener(parentElement: HTMLElement, childElement: HTMLElement, eventName: string): void {
+        childElement.addEventListener(eventName, (event: any) => {
+            parentElement.dispatchEvent(new CustomEvent(eventName, {
+                detail: event.detail
+            }));
+        });
+    }
+
+    /**
      * Add the given listener of the given event on the element with the given ID.
      */
     static addListener(listener: (event: any) => void, parentElement: HTMLElement, elementId: string, eventName: string): void {
@@ -146,6 +157,20 @@ export class CoreUtil {
             const values: any[] = fieldsToValues.get(field.columnName) || [];
             return (!values.length && !item[field.columnName]) || values.indexOf(item[field.columnName]) >= 0;
         });
+    }
+
+    /**
+     * Returns whether the given item is a number.
+     */
+    static isNumber(item: any): boolean {
+        return !isNaN(parseFloat(item)) && isFinite(item);
+    }
+
+    /**
+     * Returns the prettified string of the given integer (with commas).
+     */
+    static prettifyInteger(item: number): string {
+        return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**
