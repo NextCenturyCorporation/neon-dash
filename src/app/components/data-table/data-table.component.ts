@@ -747,7 +747,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 let heatmapValue = row[this.options.heatmapField.columnName];
 
                 // Ignore undefined, nulls, strings, or NaNs.
-                if (typeof heatmapValue !== 'undefined' && this.isNumber(heatmapValue)) {
+                if (typeof heatmapValue !== 'undefined' && CoreUtil.isNumber(heatmapValue)) {
                     // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
                     if (heatmapDivisor % 1) {
                         // Find the number of digits following the decimal point in the divisor.

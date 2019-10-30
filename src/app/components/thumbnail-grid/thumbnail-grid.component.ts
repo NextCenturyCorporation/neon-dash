@@ -740,7 +740,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 if (this.options.border) {
                     switch (this.options.border) {
                         case 'percentField': {
-                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            if (typeof percentage !== 'undefined' && CoreUtil.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
                                 borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
                             } else {
@@ -749,7 +749,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             break;
                         }
                         case 'percentCompare': {
-                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            if (typeof percentage !== 'undefined' && CoreUtil.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
                                 if ((percentFloat > this.options.borderPercentThreshold &&
                                     comparison === this.options.borderCompareValue) ||
