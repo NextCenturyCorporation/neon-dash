@@ -19,7 +19,7 @@ import { NextCenturyElement } from '../../core/components/element.web-component'
 
 export class NextCenturyTextCloudVisualization extends NextCenturyElement {
     private _data: any[] = [];
-    private _filtered: any[] = [];
+    private _filtered: string[] = [];
     private _shadowRoot: ShadowRoot;
     private _textCloudObject;
     private _visElement: HTMLElement;
@@ -86,7 +86,7 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
         if (name === 'color-accent' || name === 'color-text') {
             this._createVisualizationAndRedrawData();
         } else {
-            this._redrawData();
+            this.redraw();
         }
     }
 
@@ -96,20 +96,25 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
     public changeFilteredText(text: any|any[]): void {
         // If text is "a", transform to ["a"]; if text is ["a", "b"], keep it; if text is [["a"], ["b", "c"]], transform to ["a", "b", "c"]
         const filtered: any[] = !Array.isArray(text) ? [text] : text.reduce((list, part) => list.concat(part), []);
+
         // Only redraw the visualization data if some of the filters have changed.
         if (this._filtered.length !== filtered.length || this._filtered.some((value, index) => value !== filtered[index])) {
             this._filtered = filtered;
+
             this._data.forEach((item) => {
                 item.selected = this._filtered.indexOf(item.key) >= 0;
             });
-            this._redrawData();
+
+            // Do NOT dispatch a filter event!
+
+            this.redraw();
         }
     }
 
     /**
-     * Draws the visualization using the given data array.
+     * Draws the visualization using the given data array and returns the unique data items.
      */
-    public drawData(data: any[]): void {
+    public drawData(data: any[]): number {
         const aggregationField = this.getAttribute('aggregation-field');
         const textField = this.getAttribute('text-field');
 
@@ -122,41 +127,15 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
             };
         }).filter((item) => !!item.key);
 
-        this._redrawData();
+        this.redraw();
+
+        return this._data.length;
     }
 
     /**
-     * Toggles the filtered status of the given text cloud data item.
+     * Redraws the text cloud.
      */
-    public toggleFilter(text: any): void {
-        const index = this._filtered.indexOf(text);
-        if (index >= 0) {
-            this._filtered.splice(index, 1);
-        } else {
-            this._filtered.push(text);
-        }
-
-        this._data.forEach((item) => {
-            item.selected = this._filtered.indexOf(item.key) >= 0;
-        });
-
-        this._redrawData();
-
-        this.dispatchEvent(new CustomEvent('filter', {
-            detail: {
-                values: this._filtered
-            }
-        }));
-    }
-
-    private _createVisualizationAndRedrawData(): void {
-        const accentColorHex = this.getAttribute('color-accent') || '#0000FF';
-        const textColorHex = this.getAttribute('color-text') || '#111111';
-        this._textCloudObject = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
-        this._redrawData();
-    }
-
-    private _redrawData(): void {
+    public redraw(): void {
         const aggregationLabel = this.getAttribute('aggregation-label');
         const showCounts = !!this.getAttribute('enable-show-values');
         const showParagraphs = !!this.getAttribute('enable-show-paragraphs');
@@ -193,6 +172,37 @@ export class NextCenturyTextCloudVisualization extends NextCenturyElement {
 
             this._visElement.appendChild(itemElement);
         });
+    }
+
+    /**
+     * Toggles the filtered status of the given text cloud data item.
+     */
+    public toggleFilter(text: string): void {
+        const index = this._filtered.indexOf(text);
+        if (index >= 0) {
+            this._filtered.splice(index, 1);
+        } else {
+            this._filtered.push(text);
+        }
+
+        this._data.forEach((item) => {
+            item.selected = this._filtered.indexOf(item.key) >= 0;
+        });
+
+        this.redraw();
+
+        this.dispatchEvent(new CustomEvent('filter', {
+            detail: {
+                values: this._filtered
+            }
+        }));
+    }
+
+    private _createVisualizationAndRedrawData(): void {
+        const accentColorHex = this.getAttribute('color-accent') || '#0000FF';
+        const textColorHex = this.getAttribute('color-text') || '#111111';
+        this._textCloudObject = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
+        this.redraw();
     }
 }
 

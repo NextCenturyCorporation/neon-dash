@@ -565,7 +565,7 @@ public init(dataset: Dataset, filterService: FilterService, searchService: Searc
 
 To use your own Visualization Elements:
 
-1. It's best if your Visualization element has a "draw data" function that accepts an **[array of search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
+1. It's best if your Visualization element has a "draw data" function that accepts an **[array of search data objects](#search-data-object)**.  If it does not, you will need to add a `searchFinished` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.  Ideally (though not required), the "draw data" function should return the number of data elements in the visualization, if different from the size of the input data array.
 2. If you want your Visualization element to generate search filters, it's best if your Visualization element emits filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter output data transformations](#transforming-filter-data-sent-from-my-visualization) to call the `updateFilters` function on the Filter Component in order for it to create the new filters.
 3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its [filtered values](#filtered-values).
 
@@ -577,7 +577,7 @@ To use your own Visualization Elements:
 
 1. Define your Visualization element and Search Component as normal ([see above](#search-and-visualize)), but you do not need to add the `vis-element-id` or `vis-draw-function` attributes to the Search Component.
 2. Define a transform function that accepts an **[array of search data objects](#search-data-object)**, transforms it into your data format, and sends the transformed visualization data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
-3. Add your transform function as an event listener to the `dataReceived` event on the Search Component.
+3. Add your transform function as an event listener to the `searchFinished` event on the Search Component.
 4. Initialize the Search Component as normal ([see above](#initializing-nccl-core-services-and-components)).
 
 ```js
@@ -591,7 +591,7 @@ const transformSearchDataArray = function(searchDataArray) {
 };
 
 const search1 = document.querySelector('search1');
-search1.addEventListener('dataReceived', transformSearchDataArray);
+search1.addEventListener('searchFinished', transformSearchDataArray);
 ```
 
 ```html
@@ -739,7 +739,6 @@ const obj = {
             h: 8
         }]
     }
-}
 };
 ```
 
