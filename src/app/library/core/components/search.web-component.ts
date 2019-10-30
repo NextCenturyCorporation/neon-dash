@@ -119,6 +119,10 @@ export class NextCenturySearch extends NextCenturyElement {
     public disconnectedCallback(): void {
         super.disconnectedCallback();
 
+        if (this._runningQuery) {
+            this._runningQuery.abort();
+        }
+
         if (this.getAttribute('id')) {
             this._registerWithFilterService(this.getAttribute('id'), null);
         }
@@ -299,7 +303,7 @@ export class NextCenturySearch extends NextCenturyElement {
     /**
      * Transforms the given search query results, draws them in the visualization element, and emits an event.
      */
-    private _handleQuerySuccess(queryResults: { data: any[] }): void {
+    private _handleQuerySuccess(queryResults: { data: any[] }, info: string): void {
         const aggregations: AggregationData[] = this._findSearchAggregations();
         const filterValuesList: FilterValues[] = this._retrieveSharedFilters().reduce((list, filter) =>
             list.concat(filter.retrieveValues()), []);
@@ -321,16 +325,21 @@ export class NextCenturySearch extends NextCenturyElement {
             return item;
         });
 
+        let size = data.length;
+
         const visElement = this.parentElement ? this.parentElement.querySelector('#' + this.getAttribute('vis-element-id')) : null;
         const drawFunction = this.getAttribute('vis-draw-function');
         if (visElement && drawFunction) {
-            visElement[drawFunction](data);
+            size = visElement[drawFunction](data);
+            size = (typeof size === 'number') ? size : data.length;
         }
 
-        this.dispatchEvent(new CustomEvent('dataReceived', {
+        this.dispatchEvent(new CustomEvent('searchFinished', {
             bubbles: true,
             detail: {
-                data
+                data,
+                info,
+                size
             }
         }));
     }
@@ -575,6 +584,11 @@ export class NextCenturySearch extends NextCenturyElement {
             this._runningQuery.abort();
         }
 
+        this.dispatchEvent(new CustomEvent('searchLaunched', {
+            bubbles: true,
+            detail: {}
+        }));
+
         const tableKey: FieldKey = this._retrieveTableKey();
         const datasetTableKey: DatasetFieldKey = tableKey ? this._dataset.retrieveDatasetFieldKey(tableKey) : null;
         const dataHost = datasetTableKey ? datasetTableKey.datastore.host : null;
@@ -583,8 +597,12 @@ export class NextCenturySearch extends NextCenturyElement {
         const hideIfUnfiltered = !!this.hasAttribute('enable-hide-if-unfiltered');
 
         // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.
-        if (dataHost && dataType && !this._searchService.canRunSearch(dataType, dataHost) || (hideIfUnfiltered && !isFiltered)) {
-            this._handleQuerySuccess({ data: [] });
+        if (!this._searchService.canRunSearch(dataType, dataHost)) {
+            this._handleQuerySuccess({ data: [] }, 'Cannot Connect to Datastore');
+            return;
+        }
+        if (hideIfUnfiltered && !isFiltered) {
+            this._handleQuerySuccess({ data: [] }, 'Please Filter');
             return;
         }
 
@@ -597,8 +615,13 @@ export class NextCenturySearch extends NextCenturyElement {
         });
 
         this._runningQuery.fail((response) => {
-            if (response.statusText !== 'abort') {
-                this.dispatchEvent(new CustomEvent('error', {
+            if (response.statusText === 'abort') {
+                this.dispatchEvent(new CustomEvent('searchCanceled', {
+                    bubbles: true,
+                    detail: {}
+                }));
+            } else {
+                this.dispatchEvent(new CustomEvent('searchFailed', {
                     bubbles: true,
                     detail: {
                         error: response && !!response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
@@ -609,7 +632,7 @@ export class NextCenturySearch extends NextCenturyElement {
         });
 
         this._runningQuery.done((response) => {
-            this._handleQuerySuccess(this._searchService.transformQueryResultsValues(response, labels));
+            this._handleQuerySuccess(this._searchService.transformQueryResultsValues(response, labels), null);
             this._runningQuery = undefined;
         });
     }

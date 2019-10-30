@@ -309,10 +309,10 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _deleteFilters(filterDesigns: AbstractFilterDesign[]): void {
         this._filterService.deleteFilters(this.getAttribute('search-element-id'), filterDesigns);
-        this.dispatchEvent(new CustomEvent('filtersDeleted', {
+        this.dispatchEvent(new CustomEvent('filtersChanged', {
             bubbles: true,
             detail: {
-                filters: filterDesigns
+                filters: []
             }
         }));
     }
@@ -372,7 +372,7 @@ export class NextCenturyFilter extends NextCenturyElement {
      * Handles the behavior whenever any filters in the whole application are changed by giving the relevant filter values to the
      * visualization element as needed.
      */
-    private _handleFilterChangeFromServices(__callerId: string): void {
+    private _handleFilterChangeFromServices(caller: string): void {
         if (!this._isReady()) {
             return;
         }
@@ -397,6 +397,7 @@ export class NextCenturyFilter extends NextCenturyElement {
         this.dispatchEvent(new CustomEvent('valuesFiltered', {
             bubbles: true,
             detail: {
+                caller,
                 values: copyOfValueOrArray
             }
         }));
@@ -510,7 +511,7 @@ export class NextCenturyFilter extends NextCenturyElement {
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
             if (searchElement && this._filterDesigns.length) {
                 searchElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
-                this.dispatchEvent(new CustomEvent('designsUpdated', {
+                this.dispatchEvent(new CustomEvent('designsChanged', {
                     bubbles: true,
                     detail: {
                         designs: this._filterDesigns
