@@ -12,39 +12,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, ViewEncapsulation } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 
 import { AbstractSearchService } from '../../core/services/abstract.search.service';
+import { CoreUtil } from '../../core/core.util';
 import { Dataset } from '../../core/models/dataset';
 import { FilterService } from '../../core/services/filter.service';
 import { NextCenturyTextCloud } from '../../visualizations/text-cloud/text-cloud.web-component';
 
 @Component({
     selector: 'app-next-century-angular-text-cloud',
-    template: '<next-century-text-cloud [attr.id]="id + \'_angular\'"></next-century-text-cloud>',
+    template: '<next-century-text-cloud [attr.id]="id + \'-angular\'"></next-century-text-cloud>',
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NextCenturyAngularTextCloud implements OnChanges {
+export class NextCenturyAngularTextCloud implements AfterViewInit, OnChanges {
     @Input() dataset: Dataset;
     @Input() filterService: FilterService;
     @Input() id: string;
     @Input() options: Record<string, any>;
     @Input() searchService: AbstractSearchService;
 
+    private _visualizationIsInitialized: boolean = false;
+
     constructor(private elementRef: ElementRef) { }
 
+    ngAfterViewInit() {
+        const visElement = this.elementRef.nativeElement.querySelector('#' + this.id + '-angular') as NextCenturyTextCloud;
+
+        // Add event propagation listeners after the HTML elements are stable.
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'designsChanged');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'filtersChanged');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'valuesFiltered');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'searchCanceled');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'searchFailed');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'searchFinished');
+        CoreUtil.addEventPropagationListener(this.elementRef.nativeElement, visElement, 'searchLaunched');
+
+        // Call ngOnChanges to initialize the visualization if needed after the HTML elements are stable.
+        this.ngOnChanges(undefined);
+    }
+
     ngOnChanges(__changes) {
-        if (this.id) {
-            const textCloud = this.elementRef.nativeElement.querySelector('#' + this.id + '_angular') as NextCenturyTextCloud;
-            if (textCloud) {
-                Object.keys(this.options || {}).forEach((attribute) => {
-                    textCloud.setAttribute(attribute, this.options[attribute]);
+        // Ensure ALL required properties are set before calling init on the visualization.
+        if (this.id && this.dataset && this.filterService && this.searchService && this.options) {
+            const visElement = this.elementRef.nativeElement.querySelector('#' + this.id + '-angular') as NextCenturyTextCloud;
+            if (visElement) {
+                Object.keys(this.options).forEach((attribute) => {
+                    if (typeof this.options[attribute] === 'undefined') {
+                        if (visElement.hasAttribute(attribute)) {
+                            visElement.removeAttribute(attribute);
+                        }
+                    } else if (('' + this.options[attribute]) !== visElement.getAttribute(attribute)) {
+                        visElement.setAttribute(attribute, this.options[attribute]);
+                    }
                 });
-                if (this.dataset && this.filterService && this.searchService) {
-                    textCloud.init(this.dataset, this.filterService, this.searchService);
+                if (!this._visualizationIsInitialized) {
+                    visElement.init(this.dataset, this.filterService, this.searchService);
+                    this._visualizationIsInitialized = true;
                 }
             }
         }
+    }
+
+    /**
+     * Redraws the visualization.
+     */
+    public redraw(): void {
+        const visElement = this.elementRef.nativeElement.querySelector('#' + this.id + '-angular') as NextCenturyTextCloud;
+        visElement.redraw();
     }
 }

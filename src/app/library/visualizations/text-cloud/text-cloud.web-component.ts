@@ -67,12 +67,24 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         this._createVisualization();
     }
 
+    /**
+     * Initializes the text cloud and search/filter components.
+     */
     public init(dataset: Dataset, filterService: FilterService, searchService: AbstractSearchService): void {
         this._dataset = dataset;
         this._filterService = filterService;
         this._searchService = searchService;
 
         this._createVisualization();
+    }
+
+    /**
+     * Redraws the text cloud.
+     */
+    public redraw(): void {
+        const visElement = this._containerElement.querySelector('next-century-visualization-text-cloud') as
+            NextCenturyTextCloudVisualization;
+        visElement.redraw();
     }
 
     private _createAggregationLabel(attributes: Record<string, any>): string {
@@ -147,6 +159,14 @@ export class NextCenturyTextCloud extends NextCenturyElement {
         this._containerElement.append(searchElement);
         this._containerElement.append(filterElement);
         this._containerElement.append(visElement);
+
+        CoreUtil.addEventPropagationListener(this, filterElement, 'designsChanged');
+        CoreUtil.addEventPropagationListener(this, filterElement, 'filtersChanged');
+        CoreUtil.addEventPropagationListener(this, filterElement, 'valuesFiltered');
+        CoreUtil.addEventPropagationListener(this, searchElement, 'searchCanceled');
+        CoreUtil.addEventPropagationListener(this, searchElement, 'searchFailed');
+        CoreUtil.addEventPropagationListener(this, searchElement, 'searchFinished');
+        CoreUtil.addEventPropagationListener(this, searchElement, 'searchLaunched');
 
         filterElement.init(this._dataset, this._filterService);
         searchElement.init(this._dataset, this._filterService, this._searchService);
