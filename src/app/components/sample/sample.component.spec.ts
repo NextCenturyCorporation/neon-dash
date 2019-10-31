@@ -14,7 +14,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewEncapsulation } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
@@ -26,11 +26,12 @@ import { AbstractSearchService } from '../../library/core/services/abstract.sear
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { FilterCollection, SimpleFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/config-option';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { FieldConfig } from '../../library/core/models/dataset';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
@@ -82,7 +83,6 @@ class TestSampleComponent extends SampleComponent {
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         visualization: ElementRef
@@ -91,7 +91,6 @@ class TestSampleComponent extends SampleComponent {
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog,
             visualization
@@ -131,8 +130,7 @@ describe('Component: Sample', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
 
         ],
         imports: [
@@ -176,11 +174,10 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name +
+            '.' + DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.FILTER.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
@@ -272,7 +269,6 @@ describe('Component: Sample', () => {
 
     it('filterOnItem does call exchangeFilters if replaceAll=true', () => {
         let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -281,26 +277,9 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
-        ]]);
-        expect(spyToggle.calls.count()).toEqual(0);
-    });
-
-    it('filterOnItem does call toggleFilters if replaceAll=false', () => {
-        let spyExchange = spyOn((component as any), 'exchangeFilters');
-        let spyToggle = spyOn((component as any), 'toggleFilters');
-
-        (component as any).filterOnItem({
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
-            value: 'testFilterValue'
-        });
-
-        expect(spyExchange.calls.count()).toEqual(0);
-        expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', ['testFilterValue'])
         ]]);
     });
 
@@ -542,19 +521,7 @@ describe('Component: Sample with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
-            { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'hideUnfiltered', useValue: true },
-            { provide: 'limit', useValue: 1234 },
-            { provide: 'sampleOptionalField', useValue: 'testNameField' },
-            { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
-            { provide: 'sortDescending', useValue: true },
-            { provide: 'subcomponentType', useValue: 'Impl2' },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'title', useValue: 'Test Title' }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             CommonWidgetModule
@@ -564,6 +531,19 @@ describe('Component: Sample with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            customEventsToPublish: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }],
+            customEventsToReceive: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }],
+            filter: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' },
+            hideUnfiltered: true,
+            limit: 1234,
+            sampleOptionalField: 'testNameField',
+            sampleRequiredField: 'testCategoryField',
+            sortDescending: true,
+            subcomponentType: 'Impl2',
+            tableKey: 'table_key_2',
+            title: 'Test Title'
+        };
         fixture.detectChanges();
     });
 

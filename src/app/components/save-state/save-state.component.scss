@@ -23,10 +23,13 @@
 
 form {
     display: grid;
-    grid-template-columns: 1fr auto;
     align-items: baseline;
     grid-gap: 1em;
     margin-bottom: 0.5em;
+
+    .expanded {
+        grid-column: 1 / 3;
+    }
 }
 
 .option-row {
