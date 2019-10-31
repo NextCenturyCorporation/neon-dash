@@ -46,7 +46,7 @@ import {
     WidgetSelectOption
 } from '../../library/core/models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
+import { OnDestroy } from '@angular/core';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from '../../library/core/services/mock.search-service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
