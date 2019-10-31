@@ -19,7 +19,6 @@ import {
     ElementRef,
     Input,
     OnChanges,
-    ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 

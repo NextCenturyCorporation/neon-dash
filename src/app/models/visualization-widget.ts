@@ -14,7 +14,7 @@
  */
 
 import { Input } from '@angular/core';
-import { ConfigurableWidget } from '../../models/widget-option-collection';
+import { ConfigurableWidget } from './widget-option-collection';
 
 // VisualizationType strings should be the same as the moduleId properties in app-lazy.module.ts
 export enum VisualizationType {
