@@ -129,6 +129,22 @@ export class NextCenturySearch extends NextCenturyElement {
     }
 
     /**
+     * Creates and returns the export data for the search query built by this search element using the AbstractSearchService.
+     */
+    public createExportData(exportFields: { columnName: string, prettyName: string }[], filename: string): { name: string, data: any }[] {
+        const tableKey: FieldKey = this._retrieveTableKey();
+        const datasetTableKey: DatasetFieldKey = tableKey ? this._dataset.retrieveDatasetFieldKey(tableKey) : null;
+        const dataHost = datasetTableKey ? datasetTableKey.datastore.host : null;
+        const dataType = datasetTableKey ? datasetTableKey.datastore.type : null;
+
+        const queryPayload: QueryPayload = this._buildQuery();
+
+        return !queryPayload ? [] : [
+            this._searchService.transformQueryPayloadToExport(dataHost, dataType, exportFields, queryPayload, filename)
+        ];
+    }
+
+    /**
      * Initializes this search element with the given dataset and services and starts a new search query if possible.
      */
     public init(dataset: Dataset, filterService: FilterService, searchService: AbstractSearchService): void {
@@ -168,7 +184,9 @@ export class NextCenturySearch extends NextCenturyElement {
     /**
      * Returns the search query with its fields, aggregations, groups, filters, and sort.
      */
-    private _buildQuery(searchFilters: AbstractFilter[]): QueryPayload {
+    private _buildQuery(): QueryPayload {
+        const searchFilters: AbstractFilter[] = this._retrieveSearchFilters();
+
         const fieldKeys: FieldKey[] = this._retrieveFieldKeys();
         const allFields = fieldKeys.some((fieldKey) => !!fieldKey && fieldKey.field === '*');
         const searchFieldKeys: FieldKey[] = fieldKeys.filter((fieldKey) => !!fieldKey && !!fieldKey.field && fieldKey.field !== '*');
@@ -645,14 +663,17 @@ export class NextCenturySearch extends NextCenturyElement {
             return;
         }
 
-        const filters: AbstractFilter[] = this._retrieveSearchFilters();
-        let queryPayload: QueryPayload = this._buildQuery(filters);
+        let queryPayload: QueryPayload = this._buildQuery();
+
         if (queryPayload) {
             const limit = Number(this.getAttribute('search-limit') || NextCenturySearch.DEFAULT_LIMIT);
-            const page = Number(this.getAttribute('search-page') || 1);
             this._searchService.updateLimit(queryPayload, limit);
+
+            const page = Number(this.getAttribute('search-page') || 1);
             this._searchService.updateOffset(queryPayload, (page - 1) * limit);
-            this._runQuery(queryPayload, !!filters.length);
+
+            const searchFilters: AbstractFilter[] = this._retrieveSearchFilters();
+            this._runQuery(queryPayload, !!searchFilters.length);
         }
     }
 }
