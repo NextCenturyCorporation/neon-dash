@@ -30,7 +30,6 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterConfig } from '../library/core/models/filters';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -49,6 +48,9 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
+import { DateUtil } from '../library/core/date.util';
+
+import * as _ from 'lodash';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -128,11 +130,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentDashboardId: string;
+    private currentDashboardId: string[];
 
     private _filterChangeData: {
         callerId: string;
-        changeCollection: Map<FilterDataSource[], FilterConfig[]>;
     };
 
     constructor(
@@ -217,7 +218,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         // Clean on different dashboard
-        if (this.currentDashboardId !== state.id) {
+        if (!_.isEqual(this.currentDashboardId, state.id)) {
             this.dashboardService.state.modified = false;
 
             this.pendingInitialRegistrations = this.widgets.size;
@@ -237,11 +238,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
             }
 
-            this.simpleFilter.updateSimpleFilterConfig();
+            this.simpleFilter.updateSimpleFilterDesign();
             this.showDashboardSelector = false;
             this.refreshDashboard();
         } else if (this._filterChangeData) {
-            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId, this._filterChangeData.changeCollection);
+            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId);
             this._filterChangeData = null;
         }
 
@@ -455,6 +456,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_MESSAGE, this.handleDashboardMessage.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
+        this.messageReceiver.subscribe(neonEvents.TOGGLE_LOCAL_TIMES, this.updateShowLocalTimes.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
@@ -474,10 +476,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) {
+    onFiltersChanged(callerId: string) {
         this._filterChangeData = {
-            callerId: callerId,
-            changeCollection: changeCollection
+            callerId: callerId
         };
         const { paths } = ConfigUtil.getUrlState(window.location);
         this.router.navigate(['/'], {
@@ -533,6 +534,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the full dashboard title to show in the navbar.
+     */
+    public retrieveFullDashboardTitle(fullTitle: string[]): string {
+        return (fullTitle || []).slice(1, fullTitle.length).join(' / ');
+    }
+
+    /**
      * Indicates to the dashboard that there is new data available
      */
     dataAvailableDashboard(event: { message: MessageEvent }) {
@@ -560,7 +568,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     showVizSettings(cmp: NeonGridItem) {
         this.configurableComponent = this.widgets.get(cmp.id).getOptions();
-        this.setPanel('gear', 'Component Settings');
+        this.setPanel('gear', 'Widget Settings');
     }
 
     refreshViz(item: NeonGridItem) {
@@ -581,6 +589,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowVisualizationsShortcut(event: { show: boolean }) {
         this.showVisualizationsShortcut = event.show;
+    }
+
+    /**
+     * Updates the showLocalTimes boolean value from the messenger channel
+     */
+    private updateShowLocalTimes(event: { show: boolean }) {
+        DateUtil.USE_LOCAL_TIME = event.show;
+        this.refreshDashboard();
     }
 
     /**

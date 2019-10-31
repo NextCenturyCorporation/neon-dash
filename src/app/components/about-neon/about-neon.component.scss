@@ -16,14 +16,18 @@
 @import '../base-neon-component/base-neon.component';
 
 .about-container {
-    height: 100%;
-    margin: 10px;
-    overflow-y: auto;
-    width: 100%;
     font-size: 14px;
 }
 
-.about-subheader {
+/deep/ .about-subheader {
     font-size: 16px;
     font-weight: 500;
 }
+
+/deep/ .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+

@@ -19,7 +19,6 @@ import {
     Component,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    Injector,
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
@@ -28,7 +27,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, SimpleFilter } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -36,19 +35,20 @@ import { NeonConfig } from '../../models/types';
 import { FieldConfig } from '../../library/core/models/dataset';
 import {
     AggregationType,
-    OptionChoices,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetMultipleSelectOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    CompoundFilterType,
+    ConfigOption,
+    ConfigOptionFieldArray,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionMultipleSelect,
+    ConfigOptionNonPrimitive,
+    ConfigOptionSelect,
+    OptionChoices
+} from '../../library/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
@@ -72,7 +72,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         changeDetection: ChangeDetectorRef,
         dialog: MatDialog
     ) {
@@ -80,17 +79,16 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             dashboardService,
             filterService,
             searchService,
-            injector,
             changeDetection,
             dialog
         );
     }
 
-    designEachFilterWithNoValues(): FilterConfig[] {
+    designEachFilterWithNoValues(): AbstractFilterDesign[] {
         return [];
     }
 
-    createOptions(): WidgetOption[] {
+    createOptions(): ConfigOption[] {
         return [];
     }
 
@@ -134,13 +132,13 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 class TestAdvancedNeonComponent extends TestBaseNeonComponent {
-    createOptions(): WidgetOption[] {
+    createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
-            new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
-            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
-            new WidgetFreeTextOption('testFreeText', 'Test Free Text', false, ''),
-            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', false, [], [{
+            new ConfigOptionField('testRequiredField', 'Test Required Field', true),
+            new ConfigOptionField('testOptionalField', 'Test Optional Field', false),
+            new ConfigOptionFieldArray('testMultipleFields', 'Test Multiple Fields', false),
+            new ConfigOptionFreeText('testFreeText', 'Test Free Text', false, ''),
+            new ConfigOptionMultipleSelect('testMultipleSelect', 'Test Multiple Select', false, [], [{
                 prettyName: 'A',
                 variable: 'a'
             }, {
@@ -150,9 +148,9 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'C',
                 variable: 'c'
             }]),
-            new WidgetNonPrimitiveOption('testArray', 'Test Array', false, []),
-            new WidgetNonPrimitiveOption('testObject', 'Test Object', false, {}),
-            new WidgetSelectOption('testSelect', 'Test Select', false, 'y', [{
+            new ConfigOptionNonPrimitive('testArray', 'Test Array', false, []),
+            new ConfigOptionNonPrimitive('testObject', 'Test Object', false, {}),
+            new ConfigOptionSelect('testSelect', 'Test Select', false, 'y', [{
                 prettyName: 'X',
                 variable: 'x'
             }, {
@@ -162,7 +160,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'Z',
                 variable: 'z'
             }]),
-            new WidgetSelectOption('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionSelect('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 }
@@ -185,7 +183,6 @@ describe('BaseNeonComponent', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -234,7 +231,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.options.filter).toEqual(null);
+        expect(component.options.filter).toEqual(undefined);
         expect(component.options.hideUnfiltered).toEqual(false);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -303,10 +300,10 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
         component.options.customEventsToPublish = [{
@@ -412,23 +409,21 @@ describe('BaseNeonComponent', () => {
         }]);
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Mock Superclass-' + component.options._id,
+                fileName: 'Mock Superclass-' + component.options._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(1);
@@ -469,43 +464,39 @@ describe('BaseNeonComponent', () => {
         });
         expect(component.createExportData()).toEqual([{
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
                     query: 'export_2',
                     pretty: 'Export 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 1-' + component.options.layers[0]._id,
+                fileName: 'Layer 1-' + component.options.layers[0]._id,
                 query: {
                     database: 'testDatabase1',
                     table: 'testTable1',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }, {
             data: {
-                fields: [{
+                queryFieldNameMap: [{
                     query: 'export_3',
                     pretty: 'Export 3'
                 }, {
                     query: 'export_4',
                     pretty: 'Export 4'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Layer 2-' + component.options.layers[1]._id,
+                fileName: 'Layer 2-' + component.options.layers[1]._id,
                 query: {
                     database: 'testDatabase2',
                     table: 'testTable2',
                     fields: ['*']
                 },
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHostname',
+                dataStoreType: 'testDatastore'
             }
         }]);
         expect(spyExportFields.calls.count()).toEqual(2);
@@ -556,10 +547,12 @@ describe('BaseNeonComponent', () => {
         }]);
 
         spyOn((component as any), 'retrieveApplicableFilters').and.returnValue([
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, 'contains', 'testValue1'),
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, 'not contains', 'testValue2')
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'contains', ['testValue1']),
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'not contains', ['testValue2'])
         ]);
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -756,10 +749,10 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
         component.options.customEventsToPublish = [{
@@ -952,15 +945,15 @@ describe('BaseNeonComponent', () => {
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([]);
 
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
-        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
-        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
+        component.options.append(new ConfigOptionField('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
+        component.options.append(new ConfigOptionField('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
+        component.options.append(new ConfigOptionField('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
         component.options.append(
-            new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false),
+            new ConfigOptionField('testRepeatedField', 'Test Repeated Field', false),
             DashboardServiceMock.FIELD_MAP.NAME
         );
         component.options.append(
-            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            new ConfigOptionFieldArray('testFieldArray', 'Test Field Array', false),
             [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
 
@@ -983,10 +976,12 @@ describe('BaseNeonComponent', () => {
         expect(component['retrieveApplicableFilters'](component.options)).toEqual([]);
 
         let filters = [
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, '!=', 'testValue1'),
-            new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
-                DashboardServiceMock.FIELD_MAP.TEXT, '=', 'testValue2')
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1 + '.' + DashboardServiceMock.TABLES.testTable1 + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT, '!=', ['testValue1']),
+            new ListFilter(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1 + '.' + DashboardServiceMock.TABLES.testTable1 + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT, '=', ['testValue2'])
         ];
 
         spyOn(component['filterService'], 'getFiltersToSearch').and.returnValue(filters);
@@ -1451,7 +1446,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1462,7 +1457,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1473,7 +1468,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
@@ -1484,7 +1479,7 @@ describe('BaseNeonComponent', () => {
 
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        component['filterService'].notifyFilterChangeListeners('testSource', null);
+        component['filterService'].notifyFilterChangeListeners('testSource');
 
         expect(spyExecuteQuery.calls.count()).toEqual(0);
     });
@@ -1544,44 +1539,6 @@ describe('BaseNeonComponent', () => {
         expect(component['page']).toEqual(1);
     });
 
-    it('toggleFilters does call filterService.toggleFilters and update cachedPage', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(10);
-    });
-
-    it('toggleFilters does update page if shouldFilterSelf()=>true', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'toggleFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-
-        let filters = [null];
-        component.toggleFilters(filters);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['cachedPage']).toEqual(10);
-        expect(component['page']).toEqual(1);
-    });
-
     it('showContribution() returns false', () => {
         expect(component['showContribution']()).toBeFalsy();
     });
@@ -1604,7 +1561,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = 5;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(1);
         expect(component['cachedPage']).toEqual(5);
@@ -1619,7 +1576,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = -1;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(1);
         expect(component['cachedPage']).toEqual(-1);
@@ -1632,7 +1589,7 @@ describe('BaseNeonComponent', () => {
         component['cachedPage'] = 5;
         component['page'] = 1;
 
-        component['handleFiltersChanged']('TestCallerID', null);
+        component['handleFiltersChanged']('TestCallerID');
 
         expect(component['page']).toEqual(5);
         expect(component['cachedPage']).toEqual(-1);
@@ -1675,49 +1632,44 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: DashboardService, useValue: dashboardService },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: getConfigService(testConfig) },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
-            { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
-            {
-                provide: 'customEventsToPublish',
-                useValue: [{
-                    id: 'testPublishId',
-                    fields: [{
-                        columnName: 'testPublishColumnName',
-                        prettyName: 'testPublishPrettyName'
-                    }]
-                }]
-            },
-            {
-                provide: 'customEventsToReceive',
-                useValue: [{
-                    id: 'testReceiveId',
-                    fields: [{
-                        columnName: 'testReceiveColumnName',
-                        type: 'testReceiveType'
-                    }]
-                }]
-            },
-            { provide: 'hideUnfiltered', useValue: true },
-            { provide: 'limit', useValue: 10 },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'testArray', useValue: [4, 3, 2, 1] },
-            { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
-            { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
-            { provide: 'testMultipleSelect', useValue: ['b', 'c'] },
-            { provide: 'testObject', useValue: { key: 'value' } },
-            { provide: 'testOptionalField', useValue: 'testNameField' },
-            { provide: 'testRequiredField', useValue: 'testSizeField' },
-            { provide: 'testSelect', useValue: 'z' },
-            { provide: 'testToggle', useValue: true },
-            { provide: 'title', useValue: 'VisualizationTitle' }
+            { provide: ConfigService, useValue: getConfigService(testConfig) }
         ]
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestAdvancedNeonComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            configFilter: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' },
+            contributionKeys: ['organization1', 'organization2'],
+            customEventsToPublish: [{
+                id: 'testPublishId',
+                fields: [{
+                    columnName: 'testPublishColumnName',
+                    prettyName: 'testPublishPrettyName'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'testReceiveId',
+                fields: [{
+                    columnName: 'testReceiveColumnName',
+                    type: 'testReceiveType'
+                }]
+            }],
+            hideUnfiltered: true,
+            limit: 10,
+            tableKey: 'table_key_2',
+            testArray: [4, 3, 2, 1],
+            testFreeText: 'the quick brown fox jumps over the lazy dog',
+            testMultipleFields: ['testXField', 'testYField'],
+            testMultipleSelect: ['b', 'c'],
+            testObject: { key: 'value' },
+            testOptionalField: 'testNameField',
+            testRequiredField: 'testSizeField',
+            testSelect: 'z',
+            testToggle: true,
+            title: 'VisualizationTitle'
+        };
         fixture.detectChanges();
     });
 

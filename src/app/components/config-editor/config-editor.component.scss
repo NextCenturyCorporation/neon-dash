@@ -21,7 +21,7 @@
     height: 100%;
 }
 
-.messages {
+.editor {
     height: 100%;
     padding: 7px;
     box-sizing: border-box;
@@ -29,7 +29,7 @@
     grid-template-rows: auto 1fr auto;
 }
 
-.message-body {
+.editor-body {
     &,
     > div {
         height: 100%;
@@ -37,17 +37,18 @@
     }
 }
 
-.messages-header {
+.editor-header {
     text-align: center;
     font-size: 1.5em;
     font-weight: bold;
     height: 1.5em;
 }
 
-.messages-footer {
+.editor-footer {
     text-align: right;
 
-    button {
+    > button,
+    > mat-form-field {
         margin: 5px 10px;
     }
 }

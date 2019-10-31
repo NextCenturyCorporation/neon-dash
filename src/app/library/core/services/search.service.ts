@@ -14,7 +14,7 @@
  */
 
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from './abstract.search.service';
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { ConnectionService, CoreConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';
@@ -292,19 +292,23 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public transformQueryPayloadToExport(
+        hostName: string,
+        dataStoreType: string,
         fields: { columnName: string, prettyName: string }[],
         queryPayload: CoreQueryWrapper,
         uniqueName: string
     ): any {
         return {
             data: {
-                fields: this.findExportFields(queryPayload.query, fields),
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: uniqueName,
+                // IgnoreFilters: undefined,
+                // ignoredFilterIds: [],
+                fileName: uniqueName,
+                dataStoreType: dataStoreType,
+                hostName: hostName,
                 query: queryPayload.query,
-                selectionOnly: undefined,
-                type: 'query'
+                fieldNamePrettyNamePairs: this.findExportFields(queryPayload.query, fields)
+                // SelectionOnly: undefined,
+                // type: 'query'
             }
         };
     }

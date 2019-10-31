@@ -30,7 +30,7 @@ import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../services/mock.dashboard-service';
-import { SearchServiceMock } from '../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';
@@ -121,7 +121,7 @@ describe('Dashboard', () => {
 
     it('should navigate on filters changed', () => {
         let spyOnRouter = spyOn(component.router, 'navigate');
-        component.onFiltersChanged('testCaller', null);
+        component.onFiltersChanged('testCaller');
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
         expect(path).toEqual(['/']);
@@ -845,6 +845,15 @@ describe('Dashboard', () => {
         component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
     });
+
+    it('retrieveFullDashboardTitle does return expected string', () => {
+        expect(component.retrieveFullDashboardTitle([])).toEqual('');
+        expect(component.retrieveFullDashboardTitle(['a'])).toEqual('');
+        expect(component.retrieveFullDashboardTitle(['a', 'b'])).toEqual('b');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c'])).toEqual('b / c');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c', 'd'])).toEqual('b / c / d');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c', 'd', 'e'])).toEqual('b / c / d / e');
+    });
 });
 
 describe('Dashboard Custom', () => {
@@ -880,7 +889,7 @@ describe('Dashboard Custom', () => {
 
     it('setting active dashboard does work as expected', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterDesign');
 
         const config = NeonConfig.get({
             projectTitle: 'Test Config',
@@ -909,7 +918,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             layout: 'DISCOVERY',
-            fullTitle: 'Test Title',
+            fullTitle: ['Test Title'],
             category: 'Select an option...',
             options: {
                 connectOnLoad: true
@@ -964,7 +973,7 @@ describe('Dashboard Custom', () => {
 
     it('setting active dashboard does work with tabs', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
+        let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterDesign');
 
         const config = NeonConfig.get({
             projectTitle: 'Test Config',
@@ -991,7 +1000,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             category: 'Select an option...',
-            fullTitle: 'Test Title',
+            fullTitle: ['Test Title'],
             layout: 'DISCOVERY',
             options: { connectOnLoad: true }
         });
