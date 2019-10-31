@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -28,7 +27,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { FilterCollection, FilterConfig } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -37,12 +36,12 @@ import { CoreUtil } from '../../library/core/core.util';
 import {
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -66,7 +65,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog,
@@ -76,7 +74,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -91,8 +88,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     initializeProperties() {
         // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
-        let sortOrder = this.injector.get('sortOrder', null);
-        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        if (typeof this.options.sortOrder !== 'undefined') {
+            let sortOrder = this.options.sortOrder;
+            this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        }
     }
 
     /**
@@ -110,10 +109,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
         // This visualization does not filter.
         return [];
     }
@@ -121,23 +120,23 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dataField', 'Text Field', true),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetSelectOption('showText', 'Main Document Text', false, false, OptionChoices.HideFalseShowTrue),
-            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', false, ''),
-            new WidgetSelectOption('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
+            new ConfigOptionField('dataField', 'Text Field', true),
+            new ConfigOptionField('dateField', 'Date Field', false),
+            new ConfigOptionField('idField', 'ID Field', false),
+            new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionSelect('showText', 'Main Document Text', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionFreeText('nameWidthCss', 'Name (Left Column) Width CSS', false, ''),
+            new ConfigOptionSelect('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
             // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldConfig objects!
-            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', false, []),
-            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', false, [])
+            new ConfigOptionNonPrimitive('metadataFields', 'Metadata Fields', false, []),
+            new ConfigOptionNonPrimitive('popoutFields', 'Popout Fields', false, [])
         ];
     }
 

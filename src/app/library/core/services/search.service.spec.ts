@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { ConnectionService } from './connection.service';
 import { SearchService, CoreGroupWrapper, CoreWhereWrapper, CoreQueryWrapper } from './search.service';
 

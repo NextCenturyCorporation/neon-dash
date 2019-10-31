@@ -25,7 +25,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 
 import { FiltersModule } from './filters.module';
 
