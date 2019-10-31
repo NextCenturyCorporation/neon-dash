@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
     AbstractSearchService,
@@ -20,20 +20,15 @@ import {
     QueryPayload
 } from '../../library/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import {
-    AbstractFilter,
-    FilterCollection,
-    FilterConfig,
-    FilterDataSource
-} from '../../library/core/models/filters';
+import { AbstractFilter, AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
-    OptionType,
-    WidgetOption
-} from '../../library/core/models/widget-option';
+    ConfigOption,
+    OptionType
+} from '../../library/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -46,13 +41,6 @@ import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../library/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
-
-export class InjectorOptionConfig extends OptionConfig {
-    public get(bindingKey: string, defaultValue: any): any {
-        // Assume config is an Angular Injector
-        return this.config.get(bindingKey, defaultValue);
-    }
-}
 
 /**
  * @class BaseNeonComponent
@@ -92,6 +80,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected lastPage: boolean = true;
     protected page: number = 1;
 
+    @Input() configOptions: { [key: string]: any };
     public options: RootWidgetOptionCollection & { [key: string]: any };
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
@@ -102,7 +91,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         protected dashboardService: DashboardService,
         protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService,
-        protected injector: Injector,
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
@@ -128,7 +116,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public ngOnInit(): void {
         this.initializing = true;
 
-        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options = this.createWidgetOptions(this.configOptions, this.getVisualizationDefaultTitle(),
+            this.getVisualizationDefaultLimit());
         this.options.title = this.getVisualizationTitle(this.options.title);
         this.id = this.options._id;
 
@@ -223,7 +212,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
             let title = options.title.split(':').join(' ') + '-' + options._id;
-            return query ? this.searchService.transformQueryPayloadToExport(this.getExportFields(options), query, title) : null;
+            let hostName = this.options.datastore.host;
+            let dataStoreType = this.options.datastore.type;
+            return query ?
+                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
+                null;
         }).filter((exportObject) => !!exportObject);
     }
 
@@ -317,21 +310,20 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Deletes the given filters from the widget and the dash (or all the filters if no args are given) and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public deleteFilters(filterConfigListToDelete?: FilterConfig[]) {
-        this.filterService.deleteFilters(this.id, filterConfigListToDelete);
+    public deleteFilters(filterDesignListToDelete?: AbstractFilterDesign[]) {
+        this.filterService.deleteFilters(this.id, filterDesignListToDelete);
     }
 
     /**
-     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterConfigListToDelete is
+     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
      * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[], keepSameFilters?: boolean): void {
+    public exchangeFilters(
+        filterDesignList: AbstractFilterDesign[],
+        filterDesignListToDelete?: AbstractFilterDesign[],
+        keepSameFilters?: boolean
+    ): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -341,27 +333,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete,
+        this.filterService.exchangeFilters(this.id, filterDesignList, this.dataset, filterDesignListToDelete,
             keepSameFilters, this.options.applyPreviousFilter);
-    }
-
-    /**
-     * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
-     * in the widget and the dash and runs a visualization query.
-     *
-     * @arg {FilterConfig[]} filterConfigList
-     */
-    public toggleFilters(filterConfigList: FilterConfig[]): void {
-        if (this.cachedPage <= 0) {
-            this.cachedPage = this.page;
-        }
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
-
-        // Update the filters only once the page is changed.
-        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
     }
 
     /**
@@ -436,7 +409,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {QueryPayload}
      */
     public createCompleteVisualizationQuery(options: WidgetOptionCollection): QueryPayload {
-        let fields: string[] = options.list().reduce((list: string[], option: WidgetOption) => {
+        let fields: string[] = options.list().reduce((list: string[], option: ConfigOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
             }
@@ -502,7 +475,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
 
         return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
-            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toConfig()));
+            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toDesign()));
     }
 
     private retrieveCompatibleFilters(): FilterCollection {
@@ -712,7 +685,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
+    private handleFiltersChanged(callerId: string): void {
         let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
 
         // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
@@ -739,9 +712,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      */
-    protected abstract designEachFilterWithNoValues(): FilterConfig[];
+    protected abstract designEachFilterWithNoValues(): AbstractFilterDesign[];
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
@@ -967,31 +940,26 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @abstract
      */
-    protected abstract createOptions(): WidgetOption[];
+    protected abstract createOptions(): ConfigOption[];
 
     /**
      * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      */
-    protected createOptionsForLayer(): WidgetOption[] {
+    protected createOptionsForLayer(): ConfigOption[] {
         return [];
     }
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
-     *
-     * @arg {Injector} injector
-     * @arg {string} visualizationTitle
-     * @arg {number} defaultLimit
-     * @return {any}
      */
-    private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
+    private createWidgetOptions(configOptions: any, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
+            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new OptionConfig(configOptions));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
@@ -1139,16 +1107,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected getContributorsForComponent() {
         let allContributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(allContributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(allContributors);
 
         return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
 
     protected getContributorAbbreviations() {
         let contributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(contributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(contributors);
 
         let contributorAbbreviations = contributorKeys.filter((key) =>
             !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);

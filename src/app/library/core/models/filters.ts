@@ -13,15 +13,8 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from './widget-option';
-import {
-    Dataset,
-    DatasetUtil,
-    FieldKey,
-    DatabaseConfig,
-    FieldConfig,
-    TableConfig
-} from './dataset';
+import { CompoundFilterType } from './config-option';
+import { Dataset, DatasetFieldKey, DatasetUtil, FieldKey } from './dataset';
 import { DateFormat, DateUtil } from '../date.util';
 import * as _ from 'lodash';
 
@@ -30,28 +23,8 @@ export interface FilterDataSource {
     database: string;
     table: string;
     field: string;
-    operator?: string;
-}
-
-export interface SimpleFilterConfig {
-    id?: string;
-    relations?: string[];
-    datastore: string;
-    database: string;
-    table: string;
-    field: string;
     operator: string;
-    value?: any;
 }
-
-export interface CompoundFilterConfig {
-    id?: string;
-    relations?: string[];
-    type: CompoundFilterType;
-    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
-}
-
-export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export abstract class FilterValues { }
 
@@ -87,12 +60,6 @@ export class ListOfValues extends FilterValues {
         public operator: string,
         public values: (boolean|number|string)[]
     ) {
-        super();
-    }
-}
-
-export class OneValue extends FilterValues {
-    constructor(public field: string, public operator: string, public value: boolean|number|string) {
         super();
     }
 }
@@ -143,156 +110,6 @@ export class FilterUtil {
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
             list2.every((item2) => list2.some((item1) => this.areFilterDataSourcesEquivalent(item1, item2)));
     }
-
-    /**
-     * Creates and returns the FilterDataSource list for the given filter config.
-     *
-     * @arg {FilterConfig} filterConfig
-     * @arg {boolean} [ignoreOperator=false]
-     * @return {FilterDataSource[]}
-     */
-    static createFilterDataSourceListFromConfig(
-        filterConfig: FilterConfig,
-        ignoreOperator: boolean = false
-    ): FilterDataSource[] {
-        if (this.isSimpleFilterConfig(filterConfig)) {
-            return [{
-                datastore: filterConfig.datastore,
-                database: filterConfig.database,
-                table: filterConfig.table,
-                field: filterConfig.field,
-                operator: ignoreOperator ? undefined : filterConfig.operator
-            }] as FilterDataSource[];
-        }
-
-        if (this.isCompoundFilterConfig(filterConfig)) {
-            let returnList: FilterDataSource[] = [];
-
-            filterConfig.filters.forEach((nestedConfig) => {
-                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromConfig(nestedConfig, ignoreOperator);
-
-                nestedDataSourceList.forEach((nestedDataSource) => {
-                    let exists = returnList.some((existingDataSource) => this.areFilterDataSourcesEquivalent(nestedDataSource,
-                        existingDataSource, ignoreOperator));
-
-                    if (!exists) {
-                        returnList.push(nestedDataSource);
-                    }
-                });
-            });
-
-            return returnList;
-        }
-
-        return [];
-    }
-
-    /**
-     * Creates and returns a new filter object using the given filter config.
-     *
-     * @arg {FilterConfig} filterConfig
-     * @return {AbstractFilter}
-     */
-    static createFilterFromConfig(filterConfig: FilterConfig, dataset: Dataset): AbstractFilter {
-        let filter: AbstractFilter = null;
-
-        if (this.isSimpleFilterConfig(filterConfig)) {
-            const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey({
-                datastore: filterConfig.datastore,
-                database: filterConfig.database,
-                table: filterConfig.table,
-                field: filterConfig.field
-            } as FieldKey);
-
-            if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName &&
-                typeof filterConfig.value !== 'undefined') {
-                filter = new SimpleFilter(datastore.name, database, table, field, filterConfig.operator, filterConfig.value,
-                    filterConfig.id, filterConfig.relations);
-            }
-        } else if (this.isCompoundFilterConfig(filterConfig)) {
-            const nestedFilters: AbstractFilter[] = filterConfig.filters.map((nestedConfig) =>
-                this.createFilterFromConfig(nestedConfig, dataset));
-
-            if (filterConfig instanceof BoundsFilterDesign) {
-                filter = BoundsFilter.fromFilters(nestedFilters, filterConfig.id, filterConfig.relations);
-            } else if (filterConfig instanceof DomainFilterDesign) {
-                filter = DomainFilter.fromFilters(nestedFilters, filterConfig.id, filterConfig.relations);
-            } else if (filterConfig instanceof ListFilterDesign) {
-                filter = ListFilter.fromFilters(nestedFilters, filterConfig.type, filterConfig.id, filterConfig.relations);
-            } else if (filterConfig instanceof PairFilterDesign) {
-                filter = PairFilter.fromFilters(nestedFilters, filterConfig.type, filterConfig.id, filterConfig.relations);
-            } else {
-                filter = new CompoundFilter(filterConfig.type, nestedFilters, filterConfig.id, filterConfig.relations);
-            }
-        }
-
-        if (filter) {
-            filter.id = filterConfig.id || filter.id;
-        }
-
-        return filter;
-    }
-
-    /**
-     * Creates and returns a new filter object using the given data list.
-     */
-    static createFilterFromDataList(dataList: any[], dataset: Dataset): AbstractFilter {
-        const functions = [
-            SimpleFilter.fromDataList.bind(SimpleFilter),
-            ListFilter.fromDataList.bind(ListFilter),
-            BoundsFilter.fromDataList.bind(BoundsFilter),
-            DomainFilter.fromDataList.bind(DomainFilter),
-            PairFilter.fromDataList.bind(PairFilter),
-            CompoundFilter.fromDataList.bind(CompoundFilter)
-        ];
-        for (const func of functions) {
-            const filter = func(dataList, dataset);
-            if (filter) {
-                return filter;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds and returns the filter in the given list with the given field key (database.table.field) and operator.
-     */
-    static findFilterWithFieldKey(filters: SimpleFilter[], fieldKey: string, operator?: string): SimpleFilter {
-        return filters.find((filter) =>
-            (filter.datastore + '.' + filter.database.name + '.' + filter.table.name + '.' + filter.field.columnName) === fieldKey &&
-            (operator ? filter.operator === operator : true));
-    }
-
-    /**
-     * Returns the names of all the fields in the given filter object.
-     */
-    static retrieveFields(filter: AbstractFilter): string[] {
-        return filter instanceof SimpleFilter ? [filter.field] : (filter instanceof CompoundFilter ?
-            filter.filters.reduce((list, nestedFilter) => list.concat(this.retrieveFields(nestedFilter)), []) : []);
-    }
-
-    // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
-    /**
-     * Returns if the given filter config is a CompoundFilterConfig.
-     *
-     * @arg {FilterConfig} filterConfig
-     * @return {filterConfig is CompoundFilterConfig}
-     */
-    static isCompoundFilterConfig(filterConfig: FilterConfig): filterConfig is CompoundFilterConfig {
-        return 'filters' in filterConfig && 'type' in filterConfig;
-    }
-
-    // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
-    /**
-     * Returns if the given filter config is a SimpleFilterConfig.
-     *
-     * @arg {FilterConfig} filterConfig
-     * @return {filterConfig is SimpleFilterConfig}
-     */
-    static isSimpleFilterConfig(filterConfig: FilterConfig): filterConfig is SimpleFilterConfig {
-        return 'datastore' in filterConfig && 'database' in filterConfig && 'table' in filterConfig && 'field' in filterConfig &&
-            'operator' in filterConfig;
-    }
 }
 
 export class FilterCollection {
@@ -301,12 +118,9 @@ export class FilterCollection {
     /**
      * Returns the data source for the given filter config as either an existing matching data source within this collection or a new data
      * source (the new data source is also saved in this collection with an empty array).
-     *
-     * @arg {FilterConfig} filterConfig
-     * @return {FilterDataSource[]}
      */
-    public findFilterDataSources(filterConfig: FilterConfig): FilterDataSource[] {
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(filterConfig);
+    public findFilterDataSources(filterDesign: AbstractFilterDesign): FilterDataSource[] {
+        let filterDataSourceList: FilterDataSource[] = filterDesign.getDataSources();
 
         // Return a matching existing FilterDataSource list if possible (should either be length 0 or 1 matches).
         let matchingDataSourceList: FilterDataSource[][] = this.getDataSources().filter((existingDataSourceList) =>
@@ -328,10 +142,10 @@ export class FilterCollection {
     /**
      * Returns the list of filters in this filter collection that are compatible with the given filter config.
      */
-    public getCompatibleFilters(filterConfig: FilterConfig): AbstractFilter[] {
-        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterConfig);
+    public getCompatibleFilters(filterDesign: AbstractFilterDesign): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterDesign);
         let filterList: AbstractFilter[] = this.getFilters(filterDataSourceList);
-        return filterList.filter((filter) => filter.isCompatibleWithConfig(filterConfig));
+        return filterList.filter((filter) => filter.isCompatibleWithDesign(filterDesign));
     }
 
     /**
@@ -374,13 +188,6 @@ export class FilterCollection {
         this.data.set(filterDataSourceList, []);
 
         return this.data.get(filterDataSourceList);
-    }
-
-    /**
-     * Returns if this filter collection contains any filters (optionally, matching the given filter config).
-     */
-    public isFiltered(filterConfig?: FilterConfig): boolean {
-        return filterConfig ? !!this.getCompatibleFilters(filterConfig).length : !!this.getFilters().length;
     }
 
     /**
@@ -429,37 +236,127 @@ export abstract class AbstractFilter {
     }
 
     /**
+     * Returns the label for the given field key.  Also returns the database and table if abridged is false.
+     */
+    protected _createLabelForField(fieldKeyString: string, dataset: Dataset, abridged: boolean = false): string {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+        const datasetFieldKey: DatasetFieldKey = dataset.retrieveDatasetFieldKey(fieldKey);
+        return abridged ? datasetFieldKey.field.prettyName : (datasetFieldKey.database.prettyName + ' / ' +
+            datasetFieldKey.table.prettyName + ' / ' + datasetFieldKey.field.prettyName);
+    }
+
+    /**
+     * Returns the label for the given two field keys and filter type.
+     */
+    protected _createLabelForTwoFields(
+        fieldKeyString1: string,
+        fieldKeyString2: string,
+        dataset: Dataset,
+        type: CompoundFilterType,
+        abridged: boolean = false
+    ): string {
+        let label1 = this._createLabelForField(fieldKeyString1, dataset, abridged);
+        let label2 = this._createLabelForField(fieldKeyString2, dataset, abridged);
+        if (abridged) {
+            let nestedFields1: string[] = label1.split('.');
+            let nestedFields2: string[] = label2.split('.');
+            if (nestedFields1.length === nestedFields2.length && nestedFields1.length > 1) {
+                let fieldsPrefix1 = label1.substring(0, label1.lastIndexOf('.'));
+                if (fieldsPrefix1 === label2.substring(0, label2.lastIndexOf('.'))) {
+                    return fieldsPrefix1;
+                }
+            }
+        }
+        return label1 + ' ' + type + ' ' + label2;
+    }
+
+    /**
+     * Returns the label for the given filter operator.
+     */
+    protected _createLabelForOperator(operator: string): string {
+        return operator === '=' ? '' : operator;
+    }
+
+    /**
+     * Returns the label for the given field key and values.
+     */
+    protected _createLabelForValue(fieldKeyString: string, value: any, dataset: Dataset): string {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+        const datasetFieldKey: DatasetFieldKey = dataset.retrieveDatasetFieldKey(fieldKey);
+        if (datasetFieldKey.field.type === 'date' || value instanceof Date) {
+            // TODO THOR-1259 Let user switch from UTC to local time
+            // TODO THOR-1329 If hour or minutes are not zero, add hour and minutes and seconds to output string format.
+            return DateUtil.fromDateToString(value, DateFormat.SHORT);
+        }
+        if (typeof value === 'number') {
+            return '' + (value % 1 === 0 ? value : parseFloat('' + value).toFixed(3));
+        }
+        return value === '' ? '<empty>' : value;
+    }
+
+    /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {FieldKey[]} equivalentFieldKeyList
-     * @arg {FieldKey[]} substituteFieldKeyList
-     * @arg {Dataset} dataset
-     * @return {AbstractFilter}
      * @abstract
      */
-    public abstract createRelationFilter(
-        equivalentFieldKeyList: FieldKey[],
-        substituteFieldKeyList: FieldKey[],
-        dataset: Dataset
-    ): AbstractFilter;
+    public abstract createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter;
+
+    /**
+     * Creates and returns the relation filter list for the filter.
+     */
+    public createRelationFilterList(dataset: Dataset): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.toDesign().getDataSources(true);
+
+        return dataset.getRelations().reduce((returnList, relation) => {
+            let relationFilterList: AbstractFilter[] = [];
+
+            // Assume that each item within the relation list is a nested list with the same length.
+            // EX:  [[x1, y1], [x2, y2], [x3, y3]]
+            if (relation.length && relation[0].length === filterDataSourceList.length) {
+                let equivalentRelationList: FieldKey[][] = relation.filter((relationFieldKeyList) =>
+                    // Each item within the relationFieldKeyList must be equivalent to a FilterDataSource.
+                    relationFieldKeyList.every((relationFieldKey) => filterDataSourceList.some((filterDataSource) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))) &&
+                    // Each FilterDataSource must be equivalent to an item within the relationFieldKeyList.
+                    filterDataSourceList.every((filterDataSource) => relationFieldKeyList.some((relationFieldKey) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))));
+
+                // The length of equivalentRelationList should be either 0 or 1.
+                if (equivalentRelationList.length) {
+                    // Create new relation filters.
+                    relation.forEach((relationFieldKeyList) => {
+                        // Do not create a relation that is the same as the original filter.
+                        if (relationFieldKeyList !== equivalentRelationList[0]) {
+                            let relationFilter: AbstractFilter = this.createRelationFilter(equivalentRelationList[0],
+                                relationFieldKeyList);
+                            relationFilterList.push(relationFilter);
+                        }
+                    });
+
+                    // Save sibling relation filter IDs in the new relation filters.
+                    relationFilterList.concat(this).forEach((outerFilter) => {
+                        relationFilterList.concat(this).forEach((innerFilter) => {
+                            if (outerFilter.id !== innerFilter.id) {
+                                outerFilter.relations.push(innerFilter.id);
+                            }
+                        });
+                    });
+                }
+            }
+            return returnList.concat(relationFilterList);
+        }, [] as AbstractFilter[]);
+    }
 
     /**
      * Returns if this filter affects a search in the given datastore/database/table.
-     *
-     * @arg {string} datastore
-     * @arg {string} database
-     * @arg {string} table
-     * @return {boolean}
-     * @abstract
      */
     public abstract doesAffectSearch(datastore: string, database: string, table: string): boolean;
 
     /**
      * Returns the label for the filter.
      */
-    public getLabel(): string {
-        let operator = this.getLabelForOperator();
-        return this.getLabelForField() + ' ' + (operator ? (operator + ' ') : '') + this.getLabelForValue();
+    public getLabel(dataset: Dataset): string {
+        return this.getLabelForField(dataset) + this.getLabelForValue(dataset);
     }
 
     /**
@@ -467,30 +364,21 @@ export abstract class AbstractFilter {
      *
      * @abstract
      */
-    public abstract getLabelForField(abridged?: boolean): string;
-
-    /**
-     * Returns the label for the filter's operator.
-     *
-     * @abstract
-     */
-    public abstract getLabelForOperator(): string;
+    public abstract getLabelForField(dataset: Dataset, abridged?: boolean): string;
 
     /**
      * Returns the label for the filter's value(s).
      *
      * @abstract
      */
-    public abstract getLabelForValue(abridged?: boolean): string;
+    public abstract getLabelForValue(dataset: Dataset, abridged?: boolean): string;
 
     /**
      * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
      *
-     * @arg {FilterConfig} filterConfig
-     * @return {boolean}
      * @abstract
      */
-    public abstract isCompatibleWithConfig(filterConfig: FilterConfig): boolean;
+    public abstract isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean;
 
     /**
      * Returns if this filter is equivalent to the given filter.
@@ -502,6 +390,19 @@ export abstract class AbstractFilter {
     public abstract isEquivalentToFilter(filter: AbstractFilter): boolean;
 
     /**
+     * Returns if the given field is equivalent to the given data source.
+     *
+     * @arg {FieldKey} fieldKey
+     * @arg {FilterDataSource} filterDataSource
+     * @return {boolean}
+     * @private
+     */
+    private _isRelationEquivalent(fieldKey: FieldKey, filterDataSource: FilterDataSource): boolean {
+        return !!(fieldKey.datastore === filterDataSource.datastore && fieldKey.database === filterDataSource.database &&
+            fieldKey.table === filterDataSource.table && fieldKey.field === filterDataSource.field);
+    }
+
+    /**
      * Returns the filtered values for the filter object.
      */
     public abstract retrieveValues(): FilterValues;
@@ -509,213 +410,12 @@ export abstract class AbstractFilter {
     /**
      * Returns the filter config for the filter object.
      *
-     * @return {FilterConfig}
      * @abstract
      */
-    public abstract toConfig(): FilterConfig;
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public abstract toDataList(): any[];
-}
-
-export class SimpleFilter extends AbstractFilter {
-    /**
-     * Creates and returns a simple filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): SimpleFilter {
-        if (dataList.length === 5 && !(dataList[0] === 'and' || dataList[0] === 'or')) {
-            const id = dataList[0];
-            const relations = dataList[1];
-            const fieldKeyString = dataList[2];
-            const operator = dataList[3];
-            const value = dataList[4];
-            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
-            if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
-                return new SimpleFilter(datastore.name, database, table, field, operator, value, id, relations);
-            }
-        }
-        return null;
-    }
-
-    constructor(
-        public datastore: string,
-        public database: DatabaseConfig,
-        public table: TableConfig,
-        public field: FieldConfig,
-        public operator: string,
-        public value: any,
-        id?: string,
-        relations?: string[]
-    ) {
-        super(id, relations);
-    }
-
-    /**
-     * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
-     *
-     * @arg {FieldKey[]} equivalentFieldKeyList
-     * @arg {FieldKey[]} substituteFieldKeyList
-     * @arg {Dataset} dataset
-     * @return {AbstractFilter}
-     * @override
-     */
-    public createRelationFilter(
-        equivalentFieldKeyList: FieldKey[],
-        substituteFieldKeyList: FieldKey[],
-        dataset: Dataset
-    ): AbstractFilter {
-        if (equivalentFieldKeyList.length !== substituteFieldKeyList.length) {
-            return null;
-        }
-
-        let relationFilter: SimpleFilter = null;
-
-        equivalentFieldKeyList.forEach((equivalentFieldKey, index) => {
-            if (equivalentFieldKey.datastore === this.datastore && equivalentFieldKey.database === this.database.name &&
-                equivalentFieldKey.table === this.table.name && equivalentFieldKey.field === this.field.columnName) {
-                const substituteFieldKey: FieldKey = substituteFieldKeyList[index];
-                if (substituteFieldKey.database && substituteFieldKey.table && substituteFieldKey.field) {
-                    const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(substituteFieldKey);
-                    if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName) {
-                        relationFilter = new SimpleFilter(datastore.name, database, table, field, this.operator, this.value);
-                    }
-                }
-            }
-        });
-
-        return relationFilter;
-    }
-
-    /**
-     * Returns if this filter affects a search in the given datastore/database/table.
-     *
-     * @arg {string} datastore
-     * @arg {string} database
-     * @arg {string} table
-     * @return {boolean}
-     */
-    public doesAffectSearch(datastore: string, database: string, table: string): boolean {
-        return datastore === this.datastore && database === this.database.name && table === this.table.name;
-    }
-
-    /**
-     * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
-     *
-     * @override
-     */
-    public getLabelForField(abridged: boolean = false): string {
-        return abridged ? this.field.prettyName : (this.database.prettyName + ' / ' + this.table.prettyName + ' / ' +
-            this.field.prettyName);
-    }
-
-    /**
-     * Returns the label for the filter's operator.
-     *
-     * @abstract
-     */
-    public getLabelForOperator(): string {
-        if (this.field.type === 'date') {
-            if (this.operator === '<' || this.operator === '<=') {
-                return 'before';
-            }
-            if (this.operator === '>' || this.operator === '>=') {
-                return 'after';
-            }
-        }
-        return this.operator === '=' ? '' : this.operator;
-    }
-
-    /**
-     * Returns the label for the filter's value(s).
-     *
-     * @abstract
-     */
-    public getLabelForValue(__abridged: boolean = false): string {
-        if (this.field.type === 'date' || this.value instanceof Date) {
-            // TODO THOR-1259 Let user switch from UTC to local time
-            // TODO THOR-1329 If hour or minutes are not zero, add hour and minutes and seconds to output string format.
-            return DateUtil.fromDateToString(this.value, DateFormat.SHORT);
-        }
-        if (typeof this.value === 'number') {
-            return '' + (this.value % 1 === 0 ? this.value : parseFloat('' + this.value).toFixed(3));
-        }
-        return this.value === '' ? '<empty>' : this.value;
-    }
-
-    /**
-     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
-     *
-     * @arg {FilterConfig} filterConfig
-     * @return {boolean}
-     */
-    public isCompatibleWithConfig(filterConfig: FilterConfig): boolean {
-        let simpleFilterConfig = (filterConfig as SimpleFilterConfig);
-        return simpleFilterConfig.datastore === this.datastore &&
-            simpleFilterConfig.database === this.database.name &&
-            simpleFilterConfig.table === this.table.name &&
-            simpleFilterConfig.field === this.field.columnName &&
-            simpleFilterConfig.operator === this.operator &&
-            (typeof simpleFilterConfig.value !== 'undefined' ? simpleFilterConfig.value === this.value : true);
-    }
-
-    /**
-     * Returns if this filter is equivalent to the given filter.
-     *
-     * @arg {AbstractFilter} filter
-     * @return {boolean}
-     */
-    public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof SimpleFilter && filter.datastore === this.datastore &&
-            filter.database.name === this.database.name && filter.table.name === this.table.name &&
-            filter.field.columnName === this.field.columnName && filter.operator === this.operator && filter.value === this.value;
-    }
-
-    /**
-     * Returns the filtered values for the filter object.
-     */
-    public retrieveValues(): OneValue {
-        return new OneValue(this.field.columnName, this.operator, this.value);
-    }
-
-    /**
-     * Returns the filter config for the filter object.
-     *
-     * @return {FilterConfig}
-     */
-    public toConfig(): FilterConfig {
-        return new SimpleFilterDesign(this.datastore, this.database.name, this.table.name, this.field.columnName, this.operator,
-            this.value, this.id, this.relations);
-    }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        const value = (typeof this.value === 'number' && (/[<>]=?/).test(this.operator) && (/[.]\d{4,100}/).test(`${this.value}`)) ?
-            parseFloat(this.value.toFixed(3)) : this.value;
-        return [this.id,
-            this.relations,
-            `${this.datastore}.${this.database.name}.${this.table.name}.${this.field.columnName}`,
-            this.operator,
-            value];
-    }
+    public abstract toDesign(): AbstractFilterDesign;
 }
 
 export class CompoundFilter extends AbstractFilter {
-    /**
-     * Creates and returns a compound filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): CompoundFilter {
-        if (dataList.length && (dataList[0] === 'and' || dataList[0] === 'or')) {
-            const [type, id, relations, ...filters] = dataList;
-            return new CompoundFilter(type, filters.map((filter) => FilterUtil.createFilterFromDataList(filter, dataset)), id, relations);
-        }
-        return null;
-    }
-
     constructor(
         public type: CompoundFilterType,
         public filters: AbstractFilter[],
@@ -725,37 +425,22 @@ export class CompoundFilter extends AbstractFilter {
         super(id, relations);
     }
 
-    protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
-        return new CompoundFilter(this.type, this.filters.map(filterTransformation));
-    }
-
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
-     *
-     * @arg {FieldKey[]} equivalentFieldKeyList
-     * @arg {FieldKey[]} substituteFieldKeyList
-     * @arg {Dataset} dataset
-     * @return {AbstractFilter}
-     * @override
      */
-    public createRelationFilter(
-        equivalentFieldKeyList: FieldKey[],
-        substituteFieldKeyList: FieldKey[],
-        dataset: Dataset
-    ): AbstractFilter {
+    public createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter {
         if (equivalentFieldKeyList.length !== substituteFieldKeyList.length) {
             return null;
         }
 
         let nestedRelationExists = false;
 
-        let relationFilter: CompoundFilter = this.createCompoundFilter((filter) => {
-            let nestedRelationFilter: AbstractFilter = filter.createRelationFilter(equivalentFieldKeyList,
-                substituteFieldKeyList, dataset);
+        let relationFilter: CompoundFilter = new CompoundFilter(this.type, this.filters.map((filter) => {
+            let nestedRelationFilter: AbstractFilter = filter.createRelationFilter(equivalentFieldKeyList, substituteFieldKeyList);
             nestedRelationExists = nestedRelationExists || !!nestedRelationFilter;
             // A compound filter can exchange one of its nested filters with a relation and keep the rest of the original nested filters.
             return nestedRelationFilter || filter;
-        });
+        }));
 
         // Return null unless at least one nested relation filter exists.
         return nestedRelationExists ? relationFilter : null;
@@ -764,34 +449,10 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Returns if this filter affects a search in the given datastore/database/table.
      *
-     * @arg {string} datastore
-     * @arg {string} database
-     * @arg {string} table
-     * @return {boolean}
+     * @override
      */
     public doesAffectSearch(datastore: string, database: string, table: string): boolean {
         return this.filters.some((nested) => nested.doesAffectSearch(datastore, database, table));
-    }
-
-    private _getFiltersByField(abridged: boolean = false): Record<string, AbstractFilter[]> {
-        return this.filters.reduce((collection, filter) => {
-            let field = filter.getLabelForField(abridged);
-            collection[field] = collection[field] || [];
-            collection[field].push(filter);
-            return collection;
-        }, {}) as Record<string, AbstractFilter[]>;
-    }
-
-    protected getLabelForDualFields(one: string, two: string): string {
-        let oneNestedFields: string[] = one.split('.');
-        let twoNestedFields: string[] = two.split('.');
-        if (oneNestedFields.length === twoNestedFields.length && oneNestedFields.length > 1) {
-            let oneFieldsPrefix = one.substring(0, one.lastIndexOf('.'));
-            if (oneFieldsPrefix === two.substring(0, two.lastIndexOf('.'))) {
-                return oneFieldsPrefix;
-            }
-        }
-        return one + ' ' + this.type + ' ' + two;
     }
 
     /**
@@ -799,46 +460,28 @@ export class CompoundFilter extends AbstractFilter {
      *
      * @override
      */
-    public getLabelForField(__abridged: boolean = false): string {
-        return '';
-    }
-
-    /**
-     * Returns the label for the filter's operator.
-     *
-     * @abstract
-     */
-    public getLabelForOperator(): string {
+    public getLabelForField(__dataset: Dataset, __abridged: boolean = false): string {
         return '';
     }
 
     /**
      * Returns the label for the filter's value(s).
      *
-     * @abstract
+     * @override
      */
-    public getLabelForValue(abridged: boolean = false): string {
+    public getLabelForValue(dataset: Dataset, abridged: boolean = false): string {
         // TODO THOR-1333 Improve label for custom compound filter
 
         // Group the filters by unique field.
-        const filtersByField: Record<string, AbstractFilter[]> = this._getFiltersByField(abridged);
+        const filtersByField: Record<string, AbstractFilter[]> = this.filters.reduce((collection, filter) => {
+            let field = filter.getLabelForField(dataset, abridged);
+            collection[field] = collection[field] || [];
+            collection[field].push(filter);
+            return collection;
+        }, {}) as Record<string, AbstractFilter[]>;
+
         return '(' + Object.keys(filtersByField).reduce((list, field) => {
-            let valuesByOperator: Record<string, any[]> = {};
-            // Group the values by unique operator.
-            filtersByField[field].forEach((filter) => {
-                let operator = filter.getLabelForOperator();
-                valuesByOperator[operator] = valuesByOperator[operator] || [];
-                valuesByOperator[operator].push(filter.getLabelForValue(abridged));
-            });
-            let labels: string[] = Object.keys(valuesByOperator).map((operator) => {
-                // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
-                let values: any[] = valuesByOperator[operator].slice(0, 5);
-                let suffix = (valuesByOperator[operator].length > 5 ? (' ' + this.type + ' ' + (valuesByOperator[operator].length - 5) +
-                    ' more...') : '');
-                // Do not show the operator if each operator is the same or if it is empty.  Do not show parentheses around only one value.
-                return (operator ? (operator + ' ') : '') + (values.length > 1 ?
-                    ('(' + values.join(', ') + suffix + ')') : (values[0] + suffix));
-            });
+            let labels: string[] = filtersByField[field].map((filter) => filter.getLabelForValue(dataset, abridged));
             // Do not show parentheses around only one operator.
             return list.concat(field + ' ' + (labels.length > 1 ? ('(' + labels.join(' ' + this.type + ' ') + ')') : labels[0]));
         }, []).join(') ' + this.type + ' (') + ')';
@@ -847,46 +490,33 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
      *
-     * @arg {FilterConfig} filterConfig
-     * @return {boolean}
+     * @override
      */
-    public isCompatibleWithConfig(filterConfig: FilterConfig): boolean {
-        // TODO THOR-1396 Simplify this
-        let compoundFilterConfig = (filterConfig as CompoundFilterConfig);
-
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(compoundFilterConfig);
-
-        if (filterDataSourceList.length > 1) {
-            // If the filter config contains more than one FilterDataSource, ensure that 1) each nested config is compatible with at least
-            // one nested filter object, 2) each nested filter object is compatible with at least one nested filter config, and 3) both
-            // lists are the same length.  This forces configs to have specific nested filters but allows them to have nested filters in an
-            // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
-            return compoundFilterConfig.type === this.type &&
-                compoundFilterConfig.filters &&
-                compoundFilterConfig.filters.length === this.filters.length &&
-                compoundFilterConfig.filters.every((nestedConfig) =>
-                    this.filters.some((nestedFilter) =>
-                        nestedFilter.isCompatibleWithConfig(nestedConfig))) &&
-                this.filters.every((nestedFilter) =>
-                    compoundFilterConfig.filters.some((nestedConfig) =>
-                        nestedFilter.isCompatibleWithConfig(nestedConfig)));
+    public isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean {
+        if (!(filterDesign instanceof CompoundFilterDesign)) {
+            return false;
         }
 
-        // If the filter config contains only one FilterDataSource, ensure that each nested filter config is compatible with at least one
-        // nested filter object.  This allows filters that expect one or more nested filters with the same config.  This is useful with
-        // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-        return compoundFilterConfig.type === this.type &&
-            compoundFilterConfig.filters &&
-            compoundFilterConfig.filters.every((nestedConfig) =>
-                this.filters.some((nestedFilter) =>
-                    nestedFilter.isCompatibleWithConfig(nestedConfig)));
+        let compoundFilterDesign = (filterDesign);
+
+        // If the filter design contains more than one FilterDataSource, ensure that 1) each nested design is compatible with at least one
+        // nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both lists are
+        // the same length.  This forces designs to have specific nested filters but lets them have nested filters in an unexpected order.
+        return compoundFilterDesign.type === this.type &&
+            compoundFilterDesign.filters &&
+            compoundFilterDesign.filters.length === this.filters.length &&
+            compoundFilterDesign.filters.every((nestedDesign: AbstractFilterDesign) =>
+                this.filters.some((nestedFilter: AbstractFilter) =>
+                    nestedFilter.isCompatibleWithDesign(nestedDesign))) &&
+            this.filters.every((nestedFilter: AbstractFilter) =>
+                compoundFilterDesign.filters.some((nestedDesign: AbstractFilterDesign) =>
+                    nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
 
     /**
      * Returns if this filter is equivalent to the given filter.
      *
-     * @arg {AbstractFilter} filter
-     * @return {boolean}
+     * @override
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
         return filter instanceof CompoundFilter && filter.type === this.type &&
@@ -896,6 +526,8 @@ export class CompoundFilter extends AbstractFilter {
 
     /**
      * Returns the filtered values for the filter object.
+     *
+     * @override
      */
     public retrieveValues(): FilterValues {
         return new CompoundValues(this.type, this.filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []));
@@ -904,76 +536,14 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Returns the filter config for the filter object.
      *
-     * @return {FilterConfig}
+     * @override
      */
-    public toConfig(): FilterConfig {
-        return new CompoundFilterDesign(this.type, this.filters.map((filter) => filter.toConfig()), this.id, this.relations);
-    }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        return ([this.type, this.id, this.relations] as any[]).concat(this.filters.map((filter) => filter.toDataList()));
+    public toDesign(): AbstractFilterDesign {
+        return new CompoundFilterDesign(this.type, this.filters.map((filter) => filter.toDesign()), this.id, this.relations);
     }
 }
 
-export class BoundsFilter extends CompoundFilter {
-    /**
-     * Creates and returns a bounds filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): BoundsFilter {
-        if (dataList.length === 9 && dataList[0] === 'bounds') {
-            const id = dataList[1];
-            const relations = dataList[2];
-            const fieldKeyString1 = dataList[3];
-            const begin1 = dataList[4];
-            const end1 = dataList[5];
-            const fieldKeyString2 = dataList[6];
-            const begin2 = dataList[7];
-            const end2 = dataList[8];
-
-            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
-            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
-            if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = dataset.retrieveConfigDataFromFieldKey(fieldKey1);
-                const [datastore2, database2, table2, field2] = dataset.retrieveConfigDataFromFieldKey(fieldKey2);
-                return new BoundsFilter(fieldKeyString1, fieldKeyString2, begin1, begin2, end1, end2, [
-                    new SimpleFilter(datastore1.name, database1, table1, field1, '>=', begin1),
-                    new SimpleFilter(datastore1.name, database1, table1, field1, '<=', end1),
-                    new SimpleFilter(datastore2.name, database2, table2, field2, '>=', begin2),
-                    new SimpleFilter(datastore2.name, database2, table2, field2, '<=', end2)
-                ], id, relations);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates and returns a bounds filter object using the given array of four simple filter objects.
-     */
-    static fromFilters(filters: AbstractFilter[], id?: string, relations?: string[]): BoundsFilter {
-        if (filters.length === 4 && filters.every((filter) => filter instanceof SimpleFilter)) {
-            let fieldKeys = _.uniq(filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.datastore + '.' + simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-
-            if (fieldKeys.length === 2) {
-                const filter1: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0], '>=');
-                const filter2: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0], '<=');
-                const filter3: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[1], '>=');
-                const filter4: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[1], '<=');
-
-                if (filter1 && filter2 && filter3 && filter4) {
-                    return new BoundsFilter(fieldKeys[0], fieldKeys[1], filter1.value, filter3.value, filter2.value, filter4.value,
-                        [filter1, filter2, filter3, filter4], id, relations);
-                }
-            }
-        }
-        return null;
-    }
-
+export class BoundsFilter extends AbstractFilter {
     constructor(
         public fieldKey1: string,
         public fieldKey2: string,
@@ -981,34 +551,106 @@ export class BoundsFilter extends CompoundFilter {
         public begin2: any,
         public end1: any,
         public end2: any,
-        filters: AbstractFilter[],
         id?: string,
         relations?: string[]
     ) {
-        super(CompoundFilterType.AND, filters, id, relations);
+        super(id, relations);
     }
 
-    protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
-        return BoundsFilter.fromFilters(this.filters.map(filterTransformation));
+    /**
+     * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
+     *
+     * @override
+     */
+    public createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter {
+        if (equivalentFieldKeyList.length !== 2 || substituteFieldKeyList.length !== 2) {
+            return null;
+        }
+
+        if (substituteFieldKeyList[0].database && substituteFieldKeyList[0].table && substituteFieldKeyList[0].field &&
+            substituteFieldKeyList[1].database && substituteFieldKeyList[1].table && substituteFieldKeyList[1].field) {
+            const internalFieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+            const internalFieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey1) &&
+                DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[1], internalFieldKey2)) {
+                return new BoundsFilter(DatasetUtil.fieldKeyToString(substituteFieldKeyList[0]), DatasetUtil.fieldKeyToString(
+                    substituteFieldKeyList[1]
+                ), this.begin1, this.begin2, this.end1, this.end2);
+            }
+
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[1], internalFieldKey1) &&
+                DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey2)) {
+                return new BoundsFilter(DatasetUtil.fieldKeyToString(substituteFieldKeyList[1]), DatasetUtil.fieldKeyToString(
+                    substituteFieldKeyList[0]
+                ), this.begin1, this.begin2, this.end1, this.end2);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if this filter affects a search in the given datastore/database/table.
+     *
+     * @override
+     */
+    public doesAffectSearch(datastore: string, database: string, table: string): boolean {
+        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+        return (fieldKey1.datastore === datastore && fieldKey1.database === database && fieldKey1.table === table) ||
+            (fieldKey2.datastore === datastore && fieldKey2.database === database && fieldKey2.table === table);
     }
 
     /**
      * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
      */
-    public getLabelForField(abridged: boolean = false): string {
-        return this.getLabelForDualFields(this.filters[0].getLabelForField(abridged), this.filters[2].getLabelForField(abridged));
+    public getLabelForField(dataset: Dataset, abridged: boolean = false): string {
+        return this._createLabelForTwoFields(this.fieldKey1, this.fieldKey2, dataset, CompoundFilterType.AND, abridged);
     }
 
     /**
      * Returns the label for the filter's value(s).
+     *
+     * @override
      */
-    public getLabelForValue(abridged: boolean = false): string {
-        return 'from (' + this.filters[0].getLabelForValue(abridged) + ', ' + this.filters[2].getLabelForValue(abridged) +
-            ') to (' + this.filters[1].getLabelForValue(abridged) + ', ' + this.filters[3].getLabelForValue(abridged) + ')';
+    public getLabelForValue(dataset: Dataset, __abridged: boolean = false): string {
+        return 'from (' + this._createLabelForValue(this.fieldKey1, this.begin1, dataset) + ', ' +
+            this._createLabelForValue(this.fieldKey2, this.begin2, dataset) + ') to (' +
+            this._createLabelForValue(this.fieldKey1, this.end1, dataset) + ', ' +
+            this._createLabelForValue(this.fieldKey2, this.end2, dataset) + ')';
+    }
+
+    /**
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
+     *
+     * @override
+     */
+    public isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean {
+        return filterDesign instanceof BoundsFilterDesign && filterDesign.fieldKey1 === this.fieldKey1 &&
+            filterDesign.fieldKey2 === this.fieldKey2 &&
+            (typeof filterDesign.begin1 !== 'undefined' ? filterDesign.begin1 === this.begin1 : true) &&
+            (typeof filterDesign.begin2 !== 'undefined' ? filterDesign.begin2 === this.begin2 : true) &&
+            (typeof filterDesign.end1 !== 'undefined' ? filterDesign.end1 === this.end1 : true) &&
+            (typeof filterDesign.end2 !== 'undefined' ? filterDesign.end2 === this.end2 : true);
+    }
+
+    /**
+     * Returns if this filter is equivalent to the given filter.
+     *
+     * @override
+     */
+    public isEquivalentToFilter(filter: AbstractFilter): boolean {
+        return filter instanceof BoundsFilter && filter.fieldKey1 === this.fieldKey1 && filter.fieldKey2 === this.fieldKey2 &&
+            filter.begin1 === this.begin1 && filter.begin2 === this.begin2 && filter.end1 === this.end1 && filter.end2 === this.end2;
     }
 
     /**
      * Returns the filtered values for the filter object.
+     *
+     * @override
      */
     public retrieveValues(): BoundsValues {
         return new BoundsValues(this.begin1, this.begin2, this.fieldKey1, this.fieldKey2, this.end1, this.end2);
@@ -1016,97 +658,100 @@ export class BoundsFilter extends CompoundFilter {
 
     /**
      * Returns the filter config for the filter object.
+     *
+     * @override
      */
-    public toConfig(): FilterConfig {
+    public toDesign(): AbstractFilterDesign {
         return new BoundsFilterDesign(this.fieldKey1, this.fieldKey2, this.begin1, this.begin2, this.end1, this.end2, this.id,
             this.relations);
     }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        return ['bounds', this.id, this.relations, this.fieldKey1, this.begin1, this.end1, this.fieldKey2, this.begin2, this.end2];
-    }
 }
 
-export class DomainFilter extends CompoundFilter {
-    /**
-     * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): DomainFilter {
-        if (dataList.length === 6 && dataList[0] === 'domain') {
-            const id = dataList[1];
-            const relations = dataList[2];
-            const fieldKeyString = dataList[3];
-            const begin = dataList[4];
-            const end = dataList[5];
-
-            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
-            if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
-                return new DomainFilter(fieldKeyString, begin, end, [
-                    new SimpleFilter(datastore.name, database, table, field, '>=', begin),
-                    new SimpleFilter(datastore.name, database, table, field, '<=', end)
-                ], id, relations);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates and returns a domain filter object using the given array of two simple filter objects.
-     */
-    static fromFilters(filters: AbstractFilter[], id?: string, relations?: string[]): DomainFilter {
-        if (filters.length === 2 && filters.every((filter) => filter instanceof SimpleFilter)) {
-            let fieldKeys = _.uniq(filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.datastore + '.' + simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-
-            if (fieldKeys.length === 1) {
-                const filter1: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0], '>=');
-                const filter2: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0], '<=');
-
-                if (filter1 && filter2) {
-                    return new DomainFilter(fieldKeys[0], filter1.value, filter2.value, [filter1, filter2], id, relations);
-                }
-            }
-        }
-        return null;
-    }
-
+export class DomainFilter extends AbstractFilter {
     constructor(
         public fieldKey: string,
         public begin: any,
         public end: any,
-        filters: AbstractFilter[],
         id?: string,
         relations?: string[]
     ) {
-        super(CompoundFilterType.AND, filters, id, relations);
+        super(id, relations);
     }
 
-    protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
-        return DomainFilter.fromFilters(this.filters.map(filterTransformation));
+    /**
+     * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
+     *
+     * @override
+     */
+    public createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter {
+        if (equivalentFieldKeyList.length !== 1 || substituteFieldKeyList.length !== 1) {
+            return null;
+        }
+
+        if (substituteFieldKeyList[0].database && substituteFieldKeyList[0].table && substituteFieldKeyList[0].field) {
+            const internalFieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey)) {
+                return new DomainFilter(DatasetUtil.fieldKeyToString(substituteFieldKeyList[0]), this.begin, this.end);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if this filter affects a search in the given datastore/database/table.
+     *
+     * @override
+     */
+    public doesAffectSearch(datastore: string, database: string, table: string): boolean {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+        return (fieldKey.datastore === datastore && fieldKey.database === database && fieldKey.table === table);
     }
 
     /**
      * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
      */
-    public getLabelForField(abridged: boolean = false): string {
-        return this.filters[0].getLabelForField(abridged);
+    public getLabelForField(dataset: Dataset, abridged: boolean = false): string {
+        return this._createLabelForField(this.fieldKey, dataset, abridged);
     }
 
     /**
      * Returns the label for the filter's value(s).
+     *
+     * @override
      */
-    public getLabelForValue(abridged: boolean = false): string {
-        return 'between ' + this.filters[0].getLabelForValue(abridged) + ' and ' + this.filters[1].getLabelForValue(abridged);
+    public getLabelForValue(dataset: Dataset, __abridged: boolean = false): string {
+        return 'between ' + this._createLabelForValue(this.fieldKey, this.begin, dataset) + ' and ' +
+            this._createLabelForValue(this.fieldKey, this.end, dataset);
+    }
+
+    /**
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
+     *
+     * @override
+     */
+    public isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean {
+        return filterDesign instanceof DomainFilterDesign && filterDesign.fieldKey === this.fieldKey &&
+            (typeof filterDesign.begin !== 'undefined' ? filterDesign.begin === this.begin : true) &&
+            (typeof filterDesign.end !== 'undefined' ? filterDesign.end === this.end : true);
+    }
+
+    /**
+     * Returns if this filter is equivalent to the given filter.
+     *
+     * @override
+     */
+    public isEquivalentToFilter(filter: AbstractFilter): boolean {
+        return filter instanceof DomainFilter && filter.fieldKey === this.fieldKey && filter.begin === this.begin &&
+            filter.end === this.end;
     }
 
     /**
      * Returns the filtered values for the filter object.
+     *
+     * @override
      */
     public retrieveValues(): DomainValues {
         return new DomainValues(this.begin, this.fieldKey, this.end);
@@ -1114,218 +759,268 @@ export class DomainFilter extends CompoundFilter {
 
     /**
      * Returns the filter config for the filter object.
+     *
+     * @override
      */
-    public toConfig(): FilterConfig {
+    public toDesign(): AbstractFilterDesign {
         return new DomainFilterDesign(this.fieldKey, this.begin, this.end, this.id, this.relations);
-    }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        return ['domain', this.id, this.relations, this.fieldKey, this.begin, this.end];
     }
 }
 
-export class ListFilter extends CompoundFilter {
-    /**
-     * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): ListFilter {
-        if (dataList.length >= 7 && dataList[0] === 'list') {
-            const id = dataList[1];
-            const relations = dataList[2];
-            const type = dataList[3];
-            const fieldKeyString = dataList[4];
-            const operator = dataList[5];
-            const values = dataList.slice(6);
-
-            const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
-            if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
-                return new ListFilter(type, fieldKeyString, operator, values, values.map((value) =>
-                    new SimpleFilter(datastore.name, database, table, field, operator, value)), id, relations);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates and returns a list filter object using the given array of one or more simple filter objects and the filter type.
-     */
-    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType, id?: string, relations?: string[]): ListFilter {
-        if (filters.length && filters.every((filter) => filter instanceof SimpleFilter)) {
-            let sample = filters[0] as SimpleFilter;
-            let fieldKey = sample.datastore + '.' + sample.database.name + '.' + sample.table.name + '.' + sample.field.columnName;
-            let operator = sample.operator;
-
-            if (filters.every((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.operator === operator && (simple.datastore + '.' + simple.database.name + '.' + simple.table.name + '.' +
-                    simple.field.columnName) === fieldKey;
-            })) {
-                return new ListFilter(type, fieldKey, operator, filters.map((filter) => (filter as SimpleFilter).value), filters, id,
-                    relations);
-            }
-        }
-        return null;
-    }
+export class ListFilter extends AbstractFilter {
+    private _values: any[];
 
     constructor(
-        type: CompoundFilterType,
+        public type: CompoundFilterType,
         public fieldKey: string,
         public operator: string,
-        public values: any[],
-        filters: AbstractFilter[],
+        values: any[],
         id?: string,
         relations?: string[]
     ) {
-        super(type, filters, id, relations);
+        super(id, relations);
+        this._updateValues(values);
     }
 
-    protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
-        return ListFilter.fromFilters(this.filters.map(filterTransformation), this.type);
+    get values(): any[] {
+        return this._values;
+    }
+
+    set values(input: any[]) {
+        this._updateValues(input);
+    }
+
+    private _updateValues(input: any[]) {
+        this._values = ((input && Array.isArray(input) && input.length) ? input : []).filter((value) => typeof value !== 'undefined');
+        if (!this._values.length) {
+            console.warn('ListFilter ' + this.id + ' with fieldkey ' + this.fieldKey + ' and operator ' + this.operator +
+                ' should have values but does not!');
+        }
+    }
+
+    /**
+     * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
+     *
+     * @override
+     */
+    public createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter {
+        if (equivalentFieldKeyList.length !== 1 || substituteFieldKeyList.length !== 1) {
+            return null;
+        }
+
+        if (substituteFieldKeyList[0].database && substituteFieldKeyList[0].table && substituteFieldKeyList[0].field) {
+            const internalFieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey)) {
+                return new ListFilter(this.type, DatasetUtil.fieldKeyToString(substituteFieldKeyList[0]), this.operator, this._values);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if this filter affects a search in the given datastore/database/table.
+     *
+     * @override
+     */
+    public doesAffectSearch(datastore: string, database: string, table: string): boolean {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+        return (fieldKey.datastore === datastore && fieldKey.database === database && fieldKey.table === table);
     }
 
     /**
      * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
      */
-    public getLabelForField(abridged: boolean = false): string {
-        return this.filters[0].getLabelForField(abridged);
+    public getLabelForField(dataset: Dataset, abridged: boolean = false): string {
+        return this._createLabelForField(this.fieldKey, dataset, abridged);
     }
 
     /**
      * Returns the label for the filter's value(s).
+     *
+     * @override
      */
-    public getLabelForValue(abridged: boolean = false): string {
-        // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
-        let values: any[] = this.filters.slice(0, 5).map((filter) => filter.getLabelForValue(abridged));
-        let suffix = (this.filters.length > 5 ? (' ' + this.type + ' ' + (this.filters.length - 5) + ' more...') : '');
-        let operator = this.filters[0].getLabelForOperator();
+    public getLabelForValue(dataset: Dataset, __abridged: boolean = false): string {
+        // Only show the first 3 values.  Add a suffix with the count of the hidden values.
+        let labels: string[] = this._values.slice(0, 3).map((value) =>
+            this._createLabelForValue(this.fieldKey, value, dataset));
+        let suffix = (this._values.length > 3 ? (' ' + this.type + ' ' + (this._values.length - 3) + ' more...') : '');
+        let operator = this._createLabelForOperator(this.operator);
         // Do not show the operator if it is empty.
-        return (operator ? (operator + ' ' + (values.length > 1 ? '(' : '')) : '') + values.join(' ' + this.type + ' ') + suffix +
-            ((operator && values.length > 1) ? ')' : '');
+        return (operator ? (operator + ' ' + (labels.length > 1 ? '(' : '')) : '') + labels.join(' ' + this.type + ' ') + suffix +
+            ((operator && labels.length > 1) ? ')' : '');
+    }
+
+    /**
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
+     *
+     * @override
+     */
+    public isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean {
+        if (filterDesign instanceof ListFilterDesign && filterDesign.fieldKey === this.fieldKey &&
+            filterDesign.operator === this.operator && filterDesign.type === this.type) {
+            if (!filterDesign.values || !filterDesign.values.length ||
+                (filterDesign.values.length === 1 && typeof filterDesign.values[0] === 'undefined')) {
+                return true;
+            }
+
+            if (filterDesign.values.length !== this._values.length) {
+                return false;
+            }
+
+            return filterDesign.values.every((value, index) => value === this._values[index]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns if this filter is equivalent to the given filter.
+     *
+     * @override
+     */
+    public isEquivalentToFilter(filter: AbstractFilter): boolean {
+        return filter instanceof ListFilter && filter.fieldKey === this.fieldKey && filter.operator === this.operator &&
+            filter.type === this.type && _.isEqual(_.sortBy(filter.values), _.sortBy(this._values));
     }
 
     /**
      * Returns the filtered values for the filter object.
+     *
+     * @override
      */
     public retrieveValues(): ListOfValues {
-        return new ListOfValues(this.type, this.fieldKey, this.operator, this.values);
+        return new ListOfValues(this.type, this.fieldKey, this.operator, this._values);
     }
 
     /**
      * Returns the filter config for the filter object.
+     *
+     * @override
      */
-    public toConfig(): FilterConfig {
-        return new ListFilterDesign(this.type, this.fieldKey, this.operator, this.values, this.id, this.relations);
-    }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        return ['list', this.id, this.relations, this.type, this.fieldKey, this.operator].concat(this.values.map((value) => value));
+    public toDesign(): AbstractFilterDesign {
+        return new ListFilterDesign(this.type, this.fieldKey, this.operator, (this._values.length ? this._values : [undefined]), this.id,
+            this.relations);
     }
 }
 
-export class PairFilter extends CompoundFilter {
-    /**
-     * Creates and returns a pair filter object using the given data list (or null if it is not the correct type of data list).
-     */
-    static fromDataList(dataList: any[], dataset: Dataset): PairFilter {
-        if (dataList.length === 10 && dataList[0] === 'pair') {
-            const id = dataList[1];
-            const relations = dataList[2];
-            const type = dataList[3];
-            const fieldKeyString1 = dataList[4];
-            const operator1 = dataList[5];
-            const value1 = dataList[6];
-            const fieldKeyString2 = dataList[7];
-            const operator2 = dataList[8];
-            const value2 = dataList[9];
-
-            const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
-            const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
-            if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = dataset.retrieveConfigDataFromFieldKey(fieldKey1);
-                const [datastore2, database2, table2, field2] = dataset.retrieveConfigDataFromFieldKey(fieldKey2);
-                return new PairFilter(type, fieldKeyString1, fieldKeyString2, operator1, operator2, value1, value2, [
-                    new SimpleFilter(datastore1.name, database1, table1, field1, operator1, value1),
-                    new SimpleFilter(datastore2.name, database2, table2, field2, operator2, value2)
-                ], id, relations);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates and returns a pair filter object using the given array of two simple filter objects and the filter type.
-     */
-    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType, id?: string, relations?: string[]): PairFilter {
-        if (filters.length === 2 && filters.every((filter) => filter instanceof SimpleFilter)) {
-            let fieldKeys = _.uniq(filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.datastore + '.' + simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-
-            if (fieldKeys.length === 2) {
-                const filter1: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0]);
-                const filter2: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[1]);
-
-                if (filter1 && filter2) {
-                    return new PairFilter(type, fieldKeys[0], fieldKeys[1], filter1.operator, filter2.operator, filter1.value,
-                        filter2.value, [filter1, filter2], id, relations);
-                }
-            }
-        }
-        return null;
-    }
-
+export class PairFilter extends AbstractFilter {
     constructor(
-        type: CompoundFilterType,
+        public type: CompoundFilterType,
         public fieldKey1: string,
         public fieldKey2: string,
         public operator1: any,
         public operator2: any,
         public value1: any,
         public value2: any,
-        filters: AbstractFilter[],
         id?: string,
         relations?: string[]
     ) {
-        super(type, filters, id, relations);
+        super(id, relations);
     }
 
-    protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
-        return PairFilter.fromFilters(this.filters.map(filterTransformation), this.type);
+    /**
+     * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
+     *
+     * @override
+     */
+    public createRelationFilter(equivalentFieldKeyList: FieldKey[], substituteFieldKeyList: FieldKey[]): AbstractFilter {
+        if (equivalentFieldKeyList.length !== 2 || substituteFieldKeyList.length !== 2) {
+            return null;
+        }
+
+        if (substituteFieldKeyList[0].database && substituteFieldKeyList[0].table && substituteFieldKeyList[0].field &&
+            substituteFieldKeyList[1].database && substituteFieldKeyList[1].table && substituteFieldKeyList[1].field) {
+            const internalFieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+            const internalFieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey1) &&
+                DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[1], internalFieldKey2)) {
+                return new PairFilter(this.type, DatasetUtil.fieldKeyToString(substituteFieldKeyList[0]), DatasetUtil.fieldKeyToString(
+                    substituteFieldKeyList[1]
+                ), this.operator1, this.operator2, this.value1, this.value2);
+            }
+
+            if (DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[1], internalFieldKey1) &&
+                DatasetUtil.areFieldKeysEqual(equivalentFieldKeyList[0], internalFieldKey2)) {
+                return new PairFilter(this.type, DatasetUtil.fieldKeyToString(substituteFieldKeyList[1]), DatasetUtil.fieldKeyToString(
+                    substituteFieldKeyList[0]
+                ), this.operator1, this.operator2, this.value1, this.value2);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if this filter affects a search in the given datastore/database/table.
+     *
+     * @override
+     */
+    public doesAffectSearch(datastore: string, database: string, table: string): boolean {
+        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+        return (fieldKey1.datastore === datastore && fieldKey1.database === database && fieldKey1.table === table) ||
+            (fieldKey2.datastore === datastore && fieldKey2.database === database && fieldKey2.table === table);
     }
 
     /**
      * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
      */
-    public getLabelForField(abridged: boolean = false): string {
-        return this.getLabelForDualFields(this.filters[0].getLabelForField(abridged), this.filters[1].getLabelForField(abridged));
+    public getLabelForField(dataset: Dataset, abridged: boolean = false): string {
+        return this._createLabelForTwoFields(this.fieldKey1, this.fieldKey2, dataset, this.type, abridged);
     }
 
     /**
      * Returns the label for the filter's value(s).
+     *
+     * @override
      */
-    public getLabelForValue(abridged: boolean = false): string {
-        let operator1 = this.filters[0].getLabelForOperator();
-        let operator2 = this.filters[1].getLabelForOperator();
+    public getLabelForValue(dataset: Dataset, __abridged: boolean = false): string {
+        let operator1 = this._createLabelForOperator(this.operator1);
+        let operator2 = this._createLabelForOperator(this.operator2);
         // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
         if (operator1 === operator2) {
-            return (operator1 ? (operator1 + ' ') : '') + '(' + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-                this.filters[1].getLabelForValue(abridged) + ')';
+            return (operator1 ? (operator1 + ' ') : '') + '(' + this._createLabelForValue(this.fieldKey1, this.value1, dataset) +
+                ' ' + this.type + ' ' + this._createLabelForValue(this.fieldKey2, this.value2, dataset) + ')';
         }
         // Do not show the operator if it is empty.
-        return (operator1 ? (operator1 + ' ') : '') + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-            (operator2 ? (operator2 + ' ') : '') + this.filters[1].getLabelForValue(abridged);
+        return (operator1 ? (operator1 + ' ') : '') + this._createLabelForValue(this.fieldKey1, this.value1, dataset) + ' ' +
+            this.type + ' ' + (operator2 ? (operator2 + ' ') : '') + this._createLabelForValue(this.fieldKey2, this.value2, dataset);
+    }
+
+    /**
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
+     *
+     * @override
+     */
+    public isCompatibleWithDesign(filterDesign: AbstractFilterDesign): boolean {
+        return filterDesign instanceof PairFilterDesign && filterDesign.fieldKey1 === this.fieldKey1 &&
+            filterDesign.fieldKey2 === this.fieldKey2 && filterDesign.operator1 === this.operator1 &&
+            filterDesign.operator2 === this.operator2 && filterDesign.type === this.type &&
+            (typeof filterDesign.value1 !== 'undefined' ? filterDesign.value1 === this.value1 : true) &&
+            (typeof filterDesign.value2 !== 'undefined' ? filterDesign.value2 === this.value2 : true);
+    }
+
+    /**
+     * Returns if this filter is equivalent to the given filter.
+     *
+     * @override
+     */
+    public isEquivalentToFilter(filter: AbstractFilter): boolean {
+        return filter instanceof PairFilter && filter.fieldKey1 === this.fieldKey1 && filter.fieldKey2 === this.fieldKey2 &&
+            filter.operator1 === this.operator1 && filter.operator2 === this.operator2 && filter.value1 === this.value1 &&
+            filter.value2 === this.value2 && filter.type === this.type;
     }
 
     /**
      * Returns the filtered values for the filter object.
+     *
+     * @override
      */
     public retrieveValues(): PairOfValues {
         return new PairOfValues(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2);
@@ -1333,115 +1028,76 @@ export class PairFilter extends CompoundFilter {
 
     /**
      * Returns the filter config for the filter object.
+     *
+     * @override
      */
-    public toConfig(): FilterConfig {
+    public toDesign(): AbstractFilterDesign {
         return new PairFilterDesign(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2,
             this.id, this.relations);
-    }
-
-    /**
-     * Returns the filter as a data list to save as a string in a text file or URL.
-     */
-    public toDataList(): any[] {
-        return ['pair',
-            this.id,
-            this.relations,
-            this.type,
-            this.fieldKey1,
-            this.operator1,
-            this.value1,
-            this.fieldKey2,
-            this.operator2,
-            this.value2];
     }
 }
 
 export abstract class AbstractFilterDesign {
     constructor(public id?: string, public relations: string[] = []) { }
+
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @abstract
+     */
+    public abstract getDataSources(ignoreOperator?: boolean): FilterDataSource[];
+
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @abstract
+     */
+    public abstract toFilter(): AbstractFilter;
 }
 
-export class SimpleFilterDesign extends AbstractFilterDesign implements SimpleFilterConfig {
-    static fromConfig(filterConfig: SimpleFilterConfig): SimpleFilterDesign {
-        return new SimpleFilterDesign(filterConfig.datastore, filterConfig.database, filterConfig.table, filterConfig.field,
-            filterConfig.operator, filterConfig.value, filterConfig.id);
-    }
-
-    constructor(
-        public datastore: string,
-        public database: string,
-        public table: string,
-        public field: string,
-        public operator: string,
-        public value?: any,
-        id?: string,
-        relations?: string[]
-    ) {
-        super(id, relations);
-    }
-}
-
-export class CompoundFilterDesign extends AbstractFilterDesign implements CompoundFilterConfig {
-    public designs: AbstractFilterDesign[];
-
-    static fromConfig(filterConfig: CompoundFilterConfig): CompoundFilterDesign {
-        return new CompoundFilterDesign(filterConfig.type, filterConfig.filters);
-    }
-
+export class CompoundFilterDesign extends AbstractFilterDesign {
     constructor(
         public type: CompoundFilterType,
-        public filters: (SimpleFilterConfig | CompoundFilterConfig)[],
+        public filters: AbstractFilterDesign[],
         id?: string,
         relations?: string[]
     ) {
         super(id, relations);
-        this.designs = this.filters.map((filter) => filter instanceof AbstractFilterDesign ? filter :
-            (FilterUtil.isSimpleFilterConfig(filter) ? SimpleFilterDesign.fromConfig(filter) : CompoundFilterDesign.fromConfig(filter)));
+    }
+
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @override
+     */
+    public getDataSources(ignoreOperator: boolean = false): FilterDataSource[] {
+        return this.filters.reduce((list, nestedDesign) => {
+            let nestedDataSourceList: FilterDataSource[] = nestedDesign.getDataSources(ignoreOperator);
+
+            nestedDataSourceList.forEach((nestedDataSource) => {
+                let exists = list.some((existingDataSource) => FilterUtil.areFilterDataSourcesEquivalent(nestedDataSource,
+                    existingDataSource, ignoreOperator));
+
+                if (!exists) {
+                    list.push(nestedDataSource);
+                }
+            });
+
+            return list;
+        }, []);
+    }
+
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @override
+     */
+    public toFilter(): AbstractFilter {
+        return new CompoundFilter(this.type, this.filters.map((nestedDesign) => nestedDesign.toFilter()), this.id, this.relations);
     }
 }
 
-export class BoundsFilterDesign extends CompoundFilterDesign {
-    static createFilterConfigs(
-        fieldKeyString1: string,
-        fieldKeyString2: string,
-        begin1: any,
-        begin2: any,
-        end1: any,
-        end2: any
-    ): FilterConfig[] {
-        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
-        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
-
-        return !(fieldKey1 && fieldKey2) ? [] : [{
-            datastore: fieldKey1.datastore,
-            database: fieldKey1.database,
-            table: fieldKey1.table,
-            field: fieldKey1.field,
-            operator: '>=',
-            value: begin1
-        }, {
-            datastore: fieldKey1.datastore,
-            database: fieldKey1.database,
-            table: fieldKey1.table,
-            field: fieldKey1.field,
-            operator: '<=',
-            value: end1
-        }, {
-            datastore: fieldKey2.datastore,
-            database: fieldKey2.database,
-            table: fieldKey2.table,
-            field: fieldKey2.field,
-            operator: '>=',
-            value: begin2
-        }, {
-            datastore: fieldKey2.datastore,
-            database: fieldKey2.database,
-            table: fieldKey2.table,
-            field: fieldKey2.field,
-            operator: '<=',
-            value: end2
-        }] as SimpleFilterConfig[];
-    }
-
+export class BoundsFilterDesign extends AbstractFilterDesign {
     constructor(
         public fieldKey1: string,
         public fieldKey2: string,
@@ -1452,94 +1108,186 @@ export class BoundsFilterDesign extends CompoundFilterDesign {
         id?: string,
         relations?: string[]
     ) {
-        super(CompoundFilterType.AND, BoundsFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, begin1, begin2, end1, end2), id,
-            relations);
+        super(id, relations);
+    }
+
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @override
+     */
+    public getDataSources(ignoreOperator: boolean = false): FilterDataSource[] {
+        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+
+        if (this.fieldKey1 === this.fieldKey2) {
+            if (ignoreOperator) {
+                return [{
+                    datastore: fieldKey1.datastore,
+                    database: fieldKey1.database,
+                    table: fieldKey1.table,
+                    field: fieldKey1.field,
+                    operator: null
+                }];
+            }
+
+            return [{
+                datastore: fieldKey1.datastore,
+                database: fieldKey1.database,
+                table: fieldKey1.table,
+                field: fieldKey1.field,
+                operator: '>='
+            }, {
+                datastore: fieldKey1.datastore,
+                database: fieldKey1.database,
+                table: fieldKey1.table,
+                field: fieldKey1.field,
+                operator: '<='
+            }];
+        }
+
+        if (ignoreOperator) {
+            return [{
+                datastore: fieldKey1.datastore,
+                database: fieldKey1.database,
+                table: fieldKey1.table,
+                field: fieldKey1.field,
+                operator: null
+            }, {
+                datastore: fieldKey2.datastore,
+                database: fieldKey2.database,
+                table: fieldKey2.table,
+                field: fieldKey2.field,
+                operator: null
+            }];
+        }
+
+        return [{
+            datastore: fieldKey1.datastore,
+            database: fieldKey1.database,
+            table: fieldKey1.table,
+            field: fieldKey1.field,
+            operator: '>='
+        }, {
+            datastore: fieldKey1.datastore,
+            database: fieldKey1.database,
+            table: fieldKey1.table,
+            field: fieldKey1.field,
+            operator: '<='
+        }, {
+            datastore: fieldKey2.datastore,
+            database: fieldKey2.database,
+            table: fieldKey2.table,
+            field: fieldKey2.field,
+            operator: '>='
+        }, {
+            datastore: fieldKey2.datastore,
+            database: fieldKey2.database,
+            table: fieldKey2.table,
+            field: fieldKey2.field,
+            operator: '<='
+        }];
+    }
+
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @override
+     */
+    public toFilter(): AbstractFilter {
+        return new BoundsFilter(this.fieldKey1, this.fieldKey2, this.begin1, this.begin2, this.end1, this.end2, this.id, this.relations);
     }
 }
 
-export class DomainFilterDesign extends CompoundFilterDesign {
-    static createFilterConfigs(fieldKeyString: string, begin: any, end: any): FilterConfig[] {
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
+export class DomainFilterDesign extends AbstractFilterDesign {
+    constructor(public fieldKey: string, public begin: any, public end: any, id?: string, relations?: string[]) {
+        super(id, relations);
+    }
 
-        return !fieldKey ? [] : [{
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @override
+     */
+    public getDataSources(ignoreOperator: boolean = false): FilterDataSource[] {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+
+        if (ignoreOperator) {
+            return [{
+                datastore: fieldKey.datastore,
+                database: fieldKey.database,
+                table: fieldKey.table,
+                field: fieldKey.field,
+                operator: null
+            }];
+        }
+
+        return [{
             datastore: fieldKey.datastore,
             database: fieldKey.database,
             table: fieldKey.table,
             field: fieldKey.field,
-            operator: '>=',
-            value: begin
+            operator: '>='
         }, {
             datastore: fieldKey.datastore,
             database: fieldKey.database,
             table: fieldKey.table,
             field: fieldKey.field,
-            operator: '<=',
-            value: end
-        }] as SimpleFilterConfig[];
+            operator: '<='
+        }];
     }
 
-    constructor(public fieldKey: string, public begin: any, public end: any, id?: string, relations?: string[]) {
-        super(CompoundFilterType.AND, DomainFilterDesign.createFilterConfigs(fieldKey, begin, end), id, relations);
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @override
+     */
+    public toFilter(): AbstractFilter {
+        return new DomainFilter(this.fieldKey, this.begin, this.end, this.id, this.relations);
     }
 }
 
-export class ListFilterDesign extends CompoundFilterDesign {
-    static createFilterConfigs(fieldKeyString: string, operator: string, values: any[]): FilterConfig[] {
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
-
-        return !fieldKey ? [] : values.map((value) => ({
-            datastore: fieldKey.datastore,
-            database: fieldKey.database,
-            table: fieldKey.table,
-            field: fieldKey.field,
-            operator,
-            value
-        } as SimpleFilterConfig));
-    }
-
+export class ListFilterDesign extends AbstractFilterDesign {
     constructor(
-        type: CompoundFilterType,
+        public type: CompoundFilterType,
         public fieldKey: string,
         public operator: string,
         public values: any[],
         id?: string,
         relations?: string[]
     ) {
-        super(type, ListFilterDesign.createFilterConfigs(fieldKey, operator, values), id, relations);
+        super(id, relations);
+    }
+
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @override
+     */
+    public getDataSources(ignoreOperator: boolean = false): FilterDataSource[] {
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey);
+        return [{
+            datastore: fieldKey.datastore,
+            database: fieldKey.database,
+            table: fieldKey.table,
+            field: fieldKey.field,
+            operator: ignoreOperator ? null : this.operator
+        }];
+    }
+
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @override
+     */
+    public toFilter(): AbstractFilter {
+        return new ListFilter(this.type, this.fieldKey, this.operator, this.values, this.id, this.relations);
     }
 }
 
-export class PairFilterDesign extends CompoundFilterDesign {
-    static createFilterConfigs(
-        fieldKeyString1: string,
-        fieldKeyString2: string,
-        operator1: any,
-        operator2: any,
-        value1: any,
-        value2: any
-    ): FilterConfig[] {
-        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
-        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
-
-        return !(fieldKey1 && fieldKey2) ? [] : [{
-            datastore: fieldKey1.datastore,
-            database: fieldKey1.database,
-            table: fieldKey1.table,
-            field: fieldKey1.field,
-            operator: operator1,
-            value: value1
-        }, {
-            datastore: fieldKey2.datastore,
-            database: fieldKey2.database,
-            table: fieldKey2.table,
-            field: fieldKey2.field,
-            operator: operator2,
-            value: value2
-        }] as SimpleFilterConfig[];
-    }
-
+export class PairFilterDesign extends AbstractFilterDesign {
     constructor(
-        type: CompoundFilterType,
+        public type: CompoundFilterType,
         public fieldKey1: string,
         public fieldKey2: string,
         public operator1: any,
@@ -1549,7 +1297,66 @@ export class PairFilterDesign extends CompoundFilterDesign {
         id?: string,
         relations?: string[]
     ) {
-        super(type, PairFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, operator1, operator2, value1, value2), id, relations);
+        super(id, relations);
+    }
+
+    /**
+     * Creates and returns the FilterDataSource list for this FilterDesign object.
+     *
+     * @override
+     */
+    public getDataSources(ignoreOperator: boolean = false): FilterDataSource[] {
+        const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey1);
+        const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.fieldKey2);
+
+        if (this.fieldKey1 === this.fieldKey2) {
+            if (this.operator1 === this.operator2 || ignoreOperator) {
+                return [{
+                    datastore: fieldKey1.datastore,
+                    database: fieldKey1.database,
+                    table: fieldKey1.table,
+                    field: fieldKey1.field,
+                    operator: ignoreOperator ? null : this.operator1
+                }];
+            }
+            return [{
+                datastore: fieldKey1.datastore,
+                database: fieldKey1.database,
+                table: fieldKey1.table,
+                field: fieldKey1.field,
+                operator: this.operator1
+            }, {
+                datastore: fieldKey2.datastore,
+                database: fieldKey2.database,
+                table: fieldKey2.table,
+                field: fieldKey2.field,
+                operator: this.operator2
+            }];
+        }
+
+        return [{
+            datastore: fieldKey1.datastore,
+            database: fieldKey1.database,
+            table: fieldKey1.table,
+            field: fieldKey1.field,
+            operator: ignoreOperator ? null : this.operator1
+        }, {
+            datastore: fieldKey2.datastore,
+            database: fieldKey2.database,
+            table: fieldKey2.table,
+            field: fieldKey2.field,
+            operator: ignoreOperator ? null : this.operator2
+        }];
+    }
+
+    /**
+     * Creates and returns the Filter for this FilterDesign.
+     *
+     * @override
+     */
+    public toFilter(): AbstractFilter {
+        return new PairFilter(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2,
+            this.id, this.relations);
     }
 }
 

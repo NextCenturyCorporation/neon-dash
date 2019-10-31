@@ -18,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -37,18 +36,16 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    AbstractFilterDesign,
     BoundsFilter,
     BoundsFilterDesign,
     BoundsValues,
-    CompoundFilter,
     DomainFilter,
     DomainFilterDesign,
     DomainValues,
     FilterCollection,
-    FilterConfig,
-    ListFilterDesign,
-    SimpleFilter,
-    SimpleFilterDesign
+    ListFilter,
+    ListFilterDesign
 } from '../../library/core/models/filters';
 import { DatasetUtil } from '../../library/core/models/dataset';
 import { DateUtil } from '../../library/core/date.util';
@@ -72,12 +69,12 @@ import {
     OptionChoices,
     SortOrder,
     TimeInterval,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -190,14 +187,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private viewInitialized = false;
 
-    // Cached filtered items used to create new intersection (AND) filters.
-    private _filteredSingleItems: any[] = [];
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredLegendValues: any[] = [];
+    private _filteredSingleValues: any[] = [];
 
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: InjectableColorThemeService,
@@ -207,7 +204,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -247,23 +243,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        let designs: FilterConfig[] = [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        let designs: AbstractFilterDesign[] = [];
 
         if (this.options.groupField.columnName) {
-            designs.push(this.createFilterConfigOnLegend());
+            designs.push(this.createFilterDesignOnLegendList());
         }
 
         if (this.options.xField.columnName) {
-            designs.push(this.createFilterConfigOnSingleItem());
-            designs.push(this.createFilterConfigOnMultipleItems());
-            designs.push(this.createFilterConfigOnDomain());
+            designs.push(this.createFilterDesignOnItemList());
+            designs.push(this.createFilterDesignOnDomain());
 
             if (this.options.yField.columnName) {
-                designs.push(this.createFilterConfigOnBounds());
+                designs.push(this.createFilterDesignOnBounds());
             }
         }
 
@@ -334,7 +329,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
+    private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
         return new BoundsFilterDesign(
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.yField.columnName}`,
@@ -342,48 +337,43 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
     }
 
-    private createFilterConfigOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
+    private createFilterDesignOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
         return new DomainFilterDesign(
             `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
             beginX, endX
         );
     }
 
-    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.groupField.columnName, '!=', value);
-    }
-
-    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): ListFilterDesign {
+    private createFilterDesignOnLegendList(values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
-            this.options.table.name + '.' + this.options.xField.columnName, '=', values);
+            this.options.table.name + '.' + this.options.groupField.columnName, '!=', values);
     }
 
-    private createFilterConfigOnSingleItem(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.xField.columnName, '=', value);
+    private createFilterDesignOnItemList(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR, this.options.datastore.name +
+            '.' + this.options.database.name + '.' + this.options.table.name + '.' + this.options.xField.columnName, '=', values);
     }
 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetFieldOption('groupField', 'Group Field', false),
-            new WidgetFieldOption('xField', 'X Field', true),
-            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
+            new ConfigOptionField('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
+            new ConfigOptionField('groupField', 'Group Field', false),
+            new ConfigOptionField('xField', 'X Field', true),
+            new ConfigOptionField('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
+            new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY.bind(this)),
-            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
+            new ConfigOptionSelect('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
                 this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('dualView', 'Dual View', false, '', [{
+            new ConfigOptionSelect('dualView', 'Dual View', false, '', [{
                 prettyName: 'Always Off',
                 variable: ''
             }, {
@@ -393,16 +383,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Only On Filter',
                 variable: 'filter'
             }], this.optionsTypeIsDualViewCompatible.bind(this)),
-            new WidgetSelectOption('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
+            new ConfigOptionSelect('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
+            new ConfigOptionSelect('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
+            new ConfigOptionFreeText('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionFreeText('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionSelect('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -430,28 +420,28 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: '0.9',
                 variable: 0.9
             }], this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
+            new ConfigOptionSelect('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionSelect('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsList.bind(this)),
-            new WidgetSelectOption('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('sortByAggregation', 'Sort By', false, false, [{
+            new ConfigOptionSelect('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('sortByAggregation', 'Sort By', false, false, [{
                 prettyName: 'Label',
                 variable: false
             }, {
                 prettyName: 'Aggregation',
                 variable: true
             }]),
-            new WidgetSelectOption('type', 'Visualization Type', true, 'line', [{
+            new ConfigOptionSelect('type', 'Visualization Type', true, 'line', [{
                 prettyName: 'Bar, Horizontal (Aggregations)',
                 variable: 'bar-h'
             }, {
@@ -482,7 +472,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Text List (Aggregations)',
                 variable: 'list'
             }]),
-            new WidgetSelectOption('yPercentage', 'Y-Axis Max Width', false, 0.3, [{
+            new ConfigOptionSelect('yPercentage', 'Y-Axis Max Width', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -642,7 +632,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     handleLegendItemSelected(event) {
         if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
-            this.toggleFilters([this.createFilterConfigOnLegend(event.value)]);
+            this._filteredLegendValues = CoreUtil.changeOrToggleValues(event.value, this._filteredLegendValues, true);
+            if (this._filteredLegendValues.length) {
+                this.exchangeFilters([this.createFilterDesignOnLegendList(this._filteredLegendValues)]);
+            } else {
+                // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the group field.
+                this.exchangeFilters([], [this.createFilterDesignOnLegendList()]);
+            }
         }
     }
 
@@ -883,6 +879,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.legendGroups = groups;
         }
 
+        // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
         // Set the active groups to all the groups in the active data.
@@ -1032,15 +1029,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected redrawFilters(filters: FilterCollection): void {
         // Add or remove disabled legend groups depending on the filtered legend groups.
-        let legendFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend());
-        this.legendDisabledGroups = legendFilters.map((filter) => (filter as SimpleFilter).value);
+        let legendFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegendList()) as ListFilter[];
+        this._filteredLegendValues = CoreUtil.retrieveValuesFromListFilters(legendFilters);
+        this.legendDisabledGroups = [].concat(this._filteredLegendValues);
 
         // Set the active groups to all the groups that are NOT disabled/filtered since the group filters are all negative (!=).
         this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
 
         // Add or remove the selected bounds/domain on the chart depending on if the bounds/domain is filtered.
-        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBounds());
-        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnDomain());
+        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBounds());
+        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnDomain());
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
@@ -1084,13 +1082,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Select individual filtered items.
-        // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
-        let singleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnSingleItem());
-        let multipleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnMultipleItems());
-        singleItemFilters = singleItemFilters.concat(multipleItemFilters.reduce((list, compoundFilter) =>
-            list.concat((compoundFilter as CompoundFilter).filters), []));
-        this._filteredSingleItems = singleItemFilters.map((simpleFilter) => (simpleFilter as SimpleFilter).value);
-        this.subcomponentMain.select(this._filteredSingleItems);
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnItemList()) as ListFilter[];
+        this._filteredSingleValues = CoreUtil.retrieveValuesFromListFilters(listFilters);
+        this.subcomponentMain.select(this._filteredSingleValues);
     }
 
     /**
@@ -1217,16 +1211,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this._filteredSingleItems.push(value);
-            if (this.options.requireAll) {
-                this.exchangeFilters([this.createFilterConfigOnMultipleItems(this._filteredSingleItems)]);
-            } else {
-                this.toggleFilters([this.createFilterConfigOnSingleItem(value)]);
-            }
+        this._filteredSingleValues = CoreUtil.changeOrToggleValues(value, this._filteredSingleValues, doNotReplace);
+        if (this._filteredSingleValues.length) {
+            this.exchangeFilters([this.createFilterDesignOnItemList(this._filteredSingleValues)]);
         } else {
-            this._filteredSingleItems = [value];
-            this.exchangeFilters([this.createFilterConfigOnSingleItem(value)]);
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the data field.
+            this.exchangeFilters([], [this.createFilterDesignOnItemList()]);
         }
     }
 
@@ -1240,7 +1230,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY: any, __doNotReplace?: boolean) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
@@ -1249,11 +1239,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this.toggleFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
-        } else {
-            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
-        }
+        // Always keep the existing filter (don't remove it) if the user happens to draw exactly the same bounding box twice.
+        this.exchangeFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)], [], true);
     }
 
     /**
@@ -1264,7 +1251,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, __doNotReplace?: boolean) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
@@ -1273,11 +1260,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        if (doNotReplace) {
-            this.toggleFilters([this.createFilterConfigOnDomain(beginX, endX)]);
-        } else {
-            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
-        }
+        this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
     }
 
     /**
