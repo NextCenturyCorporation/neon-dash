@@ -68,6 +68,14 @@ export class NextCenturyTextCloud extends NextCenturyElement {
     }
 
     /**
+     * Creates and returns the export data for the text cloud.
+     */
+    public createExportData(exportFields: { columnName: string, prettyName: string }[], filename: string): { name: string, data: any }[] {
+        const searchElement: NextCenturySearch = this._containerElement.querySelector('next-century-search');
+        return searchElement.createExportData(exportFields, filename);
+    }
+
+    /**
      * Initializes the text cloud and search/filter components.
      */
     public init(dataset: Dataset, filterService: FilterService, searchService: AbstractSearchService): void {
