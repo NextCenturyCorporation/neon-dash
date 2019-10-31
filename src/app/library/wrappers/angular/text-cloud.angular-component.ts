@@ -84,6 +84,14 @@ export class NextCenturyAngularTextCloud implements AfterViewInit, OnChanges {
     }
 
     /**
+     * Creates and returns the export data for the visualization.
+     */
+    public createExportData(exportFields: { columnName: string, prettyName: string }[], filename: string): { name: string, data: any }[] {
+        const visElement = this.elementRef.nativeElement.querySelector('#' + this.id + '-angular') as NextCenturyTextCloud;
+        return visElement.createExportData(exportFields, filename);
+    }
+
+    /**
      * Redraws the visualization.
      */
     public redraw(): void {

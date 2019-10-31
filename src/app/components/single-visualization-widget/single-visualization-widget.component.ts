@@ -272,14 +272,14 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * Finalizes the creation of a layer in the given widget options collection.
      */
     static handleFinalizeCreateLayer(__layerOptions: any): void {
-        // TODO
+        // TODO THOR-1425 Add multi-layer support.
     }
 
     /**
      * Finalizes the deletion of a layer in the given widget options collection.
      */
     static handleFinalizeDeleteLayer(__layerOptions: any): void {
-        // TODO
+        // TODO THOR-1425 Add multi-layer support.
     }
 
     /**
@@ -398,19 +398,19 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * @return {{name:string,data:any}[]}
      */
     public createExportData(): { name: string, data: any }[] {
-        return [];
+        // TODO THOR-1425 Add multi-layer support.
+        const exportFields = SingleVisualizationWidgetComponent.retrieveExportFields(this.options);
+        const filename = this.options.title.split(':').join(' ') + '-' + this.options._id;
+        const visArray = this.visualizations.toArray();
 
-        /* TODO
-        return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
-            let query: QueryPayload = this.createCompleteVisualizationQuery(options);
-            let title = options.title.split(':').join(' ') + '-' + options._id;
-            let hostName = this.options.datastore.host;
-            let dataStoreType = this.options.datastore.type;
-            return query ?
-                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType,
-                    SingleVisualizationWidgetComponent.retrieveExportFields(options), query, title) : null;
-        }).filter((exportObject) => !!exportObject);
-         */
+        if (visArray.length) {
+            switch (this.visualizationType) {
+                case VisualizationType.TEXT_CLOUD:
+                    return (visArray[0] as NextCenturyAngularTextCloud).createExportData(exportFields, filename);
+            }
+        }
+
+        return [];
     }
 
     /**
