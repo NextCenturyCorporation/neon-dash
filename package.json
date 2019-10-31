@@ -33,7 +33,7 @@
     "@angular/platform-server": "~7.2.15",
     "@angular/router": "~7.2.15",
     "@swimlane/ngx-datatable": "^14.0.0",
-    "@wishtack/reactive-component-loader": "^1.0.0",
+    "@wishtack/reactive-component-loader": "1.0.0",
     "@wishtack/rx-scavenger": "^1.0.5",
     "angular-tree-component": "^8.4.0",
     "angular2-chartjs": "^0.5.1",
