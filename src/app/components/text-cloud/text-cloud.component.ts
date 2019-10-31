@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -26,8 +25,9 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { CoreUtil } from '../../library/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -36,10 +36,10 @@ import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
-    WidgetFieldOption,
-    WidgetOption,
-    WidgetSelectOption
-} from '../../library/core/models/widget-option';
+    ConfigOptionField,
+    ConfigOption,
+    ConfigOptionSelect
+} from '../../library/core/models/config-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { MatDialog } from '@angular/material';
 
@@ -58,14 +58,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     public textCloudData: any[] = [];
 
-    // Cached filtered terms used to create new intersection (AND) filters.
-    private _filteredTerms: string[] = [];
+    // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
+    private _filteredText: string[] = [];
 
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
@@ -75,7 +74,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -88,7 +86,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
-        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
+        if (typeof this.options.sizeAggregation !== 'undefined') {
+            this.options.aggregation = this.options.sizeAggregation;
+        }
+
+        this.options.aggregation = (this.options.aggregation || AggregationType.COUNT).toLowerCase();
     }
 
     /**
@@ -108,26 +110,18 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
-        this._filteredTerms = [];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        this.textCloudData = this.textCloudData.map((item) => {
-            let itemCopy = {
-                color: item.color,
-                fontSize: item.fontSize,
-                key: item.key,
-                keyTranslated: item.keyTranslated,
-                selected: false,
-                value: item.value
-            };
-
-            if (filters.isFiltered(this.createFilterConfigOnSingleTerm(item.key)) ||
-                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]))) {
-                this._filteredTerms.push(item.key);
-                itemCopy.selected = true;
-            }
-
-            return itemCopy;
-        });
+        // Create a copy of each item.
+        this.textCloudData = this.textCloudData.map((item) => ({
+            color: item.color,
+            fontSize: item.fontSize,
+            key: item.key,
+            keyTranslated: item.keyTranslated,
+            selected: this._filteredText.indexOf(item.key) >= 0,
+            value: item.value
+        }));
     }
 
     refreshVisualization() {
@@ -146,31 +140,27 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterConfigOnMultipleTerms(values: any[] = [undefined]): ListFilterDesign {
-        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
-            this.options.table.name + '.' + this.options.dataField.columnName, '=', values);
-    }
-
-    private createFilterConfigOnSingleTerm(value?: any): SimpleFilterDesign {
-        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
-            this.options.dataField.columnName, '=', value);
+    private createFilterDesignOnText(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
+            this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' +
+            this.options.dataField.columnName, '=', values);
     }
 
     /**
      * Creates and returns an array of options for the visualization.
      *
-     * @return {WidgetOption[]}
+     * @return {ConfigOption[]}
      * @override
      */
-    protected createOptions(): WidgetOption[] {
+    protected createOptions(): ConfigOption[] {
         return [
-            new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation),
-            new WidgetSelectOption('andFilters', 'Filter Operator', false, true, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showCounts', 'Show Counts', false, false, OptionChoices.NoFalseYesTrue)
+            new ConfigOptionField('dataField', 'Term Field', true),
+            new ConfigOptionField('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
+            new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation),
+            new ConfigOptionSelect('andFilters', 'Filter Operator', false, true, OptionChoices.OrFalseAndTrue),
+            new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new ConfigOptionSelect('paragraphs', 'Show as Paragraphs', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('showCounts', 'Show Counts', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -178,11 +168,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterConfig[]}
+     * @return {AbstractFilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterConfig[] {
-        return this.options.dataField.columnName ? [this.createFilterConfigOnSingleTerm(), this.createFilterConfigOnMultipleTerms()] : [];
+    protected designEachFilterWithNoValues(): AbstractFilterDesign[] {
+        return this.options.dataField.columnName ? [this.createFilterDesignOnText()] : [];
     }
 
     /**
@@ -264,21 +254,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
-        this._filteredTerms = [];
+        let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
+        this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        let data: any[] = results.map((item) => {
-            let key = item[options.dataField.columnName];
-            let filtered = filters.isFiltered(this.createFilterConfigOnSingleTerm(key)) ||
-                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]));
-
-            if (filtered) {
-                this._filteredTerms.push(key);
-            }
-
+        const data: any[] = results.map((item) => {
+            const text = CoreUtil.deepFind(item, options.dataField.columnName);
             return {
-                key: key,
-                keyTranslated: key,
-                selected: filtered,
+                key: text,
+                keyTranslated: text,
+                selected: this._filteredText.indexOf(text) >= 0,
                 value: item[this.searchService.getAggregationName()]
             };
         });
@@ -299,12 +283,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onClick(item) {
-        this._filteredTerms.push(item.key);
-
-        if (this.options.andFilters) {
-            this.exchangeFilters([this.createFilterConfigOnMultipleTerms(this._filteredTerms)]);
+        this._filteredText = CoreUtil.changeOrToggleValues(item.key, this._filteredText, true);
+        if (this._filteredText.length) {
+            this.exchangeFilters([this.createFilterDesignOnText(this._filteredText)]);
         } else {
-            this.toggleFilters([this.createFilterConfigOnSingleTerm(item.key)]);
+            // If we won't set any filters, create a FilterDesign without a value to delete all the old filters on the text field.
+            this.exchangeFilters([], [this.createFilterDesignOnText()]);
         }
     }
 

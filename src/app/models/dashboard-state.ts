@@ -30,7 +30,7 @@ export class DashboardState {
     /**
      * Returns the current dashboard config title.
      */
-    public getTitle(): string {
+    public getTitle(): string[] {
         return this.dashboard ? this.dashboard.fullTitle : null;
     }
 
@@ -59,13 +59,6 @@ export class DashboardState {
                 fieldName: ''
             };
         }
-    }
-
-    /**
-     * Returns the active table fields
-     */
-    public getActiveFields(): FieldConfig[] {
-        return this.datastore.databases[0].tables[0].fields;
     }
 
     /**

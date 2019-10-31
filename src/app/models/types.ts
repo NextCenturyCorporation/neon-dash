@@ -13,9 +13,63 @@
  * limitations under the License.
  */
 
-import { ColorMap } from './color';
+import { ColorMap } from '../library/core/models/color';
+import { CompoundFilterType } from '../library/core/models/config-option';
 import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
-import { FilterConfig } from '../library/core/models/filters';
+
+export interface CommonFilterConfig {
+    id?: string;
+    relations?: string[];
+}
+
+export interface SimpleFilterConfig extends CommonFilterConfig {
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator: string;
+    value?: any;
+}
+
+export interface CompoundFilterConfig extends CommonFilterConfig {
+    filters: FilterConfig[];
+    type: CompoundFilterType;
+}
+
+export interface BoundsFilterConfig extends CommonFilterConfig {
+    begin1: any;
+    begin2: any;
+    fieldKey1: string;
+    fieldKey2: string;
+    end1: any;
+    end2: any;
+}
+
+export interface DomainFilterConfig extends CommonFilterConfig {
+    begin: any;
+    fieldKey: string;
+    end: any;
+}
+
+export interface ListFilterConfig extends CommonFilterConfig {
+    fieldKey: string;
+    operator: string;
+    type: CompoundFilterType;
+    values: any[];
+}
+
+export interface PairFilterConfig extends CommonFilterConfig {
+    fieldKey1: string;
+    fieldKey2: string;
+    operator1: string;
+    operator2: string;
+    type: CompoundFilterType;
+    value1: any;
+    value2: any;
+}
+
+export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig | BoundsFilterConfig | DomainFilterConfig | ListFilterConfig |
+PairFilterConfig;
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
@@ -65,6 +119,7 @@ export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
     customRequests?: NeonCustomRequests[];
+    customRequestsDisplayLabel?: string;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
@@ -78,7 +133,7 @@ export interface NeonContributor {
 }
 
 export interface NeonDashboardBaseConfig {
-    fullTitle?: string; // Added to dashboard in validateDashboards()
+    fullTitle?: string[]; // The fullTitle is added to the dashboard object during runtime.
     name?: string;
 }
 
@@ -103,7 +158,7 @@ export class NeonDashboardLeafConfig {
             options: {},
             visualizationTitles: {},
             contributors: {},
-            fullTitle: '',
+            fullTitle: [],
             ...dash
         } as NeonDashboardLeafConfig;
     }
@@ -117,7 +172,7 @@ export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
 export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
-            fullTitle: '',
+            fullTitle: [],
             ...dash,
             choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
         } as NeonDashboardChoiceConfig;
@@ -152,29 +207,31 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonConfig {
-    projectTitle?: string;
-    projectIcon?: string;
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
     datastores: Record<string, DatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
+
+    about?: any;
     errors?: any[];
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
     neonServerUrl?: string;
-    version: string;
+    projectIcon?: string;
+    projectTitle?: string;
+    version?: string;
 }
 
 export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
+            about: '',
             errors: [],
             layouts: {},
-            version: '',
             neonServerUrl: '',
             projectIcon: '',
             projectTitle: '',
+            version: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
             datastores: translateValues(config.datastores || {}, DatastoreConfig.get.bind(null), true)

@@ -18,8 +18,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterDesign, FilterConfig, SimpleFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -108,9 +108,11 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this._dataset);
-        filterClause.changeTable = filterClause.table;
+        if (filterClause.changeDatabase && filterClause.changeDatabase.name) {
+            filterClause.database = filterClause.changeDatabase;
+            filterClause.updateTables(this._dataset);
+            filterClause.changeTable = filterClause.table;
+        }
     }
 
     /**
@@ -128,7 +130,9 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeFieldOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.field = filterClause.changeField;
+        if (filterClause.changeField && filterClause.changeField.columnName) {
+            filterClause.field = filterClause.changeField;
+        }
     }
 
     /**
@@ -137,8 +141,10 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.table = filterClause.changeTable;
-        filterClause.updateFields();
+        if (filterClause.changeTable && filterClause.changeTable.name) {
+            filterClause.table = filterClause.changeTable;
+            filterClause.updateFields();
+        }
     }
 
     /**
@@ -162,26 +168,46 @@ export class FilterBuilderComponent {
             return;
         }
 
-        // Turn the filter clauses into filter configs.
-        let filterConfigs: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
-            let value: any = filterClause.value;
-            if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
-                value = parseFloat(filterClause.value);
-                // The second check catches values larger than Number.MAX_SAFE_INT
-                if (isNaN(value) || value.toString() !== filterClause.value) {
-                    value = filterClause.value;
-                }
+        // Gather the filter clauses by unique filter source (datastore + database + table + field + operator).
+        const filterSources: string[] = this.filterClauses.reduce((list, filterClause) => {
+            const source = filterClause.operator.value + '.' + filterClause.datastore.name + '.' + filterClause.database.name + '.' +
+                filterClause.table.name + '.' + filterClause.field.columnName;
+            if (list.indexOf(source) < 0) {
+                list.push(source);
             }
-            return new SimpleFilterDesign(filterClause.datastore.name, filterClause.database.name, filterClause.table.name,
-                filterClause.field.columnName, filterClause.operator.value, value);
+            return list;
+        }, []);
+
+        const type = this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND;
+
+        // Turn the filter clauses into list filter designs on the values of each unique filter source.
+        let filterDesigns: ListFilterDesign[] = filterSources.map((source) => {
+            const [operator, datastore, database, table, ...fieldArray] = source.split('.');
+            const field = fieldArray.join('.');
+            const filterClauses = this.filterClauses.filter((filterClause) => filterClause.datastore.name === datastore &&
+                filterClause.database.name === database && filterClause.table.name === table && filterClause.field.columnName === field &&
+                filterClause.operator.value === operator);
+            const values = filterClauses.map((filterClause) => {
+                if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
+                    let floatValue = parseFloat(filterClause.value);
+                    // The second check catches values larger than Number.MAX_SAFE_INT
+                    if (isNaN(floatValue) || floatValue.toString() !== filterClause.value) {
+                        return filterClause.value;
+                    }
+                    return floatValue;
+                }
+                return filterClause.value;
+            });
+
+            return new ListFilterDesign(type, datastore + '.' + database + '.' + table + '.' + field, operator, values);
         });
 
-        // Create a compound filter from multiple filters if needed.
-        let filterConfig: FilterConfig = !filterConfigs.length ? null : (filterConfigs.length === 1 ? filterConfigs[0] :
-            new CompoundFilterDesign(this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND, filterConfigs));
+        // Create a compound filter design from multiple list filters designs if needed.
+        let filterDesign: AbstractFilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] :
+            new CompoundFilterDesign(type, filterDesigns));
 
-        if (filterConfig) {
-            this.filterService.toggleFilters('CustomFilter', [filterConfig], this._dataset);
+        if (filterDesign) {
+            this.filterService.createFilters('CustomFilter', [filterDesign], this._dataset);
             this.clearEveryFilterClause();
         }
     }

@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterDesign } from '../../library/core/models/filters';
+import { ListFilterDesign } from '../../library/core/models/filters';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
@@ -28,7 +29,7 @@ import { DashboardState } from '../../models/dashboard-state';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
-    public cachedFilter: SimpleFilterDesign;
+    public cachedFilter: ListFilterDesign;
     public inputPlaceholder: string = '';
     public showSimpleSearch: boolean = false;
 
@@ -43,8 +44,8 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
         this.dashboardState = dashboardService.state;
     }
 
-    public addFilter(term: string): void {
-        if (!term.length) {
+    public addFilter(text: string): void {
+        if (!text.length) {
             this.removeFilter();
             return;
         }
@@ -64,8 +65,8 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
         const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
-        const filter: SimpleFilterDesign = new SimpleFilterDesign(datastoreName, database.name, table.name, field.columnName, 'contains',
-            term);
+        const filter: ListFilterDesign = new ListFilterDesign(CompoundFilterType.OR, datastoreName + '.' + database.name + '.' +
+            table.name + '.' + field.columnName, 'contains', [text]);
 
         this.filterService.exchangeFilters('SimpleFilter', [filter], dataset);
 
@@ -79,18 +80,18 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.messenger.subscribe(neonEvents.TOGGLE_SIMPLE_SEARCH, this.updateShowSimpleSearch.bind(this));
         // Show search on init if option is configured.
-        this.updateSimpleFilterConfig();
+        this.updateSimpleFilterDesign();
     }
 
     public removeFilter(): void {
         if (this.cachedFilter) {
-            this.filterService.deleteFilters('SimpleFilter', [new SimpleFilterDesign(this.cachedFilter.datastore,
-                this.cachedFilter.database, this.cachedFilter.table, this.cachedFilter.field, this.cachedFilter.operator)]);
+            this.filterService.deleteFilters('SimpleFilter', [new ListFilterDesign(CompoundFilterType.OR, this.cachedFilter.fieldKey,
+                this.cachedFilter.operator, [undefined])]);
         }
         this.cachedFilter = null;
     }
 
-    public updateSimpleFilterConfig(): void {
+    public updateSimpleFilterDesign(): void {
         this.updateShowSimpleSearch({
             show: this.validateSimpleFilter((this.dashboardState.getOptions() || {}).simpleFilter || {})
         });

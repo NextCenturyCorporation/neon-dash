@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injector } from '@angular/core';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { } from 'jasmine-core';
 
@@ -25,7 +23,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { FieldConfig } from '../../library/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -40,8 +38,7 @@ describe('Component: AnnotationViewer', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             AnnotationViewerModule
