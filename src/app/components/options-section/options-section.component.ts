@@ -18,7 +18,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { WidgetOption } from '../../library/core/models/widget-option';
+import { ConfigOption } from '../../library/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -39,46 +39,42 @@ export class OptionsSectionComponent {
     /**
      * Removes option from display list. (must manually display options that are removed)
      *
-     * @param {WidgetOption[]}
-     * @returns {WidgetOption[]}
+     * @param {ConfigOption[]}
+     * @returns {ConfigOption[]}
      */
-    private removeOptionsFromList(optList: WidgetOption[]): WidgetOption[] {
-        let optionList: WidgetOption[] = optList;
-        optionList = this.removeOptions(optionList, 'bindingKey', 'title');
-        optionList = this.removeOptions(optionList, 'hideFromMenu', true);
-        optionList = this.removeOptions(optionList, 'bindingKey', 'limit');
-        optionList = this.removeOptions(optionList, 'optionType', 'DATABASE');
-        optionList = this.removeOptions(optionList, 'optionType', 'TABLE');
+    private removeOptionsFromList(optionCollection: WidgetOptionCollection): ConfigOption[] {
+        let optionList: ConfigOption[] = optionCollection.list();
+        optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'title');
+        optionList = this.removeOptions(optionCollection, optionList, 'hideFromMenu', true);
+        optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'limit');
+        optionList = this.removeOptions(optionCollection, optionList, 'optionType', 'DATABASE');
+        optionList = this.removeOptions(optionCollection, optionList, 'optionType', 'TABLE');
         return optionList;
     }
 
     public getRequiredFields(optionCollection: WidgetOptionCollection): string[] {
-        let requiredList: WidgetOption[] = optionCollection.list();
-        requiredList = this.removeOptionsFromList(requiredList);
+        let requiredList: ConfigOption[] = this.removeOptionsFromList(optionCollection);
         return requiredList.filter((option) => option.isRequired &&
             (option['optionType'] === 'FIELD' || option['optionType'] === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
     public getOptionalFields(optionCollection: WidgetOptionCollection): string[] {
-        let optionalList: WidgetOption[] = optionCollection.list();
-        optionalList = this.removeOptionsFromList(optionalList);
+        let optionalList: ConfigOption[] = this.removeOptionsFromList(optionCollection);
         return optionalList.filter((option) => !option.isRequired &&
             (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
     public getRequiredNonFields(optionCollection: WidgetOptionCollection): string[] {
-        let requiredNonList: WidgetOption[] = optionCollection.list();
-        requiredNonList = this.removeOptionsFromList(requiredNonList);
+        let requiredNonList: ConfigOption[] = this.removeOptionsFromList(optionCollection);
         return requiredNonList.filter((option) => option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
     public getOptionalNonFields(optionCollection: WidgetOptionCollection): string[] {
-        let optionalNonList: WidgetOption[] = optionCollection.list();
-        optionalNonList = this.removeOptionsFromList(optionalNonList);
+        let optionalNonList: ConfigOption[] = this.removeOptionsFromList(optionCollection);
         return optionalNonList.filter((option) => !option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
@@ -99,8 +95,17 @@ export class OptionsSectionComponent {
         return icon;
     }
 
-    private removeOptions(list: any[], property: string, compareValue: boolean | string): any[] {
-        return list.filter((optionObject) => optionObject[property] !== compareValue);
+    private removeOptions(
+        optionCollection: WidgetOptionCollection,
+        optionList: ConfigOption[],
+        property: string,
+        compareValue: any
+    ): ConfigOption[] {
+        return optionList.filter((optionObject) => {
+            const currentValue = (typeof optionObject[property] === 'function') ? optionObject[property](optionCollection) :
+                optionObject[property];
+            return currentValue !== compareValue;
+        });
     }
 
     /**

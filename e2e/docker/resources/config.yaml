@@ -1,121 +1,90 @@
-projectTitle: 'Fun'
-projectIcon: /assets/images/verdi-favicon.ico
 datastores:
     es1:
-        host: e2e-es
+        host: neon-es
         type: elasticsearchrest
         databases:
-            ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
-                prettyName: 'Uyghur LDC, July 2018'
+            earthquakes:
+                prettyName: 'Earthquakes'
                 tables:
-                    ui_out:
-                        prettyName: UI out
+                    quakedata:
+                        prettyName: Earthquake Data
                         fields:
-                            - columnName: createdDate
-                              prettyName: Date Created
-                            - columnName: topic
-                              prettyName: Need Type
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: status
-                              prettyName: Status
-                            - columnName: translatedText
-                              prettyName: Translated Text
-                            - columnName: originalText
-                              prettyName: Original Text
-                        labelOptions:
-                            topic:
-                                food: Food
-                                water: Water
-                                shelter: Shelter
-                                med: Medicine
-                                search: Search and Rescue
-                                evac: Evacuation
-                                infra: Infrastructure
-                                utils: Utilities
-                                crimeviolence: Crime /  Violence
-                                terrorism: Terrorism
-                                regimechange: Regime Change
-                        mappings:
-                            date: createDate
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: depth
+                              prettyName: Depth
+                            - columnName: latitude
+                              prettyName: Latitude
+                            - columnName: longitude
+                              prettyName: Longitude
+                            - columnName: time
+                              prettyName: Time
+                            - columnName: net
+                              prettyName: Net
+                            - columnName: type
+                              prettyName: Type
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: Earthquake ID
 
 dashboards:
     category: 'Select a task...'
     choices:
         situation_discovery:
             name: 'Situation Discovery'
-            category: 'Select a layout...'
+            category: 'Select a layout...' # Right now layout selection doesn't technically happen here, but ideally we want that in the future.
             choices:
-                darpa60:
-                    name: 'DARPA60'
+                earthquakes:
+                    name: 'Earthquakes'
                     category: 'Select a datastore...'
                     choices:
-                        uyg_ldc:
-                            name: Uyghur LDC
-                            layout: uyghur-sd
+                        quakedata:
+                            name: Earthquake data
+                            layout: quakedata
                             tables:
-                                table_key_1: es1.ldc_uyg_jul_18.ui_out
+                                table_key_1: es1.earthquakes.quakedata
                             fields:
-                                original_text_key: es1.ldc_uyg_jul_18.ui_out.originalText
-                                translated_text_key: es1.ldc_uyg_jul_18.ui_out.translatedText
-                                date_field_key: es1.ldc_uyg_jul_18.ui_out.createdDate
-                                id_field_key: es1.ldc_uyg_jul_18.ui_out._id
-                                filter_field_key: es1.ldc_uyg_jul_18.ui_out.id
-                                group_field_key: es1.ldc_uyg_jul_18.ui_out.topic
-                                latitude_key: es1.ldc_uyg_jul_18.ui_out.geoLocation.lat
-                                longitude_key: es1.ldc_uyg_jul_18.ui_out.geoLocation.lon
-                                text_cloud_data_key: es1.ldc_uyg_jul_18.ui_out.location
-                            visualizationTitles:
-                                bar_chart_title: Need Type
+                                mag_key: es1.eqarthquakes.quakedata.mag
+                                depth_key: es1.eqarthquakes.quakedata.depth
+                                latitude_key: es1.eqarthquakes.quakedata.latitude
+                                longitude_key: es1.eqarthquakes.quakedata.longitude
+                                time_key: es1.eqarthquakes.quakedata.time
+                                net_key: es1.eqarthquakes.quakedata.net
+                                type_key: es1.eqarthquakes.quakedata.type
+                                _id_key: es1.eqarthquakes.quakedata._id
+                                id_key: es1.eqarthquakes.quakedata.id
                             options:
                                 connectOnLoad: true
-                                simpleFilter:
-                                    tableKey: table_key_1
-                                    fieldKey: translated_text_key
-                                    placeHolder: Search
 
 layouts:
-    uyghur-sd:
+    quakedata:
         - name: Data Table
           type: dataTable
           icon: ViewData64
           col: 1
           row: 1
-          sizex: 4
-          sizey: 14
+          sizex: 3
+          sizey: 15
           bindings:
-              title: Document Feed
+              title: Magnitudes
               tableKey: table_key_1
-              idField: id_field_key
-              sortField: date_field_key
+              idField: _id_key
+              sortField: time_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
-                  - date_field_key
-                  - original_text_key
-              customColumnWidths:
-                  - - date_field_key
-                    - 15
-                  - - original_text_key
-                    - 360
-              filterable: false
-              filterFields:
-                  - filter_field_key
-              singleFilter: true
-              ignoreSelf: false
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 7
-          minSizey: 3
+              showFields:
+                  - time_key
+                  - mag_key
+              ignoreSelf: false           
         - name: Map
           type: map
           icon: Map64
-          col: 5
+          col: 4
           row: 1
-          sizex: 4
+          sizex: 6
           sizey: 9
           bindings:
-              title: Locations
+              title: Situation Locations
               tableKey: table_key_1
               filterable: true
               name: EVENTS
@@ -127,129 +96,40 @@ layouts:
                     tableKey: table_key_1
                     latitudeField: latitude_key
                     longitudeField: longitude_key
-                    dateField: date_field_key
-                    colorField: group_field_key
+                    dateField: time_key
+                    colorField: net_key
               mapType: leaflet
-              west: 30.5
-              north: 49
-              east: 127
-              south: 10.6
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 6
-          minSizey: 5
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 5
-          row: 9
-          sizex: 4
-          sizey: 5
-          bindings:
-              title: bar_chart_title
-              type: bar-h
-              tableKey: table_key_1
-              xField: group_field_key
-              limit: 11
-              groupField: group_field_key
-              sortByAggregation: true
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 4
-          minSizey: 3
-        - type: timeline
-          col: 1
-          row: 15
-          sizex: 6
-          sizey: 4
-          bindings:
-              title: Timeline
-              tableKey: table_key_1
-              dateField: date_field_key
         - name: Data Table
           type: dataTable
           icon: ViewData64
-          col: 9
+          col: 10
           row: 1
-          sizex: 4
-          sizey: 9
+          sizex: 3
+          sizey: 15
           bindings:
-              title: Situation Frames
+              title: Depths
               tableKey: table_key_1
-              sortField: date_field_key
-              idField: id_field_key
+              idField: _id_key
+              sortField: time_key
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
-                  - date_field_key
-                  - group_field_key
-                  - text_cloud_data_key
-              customColumnWidths:
-                  - - date_field_key
-                    - 25
-                  - - group_field_key
-                    - 100
-                  - - text_cloud_data_key
-                    - 150
-              filterable: false
-              filterFields:
-                  - filter_field_key
-              singleFilter: true
-              ignoreSelf: false
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 6
-          minSizey: 5
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 9
+              showFields:
+                  - time_key
+                  - depth_key
+              ignoreSelf: false              
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 4
           row: 10
-          sizex: 2
-          sizey: 5
-          bindings:
-              title: Original Text
-              tableKey: table_key_1
-              linkField: original_text_key
-              idField: id_field_key
-              respondMode: true
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 6
-          minSizey: 3
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 11
-          row: 10
-          sizex: 2
-          sizey: 5
-          bindings:
-              title: Translated Text
-              tableKey: table_key_1
-              linkField: translated_text_key
-              idField: id_field_key
-              respondMode: true
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 4
-          minSizey: 3
-        - name: Text Cloud
-          type: textCloud
-          icon: TagCloud64
-          col: 7
-          row: 14
           sizex: 6
-          sizey: 4
-          $$hashKey: object:35
-          selected: true
+          sizey: 6
           bindings:
-              title: Locations
+              title: Contributing Networks
+              type: bar-h
               tableKey: table_key_1
-              dataField: text_cloud_data_key
-              preFilter: false
-          id: 431a862e-2b4d-4c4d-92c6-5c4c54515ea7
-          minPixelx: 320
-          minPixely: 240
-          minSizex: 6
-          minSizey: 5
+              xField: net_key
+              limit: 11
+              groupField: net_key
+              sortByAggregation: true
+              ignoreSelf: true
+        

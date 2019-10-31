@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSet } from '../../models/color';
+import { ColorSet } from '../../library/core/models/color';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 
@@ -108,7 +108,7 @@ export class LegendComponent implements OnInit {
 
     getColorFor(colorSet: ColorSet, key: string): string {
         let color = colorSet.getColorForValue(key);
-        return color.getComputedCss(this.legend);
+        return color.getComputedCss(this.legend.nativeElement);
     }
 
     /**

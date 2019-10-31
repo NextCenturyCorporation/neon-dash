@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-import { DatabaseConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
+import { DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
 import {
-    WidgetDatabaseOption,
-    WidgetFieldOption,
-    WidgetFieldArrayOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetNumberOption,
-    WidgetSelectOption,
-    WidgetTableOption
-} from '../library/core/models/widget-option';
+    ConfigOptionDatabase,
+    ConfigOptionDatastore,
+    ConfigOptionField,
+    ConfigOptionFieldArray,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    ConfigOptionNumber,
+    ConfigOptionSelect,
+    ConfigOptionTable
+} from '../library/core/models/config-option';
 import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
-import { DATABASES, DATABASES_LIST, DATASET, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../library/core/models/mock.dataset';
+import { DATABASES, DATABASES_LIST, DATASET, DATASTORE, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../library/core/models/mock.dataset';
 
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
@@ -35,7 +36,7 @@ describe('OptionCollection', () => {
     let options: OptionCollection;
 
     beforeEach(() => {
-        options = new OptionCollection(new OptionConfig({
+        options = new OptionCollection(DATASET, new OptionConfig({
             keyA: 'provideA',
             keyB: 'provideB',
             testDate: 'testDateField',
@@ -59,8 +60,8 @@ describe('OptionCollection', () => {
     });
 
     it('access does return widget option with given key', () => {
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
+        let widgetOption1 = new ConfigOptionSelect('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new ConfigOptionSelect('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -73,7 +74,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does add given widget option', () => {
-        options.append(new WidgetSelectOption('key1', 'label1', false, 'default1', []), 'current1');
+        options.append(new ConfigOptionSelect('key1', 'label1', false, 'default1', []), 'current1');
         expect(options.key1).toEqual('current1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -82,7 +83,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does ignore provided binding', () => {
-        options.append(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []), 'currentA');
+        options.append(new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []), 'currentA');
         expect(options.keyA).toEqual('currentA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -154,7 +155,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option with provided binding', () => {
-        options.inject(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []));
+        options.inject(new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []));
         expect(options.keyA).toEqual('provideA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -163,7 +164,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option without provided binding', () => {
-        options.inject(new WidgetSelectOption('key1', 'label1', false, 'default1', []));
+        options.inject(new ConfigOptionSelect('key1', 'label1', false, 'default1', []));
         expect(options.key1).toEqual('default1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -173,8 +174,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
-            new WidgetSelectOption('keyB', 'labelB', false, 'defaultB', [])
+            new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []),
+            new ConfigOptionSelect('keyB', 'labelB', false, 'defaultB', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.keyB).toEqual('provideB');
@@ -190,8 +191,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('key1', 'label1', false, 'default1', []),
-            new WidgetSelectOption('key2', 'label2', false, 'default2', [])
+            new ConfigOptionSelect('key1', 'label1', false, 'default1', []),
+            new ConfigOptionSelect('key2', 'label2', false, 'default2', [])
         ]);
         expect(options.key1).toEqual('default1');
         expect(options.key2).toEqual('default2');
@@ -207,8 +208,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with and without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
-            new WidgetSelectOption('key1', 'label1', false, 'default1', [])
+            new ConfigOptionSelect('keyA', 'labelA', false, 'defaultA', []),
+            new ConfigOptionSelect('key1', 'label1', false, 'default1', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.key1).toEqual('default1');
@@ -223,14 +224,18 @@ describe('OptionCollection', () => {
     });
 
     it('list does return an array of all widget options', () => {
-        let databaseOption = new WidgetDatabaseOption();
+        let datastoreOption = new ConfigOptionDatastore();
+        datastoreOption.valueCurrent = DATASTORE;
+        let databaseOption = new ConfigOptionDatabase();
         databaseOption.valueCurrent = DatabaseConfig.get();
-        let tableOption = new WidgetTableOption();
+        let tableOption = new ConfigOptionTable();
         tableOption.valueCurrent = TableConfig.get();
-        expect(options.list()).toEqual([databaseOption, tableOption]);
+        let tableKeyOption = new ConfigOptionFreeText('tableKey', 'Table Key', true, '', true);
+        tableKeyOption.valueCurrent = '';
+        expect(options.list()).toEqual([datastoreOption, databaseOption, tableOption, tableKeyOption]);
 
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
+        let widgetOption1 = new ConfigOptionSelect('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new ConfigOptionSelect('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -238,10 +243,12 @@ describe('OptionCollection', () => {
         expect(widgetOption1.valueCurrent).toEqual('current1');
         expect(widgetOption2.valueCurrent).toEqual('current2');
 
-        expect(options.list()).toEqual([databaseOption, tableOption, widgetOption1, widgetOption2]);
+        expect(options.list()).toEqual([datastoreOption, databaseOption, tableOption, tableKeyOption, widgetOption1, widgetOption2]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', () => {
+    it('updateDatabases without config does update databases, tables, and fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
         options.databases = [];
         options.database = DatabaseConfig.get();
         options.tables = [];
@@ -250,42 +257,155 @@ describe('OptionCollection', () => {
 
         options.updateDatabases(DATASET);
 
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase1);
+        expect(options.database).toEqual(DATABASES_LIST[0]);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable1);
+        expect(options.table).toEqual(TABLES_LIST[0]);
         expect(options.fields).toEqual(FIELDS);
     });
 
-    it('updateFields does update fields', () => {
+    it('updateDatastores without config does update datastores, databases, tables, and fields', () => {
+        options.datastores = [];
+        options.datastore = DatastoreConfig.get();
+        options.databases = [];
+        options.database = DatabaseConfig.get();
+        options.tables = [];
+        options.table = TableConfig.get();
+        options.fields = [];
+
+        options.updateDatastores(DATASET);
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES_LIST[0]);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES_LIST[0]);
+        expect(options.fields).toEqual(FIELDS);
+    });
+
+    it('updateFields without config does update fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
         options.databases = DATABASES_LIST;
-        options.database = DATABASES.testDatabase1;
+        options.database = DATABASES_LIST[0];
         options.tables = TABLES_LIST;
-        options.table = TABLES.testTable1;
+        options.table = TABLES_LIST[0];
         options.fields = [];
 
         options.updateFields();
 
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase1);
+        expect(options.database).toEqual(DATABASES_LIST[0]);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable1);
+        expect(options.table).toEqual(TABLES_LIST[0]);
         expect(options.fields).toEqual(FIELDS);
     });
 
-    it('updateTables does update tables and fields', () => {
+    it('updateTables without config does update tables and fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
         options.databases = DATABASES_LIST;
-        options.database = DATABASES.testDatabase1;
+        options.database = DATABASES_LIST[0];
         options.tables = [];
         options.table = TableConfig.get();
         options.fields = [];
 
         options.updateTables(DATASET);
 
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase1);
+        expect(options.database).toEqual(DATABASES_LIST[0]);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable1);
+        expect(options.table).toEqual(TABLES_LIST[0]);
+        expect(options.fields).toEqual(FIELDS);
+    });
+
+    it('updateDatabases with tableKey does update databases, tables, and fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
+        options.databases = [];
+        options.database = DatabaseConfig.get();
+        options.tables = [];
+        options.table = TableConfig.get();
+        options.fields = [];
+
+        options.tableKey = 'datastore1.testDatabase2.testTable2';
+        options.updateDatabases(DATASET);
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.fields).toEqual(FIELDS);
+    });
+
+    it('updateDatastores with tableKey does update databases, tables, and fields', () => {
+        options.datastores = [];
+        options.datastore = DatastoreConfig.get();
+        options.databases = [];
+        options.database = DatabaseConfig.get();
+        options.tables = [];
+        options.table = TableConfig.get();
+        options.fields = [];
+
+        options.tableKey = 'datastore1.testDatabase2.testTable2';
+        options.updateDatastores(DATASET);
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.fields).toEqual(FIELDS);
+    });
+
+    it('updateFields with tableKey does update fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
+        options.databases = DATABASES_LIST;
+        options.database = DATABASES.testDatabase2;
+        options.tables = TABLES_LIST;
+        options.table = TABLES.testTable2;
+        options.fields = [];
+
+        options.tableKey = 'datastore1.testDatabase2.testTable2';
+        options.updateFields();
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.fields).toEqual(FIELDS);
+    });
+
+    it('updateTables with tableKey does update tables and fields', () => {
+        options.datastores = [DATASTORE];
+        options.datastore = DATASTORE;
+        options.databases = DATABASES_LIST;
+        options.database = DATABASES.testDatabase2;
+        options.tables = [];
+        options.table = TableConfig.get();
+        options.fields = [];
+
+        options.tableKey = 'datastore1.testDatabase2.testTable2';
+        options.updateTables(DATASET);
+
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
         expect(options.fields).toEqual(FIELDS);
     });
 });
@@ -295,9 +415,10 @@ describe('WidgetOptionCollection', () => {
 
     beforeEach(() => {
         options = new WidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100, new OptionConfig({
             tableKey: 'table_key_2',
             limit: '1234',
@@ -309,6 +430,7 @@ describe('WidgetOptionCollection', () => {
     });
 
     it('does have databases, fields, tables, and custom properties', () => {
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
         expect(options.database).toEqual(DATABASES.testDatabase2);
         expect(options.tables).toEqual(TABLES_LIST);
@@ -329,58 +451,82 @@ describe('WidgetOptionCollection', () => {
         options.tables = [];
         options.table = TableConfig.get();
         options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
+        options.testCustomField = FieldConfig.get();
+        options.testCustomFieldArray = [];
 
         options.updateDatabases(DATASET);
 
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
         expect(options.database).toEqual(DATABASES.testDatabase2);
         expect(options.tables).toEqual(TABLES_LIST);
         expect(options.table).toEqual(TABLES.testTable2);
         expect(options.fields).toEqual(FIELDS);
-        expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
-        expect(options.testCustomFieldArray).toEqual([FIELD_MAP.NAME, FIELD_MAP.TYPE]);
+        expect(options.testCustomField).toEqual(FieldConfig.get());
+        expect(options.testCustomFieldArray).toEqual([]);
     });
 
-    it('updateFields does update fields with custom properties', () => {
-        options.databases = DATABASES_LIST;
-        options.database = DATABASES.testDatabase2;
-        options.tables = TABLES_LIST;
-        options.table = TABLES.testTable2;
-        options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
-
-        options.updateFields();
-
-        expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase2);
-        expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable2);
-        expect(options.fields).toEqual(FIELDS);
-        expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
-        expect(options.testCustomFieldArray).toEqual([FIELD_MAP.NAME, FIELD_MAP.TYPE]);
-    });
-
-    it('updateTables does update tables and fields with custom properties', () => {
-        options.databases = DATABASES_LIST;
-        options.database = DATABASES.testDatabase2;
+    it('updateDatastores does update databases, tables, and fields with custom properties', () => {
+        options.datastores = [];
+        options.datastore = DatastoreConfig.get();
+        options.databases = [];
+        options.database = DatabaseConfig.get();
         options.tables = [];
         options.table = TableConfig.get();
         options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
+        options.testCustomField = FieldConfig.get();
+        options.testCustomFieldArray = [];
 
-        options.updateTables(DATASET);
+        options.updateDatastores(DATASET);
 
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
         expect(options.database).toEqual(DATABASES.testDatabase2);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table.prettyName).toEqual(TABLES.testTable2.prettyName);
+        expect(options.table).toEqual(TABLES.testTable2);
         expect(options.fields).toEqual(FIELDS);
-        expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
-        expect(options.testCustomFieldArray).toEqual([FIELD_MAP.NAME, FIELD_MAP.TYPE]);
+        expect(options.testCustomField).toEqual(FieldConfig.get());
+        expect(options.testCustomFieldArray).toEqual([]);
+    });
+
+    it('updateFields does update fields with custom properties', () => {
+        options.fields = [];
+        options.testCustomField = FieldConfig.get();
+        options.testCustomFieldArray = [];
+
+        options.updateFields();
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.fields).toEqual(FIELDS);
+        expect(options.testCustomField).toEqual(FieldConfig.get());
+        expect(options.testCustomFieldArray).toEqual([]);
+    });
+
+    it('updateTables does update tables and fields with custom properties', () => {
+        options.tables = [];
+        options.table = TableConfig.get();
+        options.fields = [];
+        options.testCustomField = FieldConfig.get();
+        options.testCustomFieldArray = [];
+
+        options.updateTables(DATASET);
+
+        expect(options.datastores).toEqual([DATASTORE]);
+        expect(options.datastore).toEqual(DATASTORE);
+        expect(options.databases).toEqual(DATABASES_LIST);
+        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.tables).toEqual(TABLES_LIST);
+        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.fields).toEqual(FIELDS);
+        expect(options.testCustomField).toEqual(FieldConfig.get());
+        expect(options.testCustomFieldArray).toEqual([]);
     });
 });
 
@@ -389,13 +535,15 @@ describe('WidgetOptionCollection with no bindings', () => {
 
     beforeEach(() => {
         options = new WidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100);
     });
 
     it('does have databases, fields, tables, and custom properties with default values', () => {
+        expect(options.datastore).toEqual(DATASTORE);
         expect(options.databases).toEqual(DATABASES_LIST);
         expect(options.database).toEqual(DATABASES.testDatabase1);
         expect(options.tables).toEqual(TABLES_LIST);
@@ -416,13 +564,15 @@ describe('RootWidgetOptionCollection', () => {
 
     beforeEach(() => {
         options = new RootWidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
-            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
-            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomLayerField', 'Test Custom Layer Field', false),
+            new ConfigOptionFieldArray('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new ConfigOptionFreeText('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true, new OptionConfig({
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
@@ -461,6 +611,7 @@ describe('RootWidgetOptionCollection', () => {
         expect(options.testCustomKey).toEqual('testCustomValue');
 
         expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].datastore).toEqual(DATASTORE);
         expect(options.layers[0].databases).toEqual(DATABASES_LIST);
         expect(options.layers[0].database).toEqual(DATABASES.testDatabase2);
         expect(options.layers[0].tables).toEqual(TABLES_LIST);
@@ -538,13 +689,15 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
     beforeEach(() => {
         options = new RootWidgetOptionCollection(DATASET, () => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomField', 'Test Custom Field', false),
+            new ConfigOptionFieldArray('testCustomFieldArray', 'Test Custom Field Array', false),
+            new ConfigOptionFreeText('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
-            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
-            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
+            new ConfigOptionFreeText('tableKey', 'Table Key', true, 'datastore1.testDatabase1.testTable1'),
+            new ConfigOptionField('testCustomLayerField', 'Test Custom Layer Field', false),
+            new ConfigOptionFieldArray('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new ConfigOptionFreeText('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true);
     });
 
@@ -555,8 +708,8 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.table).toEqual(null);
         expect(options.fields).toEqual(FIELDS);
 
-        expect(options.contributionKeys).toEqual(null);
-        expect(options.filter).toEqual(null);
+        expect(options.contributionKeys).toEqual(undefined);
+        expect(options.filter).toEqual(undefined);
         expect(options.hideUnfiltered).toEqual(false);
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('Test Title');
@@ -566,6 +719,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.testCustomKey).toEqual('default value');
 
         expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].datastore).toEqual(DATASTORE);
         expect(options.layers[0].databases).toEqual(DATABASES_LIST);
         expect(options.layers[0].database).toEqual(DATABASES.testDatabase1);
         expect(options.layers[0].tables).toEqual(TABLES_LIST);
@@ -581,17 +735,17 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
 describe('NonPrimitive Fields', () => {
     it('Objects initialize properly', () => {
-        const optEmpty = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
+        const optEmpty = new ConfigOptionNonPrimitive('test', 'Test', false, {}, true);
         expect(optEmpty.valueDefault).toEqual({});
         expect(optEmpty.intermediateValue).toEqual('');
         expect(optEmpty.getValueToSaveInBindings()).toEqual({});
 
-        const optNull = new WidgetNonPrimitiveOption('test', 'Test', false, undefined, true);
+        const optNull = new ConfigOptionNonPrimitive('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual('');
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
 
-        const optComplex = new WidgetNonPrimitiveOption('test', 'Test', false, { a: 5, b: [1, 2, { c: 3 }] }, true);
+        const optComplex = new ConfigOptionNonPrimitive('test', 'Test', false, { a: 5, b: [1, 2, { c: 3 }] }, true);
         expect(optComplex.valueDefault).toEqual({ a: 5, b: [1, 2, { c: 3 }] });
         expect(optComplex.intermediateValue).toEqual(yaml.safeDump({ a: 5, b: [1, 2, { c: 3 }] }));
 
@@ -612,7 +766,7 @@ describe('NonPrimitive Fields', () => {
     });
 
     it('Objects update properly', () => {
-        const option = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
+        const option = new ConfigOptionNonPrimitive('test', 'Test', false, {}, true);
         expect(option.valueDefault).toEqual({});
         option.intermediateValue = 'a: [1,2,3]';
         expect(option.getValueToSaveInBindings()).toEqual({ a: [1, 2, 3] });
@@ -635,19 +789,19 @@ describe('NonPrimitive Fields', () => {
 
 describe('Number Fields', () => {
     it('Object initializes correctly', () => {
-        const optEmpty = new WidgetNumberOption('test', 'Test', false, 0, true);
+        const optEmpty = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(optEmpty.valueDefault).toEqual(0);
         expect(optEmpty.intermediateValue).toEqual(0);
         expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
 
-        const optNull = new WidgetNumberOption('test', 'Test', false, undefined, true);
+        const optNull = new ConfigOptionNumber('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual(undefined);
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
     });
 
     it('Object updates properly', () => {
-        const opt = new WidgetNumberOption('test', 'Test', false, 0, true);
+        const opt = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(opt.valueDefault).toEqual(0);
         opt.intermediateValue = 7;
         expect(opt.getValueToSaveInBindings()).toEqual(7);

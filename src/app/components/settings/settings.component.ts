@@ -25,7 +25,6 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -47,8 +46,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public searchField: FieldConfig;
 
     public showFilterTray: boolean = true;
-    public showSimpleSearch: boolean;
+    public showSimpleSearch: boolean = false;
     public showVisualizationsShortcut: boolean = true;
+    public showLocalTimes: boolean = false;
     public readonly dashboardState: DashboardState;
 
     constructor(
@@ -92,23 +92,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
+        this.messenger.subscribe(neonEvents.TOGGLE_LOCAL_TIMES, (message) => {
+            this.showLocalTimes = message.show;
+        });
+
         this.dashboardService.stateSource.subscribe(() => {
             this.updateSimpleSearchFilter();
         });
 
         this.changeDetection.detectChanges();
-    }
-
-    openEditConfigDialog() {
-        this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'config-editor'
-            },
-            height: '80%',
-            width: '80%',
-            hasBackdrop: true,
-            disableClose: true
-        });
     }
 
     publishShowFilterTray() {
@@ -129,6 +121,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.showVisualizationsShortcut = !this.showVisualizationsShortcut;
         this.messenger.publish(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, {
             show: this.showVisualizationsShortcut
+        });
+    }
+
+    publishShowLocalTimes() {
+        this.showLocalTimes = !this.showLocalTimes;
+        this.messenger.publish(neonEvents.TOGGLE_LOCAL_TIMES, {
+            show: this.showLocalTimes
         });
     }
 
@@ -153,7 +152,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.dashboardState.getActiveFields();
+            this.fields = [];
+            this.searchField = undefined;
+            this.showSimpleSearch = false;
         }
     }
 }

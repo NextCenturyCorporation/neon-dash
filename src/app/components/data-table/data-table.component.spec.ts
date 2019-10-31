@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/widget-option';
+import { CompoundFilterType } from '../../library/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search-service';
+import { SearchServiceMock } from '../../library/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
@@ -42,8 +41,7 @@ describe('Component: DataTable', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             DataTableModule
@@ -61,63 +59,39 @@ describe('Component: DataTable', () => {
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(2);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect(actual.length).toEqual(1);
+        expect((actual[0]).type).toEqual('and');
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
-        expect((actual[1]).type).toEqual('and');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
 
         component.options.arrayFilterOperator = 'or';
         actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(2);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect(actual.length).toEqual(1);
+        expect((actual[0]).type).toEqual('or');
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
-        expect((actual[1]).type).toEqual('or');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
         actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(4);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect(actual.length).toEqual(2);
+        expect((actual[0]).type).toEqual('or');
+        expect((actual[0]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
         expect((actual[0]).operator).toEqual('=');
-        expect((actual[0]).value).toBeUndefined();
+        expect((actual[0]).values).toEqual([undefined]);
         expect((actual[1]).type).toEqual('or');
-        expect((actual[1]).filters.length).toEqual(1);
-        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
-        expect((actual[1]).filters[0].operator).toEqual('=');
-        expect((actual[1]).filters[0].value).toBeUndefined();
-        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((actual[2]).operator).toEqual('=');
-        expect((actual[2]).value).toBeUndefined();
-        expect((actual[3]).type).toEqual('or');
-        expect((actual[3]).filters.length).toEqual(1);
-        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
-        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
-        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
-        expect((actual[3]).filters[0].operator).toEqual('=');
-        expect((actual[3]).filters[0].value).toBeUndefined();
+        expect((actual[1]).fieldKey).toEqual(DashboardServiceMock.DATASTORE.name + '.' +
+            DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+            DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[1]).operator).toEqual('=');
+        expect((actual[1]).values).toEqual([undefined]);
     });
 
     it('onResize does call refreshVisualization', () => {
@@ -922,7 +896,6 @@ describe('Component: DataTable', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: 'books',
             testTextField: 'Test'
@@ -934,14 +907,12 @@ describe('Component: DataTable', () => {
         expect(publishIdSpy).toHaveBeenCalledTimes(0);
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy).toHaveBeenCalledTimes(0);
-        expect(toggleFiltersSpy).toHaveBeenCalledTimes(0);
     });
 
     it('onSelect does update selected array, calls publishSelectId and publishAnyCustomEvents', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: 'books',
             testTextField: 'Test'
@@ -954,14 +925,12 @@ describe('Component: DataTable', () => {
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy).toHaveBeenCalledTimes(0);
-        expect(toggleFiltersSpy).toHaveBeenCalledTimes(0);
     });
 
-    it('onSelect does create simple filter and call toggleFilters', () => {
+    it('onSelect with single values does create simple filter and call exchangeFilters', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: 'books',
             testTextField: 'Test'
@@ -975,7 +944,7 @@ describe('Component: DataTable', () => {
             testCategoryField: 'books',
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -984,19 +953,35 @@ describe('Component: DataTable', () => {
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
-        expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', 'books')
-        ]]);
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books'])
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'meals'])
+        ], []]);
     });
 
-    it('onSelect does create simple filter and call exchangeFilters if singleFilter=true', () => {
+    it('onSelect with single values does create compound AND filter and call exchangeFilters if singleFilter=true', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: 'books',
             testTextField: 'Test'
@@ -1010,7 +995,7 @@ describe('Component: DataTable', () => {
             testCategoryField: 'books',
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -1021,17 +1006,33 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
-            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
-                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', 'books')
-        ]]);
-        expect(toggleFiltersSpy.calls.count()).toEqual(0);
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books'])
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['meals'])
+        ], []]);
     });
 
-    it('onSelect does create compound AND filter and call toggleFilters', () => {
+    it('onSelect with multiple values does create compound AND filter and call exchangeFilters', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
@@ -1046,7 +1047,7 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -1055,20 +1056,35 @@ describe('Component: DataTable', () => {
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
-        expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
-        ]]);
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows', 'meals'])
+        ], []]);
     });
 
-    it('onSelect does create compound OR filter if arrayFilterOperator=or', () => {
+    it('onSelect with multiple values does create compound OR filter if arrayFilterOperator=or', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
@@ -1083,7 +1099,7 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -1092,20 +1108,35 @@ describe('Component: DataTable', () => {
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
-        expect(exchangeFiltersSpy.calls.count()).toEqual(0);
-        expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
+        expect(exchangeFiltersSpy.calls.count()).toEqual(1);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
-        ]]);
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows', 'meals'])
+        ], []]);
     });
 
-    it('onSelect does create compound AND filter and call exchangeFilters if singleFilter=true', () => {
+    it('onSelect with multiple values does create compound AND filter and call exchangeFilters if singleFilter=true', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
@@ -1120,7 +1151,7 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -1134,15 +1165,30 @@ describe('Component: DataTable', () => {
             new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
-        ]]);
-        expect(toggleFiltersSpy.calls.count()).toEqual(0);
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['meals'])
+        ], []]);
     });
 
     it('onSelect does create compound OR filter and call exchangeFilters if arrayFilterOperator=or and singleFilter=true', () => {
         let publishIdSpy = spyOn(component, 'publishSelectId');
         let publishAnySpy = spyOn(component, 'publishAnyCustomEvents');
         let exchangeFiltersSpy = spyOn(component, 'exchangeFilters');
-        let toggleFiltersSpy = spyOn(component, 'toggleFilters');
         let selected = [{
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
@@ -1157,7 +1203,7 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }, {
-            testCategoryField: 'test',
+            testCategoryField: 'meals',
             testTextField: 'Test 2'
         }];
 
@@ -1171,8 +1217,24 @@ describe('Component: DataTable', () => {
             new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
                 DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
                 DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
-        ]]);
-        expect(toggleFiltersSpy.calls.count()).toEqual(0);
+        ], []]);
+
+        let selected2 = [{
+            testCategoryField: 'meals',
+            testTextField: 'Test 2'
+        }];
+
+        component.onSelect({ selected: selected2 });
+
+        expect(component.selected).toEqual(selected2);
+        expect(publishIdSpy).toHaveBeenCalled();
+        expect(publishAnySpy).toHaveBeenCalled();
+        expect(exchangeFiltersSpy.calls.count()).toEqual(2);
+        expect(exchangeFiltersSpy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['meals'])
+        ], []]);
     });
 
     it('onTableResize updates headerWidths and calls refreshVisualization', () => {

@@ -142,6 +142,13 @@ export interface FieldKey {
     field: string;
 }
 
+export interface DatasetFieldKey {
+    datastore: DatastoreConfig;
+    database: DatabaseConfig;
+    table: TableConfig;
+    field: FieldConfig;
+}
+
 export class Dataset {
     private _relations: FieldKey[][][];
 
@@ -213,13 +220,13 @@ export class Dataset {
     /**
      * Returns the datastore, database, table, and field objects using the given field key object.
      */
-    public retrieveConfigDataFromFieldKey(fieldKey: FieldKey): [DatastoreConfig, DatabaseConfig, TableConfig, FieldConfig] {
-        return [
-            this.retrieveDatastore(fieldKey.datastore),
-            this.retrieveDatabase(fieldKey.datastore, fieldKey.database),
-            this.retrieveTable(fieldKey.datastore, fieldKey.database, fieldKey.table),
-            this.retrieveField(fieldKey.datastore, fieldKey.database, fieldKey.table, fieldKey.field)
-        ];
+    public retrieveDatasetFieldKey(fieldKey: FieldKey): DatasetFieldKey {
+        return {
+            datastore: this.retrieveDatastore(fieldKey.datastore),
+            database: this.retrieveDatabase(fieldKey.datastore, fieldKey.database),
+            table: this.retrieveTable(fieldKey.datastore, fieldKey.database, fieldKey.table),
+            field: this.retrieveField(fieldKey.datastore, fieldKey.database, fieldKey.table, fieldKey.field)
+        };
     }
 
     /**
@@ -290,9 +297,10 @@ export class Dataset {
             let relationFields: string[] = Array.isArray(configRelationFields) ? configRelationFields : [configRelationFields];
             return relationFields.map((item) => {
                 const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item);
-                const [datastore, database, table, field] = this.retrieveConfigDataFromFieldKey(fieldKey);
+                const datasetFieldKey: DatasetFieldKey = this.retrieveDatasetFieldKey(fieldKey);
                 // Verify that the datastore, database, table, and field are all objects that exist within the dataset.
-                return (datastore && database && table && field) ? fieldKey : null;
+                return (datasetFieldKey.datastore && datasetFieldKey.database && datasetFieldKey.table && datasetFieldKey.field) ?
+                    fieldKey : null;
             }).filter((item) => !!item);
         })).filter((relation) => {
             if (relation.length > 1) {
@@ -307,11 +315,18 @@ export class Dataset {
 
 export class DatasetUtil {
     /**
-     * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
-     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection.
+     * Returns whether the given FieldKey objects are equal.
      */
-    static deconstructTableOrFieldKeySafely(key: string, keys: Record<string, string> = {}): FieldKey {
-        const [datastore, database, table, ...field] = (keys[key] || key || '').split('.');
+    static areFieldKeysEqual(one: FieldKey, two: FieldKey): boolean {
+        return one.datastore === two.datastore && one.database === two.database && one.table === two.table && one.field === two.field;
+    }
+
+    /**
+     * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
+     * (datastore.database.table.field).
+     */
+    static deconstructTableOrFieldKeySafely(key: string): FieldKey {
+        const [datastore, database, table, ...field] = (key || '').split('.');
         return {
             datastore: datastore || '',
             database: database || '',
@@ -322,18 +337,25 @@ export class DatasetUtil {
 
     /**
      * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
-     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection, or null if the key is not viable.
+     * (datastore.database.table.field), or null if the key is not viable.
      */
-    static deconstructTableOrFieldKey(key: string, keys: Record<string, string> = {}): FieldKey {
-        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key, keys);
+    static deconstructTableOrFieldKey(key: string): FieldKey {
+        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key);
         return (fieldKeyObject.database && fieldKeyObject.table) ? fieldKeyObject : null;
+    }
+
+    /**
+     * Returns the given FieldKey object as a string.
+     */
+    static fieldKeyToString(fieldKey: FieldKey): string {
+        return fieldKey.datastore + '.' + fieldKey.database + '.' + fieldKey.table + '.' + fieldKey.field;
     }
 
     /**
      * Returns just the field name for the given field key.
      */
     static translateFieldKeyToFieldName(fieldKey: string, fieldKeys: Record<string, string>): string {
-        return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKey, fieldKeys).field || fieldKey;
+        return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKeys[fieldKey] || fieldKey).field || fieldKey;
     }
 
     /**
