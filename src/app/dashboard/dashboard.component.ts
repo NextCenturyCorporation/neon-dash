@@ -534,6 +534,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the configured (or default) display label for the custom requests navbar menu item.
+     */
+    public retrieveCustomRequestsDisplayLabel(): string {
+        return ((this.dashboardService.state.getOptions() || {}).customRequestsDisplayLabel || 'Custom Requests');
+    }
+
+    /**
      * Returns the full dashboard title to show in the navbar.
      */
     public retrieveFullDashboardTitle(fullTitle: string[]): string {
@@ -562,8 +569,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     setPanel(newPanel: string, newTitle: string) {
         this.currentPanel = newPanel;
-        this.rightPanelTitle = newTitle;
+        this.rightPanelTitle = newPanel === 'customRequests' ? this.retrieveCustomRequestsDisplayLabel() : newTitle;
         this.sideNavRight.open();
+    }
+
+    /**
+     * Returns whether to show the custom requests navbar menu item.
+     */
+    public showCustomRequestsMenuItem(): boolean {
+        return !!((this.dashboardService.state.getOptions() || {}).customRequests || []).length;
     }
 
     showVizSettings(cmp: NeonGridItem) {

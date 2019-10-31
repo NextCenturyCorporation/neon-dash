@@ -119,6 +119,7 @@ export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
     customRequests?: NeonCustomRequests[];
+    customRequestsDisplayLabel?: string;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
