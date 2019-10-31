@@ -71,8 +71,8 @@
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
-                <button mat-menu-item (click)="setPanel('customRequests', 'Submit Data');">
-                    <mat-icon>save_alt</mat-icon>Submit Data
+                <button mat-menu-item *ngIf="showCustomRequestsMenuItem()" (click)="setPanel('customRequests', '');">
+                    <mat-icon>save_alt</mat-icon>{{ retrieveCustomRequestsDisplayLabel() }}
                 </button>
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
