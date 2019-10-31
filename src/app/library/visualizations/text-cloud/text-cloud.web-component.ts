@@ -82,8 +82,7 @@ export class NextCenturyTextCloud extends NextCenturyElement {
      * Redraws the text cloud.
      */
     public redraw(): void {
-        const visElement = this._containerElement.querySelector('next-century-visualization-text-cloud') as
-            NextCenturyTextCloudVisualization;
+        const visElement: NextCenturyTextCloudVisualization = this._containerElement.querySelector('next-century-visualization-text-cloud');
         visElement.redraw();
     }
 
