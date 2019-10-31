@@ -33,9 +33,6 @@ export class ExportControlComponent {
     public exportFormatList: any[] = [{
         name: 'csv',
         value: 0
-    }, {
-        name: 'xlsx',
-        value: 1
     }];
 
     public exportFormat: number;
@@ -67,10 +64,15 @@ export class ExportControlComponent {
     }
 
     exportSuccess(queryResults) {
-        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-            message: 'Exporting...'
-        });
-        window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
+        let link = document.createElement('a');
+        let url = URL.createObjectURL(new Blob([queryResults.data], { type: 'text/plain;charset=utf-8' }));
+        link.href = url;
+        link.target = '_blank';
+        link.download = queryResults.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     exportFail(response) {
@@ -114,9 +116,14 @@ export class ExportControlComponent {
             });
             return;
         }
-        if (data && data.data && data.data.length === 1) {
+
+        /*
+        If (data && data.data && data.data.length === 1) {
             data.name = data.data[0].name;
-        }
-        connection.runExportQuery(data, this.exportFormat, this.exportSuccess.bind(this), this.exportFail.bind(this));
+        }*/
+
+        let exportData = data.data[0];
+        let exportFormatName = this.exportFormatList[this.exportFormat].name;
+        connection.runExportQuery(exportData, exportFormatName, this.exportSuccess.bind(this), this.exportFail.bind(this));
     }
 }

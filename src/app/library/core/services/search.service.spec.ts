@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/config-option';
 import { ConnectionService } from './connection.service';
 import { SearchService, CoreGroupWrapper, CoreWhereWrapper, CoreQueryWrapper } from './search.service';
 
@@ -218,22 +218,21 @@ describe('Service: Search', () => {
         }];
 
         let queryInput = new query.Query().withFields('field1', 'field2');
+        let queryWrapper = new CoreQueryWrapper(queryInput);
 
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
                     query: 'field2',
                     pretty: 'Pretty Field 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });
@@ -241,15 +240,13 @@ describe('Service: Search', () => {
     it('transformQueryPayloadToExport does need fields argument to work as expected', () => {
         let queryInput = new query.Query().withFields('field1', 'field2');
 
-        expect(service.transformQueryPayloadToExport([], new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', [], new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
-                fields: [],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
+                dataStoreType: 'testStore',
+                hostName: 'testHost',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                fieldNamePrettyNamePairs: []
             }
         });
     });
@@ -267,22 +264,21 @@ describe('Service: Search', () => {
         }];
 
         let queryInput = new query.Query().withFields('field1', 'field1', 'field2');
+        let queryWrapper = new CoreQueryWrapper(queryInput);
 
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
                     query: 'field2',
                     pretty: 'Pretty Field 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });
@@ -307,9 +303,10 @@ describe('Service: Search', () => {
             new query.GroupByFunctionClause('year', 'field2', '_year')
         ]);
 
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        let queryWrapper = new CoreQueryWrapper(queryInput);
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
@@ -328,12 +325,10 @@ describe('Service: Search', () => {
                     query: '_year',
                     pretty: 'Year Pretty Field 2'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });
@@ -352,10 +347,10 @@ describe('Service: Search', () => {
 
         /* eslint-disable-next-line dot-notation */
         let queryInput = new query.Query().withFields('field1', 'field2').aggregate(query['COUNT'], 'field1', '_count');
-
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        let queryWrapper = new CoreQueryWrapper(queryInput);
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
@@ -365,12 +360,10 @@ describe('Service: Search', () => {
                     query: '_count',
                     pretty: 'Count Pretty Field 1'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });
@@ -401,9 +394,10 @@ describe('Service: Search', () => {
             .aggregate(query['SUM'], 'field4', '_sum');
         /* eslint-enable dot-notation */
 
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        let queryWrapper = new CoreQueryWrapper(queryInput);
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field5',
                     pretty: 'Pretty Field 5'
                 }, {
@@ -419,12 +413,11 @@ describe('Service: Search', () => {
                     query: '_sum',
                     pretty: 'Sum Pretty Field 4'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
+
             }
         });
     });
@@ -448,9 +441,10 @@ describe('Service: Search', () => {
         ]).aggregate(query['COUNT'], 'field1', '_count');
         /* eslint-enable dot-notation */
 
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        let queryWrapper = new CoreQueryWrapper(queryInput);
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
@@ -463,12 +457,10 @@ describe('Service: Search', () => {
                     query: '_count',
                     pretty: 'Count Pretty Field 1'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });
@@ -486,10 +478,10 @@ describe('Service: Search', () => {
         }];
 
         let queryInput = new query.Query().withFields('*');
-
-        expect(service.transformQueryPayloadToExport(fields, new CoreQueryWrapper(queryInput), 'Test Name')).toEqual({
+        let queryWrapper = new CoreQueryWrapper(queryInput);
+        expect(service.transformQueryPayloadToExport('testHost', 'testStore', fields, queryWrapper, 'Test Name')).toEqual({
             data: {
-                fields: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'field1',
                     pretty: 'Pretty Field 1'
                 }, {
@@ -499,12 +491,10 @@ describe('Service: Search', () => {
                     query: 'field3',
                     pretty: 'Pretty Field 3'
                 }],
-                ignoreFilters: undefined,
-                ignoredFilterIds: [],
-                name: 'Test Name',
+                fileName: 'Test Name',
                 query: queryInput,
-                selectionOnly: undefined,
-                type: 'query'
+                hostName: 'testHost',
+                dataStoreType: 'testStore'
             }
         });
     });

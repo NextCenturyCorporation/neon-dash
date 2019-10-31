@@ -18,22 +18,32 @@ import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from './mock.dataset
 import * as _ from 'lodash';
 
 describe('Dataset Tests', () => {
-    it('retrieveConfigDataFromFieldKey does return expected list', () => {
-        expect(DATASET.retrieveConfigDataFromFieldKey({
+    it('retrieveDatasetFieldKey does return expected list', () => {
+        expect(DATASET.retrieveDatasetFieldKey({
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase2.name,
             table: TABLES.testTable2.name,
             field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+        })).toEqual({
+            datastore: DATASTORE,
+            database: DATABASES.testDatabase2,
+            table: TABLES.testTable2,
+            field: FIELD_MAP.ID
+        });
     });
 
-    it('retrieveConfigDataFromFieldKey does work with empty datastore', () => {
-        expect(DATASET.retrieveConfigDataFromFieldKey({
+    it('retrieveDatasetFieldKey does work with empty datastore', () => {
+        expect(DATASET.retrieveDatasetFieldKey({
             datastore: '',
             database: DATABASES.testDatabase2.name,
             table: TABLES.testTable2.name,
             field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+        })).toEqual({
+            datastore: DATASTORE,
+            database: DATABASES.testDatabase2,
+            table: TABLES.testTable2,
+            field: FIELD_MAP.ID
+        });
     });
 
     it('retrieveDatabase does return expected object', () => {
@@ -640,42 +650,6 @@ describe('Dataset Util Misc Tests', () => {
             database: 'b',
             table: 'c',
             field: 'd.e.f'
-        });
-    });
-
-    it('deconstructTableOrFieldKeySafely with key map should work as expected', () => {
-        const keyMap = {
-            key1: 'a.b.c',
-            key2: 'a.b.c.d',
-            key3: 'a.b.c.d.e.f'
-        };
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key1', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: ''
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key2', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: 'd'
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('key3', keyMap)).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: 'd.e.f'
-        });
-
-        expect(DatasetUtil.deconstructTableOrFieldKeySafely('w.x.y.z', keyMap)).toEqual({
-            datastore: 'w',
-            database: 'x',
-            table: 'y',
-            field: 'z'
         });
     });
 
