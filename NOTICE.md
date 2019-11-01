@@ -16,10 +16,11 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/router@8.2.13 | [MIT](https://github.com/angular/angular) |
 | @swimlane/ngx-datatable@16.0.2 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @wishtack/reactive-component-loader@1.1.0 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
-| angular-tree-component@8.4.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
+| @wishtack/rx-scavenger@2.0.0 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
+| angular-tree-component@8.4.1 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
 | angular2-chartjs@0.5.1 | [MIT](https://github.com/emn178/angular2-chartjs/raw/master/LICENSE.txt) |
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
-| chart.js@2.8.0 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
+| chart.js@2.9.1 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
 | core-js@3.3.6 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-shape@1.3.5 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
@@ -36,12 +37,12 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ng-dynamic-component@4.0.3 | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
 | ngx-contextmenu@5.2.0 | [MIT](https://github.com/isaacplmann/ngx-contextmenu/raw/master/LICENSE) |
 | ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
-| node-sass@4.12.0 | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
+| node-sass@4.13.0 | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
 | npx@10.2.0 | [ISC](https://github.com/zkat/npx/raw/master/LICENSE.md) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | rxjs@6.5.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.3 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
-| visjs-network@4.24.10 | [(Apache-2.0 OR MIT)](https://github.com/visjs-community/visjs-network/raw/master/LICENSE-APACHE-2.0) |
+| visjs-network@4.24.11 | [(Apache-2.0 OR MIT)](https://github.com/visjs-community/visjs-network/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.9.1 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
