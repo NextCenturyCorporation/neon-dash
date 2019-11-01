@@ -37,6 +37,7 @@ import { NextCenturySearch } from 'component-library/dist/core/components/search
 import { NextCenturyTextCloudVisualization } from 'component-library/dist/visualizations/text-cloud/text-cloud.visualization';
 import 'component-library/dist/visualizations/text-cloud/text-cloud.web-component';
 import { NextCenturyAngularTextCloud } from 'component-library/dist/wrappers/angular/text-cloud.angular-component';
+import 'component-library/dist/visualizations/example.web-component';
 
 @Component({
     selector: 'app-route-example',
@@ -58,6 +59,11 @@ export class RouteExampleComponent implements AfterViewInit {
 
     @ViewChild('textCloud2') textCloud2;
     @ViewChild('textCloud3') textCloud3;
+
+    @ViewChild('exampleSearch1') exampleSearch1;
+
+    @ViewChild('exampleSearch2') exampleSearch2;
+    @ViewChild('exampleFilter2') exampleFilter2;
 
     public filterService: FilterService;
     public searchService: SearchService;
@@ -135,6 +141,11 @@ export class RouteExampleComponent implements AfterViewInit {
         this.textCloudFilter3A.nativeElement.init(this.dataset, this.filterService);
         this.textCloudFilter3B.nativeElement.init(this.dataset, this.filterService);
         this.textCloudSearch3.nativeElement.init(this.dataset, this.filterService, this.searchService);
+
+        this.exampleSearch1.nativeElement.init(this.dataset, this.filterService, this.searchService);
+
+        this.exampleFilter2.nativeElement.init(this.dataset, this.filterService);
+        this.exampleSearch2.nativeElement.init(this.dataset, this.filterService, this.searchService);
 
         // Example custom data transformations
         // Documentation: https://github.com/NextCenturyCorporation/component-library#using-custom-data-transformations
