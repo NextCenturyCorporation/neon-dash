@@ -21,26 +21,22 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { Router } from '@angular/router';
 
-import { AbstractSearchService } from './library/core/services/abstract.search.service';
-import { CoreUtil } from './library/core/core.util';
-import { Dataset } from './library/core/models/dataset';
-import { DateUtil } from './library/core/date.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
+import { DatabaseConfig, Dataset, DatastoreConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { DateUtil } from 'component-library/dist/core/date.util';
 
-import { ConfigService } from './services/config.service';
-import { DashboardService } from './services/dashboard.service';
-import { InjectableFilterService } from './services/injectable.filter.service';
-import { RouteWithStateComponent } from './route-with-state.component';
+import { ConnectionService } from 'component-library/dist/core/services/connection.service';
+import { FilterService } from 'component-library/dist/core/services/filter.service';
+import { SearchService } from 'component-library/dist/core/services/search.service';
 
-import './library/core/components/aggregation.web-component';
-import './library/core/components/filter.web-component';
-import './library/core/components/group.web-component';
-import './library/core/components/search.web-component';
-import './library/visualizations/example.web-component';
-import './library/visualizations/text-cloud/text-cloud.visualization';
-import './library/visualizations/text-cloud/text-cloud.web-component';
-import './library/wrappers/angular/text-cloud.angular-component';
+import { NextCenturyAggregation } from 'component-library/dist/core/components/aggregation.web-component';
+import { NextCenturyFilter } from 'component-library/dist/core/components/filter.web-component';
+import { NextCenturyGroup } from 'component-library/dist/core/components/group.web-component';
+import { NextCenturySearch } from 'component-library/dist/core/components/search.web-component';
+import { NextCenturyTextCloudVisualization } from 'component-library/dist/visualizations/text-cloud/text-cloud.visualization';
+import 'component-library/dist/visualizations/text-cloud/text-cloud.web-component';
+import { NextCenturyAngularTextCloud } from 'component-library/dist/wrappers/angular/text-cloud.angular-component';
 
 @Component({
     selector: 'app-route-example',
@@ -49,91 +45,152 @@ import './library/wrappers/angular/text-cloud.angular-component';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RouteExampleComponent extends RouteWithStateComponent implements AfterViewInit {
-    @ViewChild('filter1A') filter1A;
-    @ViewChild('filter2A') filter2A;
-    @ViewChild('filter3A') filter3A;
-    @ViewChild('filter4A') filter4A;
-    @ViewChild('textCloudFilter1A') textCloudFilter1A;
-    @ViewChild('search1') search1;
-    @ViewChild('search2') search2;
-    @ViewChild('search3') search3;
-    @ViewChild('search4') search4;
-    @ViewChild('search5') search5;
+export class RouteExampleComponent implements AfterViewInit {
     @ViewChild('textCloudSearch1') textCloudSearch1;
-    @ViewChild('textCloudWrapper1') textCloudWrapper1;
-    @ViewChild('textCloudWrapper2') textCloudWrapper2;
-    @ViewChild('vis4') vis4;
+    @ViewChild('textCloudFilter1') textCloudFilter1;
 
+    @ViewChild('textCloudSearch2') textCloudSearch2;
+    @ViewChild('textCloudFilter2') textCloudFilter2;
+
+    @ViewChild('textCloudSearch3') textCloudSearch3;
+    @ViewChild('textCloudFilter3A') textCloudFilter3A;
+    @ViewChild('textCloudFilter3B') textCloudFilter3B;
+
+    @ViewChild('textCloud2') textCloud2;
+    @ViewChild('textCloud3') textCloud3;
+
+    public filterService: FilterService;
+    public searchService: SearchService;
     public dataset: Dataset;
 
-    public textCloudOptions1 = {
-        'enable-ignore-self-filter': true,
-        'text-field-key': 'es1.ldc_uyg_jul_18.ui_out.topic'
+    // API: https://github.com/NextCenturyCorporation/component-library/tree/master/visualizations/text-cloud
+    public textCloudAngularWrapperOptions1 = {
+        'enable-show-paragraphs': true,
+        'enable-show-values': true,
+        'search-limit': 100,
+        'text-field-key': 'es1.earthquakes.quakedata.net'
     };
 
-    public textCloudOptions2 = {
-        'aggregation-field-key': 'es1.ldc_uyg_jul_18.ui_out.geoLocation.lat',
-        'aggregation-type': 'max',
-        'enable-ignore-self-filter': true,
-        'text-field-key': 'es1.ldc_uyg_jul_18.ui_out.topic'
+    public textCloudAngularWrapperOptions2 = {
+        'aggregation-field-key': 'es1.earthquakes.quakedata.mag',
+        'aggregation-type': 'avg',
+        'enable-show-paragraphs': true,
+        'enable-show-values': true,
+        'search-limit': 100,
+        'text-field-key': 'es1.earthquakes.quakedata.net'
     };
 
-    constructor(
-        configService: ConfigService,
-        dashboardService: DashboardService,
-        public filterService: InjectableFilterService,
-        public searchService: AbstractSearchService,
-        private changeDetectorRef: ChangeDetectorRef,
-        private elementRef: ElementRef,
-        router: Router
-    ) {
-        super(configService, dashboardService, router);
-
-        dashboardService.stateSource.subscribe(() => {
-            this.dataset = this.dashboardService.state.asDataset();
-            this.filter1A.nativeElement.init(this.dataset, this.filterService);
-            this.filter2A.nativeElement.init(this.dataset, this.filterService);
-            this.filter3A.nativeElement.init(this.dataset, this.filterService);
-            this.filter4A.nativeElement.init(this.dataset, this.filterService);
-            this.search1.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.search2.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.search3.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.search4.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.search5.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.textCloudWrapper1.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.textCloudWrapper2.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            this.textCloudFilter1A.nativeElement.init(this.dataset, this.filterService);
-            this.textCloudSearch1.nativeElement.init(this.dataset, this.filterService, this.searchService);
-            // Must call detectChanges here to update the dataset of the Angular visualization wrapper elements.
-            this.changeDetectorRef.detectChanges();
-        });
-    }
+    constructor(private changeDetectorRef: ChangeDetectorRef, private elementRef: ElementRef) { }
 
     ngAfterViewInit() {
-        CoreUtil.addListener(this._transformTimestampsToDateStrings.bind(this), this.elementRef.nativeElement, 'vis4', 'dataSelected');
-        CoreUtil.addListener(this._transformDateStringsToTimestamps.bind(this), this.elementRef.nativeElement, 'filter4A',
+        // Documentation: https://github.com/NextCenturyCorporation/component-library#the-basics
+        // Create a single copy of each core Service to share with each NCCL Component.
+        const connectionService = new ConnectionService();
+        this.filterService = new FilterService();
+        this.searchService = new SearchService(connectionService);
+
+        // Define your NCCL Data Server hostname.
+        const dataServerUrl = 'http://localhost:8090/neon';
+
+        // Define your datastores, databases, tables, and (optionally) fields.
+        // The NCCL will automatically detect fields if they are not defined.
+        const fieldArray = [];
+        const tableObject = TableConfig.get({
+            prettyName: 'Data',
+            fields: fieldArray
+        });
+        const databaseObject = DatabaseConfig.get({
+            prettyName: 'Earthquakes',
+            tables: {
+                // The property name here ("quakedata") must match your table (or ES index type) name and the field keys in your HTML.
+                quakedata: tableObject
+            }
+        });
+        const datastoreObject = DatastoreConfig.get({
+            host: 'localhost',
+            type: 'elasticsearchrest',
+            databases: {
+                // The property name here ("earthquakes") must match your database (or ES index) name and the field keys in your HTML.
+                earthquakes: databaseObject
+            }
+        });
+        const datastores = {
+            // The property name here ("es1") must match the datastore ID of the field keys in your HTML.
+            es1: datastoreObject
+        };
+
+        // Define relations to manage simultaneous filtering across datastores (if needed).
+        const relations = [];
+
+        // Create a single Dataset object with your datastores.
+        this.dataset = new Dataset(datastores, connectionService, dataServerUrl, []);
+
+        // Initialize each Filter and Search Component with the Dataset, FilterService, and SearchService.
+        this.textCloudFilter1.nativeElement.init(this.dataset, this.filterService);
+        this.textCloudSearch1.nativeElement.init(this.dataset, this.filterService, this.searchService);
+
+        this.textCloudFilter2.nativeElement.init(this.dataset, this.filterService);
+        this.textCloudSearch2.nativeElement.init(this.dataset, this.filterService, this.searchService);
+
+        this.textCloudFilter3A.nativeElement.init(this.dataset, this.filterService);
+        this.textCloudFilter3B.nativeElement.init(this.dataset, this.filterService);
+        this.textCloudSearch3.nativeElement.init(this.dataset, this.filterService, this.searchService);
+
+        // Example custom data transformations
+        // Documentation: https://github.com/NextCenturyCorporation/component-library#using-custom-data-transformations
+
+        // The textCloud2 shows timestamps and emits timestamps in filter events.  Add custom data transformations to change the timestamps
+        // into date arrays (from beginning of day to end of day), then set domain filters on the dates.
+        CoreUtil.addListener(this._transformDateStringToDomainArray.bind(this), this.elementRef.nativeElement, 'textCloud2', 'filter');
+        CoreUtil.addListener(this._transformDomainArrayToDateString.bind(this), this.elementRef.nativeElement, 'textCloudFilter2',
             'filterValuesChanged');
+
+        // The textCloud3 shows longitude, latitude, and network as single strings and emits them in filter events.  Add custom data
+        // transformations to change the latitude-longitude strings into both net arrays and point arrays, then set filters on both.
+        CoreUtil.addListener(this._transformSearchDataToLatLonArray.bind(this), this.elementRef.nativeElement, 'textCloudSearch3',
+            'searchFinished');
+        CoreUtil.addListener(this._transformLatLonStringToNetsAndPoints.bind(this), this.elementRef.nativeElement, 'textCloud3',
+            'filter');
+
+        // Must call detectChanges here to update the dataset of the Angular visualization wrapper elements.
+        this.changeDetectorRef.detectChanges();
     }
 
-    private _transformDateStringsToTimestamps(event: any): void {
+    private _transformSearchDataToLatLonArray(event: any): void {
+        let searchDataArray: any = event.detail.data;
+
+        searchDataArray.forEach((searchDataObject) => {
+            searchDataObject.fields.latlon = searchDataObject.fields.longitude + ',' + searchDataObject.fields.latitude + ',' +
+                searchDataObject.fields.net;
+        });
+
+        this.textCloud3.nativeElement.drawData(searchDataArray);
+    }
+
+    private _transformLatLonStringToNetsAndPoints(event: any): void {
         if (!event || !event.detail || !event.detail.values) {
             return;
         }
 
         const values: any|any[] = event.detail.values;
 
-        // If [begin, end], transform to [[begin, end]]; if [[begin, end]], keep it.
-        const domains: any[] = ((Array.isArray(values) && values.length && Array.isArray(values[0])) ? values : [values]);
+        // Transform latitude-longitude strings into net and point value arrays.
+        const nets: string[] = [];
+        const points: number[][] = [];
 
-        // Transform date string arrays like [begin, end] to timestamps.
-        const timestamps: number[] = domains.filter((domain) => Array.isArray(domain) && domain.length === 2)
-            .map((domain) => DateUtil.fromStringToTimestamp(domain[0]));
+        (Array.isArray(values) ? values : [values]).forEach((value) => {
+            const splitValue = value.split(',');
+            if (splitValue.length === 3) {
+                nets.push(splitValue[2]);
+                points.push([Number(splitValue[0]), Number(splitValue[1])]);
+            }
+        });
 
-        this.vis4.nativeElement.changeSelectedText(timestamps);
+        this.textCloudFilter3A.nativeElement.updateFilters(nets);
+        this.textCloudFilter3B.nativeElement.updateFilters(points);
     }
 
-    private _transformTimestampsToDateStrings(event: any): void {
+    private _transformDateStringToDomainArray(event: any): void {
         if (!event || !event.detail || !event.detail.values) {
             return;
         }
@@ -141,7 +198,7 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
         const values: any|any[] = event.detail.values;
 
         // Transform timestamps to date string arrays like [begin, end].
-        const domains: string[][] = (Array.isArray(values) ? values : [values]).map((value) => {
+        const domainArray: string[][] = (Array.isArray(values) ? values : [values]).map((value) => {
             let beginDate = new Date(value);
             let endDate = new Date(beginDate);
             endDate.setHours(beginDate.getHours() + 23);
@@ -150,6 +207,23 @@ export class RouteExampleComponent extends RouteWithStateComponent implements Af
             return [DateUtil.fromDateToString(beginDate), DateUtil.fromDateToString(endDate)];
         });
 
-        this.filter4A.nativeElement.updateFilters(domains);
+        this.textCloudFilter2.nativeElement.updateFilters(domainArray);
+    }
+
+    private _transformDomainArrayToDateString(event: any): void {
+        if (!event || !event.detail || !event.detail.values) {
+            return;
+        }
+
+        const values: any|any[] = event.detail.values;
+
+        // If [begin, end], transform to [[begin, end]]; if [[begin, end]], keep it.
+        const domainArray: any[] = ((Array.isArray(values) && values.length && Array.isArray(values[0])) ? values : [values]);
+
+        // Transform date string arrays like [begin, end] to timestamps.
+        const timestamps: number[] = domainArray.filter((domain) => Array.isArray(domain) && domain.length === 2)
+            .map((domain) => DateUtil.fromStringToTimestamp(domain[0]));
+
+        this.textCloud2.nativeElement.changeFilteredText(timestamps);
     }
 }
