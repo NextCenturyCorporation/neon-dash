@@ -335,7 +335,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         currentGroup.nodeIds.add(child.externalId);
                     }
                 }
-                currentGroup.sourceIds.push(...child.sourceIds);
+                if (currentGroup.sourceIds && child.sourceIds) {
+                    currentGroup.sourceIds.push(...child.sourceIds);
+                }
                 currentGroup = currentGroup.parent;
             }
         }
