@@ -1,257 +1,182 @@
 <!-- beautify ignore:start -->
 
+<!-- Column 1 -->
 <div class="column">
-    <next-century-example #vis1
-        id="vis1"
-        selection-field="fields._id"
-        vis-title="Search Match All, Filter by ID"
-    >
-    </next-century-example>
+    <div class="column-header">Show IDs, Filter on ID (Top 100)</div>
 
-    <next-century-search #search1
-        id="search1"
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.*"
-        search-limit=10000
-        sort-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-        sort-order="descending"
-        vis-draw-function="drawData"
-        vis-element-id="vis1"
-    >
-    </next-century-search>
+    <div class="column-body">
+        <next-century-visualization-text-cloud #textCloud1
+            id="textCloud1"
+            aggregation-field="aggregations._records"
+            enable-show-paragraphs
+            enable-show-values
+            text-field="fields.id"
+        >
+        </next-century-visualization-text-cloud>
 
-    <next-century-filter #filter1A
-        id="filter1A"
-        filter-type="list"
-        list-field-key="es1.ldc_uyg_jul_18.ui_out._id"
-        list-operator="="
-        search-element-id="search1"
-        vis-element-id="vis1"
-        vis-filter-input-function="changeSelectedText"
-        vis-filter-output-event="dataSelected"
-    ></next-century-filter>
+        <next-century-search #textCloudSearch1
+            id="textCloudSearch1"
+            search-field-keys="es1.earthquakes.quakedata.id"
+            search-limit=100
+            sort-aggregation="_records"
+            sort-order="descending"
+            vis-draw-function="drawData"
+            vis-element-id="textCloud1"
+        >
+            <next-century-aggregation
+                aggregation-field-key="es1.earthquakes.quakedata.id"
+                aggregation-name="_records"
+            ></next-century-aggregation>
+            <next-century-group
+                group-field-key="es1.earthquakes.quakedata.id"
+            ></next-century-group>
+        </next-century-search>
+
+        <next-century-filter #textCloudFilter1
+            id="textCloudFilter1"
+            list-field-key="es1.earthquakes.quakedata.id"
+            list-operator="="
+            filter-type="list"
+            search-element-id="textCloudSearch1"
+            vis-element-id="textCloud1"
+            vis-filter-input-function="changeFilteredText"
+            vis-filter-output-event="filter"
+        ></next-century-filter>
+    </div>
 </div>
 
+<!-- Column 2 -->
 <div class="column">
-    <next-century-example #vis2
-        id="vis2"
-        selection-field="fields.topic"
-        vis-title="Aggregate on Topic, Filter by Topic"
-    >
-    </next-century-example>
+    <div class="column-header">Show Timestamps, Filter on Day (Top 100)</div>
 
-    <next-century-search #search2
-        id="search2"
-        enable-ignore-self-filter
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.topic"
-        search-limit=10000
-        sort-aggregation="_records"
-        sort-order="descending"
-        vis-draw-function="drawData"
-        vis-element-id="vis2"
-    >
-        <next-century-aggregation
-            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-            aggregation-name="_records"
-        ></next-century-aggregation>
-        <next-century-group
-            group-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-        ></next-century-group>
-    </next-century-search>
+    <div class="column-body">
+        <next-century-visualization-text-cloud #textCloud2
+            id="textCloud2"
+            enable-show-paragraphs
+            enable-show-values
+            text-field="aggregations._timeline"
+        >
+        </next-century-visualization-text-cloud>
 
-    <next-century-filter #filter2A
-        id="filter2A"
-        filter-type="list"
-        list-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-        list-operator="="
-        search-element-id="search2"
-        vis-element-id="vis2"
-        vis-filter-input-function="changeSelectedText"
-        vis-filter-output-event="dataSelected"
-    ></next-century-filter>
+        <next-century-search #textCloudSearch2
+            id="textCloudSearch2"
+            search-field-keys="es1.earthquakes.quakedata.time"
+            search-limit=100
+            sort-aggregation="_timeline"
+            sort-order="ascending"
+            vis-draw-function="drawData"
+            vis-element-id="textCloud2"
+        >
+            <next-century-aggregation
+                aggregation-field-key="es1.earthquakes.quakedata.time"
+                aggregation-name="_timeline"
+                aggregation-type="min"
+            ></next-century-aggregation>
+            <next-century-aggregation
+                aggregation-group="_dayOfMonth"
+            ></next-century-aggregation>
+            <next-century-group
+                group-field-key="es1.earthquakes.quakedata.time"
+                group-type="dayOfMonth"
+            ></next-century-group>
+        </next-century-search>
+
+        <next-century-filter #textCloudFilter2
+            id="textCloudFilter2"
+            domain-field-key="es1.earthquakes.quakedata.time"
+            filter-type="domain"
+            search-element-id="textCloudSearch2"
+        ></next-century-filter>
+    </div>
 </div>
 
+<!-- Column 3 -->
 <div class="column">
-    <next-century-example #vis3
-        id="vis3"
-        selection-field="fields.translatedText"
-        vis-title="Aggregate on Text, Filter by Text"
-    >
-    </next-century-example>
+    <div class="column-header">Show Lat/Lon, Filter on Bounds and Point (Top 100)</div>
 
-    <next-century-search #search3
-        id="search3"
-        enable-ignore-self-filter
-        filter-type="list"
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        search-limit=10000
-        sort-aggregation="_records"
-        sort-order="descending"
-        vis-draw-function="drawData"
-        vis-element-id="vis3"
-    >
-        <next-century-aggregation
-            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-            aggregation-name="_records"
-        ></next-century-aggregation>
-        <next-century-group
-            group-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        ></next-century-group>
-    </next-century-search>
+    <div class="column-body">
+        <next-century-visualization-text-cloud #textCloud3
+            id="textCloud3"
+            aggregation-field="aggregations._records"
+            enable-show-paragraphs
+            enable-show-values
+            text-field="fields.latlon"
+        >
+        </next-century-visualization-text-cloud>
 
-    <next-century-filter #filter3A
-        id="filter3A"
-        filter-type="list"
-        list-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
-        list-operator="="
-        search-element-id="search3"
-        vis-element-id="vis3"
-        vis-filter-input-function="changeSelectedText"
-        vis-filter-output-event="dataSelected"
-    ></next-century-filter>
+        <next-century-search #textCloudSearch3
+            id="textCloudSearch3"
+            search-field-keys="es1.earthquakes.quakedata.latitude,es1.earthquakes.quakedata.longitude,es1.earthquakes.quakedata.net"
+            search-limit=100
+            sort-aggregation="_records"
+            sort-order="descending"
+        >
+            <next-century-aggregation
+                aggregation-field-key="es1.earthquakes.quakedata.net"
+                aggregation-name="_records"
+            ></next-century-aggregation>
+            <next-century-group
+                group-field-key="es1.earthquakes.quakedata.latitude"
+            ></next-century-group>
+            <next-century-group
+                group-field-key="es1.earthquakes.quakedata.longitude"
+            ></next-century-group>
+            <next-century-group
+                group-field-key="es1.earthquakes.quakedata.net"
+            ></next-century-group>
+        </next-century-search>
+
+        <next-century-filter #textCloudFilter3A
+            id="textCloudFilter3A"
+            list-field-key="es1.earthquakes.quakedata.net"
+            list-operator="="
+            filter-type="list"
+            search-element-id="textCloudSearch3"
+        ></next-century-filter>
+
+        <next-century-filter #textCloudFilter3B
+            id="textCloudFilter3B"
+            filter-type="pair"
+            pair-field-key-1="es1.earthquakes.quakedata.longitude"
+            pair-field-key-2="es1.earthquakes.quakedata.latitude"
+            pair-intersection
+            pair-operator-1="="
+            pair-operator-2="="
+            search-element-id="textCloudSearch3"
+        ></next-century-filter>
+    </div>
 </div>
 
+<!-- Column 4 -->
 <div class="column">
-    <next-century-example #vis4
-        id="vis4"
-        selection-field="aggregations._timeline"
-        vis-title="Aggregate on Day, Filter by Day"
-    >
-    </next-century-example>
+    <div class="column-header">Show Locations by Count, Filter on Location (Top 100)</div>
 
-    <next-century-search #search4
-        id="search4"
-        enable-ignore-self-filter
-        filter-type="list"
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.createdDate"
-        search-limit=10000
-        sort-aggregation="_timeline"
-        sort-order="ascending"
-        vis-draw-function="drawData"
-        vis-element-id="vis4"
-    >
-        <next-century-aggregation
-            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-            aggregation-name="_timeline"
-            aggregation-type="min"
-        ></next-century-aggregation>
-        <next-century-aggregation
-            aggregation-group="_dayOfMonth"
-            aggregation-name="_records"
-        ></next-century-aggregation>
-        <next-century-group
-            group-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-            group-type="dayOfMonth"
-        ></next-century-group>
-    </next-century-search>
-
-    <next-century-filter #filter4A
-        id="filter4A"
-        domain-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
-        filter-type="domain"
-        search-element-id="search4"
-    ></next-century-filter>
+    <div class="column-body">
+        <app-next-century-angular-text-cloud
+            id="textCloudAngularWrapper1"
+            [dataset]="dataset"
+            [filterService]="filterService"
+            [options]="textCloudAngularWrapperOptions1"
+            [searchService]="searchService"
+        >
+        </app-next-century-angular-text-cloud>
+    </div>
 </div>
 
+<!-- Column 5 -->
 <div class="column">
-    <next-century-example #vis5
-        id="vis5"
-        vis-title="Total Count Query"
-    >
-    </next-century-example>
+    <div class="column-header">Show Locations by Average Magnitude, Filter on Location (Top 100)</div>
 
-    <next-century-search #search5
-        id="search5"
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.*"
-        search-limit=10000
-        vis-draw-function="drawData"
-        vis-element-id="vis5"
-    >
-        <next-century-aggregation
-            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.*"
-            aggregation-name="_records"
-        ></next-century-aggregation>
-    </next-century-search>
-</div>
-
-<div class="column">
-    <next-century-text-cloud #textCloudWrapper1
-        id="textCloudWrapper1"
-        enable-ignore-self-filter
-        text-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-    >
-    </next-century-text-cloud>
-</div>
-
-<div class="column">
-    <next-century-text-cloud #textCloudWrapper2
-        id="textCloudWrapper2"
-        aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.geoLocation.lat"
-        aggregation-type="max"
-        enable-ignore-self-filter
-        text-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-    >
-    </next-century-text-cloud>
-</div>
-
-<div class="column">
+    <div class="column-body">
     <app-next-century-angular-text-cloud
-        id="testAngular1"
-        [dataset]="dataset"
-        [filterService]="filterService"
-        [options]="textCloudOptions1"
-        [searchService]="searchService"
-    >
-    </app-next-century-angular-text-cloud>
-</div>
-
-<div class="column">
-    <app-next-century-angular-text-cloud
-        id="testAngular2"
-        [dataset]="dataset"
-        [filterService]="filterService"
-        [options]="textCloudOptions2"
-        [searchService]="searchService"
-    >
-    </app-next-century-angular-text-cloud>
-</div>
-
-<div class="column">
-    <next-century-visualization-text-cloud #textCloud1
-        id="textCloud1"
-        aggregation-field="aggregations._records"
-        text-field="fields.topic"
-    >
-    </next-century-visualization-text-cloud>
-
-    <next-century-search #textCloudSearch1
-        id="textCloudSearch1"
-        enable-ignore-self-filter
-        search-field-keys="es1.ldc_uyg_jul_18.ui_out.topic"
-        search-limit=10000
-        sort-aggregation="_records"
-        sort-order="descending"
-        vis-draw-function="drawData"
-        vis-element-id="textCloud1"
-    >
-        <next-century-aggregation
-            aggregation-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-            aggregation-name="_records"
-        ></next-century-aggregation>
-        <next-century-group
-            group-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-        ></next-century-group>
-    </next-century-search>
-
-    <next-century-filter #textCloudFilter1A
-        id="textCloudFilter1A"
-        list-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
-        list-operator="="
-        filter-type="list"
-        search-element-id="textCloudSearch1"
-        vis-element-id="textCloud1"
-        vis-filter-input-function="changeFilteredText"
-        vis-filter-output-event="filter"
-    ></next-century-filter>
+            id="textCloudAngularWrapper2"
+            [dataset]="dataset"
+            [filterService]="filterService"
+            [options]="textCloudAngularWrapperOptions2"
+            [searchService]="searchService"
+        >
+        </app-next-century-angular-text-cloud>
+    </div>
 </div>
 
 <!-- beautify ignore:end -->
