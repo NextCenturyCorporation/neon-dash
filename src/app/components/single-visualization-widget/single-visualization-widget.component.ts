@@ -365,8 +365,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
                 componentLibraryOptions['aggregation-field-key'] = !options.sizeField.columnName ? undefined :
                     (tableKey + '.' + options.sizeField.columnName);
                 componentLibraryOptions['aggregation-type'] = options.aggregation;
-                componentLibraryOptions['enable-show-counts'] = options.showCounts || undefined; // If false, set to undefined
                 componentLibraryOptions['enable-show-paragraphs'] = options.paragraphs || undefined; // If false, set to undefined
+                componentLibraryOptions['enable-show-values'] = options.showCounts || undefined; // If false, set to undefined
                 componentLibraryOptions['list-intersection'] = options.andFilters || undefined; // If false, set to undefined
                 componentLibraryOptions['text-field-key'] = tableKey + '.' + options.dataField.columnName;
         }
