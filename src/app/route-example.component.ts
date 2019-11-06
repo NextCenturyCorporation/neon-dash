@@ -36,7 +36,7 @@ import { NextCenturyGroup } from 'component-library/dist/core/components/group.w
 import { NextCenturySearch } from 'component-library/dist/core/components/search.web-component';
 import { NextCenturyTextCloudVisualization } from 'component-library/dist/visualizations/text-cloud/text-cloud.visualization';
 import 'component-library/dist/visualizations/text-cloud/text-cloud.web-component';
-import { NextCenturyAngularTextCloud } from 'component-library/dist/wrappers/angular/text-cloud.angular-component';
+import { NextCenturyTextCloudAngularComponent } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
 import 'component-library/dist/visualizations/example.web-component';
 
 @Component({

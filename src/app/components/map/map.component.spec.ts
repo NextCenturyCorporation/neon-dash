@@ -22,8 +22,8 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/config-option';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -33,16 +33,16 @@ import {
     FilterCollection,
     ListFilterDesign,
     PairFilterDesign
-} from '../../library/core/models/filters';
+} from 'component-library/dist/core/models/filters';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';

@@ -22,16 +22,16 @@ import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { CompoundFilterType } from '../../library/core/models/config-option';
-import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
