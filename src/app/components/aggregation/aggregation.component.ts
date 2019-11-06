@@ -49,7 +49,7 @@ import {
     ListFilterDesign
 } from '../../library/core/models/filters';
 import { DatasetUtil } from '../../library/core/models/dataset';
-import { DateUtil } from '../../library/core/date.util';
+import { DateUtil, DateFormat } from '../../library/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -84,6 +84,11 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 import { CoreUtil } from '../../library/core/core.util';
+import flatpickr from 'flatpickr';
+import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
+import { Instance } from 'flatpickr/dist/types/instance';
+
+let styleImport: any;
 
 @Component({
     selector: 'app-aggregation',
@@ -188,6 +193,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private viewInitialized = false;
 
+    private calendarComponent: any = null;
+
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
     private _filteredLegendValues: any[] = [];
     private _filteredSingleValues: any[] = [];
@@ -210,6 +217,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             ref,
             dialog
         );
+
+        if (!styleImport) {
+            styleImport = document.createElement('link');
+            styleImport.rel = 'stylesheet';
+            styleImport.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+            document.head.appendChild(styleImport);
+        }
     }
 
     /**
@@ -240,6 +254,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
+        this.calendarComponent = flatpickr("#startDate", {
+            enableTime: true,
+            plugins: [rangePlugin({ input: "#endDate"})], 
+            formatDate: (date: Date) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
+            onClose: (selectedDates) => {
+                if (selectedDates[0] != null && selectedDates[1] != null) {
+                    this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
+                }
+            },
+            onOpen: (selectedDates, dateStr, instance) => {
+                if (selectedDates[0] != null && selectedDates[1] != null) {
+                    this.deleteFilters([this.createFilterDesignOnDomain()]);
+                }
+                instance.clear();
+            }
+        });
     }
 
     /**
@@ -1161,6 +1191,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.options.groupField.columnName || '')];
     }
 
+    canHaveDatePicker(): boolean {
+        return this.options.type == "histogram" && this.optionsXFieldIsDate(this.options);
+    }
+
     /**
      * Returns whether this visualization should filter itself.
      *
@@ -1261,6 +1295,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         if (this.options.notFilterable) {
             return;
+        }
+
+        // If you are setting a date filter by the click and scroll, make sure to update the calendar setter. 
+        if (this.canHaveDatePicker()){
+            this.calendarComponent.setDate([beginX, endX], true);
+            this.calendarComponent.redraw();
         }
 
         this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
