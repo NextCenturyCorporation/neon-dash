@@ -108,11 +108,11 @@ Dispatched whenever filters that are compatible with the designs in this Filter 
 
 ### Filter Public Functions
 
-**init(dataset: Dataset, filterService: FilterService): void**
+**init(dataset: Dataset, filterService: FilterService, visElement?: any, searchElement?: any): void**
 
 Initializes this Filter Component.
 
-**updateFilters(values: any|any[]): void**
+**updateFilteredValues(values: any|any[]): void**
 
 Creates and/or deletes filters using the given [filtered values](../../README.md#filtered-values).
 
@@ -200,7 +200,7 @@ Dispatched whenever a search is launched in this Search Component.
 
 ### Search Public Functions
 
-**init(dataset: Dataset, filterService: FilterService, searchService: SearchService): void**
+**init(dataset: Dataset, filterService: FilterService, searchService: SearchService, visElement?: any): void**
 
 Initializes this Search Component.
 
