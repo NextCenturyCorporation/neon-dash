@@ -47,7 +47,6 @@ import {
 } from '../../library/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-data-table',
