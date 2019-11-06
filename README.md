@@ -24,6 +24,9 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 * The Neon Dashboard allows you to **view and filter on data from separate datastores at the same time**
 * The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
+## Quick Install
+* For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](https://portal.nextcentury.com/owncloud/index.php/s/z2UbU5ZATGXaTBh/download) package to a folder and follow the instruction in the README file.
+
 ## Initial Setup Instructions
 
 ### Install Dependencies
@@ -380,8 +383,6 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 Neon is made available by [Next Century](http://www.nextcentury.com) under the [Apache 2 Open Source License](http://www.apache.org/licenses/LICENSE-2.0.txt). You may freely download, use, and modify, in whole or in part, the source code or release packages. Any restrictions or attribution requirements are spelled out in the license file. Neon attribution information can be found in the [LICENSE](./LICENSE) and [NOTICE](./NOTICE.md) files. For more information about the Apache license, please visit the [The Apache Software Foundation’s License FAQ](http://www.apache.org/foundation/license-faq.html).
 
 ## References
-
-verdi-favicon.icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, [*lion-1181521_960_720.png*](https://pixabay.com/en/lion-egyptian-ancient-egypt-1181521/)
 
 volume_up.svg : Material Design, Google, updated 12 November 2014, [*ic_volume_up_24px.svg*](https://github.com/google/material-design-icons/blob/master/av/svg/production/ic_volume_up_24px.svg)
 

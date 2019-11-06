@@ -48,6 +48,7 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
+import { DateUtil } from 'component-library/dist/core/date.util';
 
 import * as _ from 'lodash';
 
@@ -455,6 +456,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_MESSAGE, this.handleDashboardMessage.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
+        this.messageReceiver.subscribe(neonEvents.TOGGLE_LOCAL_TIMES, this.updateShowLocalTimes.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
@@ -532,6 +534,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the configured (or default) display label for the custom requests navbar menu item.
+     */
+    public retrieveCustomRequestsDisplayLabel(): string {
+        return ((this.dashboardService.state.getOptions() || {}).customRequestsDisplayLabel || 'Custom Requests');
+    }
+
+    /**
      * Returns the full dashboard title to show in the navbar.
      */
     public retrieveFullDashboardTitle(fullTitle: string[]): string {
@@ -560,8 +569,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     setPanel(newPanel: string, newTitle: string) {
         this.currentPanel = newPanel;
-        this.rightPanelTitle = newTitle;
+        this.rightPanelTitle = newPanel === 'customRequests' ? this.retrieveCustomRequestsDisplayLabel() : newTitle;
         this.sideNavRight.open();
+    }
+
+    /**
+     * Returns whether to show the custom requests navbar menu item.
+     */
+    public showCustomRequestsMenuItem(): boolean {
+        return !!((this.dashboardService.state.getOptions() || {}).customRequests || []).length;
     }
 
     showVizSettings(cmp: NeonGridItem) {
@@ -587,6 +603,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowVisualizationsShortcut(event: { show: boolean }) {
         this.showVisualizationsShortcut = event.show;
+    }
+
+    /**
+     * Updates the showLocalTimes boolean value from the messenger channel
+     */
+    private updateShowLocalTimes(event: { show: boolean }) {
+        DateUtil.USE_LOCAL_TIME = event.show;
+        this.refreshDashboard();
     }
 
     /**
