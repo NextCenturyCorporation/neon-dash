@@ -15,17 +15,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { RouteDashboardComponent } from './route-dashboard.component';
-import { RouteExampleComponent } from './route-example.component';
 import { RouteRequestComponent } from './route-request.component';
 
 const routes: Routes = [{
-    path: 'examples',
-    component: RouteExampleComponent,
-    children: [{
-        path: '**',
-        component: RouteExampleComponent
-    }]
-}, {
     path: 'submit',
     component: RouteRequestComponent,
     children: [{
