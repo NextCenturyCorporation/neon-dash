@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSet } from '../../library/core/models/color';
+import { ColorSet } from 'component-library/dist/core/models/color';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 

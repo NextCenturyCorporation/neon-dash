@@ -14,9 +14,9 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from '../library/core/models/config-option';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardChoiceConfig, NeonDashboardLeafConfig } from '../models/types';
-import { DatastoreConfig } from '../library/core/models/dataset';
+import { DatastoreConfig } from 'component-library/dist/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -33,8 +33,8 @@ import {
     ListFilter,
     ListFilterDesign,
     PairFilter
-} from '../library/core/models/filters';
-import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from '../library/core/models/mock.dataset';
+} from 'component-library/dist/core/models/filters';
+import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from 'component-library/dist/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;

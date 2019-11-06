@@ -14,8 +14,8 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../library/core/models/color';
-import { DateUtil } from '../../library/core/date.util';
+import { Color } from 'component-library/dist/core/models/color';
+import { DateUtil } from 'component-library/dist/core/date.util';
 
 import * as Chart from 'chart.js';
 

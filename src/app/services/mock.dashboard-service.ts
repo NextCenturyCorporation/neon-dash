@@ -28,7 +28,7 @@ import {
     TABLE_KEYS,
     TABLES,
     TABLES_LIST
-} from '../library/core/models/mock.dataset';
+} from 'component-library/dist/core/models/mock.dataset';
 
 export class ConnectionServiceMock extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {

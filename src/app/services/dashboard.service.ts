@@ -14,9 +14,9 @@
  */
 import { Injectable } from '@angular/core';
 
-import { CompoundFilterType } from '../library/core/models/config-option';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from '../library/core/models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -27,7 +27,14 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { AbstractFilter, BoundsFilter, CompoundFilter, DomainFilter, ListFilter, PairFilter } from '../library/core/models/filters';
+import {
+    AbstractFilter,
+    BoundsFilter,
+    CompoundFilter,
+    DomainFilter,
+    ListFilter,
+    PairFilter
+} from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
 
 /**

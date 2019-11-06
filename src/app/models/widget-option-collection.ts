@@ -12,7 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
+import {
+    Dataset,
+    DatasetUtil,
+    DatabaseConfig,
+    DatastoreConfig,
+    FieldConfig,
+    TableConfig
+} from 'component-library/dist/core/models/dataset';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -26,7 +33,7 @@ import {
     isFieldOption,
     OptionChoices,
     OptionType
-} from '../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 export class OptionConfig {
     constructor(protected config: any = {}) { }

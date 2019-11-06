@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { ColorMap } from '../library/core/models/color';
-import { CompoundFilterType } from '../library/core/models/config-option';
-import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
+import { ColorMap } from 'component-library/dist/core/models/color';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { DeepPartial, DatastoreConfig, translateValues } from 'component-library/dist/core/models/dataset';
 
 export interface CommonFilterConfig {
     id?: string;
