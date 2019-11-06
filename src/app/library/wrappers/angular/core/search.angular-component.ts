@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import { ChangeDetectionStrategy, Component, ElementRef, Input, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 
-import { AbstractFilter, AbstractFilterDesign } from '../../core/models/filters';
-import { AbstractSearchService } from '../../core/services/abstract.search.service';
-import { CoreUtil } from '../../core/core.util';
-import { NextCenturyAggregation } from '../../core/components/aggregation.web-component';
+import { AbstractFilter, AbstractFilterDesign } from '../../../core/models/filters';
+import { AbstractSearchService } from '../../../core/services/abstract.search.service';
+import { CoreUtil } from '../../../core/core.util';
+import { NextCenturyAggregation } from '../../../core/components/aggregation.web-component';
 import { NextCenturyCommonAngularComponent } from './common.angular-component';
-import { NextCenturyGroup } from '../../core/components/group.web-component';
-import { NextCenturySearch } from '../../core/components/search.web-component';
+import { NextCenturyGroup } from '../../../core/components/group.web-component';
+import { NextCenturySearch } from '../../../core/components/search.web-component';
 
 const SEARCH_COMPONENT_TEMPLATE = `
 <next-century-search [attr.id]="id + '-search'">
@@ -42,13 +42,13 @@ export class NextCenturySearchAngularComponent extends NextCenturyCommonAngularC
     @Input() groups: Record<string, any>[];
     @Input() options: Record<string, any>;
     @Input() searchService: AbstractSearchService;
-    @Input() visElement: any;
+    @Input() visInputElement: any;
 
     /**
      * @override
      */
     protected doesHaveSubclassInputs(): boolean {
-        return !!(this.searchService && this.visElement);
+        return !!(this.searchService && this.visInputElement);
     }
 
     /**
@@ -62,7 +62,9 @@ export class NextCenturySearchAngularComponent extends NextCenturyCommonAngularC
      * @override
      */
     protected initWrappedElement(searchElement: NextCenturySearch): void {
-        searchElement.init(this.dataset, this.filterService, this.searchService, this.visElement);
+        searchElement.init(this.dataset, this.filterService, this.searchService, {
+            visInput: this.visInputElement
+        });
     }
 
     /**
