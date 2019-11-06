@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Color } from '../library/core/models/color';
+import { Color } from 'component-library/dist/core/models/color';
 import { NeonDashboardColorSet } from './color-set';
 
 describe('NeonDashboardColorSet', () => {

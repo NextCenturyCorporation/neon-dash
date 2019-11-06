@@ -22,9 +22,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
+import { AggregationType, CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     BoundsFilterDesign,
@@ -32,13 +32,13 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from '../../library/core/models/filters';
+} from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { Color } from '../../library/core/models/color';
+import { Color } from 'component-library/dist/core/models/color';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {

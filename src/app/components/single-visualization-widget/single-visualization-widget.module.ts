@@ -18,7 +18,7 @@ import { SingleVisualizationWidgetComponent } from './single-visualization-widge
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
-import { NextCenturyAngularTextCloudModule } from '../../library/wrappers/angular/text-cloud.angular-module';
+import { NextCenturyTextCloudAngularModule } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-module';
 
 @NgModule({
     declarations: [SingleVisualizationWidgetComponent],
@@ -28,7 +28,7 @@ import { NextCenturyAngularTextCloudModule } from '../../library/wrappers/angula
         CommonModule,
         CommonWidgetModule,
         DataMessageModule,
-        NextCenturyAngularTextCloudModule
+        NextCenturyTextCloudAngularModule
     ]
 })
 export class SingleVisualizationWidgetModule { }

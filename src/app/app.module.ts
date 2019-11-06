@@ -17,8 +17,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
-import { AbstractColorThemeService } from './library/core/services/abstract.color-theme.service';
-import { AbstractSearchService } from './library/core/services/abstract.search.service';
+import { AbstractColorThemeService } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
@@ -31,7 +31,7 @@ import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
 // TODO Temp
-import { NextCenturyAngularTextCloudModule } from 'component-library/dist/wrappers/angular/text-cloud.angular-module';
+import { NextCenturyTextCloudAngularModule } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-module';
 
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
@@ -56,7 +56,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         CustomRequestsModule,
         DashboardModule,
         DynamicDialogModule,
-        NextCenturyAngularTextCloudModule,
+        NextCenturyTextCloudAngularModule,
         AppLazyModule,
         AppRoutingModule
     ],

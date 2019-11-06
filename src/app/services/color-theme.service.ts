@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractColorThemeService, Theme } from '../library/core/services/abstract.color-theme.service';
-import { Color, ColorMap, ColorSet } from '../library/core/models/color';
+import { AbstractColorThemeService, Theme } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { Color, ColorMap, ColorSet } from 'component-library/dist/core/models/color';
 import { NeonDashboardColorSet } from '../models/color-set';
 
 export class NeonTheme implements Theme {

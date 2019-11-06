@@ -18,12 +18,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/config-option';
+import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '../../library/core/models/dataset';
+import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
