@@ -86,7 +86,6 @@ import { MatDialog } from '@angular/material';
 import { CoreUtil } from '../../library/core/core.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
-import { Instance } from 'flatpickr/dist/types/instance';
 
 let styleImport: any;
 
@@ -254,22 +253,24 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
-        this.calendarComponent = flatpickr("#startDate", {
-            enableTime: true,
-            plugins: [rangePlugin({ input: "#endDate"})], 
-            formatDate: (date: Date) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
-            onClose: (selectedDates) => {
-                if (selectedDates[0] != null && selectedDates[1] != null) {
-                    this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
+        if (this.canHaveDatePicker()) {
+            this.calendarComponent = flatpickr('#startDate', {
+                enableTime: true,
+                plugins: [rangePlugin({ input: '#endDate' })],
+                formatDate: (date: Date) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
+                onClose: (selectedDates) => {
+                    if (selectedDates[0] !== null && selectedDates[1] !== null) {
+                        this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
+                    }
+                },
+                onOpen: (selectedDates, dateStr, instance) => {
+                    if (selectedDates[0] !== null && selectedDates[1] !== null) {
+                        this.deleteFilters([this.createFilterDesignOnDomain()]);
+                    }
+                    instance.clear();
                 }
-            },
-            onOpen: (selectedDates, dateStr, instance) => {
-                if (selectedDates[0] != null && selectedDates[1] != null) {
-                    this.deleteFilters([this.createFilterDesignOnDomain()]);
-                }
-                instance.clear();
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -1192,7 +1193,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     canHaveDatePicker(): boolean {
-        return this.options.type == "histogram" && this.optionsXFieldIsDate(this.options);
+        return this.options.type === 'histogram' && this.optionsXFieldIsDate(this.options);
     }
 
     /**
@@ -1297,8 +1298,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        // If you are setting a date filter by the click and scroll, make sure to update the calendar setter. 
-        if (this.canHaveDatePicker()){
+        // If you are setting a date filter by the click and scroll, make sure to update the calendar setter.
+        if (this.canHaveDatePicker()) {
             this.calendarComponent.setDate([beginX, endX], true);
             this.calendarComponent.redraw();
         }
