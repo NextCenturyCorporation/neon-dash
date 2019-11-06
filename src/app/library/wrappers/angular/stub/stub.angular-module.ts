@@ -1,5 +1,5 @@
-/*
- * Copyright 2016 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,32 +11,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-:host {
-    border: 1px solid black;
-    display: grid;
-    grid-template-columns: repeat(5, 20%);
-}
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NextCenturyStubAngularComponent } from './stub.angular-component';
 
-.column {
-    border: 1px solid black;
-    color: #111111;
-    display: grid;
-    font-size: 14px;
-    grid-template-rows: 1fr 10fr;
-    height: 500px;
-    word-break: break-word;
+@NgModule({
+    declarations: [NextCenturyStubAngularComponent],
+    exports: [NextCenturyStubAngularComponent],
+    entryComponents: [NextCenturyStubAngularComponent],
+    imports: [
+        CommonModule
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class NextCenturyStubAngularModule { }
 
-    .column-header {
-        font-size: 20px;
-        font-weight: bold;
-        padding: 10px;
-    }
-
-    .column-body {
-        overflow-y: scroll;
-        padding: 10px;
-    }
-}
