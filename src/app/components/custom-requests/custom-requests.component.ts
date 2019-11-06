@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -30,7 +30,7 @@ import * as yaml from 'js-yaml';
     styleUrls: ['custom-requests.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomRequestsComponent {
+export class CustomRequestsComponent implements OnInit {
     public loading: boolean = true;
     public requests: NeonCustomRequests[] = [];
     public readonly dashboardState: DashboardState;
@@ -42,7 +42,6 @@ export class CustomRequestsComponent {
     ) {
         this.dashboardState = this.retrieveDashboardState(this.dashboardService);
         this.updateRequests(this.dashboardState);
-        this.watchDashboardStateChanges();
     }
 
     protected buildRequest(type: string, endpoint: string, data: Record<string, string>): Observable<Record<string, any>> {
@@ -85,6 +84,10 @@ export class CustomRequestsComponent {
 
     isValidUserInput(request: NeonCustomRequests): boolean {
         return this.doesHaveProperties(request) && request.properties.some((property) => !!property.value);
+    }
+
+    ngOnInit() {
+        this.watchDashboardStateChanges();
     }
 
     protected retrieveDashboardState(dashboardService: DashboardService): DashboardState {

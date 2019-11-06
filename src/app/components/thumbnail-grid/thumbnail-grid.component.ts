@@ -708,7 +708,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             video.onerror = () => {
                                 if (link.includes('youtube')) {
                                     let img: HTMLImageElement = new Image();
-                                    img.src = './assets/images/youtube_logo.png';
+                                    img.src = './assets/icons/dashboard/youtube_logo.png';
                                     img.onload = () => {
                                         thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
                                     };
@@ -719,7 +719,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         }
                         case this.mediaTypes.audio: {
                             let image: HTMLImageElement = new Image();
-                            image.src = '/assets/images/volume_up.svg';
+                            image.src = '/assets/icons/dashboard/volume_up.svg';
                             image.onclick = () => this.displayMediaTab(grid);
                             image.onload = () => {
                                 thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
