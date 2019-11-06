@@ -26,12 +26,8 @@ import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
 import { RouteDashboardComponent } from './route-dashboard.component';
-import { RouteExampleComponent } from './route-example.component';
 import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
-
-// TODO Temp
-import { NextCenturyTextCloudAngularModule } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-module';
 
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
@@ -46,7 +42,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 }
 
 @NgModule({
-    declarations: [AppComponent, RouteDashboardComponent, RouteExampleComponent, RouteRequestComponent],
+    declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent],
     entryComponents: [AppComponent, DynamicDialogComponent],
     imports: [
         BrowserModule,
@@ -56,7 +52,6 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         CustomRequestsModule,
         DashboardModule,
         DynamicDialogModule,
-        NextCenturyTextCloudAngularModule,
         AppLazyModule,
         AppRoutingModule
     ],
