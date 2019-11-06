@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 
 /**
  * Component for managing the unshared filter of a visualization.

@@ -23,14 +23,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -40,7 +40,7 @@ import {
     ConfigOption,
     ConfigOptionSelect,
     ConfigOptionNonPrimitive
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';

@@ -29,7 +29,7 @@ import {
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { MatDialog } from '@angular/material';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import {
     AggregationType,
     ConfigOption,
@@ -37,17 +37,17 @@ import {
     ConfigOptionSelect,
     OptionChoices,
     OptionType
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
     RootWidgetOptionCollection,
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { Dataset } from '../../library/core/models/dataset';
+import { Dataset } from 'component-library/dist/core/models/dataset';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
@@ -55,7 +55,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 
-import { NextCenturyAngularTextCloud } from '../../library/wrappers/angular/text-cloud.angular-component';
+import { NextCenturyTextCloudAngularComponent } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
 
 @Component({
     selector: 'app-single-visualization-widget',
@@ -406,7 +406,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    return (visArray[0] as NextCenturyAngularTextCloud).createExportData(exportFields, filename);
+                    return (visArray[0] as NextCenturyTextCloudAngularComponent).createExportData(exportFields, filename);
             }
         }
 
@@ -559,7 +559,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    (visArray[0] as NextCenturyAngularTextCloud).redraw();
+                    (visArray[0] as NextCenturyTextCloudAngularComponent).redraw();
             }
         }
     }

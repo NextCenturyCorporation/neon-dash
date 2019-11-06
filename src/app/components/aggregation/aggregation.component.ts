@@ -24,14 +24,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../library/core/models/color';
+import { Color } from 'component-library/dist/core/models/color';
 
 import {
     AbstractSearchService,
     FilterClause,
     QueryGroup,
     QueryPayload
-} from '../../library/core/services/abstract.search.service';
+} from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -46,9 +46,9 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from '../../library/core/models/filters';
-import { DatasetUtil } from '../../library/core/models/dataset';
-import { DateUtil } from '../../library/core/date.util';
+} from 'component-library/dist/core/models/filters';
+import { DatasetUtil } from 'component-library/dist/core/models/dataset';
+import { DateUtil } from 'component-library/dist/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -74,7 +74,7 @@ import {
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -82,7 +82,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 
 @Component({
     selector: 'app-aggregation',

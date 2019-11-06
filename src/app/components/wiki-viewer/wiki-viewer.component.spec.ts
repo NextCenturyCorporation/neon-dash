@@ -14,20 +14,20 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { WikiViewerModule } from './wiki-viewer.module';
 
