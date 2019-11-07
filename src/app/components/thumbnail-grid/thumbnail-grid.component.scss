@@ -15,7 +15,7 @@
 */
 @import '../base-neon-component/base-neon.component';
 
-::ng-deep .mat-drawer-content {
+/deep/ .mat-drawer-content {
     overflow: unset;
 }
 
