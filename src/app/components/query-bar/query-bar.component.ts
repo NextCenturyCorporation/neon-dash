@@ -35,7 +35,7 @@ import {
     ConfigOptionSelect
 } from 'component-library/dist/core/models/config-option';
 
-import { query } from 'neon-framework';
+import { query } from 'component-library/node_modules/neon-framework/dist/neon';
 import { MatDialog } from '@angular/material';
 
 @Component({

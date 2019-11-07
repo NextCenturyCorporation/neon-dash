@@ -53,7 +53,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
 
 import { neonEvents } from '../../models/neon-namespaces';
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 
 import { NextCenturyTextCloudAngularComponent } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
 

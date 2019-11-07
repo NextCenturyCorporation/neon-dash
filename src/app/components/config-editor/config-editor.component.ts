@@ -23,7 +23,7 @@ import { NeonConfig } from '../../models/types';
 
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 
 import * as yaml from 'js-yaml';
 
