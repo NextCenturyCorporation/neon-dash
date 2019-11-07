@@ -51,7 +51,7 @@ h3 {
     min-height: 150px;
     grid-area: chart;
 
-    ::ng-deep svg {
+    /deep/ svg {
         font-size: 10px;
         width: 100%;
         display: block;
@@ -208,7 +208,7 @@ h3 {
     padding: 5px;
 }
 
-::ng-deep {
+/deep/ {
     #tl-tooltip-container {
         display: none;
         position: absolute;
