@@ -1,6 +1,6 @@
 # Neon Dashboard
 
-The Neon Dashboard is a big data exploration and visualization user interface that is used with the [Neon Server](https://github.com/NextCenturyCorporation/neon-server) and [Neon Middleware](https://github.com/NextCenturyCorporation/neon-framework).
+The Neon Dashboard is a big data exploration and visualization user interface that is used with the [Neon Server](https://github.com/NextCenturyCorporation/neon-server), the [Neon Middleware](https://github.com/NextCenturyCorporation/neon-framework), and the [Next Century Component Library](https://github.com/NextCenturyCorporation/component-library).
 
 ## Table of Content
 
