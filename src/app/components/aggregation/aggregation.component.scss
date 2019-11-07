@@ -78,7 +78,7 @@
     width: auto;
 }
 
-:host ::ng-deep {
+:host /deep/ {
     .list-subcomponent {
         .list-item {
             cursor: pointer;
