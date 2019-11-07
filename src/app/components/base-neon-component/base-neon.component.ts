@@ -37,7 +37,7 @@ import {
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from 'component-library/dist/core/services/connection.service';

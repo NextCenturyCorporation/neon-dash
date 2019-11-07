@@ -20,7 +20,7 @@ import { DashboardState } from '../../models/dashboard-state';
 
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 
 @Component({
     selector: 'app-export-control',
