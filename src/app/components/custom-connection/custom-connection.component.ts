@@ -19,7 +19,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 import { DatastoreConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
 
 @Component({
