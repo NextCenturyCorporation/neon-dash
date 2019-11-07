@@ -60,7 +60,7 @@ form {
         font-size: 1.2em;
         grid-area: name;
 
-        ::ng-deep .mat-badge-active {
+        /deep/ .mat-badge-active {
             color: transparent !important;
             width: 10px;
             height: 10px;

@@ -122,7 +122,7 @@ app-dashboard-selector {
     border-bottom: 1px solid var(--color-border, lightgrey);
     margin-bottom: 0.5em;
 
-    ::ng-deep mat-toolbar {
+    /deep/ mat-toolbar {
         padding-right: 5px !important;
         border-bottom: 1px solid var(--color-border, lightgrey);
 
@@ -140,7 +140,7 @@ app-dashboard-selector {
 
 [mat-icon-button] {
     &.notify {
-        ::ng-deep .mat-badge-active {
+        /deep/ .mat-badge-active {
             font-size: 7pt;
             left: 0;
             top: 3px;
@@ -163,7 +163,7 @@ app-dashboard-selector {
 }
 
 .dashboard-name {
-    ::ng-deep .mat-badge-active {
+    /deep/ .mat-badge-active {
         color: transparent !important;
         width: 10px;
         height: 10px;

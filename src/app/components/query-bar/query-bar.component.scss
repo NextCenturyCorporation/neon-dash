@@ -28,12 +28,12 @@
     max-width: 40%;
     align-items: baseline;
 
-    ::ng-deep.mat-form-field-infix {
+    /deep/.mat-form-field-infix {
         display: inline-flex;
     }
 
     .mat-form-field {
-        ::ng-deep.mat-button {
+        /deep/.mat-button {
             bottom: 9px;
         }
     }

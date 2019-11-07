@@ -63,11 +63,11 @@
 
     .body-container,
     .footer,
-    ::ng-deep mat-toolbar {
+    /deep/ mat-toolbar {
         background: var(--color-background, white);
     }
 
-    ::ng-deep mat-toolbar {
+    /deep/ mat-toolbar {
         .header {
             &.text {
                 font-weight: normal;
