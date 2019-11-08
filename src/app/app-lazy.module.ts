@@ -67,7 +67,7 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'text-cloud',
-            loadChildren: './components/single-visualization-widget/single-visualization-widget.module#SingleVisualizationWidgetModule'
+            loadChildren: './components/text-cloud/text-cloud.module#TextCloudModule'
         }),
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'thumbnail-grid',

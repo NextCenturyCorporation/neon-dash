@@ -15,7 +15,7 @@
 import { Component, ComponentFactoryResolver, Input, ReflectiveInjector, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
-import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -23,7 +23,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
         <div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
-    currentComponent: ComponentRef<VisualizationWidget> = null;
+    currentComponent: ComponentRef<BaseNeonComponent> = null;
 
     @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
 
@@ -39,8 +39,7 @@ export class VisualizationInjectorComponent {
             this.currentComponent.destroy();
         }
 
-        const moduleId = this._findModuleId(data.type);
-        this._findVisualizationComponent(moduleId).subscribe((input) => {
+        this.findVisualizationComponent(data.type).subscribe((input) => {
             data.bindings = data.bindings || {};
             data.bindings._id = data.id;
 
@@ -50,33 +49,19 @@ export class VisualizationInjectorComponent {
 
             // Use the ngModuleFactory from the component recipe to create the new component.
             this.currentComponent = this.dynamicComponentContainer.createComponent(input.ngModuleFactory.create(injector)
-                .componentFactoryResolver.resolveComponentFactory<VisualizationWidget>(input.componentType));
+                .componentFactoryResolver.resolveComponentFactory<BaseNeonComponent>(input.componentType));
 
             this.currentComponent.instance.configOptions = data.bindings;
-            this.currentComponent.instance.visualizationType = moduleId as any as VisualizationType;
         });
     }
 
     constructor(private loader: ReactiveComponentLoader, private resolver: ComponentFactoryResolver) { }
 
-    private _findModuleId(configType: string): string {
-        return configType.replace(/([a-z])([A-Z])/g, (__all, left, right) => `${left}-${right.toLowerCase()}`);
-    }
-
-    private _findSelector(moduleId: string): string {
-        switch (moduleId) {
-            case 'text-cloud':
-                return 'app-single-visualization-widget';
-            default:
-                return 'app-' + moduleId;
-        }
-    }
-
-    private _findVisualizationComponent(moduleId: string) {
-        const selector = this._findSelector(moduleId);
+    findVisualizationComponent(type: string) {
+        const id = type.replace(/([a-z])([A-Z])/g, (__all, left, right) => `${left}-${right.toLowerCase()}`);
         return this.loader.getComponentRecipe({
-            moduleId,
-            selector
+            moduleId: id,
+            selector: `app-${id}`
         });
     }
 
