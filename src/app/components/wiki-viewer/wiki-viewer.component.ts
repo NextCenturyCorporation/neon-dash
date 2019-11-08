@@ -63,8 +63,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     static WIKI_LINK_PREFIX_URL: string = 'en.wikipedia.org/wiki/';
     static WIKI_LINK_PREFIX_WIKI: string = '/wiki/';
     static WIKI_LINK_PREFIX_WIKI_FULL: string = 'https://en.wikipedia.org/wiki/';
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public wikiViewerData: any[] = [];
 

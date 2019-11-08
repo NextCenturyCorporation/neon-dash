@@ -177,7 +177,7 @@ mat-accordion {
     }
 }
 
-::ng-deep {
+/deep/ {
     .mat-expansion-panel {
         .mat-expansion-indicator {
             &::after {

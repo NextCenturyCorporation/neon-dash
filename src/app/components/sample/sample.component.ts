@@ -54,11 +54,11 @@ import { MatDialog } from '@angular/material';
 })
 export class SampleComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     // TODO Remove this property if you don't need a subcomponent.
-    @ViewChild('subcomponent') subcomponentElementRef: ElementRef;
+    @ViewChild('subcomponent', { static: false }) subcomponentElementRef: ElementRef;
 
     // TODO Define properties as needed.  Made public so they can be used by unit tests.
 

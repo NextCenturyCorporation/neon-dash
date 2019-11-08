@@ -165,9 +165,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     static DEFAULT_EDGE_COLOR: string ='#2b7ce9';
     static DEFAULT_NODE_COLOR: string ='#96c1fc';
 
-    @ViewChild('graphElement') graphElement: ElementRef;
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('graphElement', { static: true }) graphElement: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public graphData: GraphData = new GraphData();
     public responseData: any[] = [];
