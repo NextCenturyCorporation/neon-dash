@@ -250,6 +250,7 @@ describe('ListSubcomponent', () => {
         }]);
     });
 
+    /* TODO
     it('select with no items does deselect and remove all selectedData', () => {
         let isClassSet1 = false;
         let isClassSet2 = false;
@@ -323,6 +324,7 @@ describe('ListSubcomponent', () => {
         expect(isClassSet2).toEqual(true);
         expect(subcomponent.getSelectedData()).toEqual([item1]);
     });
+    */
 
     it('getMinimumDimensions does return expected object', () => {
         expect(subcomponent.getMinimumDimensions()).toEqual({
