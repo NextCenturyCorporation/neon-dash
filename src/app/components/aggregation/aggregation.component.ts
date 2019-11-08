@@ -92,11 +92,11 @@ import { CoreUtil } from '../../library/core/core.util';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('subcomponentMain') subcomponentMainElementRef: ElementRef;
-    @ViewChild('subcomponentZoom') subcomponentZoomElementRef: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('hiddenCanvas', { static: true }) hiddenCanvas: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('subcomponentMain', { static: true }) subcomponentMainElementRef: ElementRef;
+    @ViewChild('subcomponentZoom', { static: true }) subcomponentZoomElementRef: ElementRef;
 
     private DEFAULT_GROUP: string = 'All';
 
