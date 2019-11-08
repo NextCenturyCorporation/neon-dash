@@ -18,6 +18,7 @@ import { ConfigurableWidget } from './widget-option-collection';
 
 // VisualizationType strings should be the same as the moduleId properties in app-lazy.module.ts
 export enum VisualizationType {
+    SAMPLE = 'sample',
     TEXT_CLOUD = 'text-cloud'
 }
 

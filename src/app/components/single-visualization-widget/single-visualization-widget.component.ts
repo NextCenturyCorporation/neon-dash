@@ -84,19 +84,19 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     public options: RootWidgetOptionCollection & { [key: string]: any };
     public componentLibraryOptions: { [key: string]: any };
 
-    private eventMessenger: eventing.Messenger;
-    private id: string;
-    private visElementId: string;
+    private _eventMessenger: eventing.Messenger;
+    private _id: string;
+    private _visElementId: string;
 
     // Maps the options/layer ID to the element count.
-    private layerIdToElementCount: Map<string, number> = new Map<string, number>();
+    private _layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
-    private cachedPage: number = -1;
-    private lastPage: boolean = true;
-    private page: number = 1;
+    private _cachedPage: number = -1;
+    private _lastPage: boolean = true;
+    private _page: number = 1;
 
     readonly dashboardState: DashboardState;
-    private dataset: Dataset;
+    private _dataset: Dataset;
 
     /**
      * Creates and returns the text for the info button using the given count map, options, and page number.
@@ -107,57 +107,60 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         pageNumber: number,
         visualizationType: VisualizationType
     ): string {
-        if (!options.layers.length) {
-            return SingleVisualizationWidgetComponent.createInfoButtonTextHelper(options, layerIdToElementCount.get(options._id),
-                pageNumber, options.limit, visualizationType);
-        }
+        const optionsWrapperList: { limit: number, options: WidgetOptionCollection }[] = !options.layers.length ? [{
+            limit: options.limit,
+            options
+        }] : options.layers.map((layer) => ({
+            // TODO The limit should be in the layer options...
+            limit: options.limit,
+            options: layer
+        }));
 
-        if (options.layers.length === 1) {
-            return SingleVisualizationWidgetComponent.createInfoButtonTextHelper(options.layers[0],
-                layerIdToElementCount.get(options.layers[0]._id), pageNumber, options.limit, visualizationType);
-        }
+        const infoList: { id: string, text: string }[] = optionsWrapperList.map((optionsWrapper) => {
+            let elementCount = layerIdToElementCount.get(optionsWrapper.options._id);
 
-        return options.layers.map((layer) => {
-            let text = SingleVisualizationWidgetComponent.createInfoButtonTextHelper(layer, layerIdToElementCount.get(layer._id),
-                pageNumber, options.limit, visualizationType);
-            return text ? (layer.title + ' (' + text + ')') : '';
-        }).filter((text) => !!text).join(', ');
-    }
-
-    /**
-     * Creates and returns the text for the info button using the given element count map, options, and page.
-     */
-    static createInfoButtonTextHelper(
-        options: WidgetOptionCollection,
-        elementCount: number,
-        pageNumber: number,
-        queryLimit: number,
-        visualizationType: VisualizationType
-    ): string {
-        // If the query was not yet run, show no text unless waiting on an event.
-        if (typeof elementCount === 'undefined') {
-            return options.hideUnfiltered ? 'Please Filter' : '';
-        }
-
-        let elementLabel = SingleVisualizationWidgetComponent.getVisualizationElementLabel(visualizationType, elementCount);
-
-        if (!elementCount) {
-            return (elementLabel ? ('0 ' + elementLabel) : 'None');
-        }
-
-        // If the visualization query does pagination, show the pagination text.
-        if (SingleVisualizationWidgetComponent.isPaginatedVisualization(visualizationType)) {
-            let begin = CoreUtil.prettifyInteger((pageNumber - 1) * queryLimit + 1);
-            let end = CoreUtil.prettifyInteger(Math.min(pageNumber * queryLimit, elementCount));
-            if (elementCount <= queryLimit) {
-                return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+            // If the query was not yet run, show no text unless waiting on an event.
+            if (typeof elementCount === 'undefined') {
+                return {
+                    id: optionsWrapper.options.title,
+                    text: optionsWrapper.options.hideUnfiltered ? 'Please Filter' : ''
+                };
             }
-            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + CoreUtil.prettifyInteger(elementCount) +
-                (elementLabel ? (' ' + elementLabel) : '');
-        }
 
-        // Otherwise just show the element count.
-        return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+            let elementLabel = SingleVisualizationWidgetComponent.getVisualizationElementLabel(visualizationType, elementCount);
+
+            if (!elementCount) {
+                return {
+                    id: optionsWrapper.options.title,
+                    text: (elementLabel ? ('0 ' + elementLabel) : 'None')
+                };
+            }
+
+            // If the visualization query does pagination, show the pagination text.
+            if (SingleVisualizationWidgetComponent.isPaginatedVisualization(visualizationType)) {
+                let begin = CoreUtil.prettifyInteger((pageNumber - 1) * optionsWrapper.limit + 1);
+                let end = CoreUtil.prettifyInteger(Math.min(pageNumber * optionsWrapper.limit, elementCount));
+                if (elementCount <= optionsWrapper.limit) {
+                    return {
+                        id: optionsWrapper.options.title,
+                        text: CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '')
+                    };
+                }
+                return {
+                    id: optionsWrapper.options.title,
+                    text: (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + CoreUtil.prettifyInteger(elementCount) +
+                        (elementLabel ? (' ' + elementLabel) : '')
+                };
+            }
+
+            // Otherwise just show the element count.
+            return {
+                id: optionsWrapper.options.title,
+                text: CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '')
+            };
+        }).filter((info) => !!info.text);
+
+        return infoList.length === 1 ? infoList[0].text : infoList.map((info) => info.id + ' (' + info.text + ')').join(', ');
     }
 
     /**
@@ -189,6 +192,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     static createWidgetOptionsForLayer(visualizationType: VisualizationType): ConfigOption[] {
         switch (visualizationType) {
             case VisualizationType.TEXT_CLOUD:
+                return [];
             default:
                 return [];
         }
@@ -300,6 +304,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     static isSelfFilterableVisualization(visualizationType: VisualizationType): boolean {
         switch (visualizationType) {
             case VisualizationType.TEXT_CLOUD:
+                return true;
             default:
                 return true;
         }
@@ -358,11 +363,18 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
             'search-page': page
         };
 
+        if (!options.datastore.name || !options.database.name || !options.table.name) {
+            return null;
+        }
+
         const tableKey = options.datastore.name + '.' + options.database.name + '.' + options.table.name;
 
         switch (visualizationType) {
             case VisualizationType.TEXT_CLOUD:
-                componentLibraryOptions['aggregation-field-key'] = !options.sizeField.columnName ? undefined :
+                if (!options.dataField || !options.dataField.columnName) {
+                    return null;
+                }
+                componentLibraryOptions['aggregation-field-key'] = (!options.sizeField || !options.sizeField.columnName) ? undefined :
                     (tableKey + '.' + options.sizeField.columnName);
                 componentLibraryOptions['aggregation-type'] = options.aggregation;
                 componentLibraryOptions['enable-show-paragraphs'] = options.paragraphs || undefined; // If false, set to undefined
@@ -375,20 +387,20 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     constructor(
-        private colorThemeService: InjectableColorThemeService,
-        private dashboardService: DashboardService,
+        private _colorThemeService: InjectableColorThemeService,
+        private _dashboardService: DashboardService,
         public filterService: InjectableFilterService,
         public searchService: AbstractSearchService,
-        private changeDetector: ChangeDetectorRef,
-        private elementRef: ElementRef,
-        private dialog: MatDialog
+        private _changeDetector: ChangeDetectorRef,
+        private _elementRef: ElementRef,
+        private _dialog: MatDialog
     ) {
         super();
-        this.eventMessenger = new eventing.Messenger();
-        this.dashboardState = dashboardService.state;
-        this.dataset = this.dashboardState.asDataset();
-        dashboardService.stateSource.subscribe((dashboardState) => {
-            this.dataset = dashboardState.asDataset();
+        this._eventMessenger = new eventing.Messenger();
+        this.dashboardState = _dashboardService.state;
+        this._dataset = this.dashboardState.asDataset();
+        _dashboardService.stateSource.subscribe((dashboardState) => {
+            this._dataset = dashboardState.asDataset();
         });
     }
 
@@ -418,14 +430,14 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public getWidgetOptionMenuCallbacks(): ConfigurableWidget {
         return {
-            changeData: this._handleChangeData.bind(this),
-            changeFilterData: this._handleChangeData.bind(this),
+            changeData: this._handleChangeOptions.bind(this),
+            changeFilterData: this._handleChangeOptions.bind(this),
             createLayer: SingleVisualizationWidgetComponent.handleCreateLayer.bind(this),
             deleteLayer: SingleVisualizationWidgetComponent.handleDeleteLayer.bind(this),
             exportData: this.createExportData.bind(this),
             finalizeCreateLayer: SingleVisualizationWidgetComponent.handleFinalizeCreateLayer.bind(this),
             finalizeDeleteLayer: SingleVisualizationWidgetComponent.handleFinalizeDeleteLayer.bind(this),
-            handleChangeSubcomponentType: this._handleChangeData.bind(this),
+            handleChangeSubcomponentType: this._handleChangeOptions.bind(this),
             options: this.options
         } as ConfigurableWidget;
     }
@@ -434,8 +446,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * Increases the page and runs the visualization query.
      */
     public goToNextPage(): void {
-        if (!this.lastPage) {
-            this.page++;
+        if (!this._lastPage) {
+            this._page++;
             this._updateVisualizationOptions();
         }
     }
@@ -444,8 +456,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * Decreases the page and runs the visualization query.
      */
     public goToPreviousPage(): void {
-        if (this.page !== 1) {
-            this.page--;
+        if (this._page !== 1) {
+            this._page--;
             this._updateVisualizationOptions();
         }
     }
@@ -455,7 +467,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public ngAfterViewInit(): void {
         // Add the event listeners to the visualization only after the HTML elements are stable.
-        const visElement: HTMLElement = this.elementRef.nativeElement.querySelector('#' + this.visElementId);
+        const visElement: HTMLElement = this._getHtmlElement().querySelector('#' + this._visElementId);
         visElement.addEventListener('searchCanceled', this._onSearchCanceledOrFailed.bind(this));
         visElement.addEventListener('searchFailed', this._onSearchCanceledOrFailed.bind(this));
         visElement.addEventListener('searchFinished', this._onSearchFinished.bind(this));
@@ -463,17 +475,17 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         visElement.addEventListener('valuesFiltered', this._onValuesFiltered.bind(this));
 
         this._updateVisualizationOptions();
-        this.changeDetector.detectChanges();
+        this._changeDetector.detectChanges();
     }
 
     /**
      * Angular lifecycle hook:  Detaches the widget and unregisters its event listeners as needed.
      */
     public ngOnDestroy() {
-        this.changeDetector.detach();
-        this.eventMessenger.unsubscribeAll();
-        this.eventMessenger.publish(neonEvents.WIDGET_UNREGISTER, {
-            id: this.id
+        this._changeDetector.detach();
+        this._eventMessenger.unsubscribeAll();
+        this._eventMessenger.publish(neonEvents.WIDGET_UNREGISTER, {
+            id: this._id
         });
     }
 
@@ -481,23 +493,23 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * Angular lifecycle hook:  Initializes widget properties and registers its event listeners as needed.
      */
     public ngOnInit(): void {
-        this.options = SingleVisualizationWidgetComponent.createWidgetOptionCollection(this, this.configOptions, this.dataset,
+        this.options = SingleVisualizationWidgetComponent.createWidgetOptionCollection(this, this.configOptions, this._dataset,
             this.visualizationType);
-        this.id = this.options._id;
-        this.visElementId = 'widget-' + this.id;
+        this._id = this.options._id;
+        this._visElementId = 'widget-' + this._id;
 
         if (this.dashboardState.dashboard && this.dashboardState.dashboard.visualizationTitles &&
             this.dashboardState.dashboard.visualizationTitles[this.options.title]) {
             this.options.title = this.dashboardState.dashboard.visualizationTitles[this.options.title];
         }
 
-        this.eventMessenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
+        this._eventMessenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
             this.redraw();
-            this._handleChangeData();
+            this._handleChangeOptions();
         });
 
-        this.eventMessenger.publish(neonEvents.WIDGET_REGISTER, {
-            id: this.id,
+        this._eventMessenger.publish(neonEvents.WIDGET_REGISTER, {
+            id: this._id,
             widget: this
         });
     }
@@ -529,7 +541,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         // second transition so wait until that has finished before redrawing.
         setTimeout(() => {
             this.redraw();
-            this.changeDetector.detectChanges();
+            this._changeDetector.detectChanges();
         }, 300);
     }
 
@@ -541,7 +553,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         let contributorKeys = (this.options.contributionKeys || Object.keys(allContributors)).filter((key) =>
             !!allContributors[key]).map((key) => allContributors[key]);
 
-        this.dialog.open(DynamicDialogComponent, {
+        this._dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'contribution-dialog',
                 contributors: contributorKeys
@@ -579,9 +591,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public showContribution(): boolean {
         return !!((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
-            (this.options.contributionKeys === null &&
-                this.dashboardState.dashboard &&
-                this.dashboardState.dashboard.contributors &&
+            (this.dashboardState.dashboard && this.dashboardState.dashboard.contributors &&
                 Object.keys(this.dashboardState.dashboard.contributors).length));
     }
 
@@ -590,29 +600,33 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public showPagination(): boolean {
         // Assumes single-layer widget.
-        return SingleVisualizationWidgetComponent.isPaginatedVisualization(this.visualizationType) && (this.page > 1 ||
-            ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+        return SingleVisualizationWidgetComponent.isPaginatedVisualization(this.visualizationType) && (this._page > 1 ||
+            ((this._page * this.options.limit) < this._layerIdToElementCount.get(this.options._id)));
     }
 
-    private _handleChangeData(options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
-        this.layerIdToElementCount.set((options || this.options)._id, 0);
+    private _getHtmlElement(): HTMLElement {
+        return this._elementRef.nativeElement;
+    }
+
+    private _handleChangeOptions(options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
+        this._layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
-        this.cachedPage = -1;
-        this.lastPage = true;
-        this.page = 1;
+        this._cachedPage = -1;
+        this._lastPage = true;
+        this._page = 1;
 
-        this.eventMessenger.publish(neonEvents.WIDGET_CONFIGURED, {});
+        this._eventMessenger.publish(neonEvents.WIDGET_CONFIGURED, {});
 
         this._updateVisualizationOptions();
     }
 
     private _onSearchCanceledOrFailed(event: any): void {
         this.loadingCount--;
-        this.layerIdToElementCount.set(this.options._id, 0);
+        this._layerIdToElementCount.set(this.options._id, 0);
         this.errorMessage = event.detail.message || '';
         if (event.detail.message) {
-            this.eventMessenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            this._eventMessenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                 error: event.detail.error,
                 message: event.detail.message
             });
@@ -622,7 +636,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
 
     private _onSearchFinished(event: any): void {
         this.loadingCount--;
-        this.layerIdToElementCount.set(this.options._id, event.detail.size);
+        this._layerIdToElementCount.set(this.options._id, event.detail.size);
         this.errorMessage = event.detail.info || (event.detail.size > 0 ? '' : 'No Data');
         this._updateInfoElements();
     }
@@ -635,36 +649,36 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         const selfFilterable = SingleVisualizationWidgetComponent.isSelfFilterableVisualization(this.visualizationType) &&
             !this.options.ignoreSelf;
 
-        const previousPage = this.page;
+        const previousPage = this._page;
 
-        if (event.detail.caller === this.id && event.detail.values.length) {
-            if (this.cachedPage <= 0) {
-                this.cachedPage = this.page;
+        if (event.detail.caller === this._id && event.detail.values.length) {
+            if (this._cachedPage <= 0) {
+                this._cachedPage = this._page;
             }
 
             if (selfFilterable) {
-                this.page = 1;
+                this._page = 1;
             }
         }
 
         if (!event.detail.values.length) {
-            if (this.cachedPage <= 0 && (event.detail.caller !== this.id || selfFilterable)) {
-                this.page = 1;
+            if (this._cachedPage <= 0 && (event.detail.caller !== this._id || selfFilterable)) {
+                this._page = 1;
             }
 
-            if (this.cachedPage > 0) {
-                this.page = this.cachedPage;
-                this.cachedPage = -1;
+            if (this._cachedPage > 0) {
+                this._page = this._cachedPage;
+                this._cachedPage = -1;
             }
         }
 
-        if (previousPage !== this.page) {
+        if (previousPage !== this._page) {
             this._updateVisualizationOptions();
         }
     }
 
     private _updateHeaderStyles() {
-        const visElement = this.elementRef.nativeElement.querySelector('#' + this.visElementId);
+        const visElement = this._getHtmlElement().querySelector('#' + this._visElementId);
         if (this.headerText && this.infoText && visElement) {
             this.headerText.nativeElement.style.maxWidth = Math.floor(visElement.clientWidth - this.infoText.nativeElement.clientWidth -
                 this.TOOLBAR_EXTRA_WIDTH - 1) + 'px';
@@ -672,27 +686,29 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     private _updateInfoElements(): void {
-        this.infoButtonText = SingleVisualizationWidgetComponent.createInfoButtonText(this.layerIdToElementCount, this.options, this.page,
+        this.infoButtonText = SingleVisualizationWidgetComponent.createInfoButtonText(this._layerIdToElementCount, this.options, this._page,
             this.visualizationType);
         this.showNoData = (this.errorMessage === 'No Data');
 
         // Run the change detector after setting the variables to update the DOM.
-        this.changeDetector.detectChanges();
+        this._changeDetector.detectChanges();
 
         // Update the header styles only AFTER the change detector runs.
         this._updateHeaderStyles();
 
         // Run the change detector AGAIN AFTER setting the header styles to update the DOM.
-        this.changeDetector.detectChanges();
+        this._changeDetector.detectChanges();
 
         // Setting the style attribute is needed for the data table.
-        this.elementRef.nativeElement.querySelector('.body-container').setAttribute('style', 'display: ' + (this.showNoData ? 'none' :
-            'show'));
+        const bodyContainer = this._getHtmlElement().querySelector('.body-container');
+        if (bodyContainer) {
+            bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
+        }
     }
 
     private _updateVisualizationOptions(): void {
-        this.componentLibraryOptions = SingleVisualizationWidgetComponent.transformComponentLibraryOptions(this.colorThemeService,
-            this.options, this.page, this.visualizationType);
+        this.componentLibraryOptions = SingleVisualizationWidgetComponent.transformComponentLibraryOptions(this._colorThemeService,
+            this.options, this._page, this.visualizationType);
         this._updateInfoElements();
     }
 }
