@@ -25,7 +25,7 @@ import { MAT_DIALOG_DATA } from '@angular/material';
     styleUrls: ['./dynamic-dialog.component.scss']
 })
 export class DynamicDialogComponent implements OnInit, OnDestroy {
-  @ViewChild('target', { read: ViewContainerRef }) vcRef: ViewContainerRef;
+  @ViewChild('target', { read: ViewContainerRef, static: true }) vcRef: ViewContainerRef;
 
   componentRef: ComponentRef<any>;
 

@@ -81,11 +81,11 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('mapElement') mapElement: ElementRef;
-    @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
+    @ViewChild('mapElement', { static: true }) mapElement: ElementRef;
+    @ViewChild('mapOverlay', { static: true }) mapOverlayRef: ElementRef;
 
     public colorKeys: string[] = [];
 
