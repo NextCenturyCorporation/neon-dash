@@ -55,11 +55,11 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('table') table: any;
-    @ViewChild('dragView') dragView: ElementRef;
+    @ViewChild('table', { static: false }) table: any;
+    @ViewChild('dragView', { static: false }) dragView: ElementRef;
 
     private DEFAULT_COLUMN_WIDTH: number = 150;
     private MINIMUM_COLUMN_WIDTH: number = 100;

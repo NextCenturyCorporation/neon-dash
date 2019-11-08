@@ -300,15 +300,11 @@ export class SearchService extends AbstractSearchService {
     ): any {
         return {
             data: {
-                // IgnoreFilters: undefined,
-                // ignoredFilterIds: [],
                 fileName: uniqueName,
                 dataStoreType: dataStoreType,
                 hostName: hostName,
                 query: queryPayload.query,
                 fieldNamePrettyNamePairs: this.findExportFields(queryPayload.query, fields)
-                // SelectionOnly: undefined,
-                // type: 'query'
             }
         };
     }
