@@ -206,19 +206,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         const showFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) =>
             fieldObject.columnName);
 
-        this.headers = this.options.fields.map((fieldObject) => {
-            const width = this.retrieveConfiguredColumnWidth(fieldObject.columnName);
-            return {
-                cellClass: this.getCellClassFunction(),
-                prop: fieldObject.columnName,
-                name: fieldObject.prettyName,
-                // If showFields is populated, hide each field that is not in showFields.  If showFields is not populated, show each field.
-                active: !showFieldNames.length || (showFieldNames.indexOf(fieldObject.columnName) >= 0),
-                style: {},
-                widthAuto: width || this.MINIMUM_COLUMN_WIDTH,
-                widthUser: width
-            };
-        });
+        this.headers = this.options.fields.map((fieldObject) => ({
+            cellClass: this.getCellClassFunction(),
+            prop: fieldObject.columnName,
+            name: fieldObject.prettyName,
+            // If showFields is populated, hide each field that is not in showFields.  If showFields is not populated, show each field.
+            active: !showFieldNames.length || (showFieldNames.indexOf(fieldObject.columnName) >= 0),
+            style: {},
+            widthAuto: this.retrieveConfiguredColumnWidth(fieldObject.columnName) || this.MINIMUM_COLUMN_WIDTH,
+            widthUser: null
+        }));
 
         this.recalculateActiveHeaders();
     }
