@@ -260,7 +260,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
                     }
                 },
-                onOpen: (selectedDates, dateStr, instance) => {
+                onOpen: (selectedDates, __dateStr, instance) => {
                     if (selectedDates[0] !== null && selectedDates[1] !== null) {
                         this.deleteFilters([this.createFilterDesignOnDomain()]);
                     }
