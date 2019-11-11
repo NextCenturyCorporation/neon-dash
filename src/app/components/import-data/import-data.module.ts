@@ -14,14 +14,14 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UploadDataComponent } from './upload-data.component';
+import { ImportDataComponent } from './import-data.component';
 import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule, MatButtonModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-    declarations: [UploadDataComponent],
-    exports: [UploadDataComponent],
-    entryComponents: [UploadDataComponent],
+    declarations: [ImportDataComponent],
+    exports: [ImportDataComponent],
+    entryComponents: [ImportDataComponent],
     imports: [
         MatDividerModule,
         MatRadioModule,
@@ -32,4 +32,4 @@ import { FormsModule } from '@angular/forms';
         CommonModule
     ]
 })
-export class UploadDataModule { }
+export class ImportDataModule { }
