@@ -260,7 +260,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
                 this.subcomponentObject.destroyElements();
             }
             this.initializeSubcomponent();
-            this.handleChangeData();
+            this.handleChangeOptions();
         }
     }
 
