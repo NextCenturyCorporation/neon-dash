@@ -1,0 +1,45 @@
+<form class="gear-container">
+    <div class="option-well">
+        <div class="option-container">
+            <input #inputFile type="file" name="input-file" id="input-file" accept=".csv" (change)="onFileSelected($event)" />
+        </div>
+
+        <div *ngIf="isFileSelected">
+            <mat-form-field class="option-container" *ngIf="optionCollection.datastores != null">
+                <mat-select placeholder="Datastore" [(ngModel)]="optionCollection.datastore" required="true"
+                    [name]="optionCollection._id + '_datastore'" (ngModelChange)="onDatastoreChanged()"
+                    [disabled]="optionCollection.datastores.length < 2">
+                    <mat-option *ngFor="let datastore of optionCollection.datastores" [value]="datastore">
+                        {{ datastore.name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        
+            <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null">
+                <mat-select placeholder="Database" [(ngModel)]="optionCollection.database" required="true"
+                    [name]="optionCollection._id + '_database'" (ngModelChange)="onDatabaseChanged()"
+                    [disabled]="optionCollection.databases.length < 2">
+                    <mat-option *ngFor="let database of optionCollection.databases" [value]="database">
+                        {{ database.prettyName }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="option-container" *ngIf="optionCollection.database != null">
+                <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true" 
+                    [name]="optionCollection._id + '_table'" [disabled]="optionCollection.tables.length < 2">
+                    <mat-option *ngFor="let table of optionCollection.tables" [value]="table">{{ table.prettyName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="button-footer" align="right">
+        <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content"
+            (click)="onCancel()">
+            Cancel
+        </button>
+        <button mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
+            (click)="onImportClick()">
+            Import
+        </button>
+    </div>
+</form>
