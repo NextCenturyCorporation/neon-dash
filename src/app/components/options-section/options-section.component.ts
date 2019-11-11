@@ -31,6 +31,7 @@ import { WidgetOptionCollection } from '../../models/widget-option-collection';
 export class OptionsSectionComponent {
     @Input() optionCollection: WidgetOptionCollection;
     @Input() updateOnChange: Function;
+    @Input() handleChangeDatastore: Function;
     @Input() handleChangeDatabase: Function;
     @Input() handleChangeTable: Function;
 
