@@ -219,7 +219,7 @@ describe('Component: DataTable', () => {
         expect(component.headers[0].style).toEqual({});
         expect(component.headers[0].cellClass).toBeDefined();
         expect(component.headers[0].widthAuto).toEqual(123);
-        expect(component.headers[0].widthUser).toEqual(123);
+        expect(component.headers[0].widthUser).toEqual(null);
         expect(component.headers[1].prop).toEqual('field1');
         expect(component.headers[1].name).toEqual('Field 1');
         expect(component.headers[1].active).toEqual(true);
@@ -240,7 +240,7 @@ describe('Component: DataTable', () => {
         expect(component.headers[3].style).toEqual({});
         expect(component.headers[3].cellClass).toBeDefined();
         expect(component.headers[3].widthAuto).toEqual(456);
-        expect(component.headers[3].widthUser).toEqual(456);
+        expect(component.headers[3].widthUser).toEqual(null);
 
         expect(spy).toHaveBeenCalled();
     });
