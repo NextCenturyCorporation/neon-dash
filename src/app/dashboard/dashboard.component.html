@@ -20,8 +20,8 @@
                 <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
                     [inputs]="{widgets:widgets}">
                 </wt-lazy>
-                <wt-lazy *ngSwitchCase="'uploadData'" [location]="{moduleId:'upload-data', selector: 'app-upload-data'}"
-                    [inputs]="{widgets:widgets}">
+                <wt-lazy *ngSwitchCase="'importData'" [location]="{moduleId:'import-data', selector: 'app-import-data'}"
+                    [inputs]="{sideNavRight: sideNavRight}">
                 </wt-lazy>
                 <wt-lazy *ngSwitchCase="'customRequests'" [location]="{moduleId:'custom-requests', selector: 'app-custom-requests'}">
                 </wt-lazy>
@@ -78,8 +78,8 @@
                 <button mat-menu-item (click)="setPanel('customRequests', 'Submit Data');">
                     <mat-icon>save_alt</mat-icon>Submit Data
                 </button>
-                <button mat-menu-item (click)="setPanel('uploadData', 'Upload CSV');">
-                    <mat-icon>save_alt</mat-icon>Upload CSV
+                <button mat-menu-item (click)="setPanel('importData', 'Import CSV');">
+                    <mat-icon>cloud_upload</mat-icon>Import CSV
                 </button>
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard

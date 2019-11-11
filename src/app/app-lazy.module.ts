@@ -122,8 +122,8 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
             loadChildren: './components/custom-connection/custom-connection.module#CustomConnectionModule'
         }),
         ReactiveComponentLoaderModule.withModule({
-            moduleId: 'upload-data',
-            loadChildren: './components/upload-data/upload-data.module#UploadDataModule'
+            moduleId: 'import-data',
+            loadChildren: './components/import-data/import-data.module#ImportDataModule'
         })
     ]
 })
