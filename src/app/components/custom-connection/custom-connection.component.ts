@@ -85,7 +85,6 @@ export class CustomConnectionComponent implements AfterContentInit {
         }, {} as { [key: string]: DatabaseConfig });
         this.datasetService.setActiveDatastore(datastore);
 
-        // TODO: THOR-825:
         // TODO: THOR-1056: fix so that the dashboard is added to existing list
         // TODO: THOR-1056: make enough information available to set entire currentDashboard here.
 
