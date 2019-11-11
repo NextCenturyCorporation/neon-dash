@@ -65,11 +65,14 @@ export class ExportControlComponent {
 
     exportSuccess(queryResults) {
         let link = document.createElement('a');
-        link.href = 'data:text/csv;charset=utf-8,' + encodeURI(queryResults.data);
+        let url = URL.createObjectURL(new Blob([queryResults.data], { type: 'text/plain;charset=utf-8' }));
+        link.href = url;
         link.target = '_blank';
         link.download = queryResults.fileName;
+        document.body.appendChild(link);
         link.click();
-        link.remove();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     exportFail(response) {

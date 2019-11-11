@@ -145,6 +145,22 @@ describe('Component: SaveStateComponent', () => {
         expect(confirmCalls).toEqual(3);
     });
 
+    it('createState does call configService.save with expected data', () => {
+        let calls = 0;
+
+        spyOn(component['dashboardService'], 'createEmptyDashboardConfig').and.callFake(() => ({}));
+
+        spyOn(component['configService'], 'save').and.callFake((data) => {
+            calls++;
+            expect(data).toEqual({});
+            return of(1);
+        });
+
+        component.createState('testState');
+
+        expect(calls).toEqual(1);
+    });
+
     it('saveState does call configService.save with expected data', () => {
         let calls = 0;
 

@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -59,10 +58,10 @@ import { MediaTypes } from '../../models/types';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('filter') filter: ElementRef;
-    @ViewChild(MatAccordion) accordion: MatAccordion;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('filter', { static: false }) filter: ElementRef;
+    @ViewChild(MatAccordion, { static: false }) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
     public noDataId: string = undefined;
@@ -82,7 +81,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -91,7 +89,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -339,9 +336,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
+
         // Backwards compatibility (ascending deprecated and replaced by sortDescending).
-        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
+        if (typeof this.options.ascending !== 'undefined') {
+            this.options.sortDescending = !this.options.ascending;
+        }
     }
 
     /**

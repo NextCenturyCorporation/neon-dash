@@ -75,7 +75,7 @@ mat-accordion {
                 grid-gap: 0.5em;
 
                 &.with-date {
-                    grid-template-columns: 60px 1fr;
+                    grid-template-columns: 80px 1fr;
                 }
 
                 .text {
@@ -177,7 +177,7 @@ mat-accordion {
     }
 }
 
-::ng-deep {
+/deep/ {
     .mat-expansion-panel {
         .mat-expansion-indicator {
             &::after {

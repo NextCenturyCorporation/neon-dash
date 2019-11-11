@@ -18,14 +18,13 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../models/color';
+import { Color } from '../../library/core/models/color';
 
 import {
     AbstractSearchService,
@@ -97,11 +96,11 @@ let styleImport: any;
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('subcomponentMain') subcomponentMainElementRef: ElementRef;
-    @ViewChild('subcomponentZoom') subcomponentZoomElementRef: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('hiddenCanvas', { static: true }) hiddenCanvas: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('subcomponentMain', { static: true }) subcomponentMainElementRef: ElementRef;
+    @ViewChild('subcomponentZoom', { static: true }) subcomponentZoomElementRef: ElementRef;
 
     private DEFAULT_GROUP: string = 'All';
 
@@ -202,7 +201,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: InjectableColorThemeService,
@@ -212,7 +210,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );

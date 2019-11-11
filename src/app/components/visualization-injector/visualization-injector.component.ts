@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input, ReflectiveInjector, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, Input, ReflectiveInjector, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -25,7 +25,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 export class VisualizationInjectorComponent {
     currentComponent: ComponentRef<BaseNeonComponent> = null;
 
-    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer: ViewContainerRef;
 
     // Component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
@@ -43,27 +43,19 @@ export class VisualizationInjectorComponent {
             data.bindings = data.bindings || {};
             data.bindings._id = data.id;
 
-            // Inputs need to be in the following format to be resolved properly
-            let inputProviders = Object.keys(data.bindings).map((bindingKey) => ({
-                provide: bindingKey,
-                useValue: data.bindings[bindingKey]
-            }));
-            let resolvedInputs = ReflectiveInjector.resolve(inputProviders);
+            // Create an injector using an empty array since we'll just save the custom bindings on the widget's configOptions property.
+            let injector = ReflectiveInjector.fromResolvedProviders(ReflectiveInjector.resolve([]),
+                this.dynamicComponentContainer.parentInjector);
 
-            // We create an injector out of the data we want to pass down and this components injector
-            let injector = ReflectiveInjector.fromResolvedProviders(resolvedInputs, this.dynamicComponentContainer.parentInjector);
+            // Use the ngModuleFactory from the component recipe to create the new component.
+            this.currentComponent = this.dynamicComponentContainer.createComponent(input.ngModuleFactory.create(injector)
+                .componentFactoryResolver.resolveComponentFactory<BaseNeonComponent>(input.componentType));
 
-            // We create the component using the factory and the injector
-            this.currentComponent = input.ngModuleFactory.create(injector).componentFactoryResolver
-                .resolveComponentFactory<BaseNeonComponent>(input.componentType)
-                .create(injector);
-
-            // We insert the component into the dom container
-            this.dynamicComponentContainer.insert(this.currentComponent.hostView);
+            this.currentComponent.instance.configOptions = data.bindings;
         });
     }
 
-    constructor(private loader: ReactiveComponentLoader) { }
+    constructor(private loader: ReactiveComponentLoader, private resolver: ComponentFactoryResolver) { }
 
     findVisualizationComponent(type: string) {
         const id = type.replace(/([a-z])([A-Z])/g, (__all, left, right) => `${left}-${right.toLowerCase()}`);

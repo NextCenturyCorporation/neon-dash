@@ -14,7 +14,6 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
@@ -39,9 +38,7 @@ describe('Component: NewsFeed', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             NewsFeedModule
@@ -57,7 +54,7 @@ describe('Component: NewsFeed', () => {
 
     // Checks if all class properties are there
     it('does have expected class options properties', () => {
-        expect(component.options.id).toEqual(null);
+        expect(component.options.id).toEqual(undefined);
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.contentField).toEqual(FieldConfig.get());
         expect(component.options.secondaryContentField).toEqual(FieldConfig.get());
