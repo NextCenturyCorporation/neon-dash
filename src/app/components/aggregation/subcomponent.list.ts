@@ -27,7 +27,6 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     protected activeSort: string = '';
     protected ignoreSelect: boolean = false;
     protected selectedData: {
-        element: any;
         group: string;
         value: any;
     }[] = [];
@@ -73,18 +72,17 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             let rowTitle = item.x + ' (' + item.y + ')';
             let rowElement = document.createElement('tr');
 
-            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === item.group &&
-                selectedItem.value === item.x);
+            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) =>
+                (selectedItem.group ? selectedItem.group === item.group : true) && selectedItem.value === item.x);
 
             if (selectedIndex >= 0) {
                 rowClass += ' active';
-                this.selectedData[selectedIndex].element = rowElement;
             }
 
             if (groups.length > 1) {
                 let groupElement = document.createElement('td');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef));
+                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef.nativeElement));
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);
@@ -235,11 +233,12 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @override
      */
     public select(items: any[]) {
-        this.selectedData.filter((selectedItem) => items.indexOf(selectedItem.value) < 0).forEach((selectedItem) => {
-            selectedItem.element.setAttribute('class', selectedItem.element.getAttribute('class').replace(' active', ''));
-        });
-        this.selectedData = this.selectedData.filter((selectedItem) => items.indexOf(selectedItem.value) >= 0);
+        this.selectedData = items.map((item) => ({
+            group: null,
+            value: item
+        }));
+        this.redraw();
 
-        // TODO THOR-1057 Select new items.
+        // TODO THOR-1057 Select values in specific groups.
     }
 }

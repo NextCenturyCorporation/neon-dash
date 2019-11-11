@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -80,9 +79,9 @@ export interface TaxonomyGroup extends TaxonomyNode {
 })
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('treeRoot') treeRoot: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('treeRoot', { static: true }) treeRoot: ElementRef;
 
     private counter = 0;
     public taxonomyGroups: TaxonomyGroup[] = [];
@@ -110,7 +109,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -119,7 +117,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -338,7 +335,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         currentGroup.nodeIds.add(child.externalId);
                     }
                 }
-                currentGroup.sourceIds.push(...child.sourceIds);
+                if (currentGroup.sourceIds && child.sourceIds) {
+                    currentGroup.sourceIds.push(...child.sourceIds);
+                }
                 currentGroup = currentGroup.parent;
             }
         }

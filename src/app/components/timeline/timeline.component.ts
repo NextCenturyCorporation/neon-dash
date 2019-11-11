@@ -18,7 +18,6 @@ import {
     Component,
     ElementRef,
     HostListener,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild
@@ -72,10 +71,10 @@ import * as d3 from 'd3';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('svg') svg: ElementRef;
+    @ViewChild('svg', { static: true }) svg: ElementRef;
 
     protected selected: Date[] = null;
 
@@ -95,7 +94,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
@@ -105,7 +103,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -206,7 +203,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
     }
 
     /**
