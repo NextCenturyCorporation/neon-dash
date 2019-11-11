@@ -16,7 +16,6 @@ import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilterCollection } from '../../library/core/models/filters';
 import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
-import { Injector } from '@angular/core';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
@@ -42,8 +41,7 @@ describe('Component: DocumentViewer', () => {
                 useClass: DashboardServiceMock
             },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             DocumentViewerModule
@@ -881,32 +879,7 @@ describe('Component: Document Viewer with Config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'title', useValue: 'Document Viewer Title' },
-            { provide: 'tableKey', useValue: 'table_key_1' },
-            { provide: 'dataField', useValue: 'testTextField' },
-            { provide: 'dateField', useValue: 'testDateField' },
-            { provide: 'idField', useValue: 'testIdField' },
-            {
-                provide: 'metadataFields',
-                useValue: [
-                    [{
-                        name: 'Single Item Metadata Row',
-                        field: 'singleItemMetadataRow'
-                    }],
-                    [{
-                        name: 'First of Multiple Item Metadata Row',
-                        field: 'firstOfMultipleItemMetadataRow'
-                    },
-                    {
-                        name: 'Second of Multiple Item Metadata Row',
-                        field: 'secondOfMultipleItemMetadataRow'
-                    }]
-                ]
-            },
-            { provide: 'popoutFields', useValue: [] },
-            { provide: 'limit', useValue: 25 }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             DocumentViewerModule
@@ -916,6 +889,29 @@ describe('Component: Document Viewer with Config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(DocumentViewerComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            title: 'Document Viewer Title',
+            tableKey: 'table_key_1',
+            dataField: 'testTextField',
+            dateField: 'testDateField',
+            idField: 'testIdField',
+            metadataFields: [
+                [{
+                    name: 'Single Item Metadata Row',
+                    field: 'singleItemMetadataRow'
+                }],
+                [{
+                    name: 'First of Multiple Item Metadata Row',
+                    field: 'firstOfMultipleItemMetadataRow'
+                },
+                {
+                    name: 'Second of Multiple Item Metadata Row',
+                    field: 'secondOfMultipleItemMetadataRow'
+                }]
+            ],
+            popoutFields: [],
+            limit: 25
+        };
         fixture.detectChanges();
     });
 

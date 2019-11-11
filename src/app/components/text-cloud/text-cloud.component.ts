@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -52,8 +51,8 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public textCloud: TextCloud;
 
@@ -66,7 +65,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
@@ -76,7 +74,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -89,7 +86,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
-        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
+        if (typeof this.options.sizeAggregation !== 'undefined') {
+            this.options.aggregation = this.options.sizeAggregation;
+        }
+
+        this.options.aggregation = (this.options.aggregation || AggregationType.COUNT).toLowerCase();
     }
 
     /**

@@ -323,10 +323,10 @@ export class DatasetUtil {
 
     /**
      * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
-     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection.
+     * (datastore.database.table.field).
      */
-    static deconstructTableOrFieldKeySafely(key: string, keys: Record<string, string> = {}): FieldKey {
-        const [datastore, database, table, ...field] = (keys[key] || key || '').split('.');
+    static deconstructTableOrFieldKeySafely(key: string): FieldKey {
+        const [datastore, database, table, ...field] = (key || '').split('.');
         return {
             datastore: datastore || '',
             database: database || '',
@@ -337,10 +337,10 @@ export class DatasetUtil {
 
     /**
      * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
-     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection, or null if the key is not viable.
+     * (datastore.database.table.field), or null if the key is not viable.
      */
-    static deconstructTableOrFieldKey(key: string, keys: Record<string, string> = {}): FieldKey {
-        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key, keys);
+    static deconstructTableOrFieldKey(key: string): FieldKey {
+        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key);
         return (fieldKeyObject.database && fieldKeyObject.table) ? fieldKeyObject : null;
     }
 
@@ -355,7 +355,7 @@ export class DatasetUtil {
      * Returns just the field name for the given field key.
      */
     static translateFieldKeyToFieldName(fieldKey: string, fieldKeys: Record<string, string>): string {
-        return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKey, fieldKeys).field || fieldKey;
+        return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKeys[fieldKey] || fieldKey).field || fieldKey;
     }
 
     /**
