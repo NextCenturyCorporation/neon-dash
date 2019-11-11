@@ -587,7 +587,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     refreshViz(item: NeonGridItem) {
         const cmp = this.widgets.get(item.id).getOptions();
-        cmp.changeData(undefined, false);
+        cmp.changeOptions(undefined, false);
     }
 
     /**

@@ -292,7 +292,7 @@ describe('Component: Sample', () => {
 
     it('handleChangeSubcomponentType does update subcomponentType and call expected functions', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
+        let spy2 = spyOn(component, 'handleChangeOptions');
         let spy3 = spyOn(component.subcomponentObject, 'destroyElements');
 
         component.handleChangeSubcomponentType('Impl2');
@@ -305,7 +305,7 @@ describe('Component: Sample', () => {
 
     it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponentType', () => {
         let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
+        let spy2 = spyOn(component, 'handleChangeOptions');
         let spy3 = spyOn(component.subcomponentObject, 'destroyElements');
 
         component.handleChangeSubcomponentType('Impl1');
