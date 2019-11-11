@@ -169,8 +169,8 @@
 }
 
 input {
-    background-color: var(--color-background);
-    border: 2px solid var(--color-background-contrast);
+    background-color: var(--color-background, white);
+    border: 2px solid var(--color-background-contrast, dimgrey);
     color: var(--color-text, dimgrey);
     height: 18px;
 }
