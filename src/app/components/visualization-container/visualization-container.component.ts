@@ -26,7 +26,7 @@ import { VisualizationInjectorComponent } from '../visualization-injector/visual
     styleUrls: ['visualization-container.component.scss']
 })
 export class VisualizationContainerComponent implements OnInit {
-    @ViewChild(VisualizationInjectorComponent) injector: VisualizationInjectorComponent;
+    @ViewChild(VisualizationInjectorComponent, { static: true }) injector: VisualizationInjectorComponent;
 
     public expanded: boolean;
     public showToolbar: boolean;

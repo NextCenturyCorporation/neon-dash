@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -90,8 +89,8 @@ export class Details {
 })
 export class AnnotationViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public annotations: Annotation[];
 
@@ -115,7 +114,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -124,7 +122,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -418,7 +415,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
                     let highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, currentType,
-                        currentType).getComputedCssTransparencyHigh(this.visualization);
+                        currentType).getComputedCssTransparencyHigh(this.visualization.nativeElement);
 
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = currentText;
@@ -635,7 +632,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     part.highlightColor = 'rgb(255,255,255)';
                 } else if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
                     part.highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, part.type,
-                        part.type).getComputedCssTransparencyHigh(this.visualization);
+                        part.type).getComputedCssTransparencyHigh(this.visualization.nativeElement);
                 }
             }
         }
@@ -697,7 +694,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     initializeProperties() {
         // Backwards compatibility (documentLimit deprecated due to its redundancy with limit).
-        this.options.limit = this.injector.get('documentLimit', this.options.limit);
+        if (typeof this.options.documentLimit !== 'undefined') {
+            this.options.limit = this.options.documentLimit;
+        }
     }
 
     /**

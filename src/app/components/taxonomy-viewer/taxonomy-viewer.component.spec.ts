@@ -14,7 +14,6 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
@@ -153,9 +152,7 @@ describe('Component: TaxonomyViewer', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             TaxonomyViewerModule

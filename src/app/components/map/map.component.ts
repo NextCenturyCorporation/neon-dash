@@ -18,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -82,11 +81,11 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('mapElement') mapElement: ElementRef;
-    @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
+    @ViewChild('mapElement', { static: true }) mapElement: ElementRef;
+    @ViewChild('mapOverlay', { static: true }) mapOverlayRef: ElementRef;
 
     public colorKeys: string[] = [];
 
@@ -108,7 +107,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
@@ -118,7 +116,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -151,7 +148,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
-        this.options.type = this.injector.get('mapType', this.options.type);
+        if (typeof this.options.mapType !== 'undefined') {
+            this.options.type = this.options.mapType;
+        }
     }
 
     /**
@@ -381,7 +380,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let color = rgbColor;
             if (!this.options.singleColor) {
                 color = !unique.colorValue ? whiteString : this.colorThemeService.getColor(databaseName, tableName, colorField,
-                    unique.colorValue).getComputedCss(this.visualization);
+                    unique.colorValue).getComputedCss(this.visualization.nativeElement);
             }
 
             let name = `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`;
