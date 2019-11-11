@@ -489,8 +489,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
 export interface ConfigurableWidget {
     options: RootWidgetOptionCollection;
-    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
-    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    changeOptions(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
     finalizeCreateLayer(layerOptions: any): void;
     deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
