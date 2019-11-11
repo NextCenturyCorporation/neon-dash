@@ -168,6 +168,11 @@
     }
 }
 
-input[disabled] {
-    color: var(--color-text, dimgrey);
+input {
+    background-color: white;
+    border-style: solid;
+
+    &[disabled] {
+        color: var(--color-text, dimgrey);
+    }
 }
