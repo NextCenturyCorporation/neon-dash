@@ -97,9 +97,6 @@ export class GearComponent implements OnDestroy {
      * handleChange functions accordingly.
      */
     public handleApplyClick() {
-        let filterDataChange = this.originalOptions.database.name !== this.modifiedOptions.database.name ||
-            this.originalOptions.table.name !== this.modifiedOptions.table.name;
-
         let databaseOrTableChange = this.originalOptions.database !== this.modifiedOptions.database ||
             this.originalOptions.table !== this.modifiedOptions.table;
 
@@ -110,9 +107,6 @@ export class GearComponent implements OnDestroy {
         this.originalOptions.fields = this.modifiedOptions.fields;
 
         this.modifiedOptions.list().forEach((option) => {
-            if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
-                filterDataChange = true;
-            }
             this.originalOptions[option.bindingKey] = option.valueCurrent;
         });
 
@@ -138,11 +132,7 @@ export class GearComponent implements OnDestroy {
             this.comp.handleChangeSubcomponentType();
         }
 
-        if (filterDataChange) {
-            this.comp.changeFilterData(undefined, databaseOrTableChange);
-        } else {
-            this.comp.changeData(undefined, databaseOrTableChange);
-        }
+        this.comp.changeOptions(undefined, databaseOrTableChange);
 
         this.resetOptionsAndClose();
     }
@@ -189,11 +179,6 @@ export class GearComponent implements OnDestroy {
                 message: 'Sorry, you cannot delete the final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
             });
         }
-    }
-
-    private isFilterData(optionType: OptionType): boolean {
-        return optionType === OptionType.DATABASE || optionType === OptionType.TABLE || optionType === OptionType.FIELD ||
-            optionType === OptionType.FIELD_ARRAY;
     }
 
     ngOnDestroy() {
