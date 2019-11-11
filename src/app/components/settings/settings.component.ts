@@ -141,9 +141,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private updateSimpleSearchFilter() {
         let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
-        if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
+        if (this.dashboardState.datastores.length && simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
             const dataset: Dataset = this.dashboardState.asDataset();
-            const datastoreName = this.dashboardState.datastore.name;
+            // TODO THOR-1062 Properly handle multiple datastores.
+            const datastoreName = this.dashboardState.datastores[0].name;
             const table: TableConfig = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
             const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);

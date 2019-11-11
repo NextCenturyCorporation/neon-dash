@@ -29,6 +29,7 @@
 
                 <!-- layer option list -->
                 <app-options-section [optionCollection]="layer" [updateOnChange]="updateOnChange.bind(this)"
+                    [handleChangeDatastore]="handleChangeDatastore.bind(this,modifiedOptions)"
                     [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
                     [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
                 </app-options-section>
@@ -38,6 +39,7 @@
 
     <!-- Non Multilayer option list-->
     <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
+        [handleChangeDatastore]="handleChangeDatastore.bind(this,modifiedOptions)"
         [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
         [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
     </app-options-section>

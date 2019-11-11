@@ -4,7 +4,16 @@
 
 <!-- Non MultiLayer Support-->
 <div class="option-well">
-    <mat-form-field class="option-container" *ngIf="optionCollection.database != null">
+    <mat-form-field class="option-container">
+        <mat-select placeholder="Datastore" [(ngModel)]="optionCollection.datastore" required="true"
+            [name]="optionCollection._id + '_datastore'" (ngModelChange)="handleChangeDatastore()"
+            [disabled]="optionCollection.datastores.length < 2">
+            <mat-option *ngFor="let datastore of optionCollection.datastores" [value]="datastore">
+                {{ datastore.name }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null">
         <mat-select placeholder="Database" [(ngModel)]="optionCollection.database" required="true"
             [name]="optionCollection._id + '_database'" (ngModelChange)="handleChangeDatabase()"
             [disabled]="optionCollection.databases.length < 2">

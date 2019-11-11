@@ -929,7 +929,7 @@ describe('Dashboard Custom', () => {
             fixture.detectChanges();
 
             expect(state.dashboard).toEqual(testDashboard);
-            expect(state.datastore).toEqual(config.datastores.testName1);
+            expect(state.datastores).toEqual([config.datastores.testName1, config.datastores.testName2]);
 
             expect(spySender.calls.count()).toEqual(4);
             expect(spySender.calls.argsFor(0)).toEqual([neonEvents.WIDGET_ADD, {
@@ -1009,7 +1009,7 @@ describe('Dashboard Custom', () => {
             fixture.detectChanges();
 
             expect(state.dashboard).toEqual(testDashboard);
-            expect(state.datastore).toEqual(config.datastores.testName1);
+            expect(state.datastores).toEqual([config.datastores.testName1, config.datastores.testName2]);
 
             expect(spySender.calls.count()).toEqual(4);
 

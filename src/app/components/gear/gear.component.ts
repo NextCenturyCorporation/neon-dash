@@ -97,9 +97,11 @@ export class GearComponent implements OnDestroy {
      * handleChange functions accordingly.
      */
     public handleApplyClick() {
-        let databaseOrTableChange = this.originalOptions.database !== this.modifiedOptions.database ||
+        let databaseOrTableChange = this.originalOptions.datastore !== this.modifiedOptions.datastore ||
+            this.originalOptions.database !== this.modifiedOptions.database ||
             this.originalOptions.table !== this.modifiedOptions.table;
 
+        this.originalOptions.datastore = this.modifiedOptions.datastore;
         this.originalOptions.database = this.modifiedOptions.database;
         this.originalOptions.databases = this.modifiedOptions.databases;
         this.originalOptions.table = this.modifiedOptions.table;
@@ -135,6 +137,16 @@ export class GearComponent implements OnDestroy {
         this.comp.changeOptions(undefined, databaseOrTableChange);
 
         this.resetOptionsAndClose();
+    }
+
+    /**
+     * Handles the change of datastore in the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection
+     */
+    public handleChangeDatastore(options: WidgetOptionCollection): void {
+        options.updateDatabases(this.dashboardState.asDataset());
+        this.changeMade = true;
     }
 
     /**
