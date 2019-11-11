@@ -256,8 +256,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getVisualizationWidth(): number {
         const refs = this.getElementRefs();
-        // Subtract 30 to adjust for the margins and the scrollbar.
-        return refs.visualization.nativeElement.clientWidth - 30;
+        // Subtract 15 from the width to adjust for the scrollbar.
+        return refs.visualization.nativeElement.clientWidth - 15;
     }
 
     recalculateActiveHeaders() {
