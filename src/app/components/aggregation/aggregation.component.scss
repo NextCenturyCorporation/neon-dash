@@ -169,10 +169,8 @@
 }
 
 input {
-    background-color: white;
-    border-style: solid;
-
-    &[disabled] {
-        color: var(--color-text, dimgrey);
-    }
+    background-color: var(--color-background);
+    border: 2px solid var(--color-background-contrast);
+    color: var(--color-text, dimgrey);
+    height: 18px;
 }
