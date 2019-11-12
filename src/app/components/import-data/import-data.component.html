@@ -32,6 +32,7 @@
             </mat-form-field>
         </div>
     </div>
+    <div class="warning-message" [innerHTML]="warningMessage"></div>
     <div class="button-footer" align="right">
         <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content"
             (click)="onCancel()">
