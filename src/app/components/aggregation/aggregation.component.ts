@@ -192,6 +192,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private viewInitialized = false;
 
     private calendarComponent: any = null;
+    private savedDates: Date[] = null;
 
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
     private _filteredLegendValues: any[] = [];
@@ -246,25 +247,34 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     this.options.aggregation || this.options.yField.prettyName;
         }
     }
-
+    
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
         if (this.canHaveDatePicker()) {
             this.calendarComponent = flatpickr('#startDate', {
                 enableTime: true,
+                defaultHour: 0,
                 plugins: [rangePlugin({ input: '#endDate' })],
-                formatDate: (date: Date) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
-                onClose: (selectedDates) => {
-                    if (selectedDates[0] !== null && selectedDates[1] !== null) {
-                        this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
-                    }
-                },
+                formatDate: (date: Date, format: string) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
                 onOpen: (selectedDates, __dateStr, instance) => {
-                    if (selectedDates[0] !== null && selectedDates[1] !== null) {
-                        this.deleteFilters([this.createFilterDesignOnDomain()]);
-                    }
                     instance.clear();
+                },
+                onValueUpdate: (selectedDates, __dateStr, instance) => {
+                },
+                onClose: (selectedDates, __dateStr, instance) => {
+                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
+                        selectedDates[0].setUTCHours(selectedDates[0].getHours());
+                        selectedDates[1].setUTCHours(selectedDates[1].getHours());
+                        this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
+                        this.savedDates = selectedDates;
+                    }
+                    else {
+                        if (this.savedDates) {
+                            instance.setDate(this.savedDates, true);
+                            instance.redraw();
+                        }
+                    }
                 }
             });
         }
@@ -1098,6 +1108,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
                 const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
                 if (fieldKey.field === this.options.xField.columnName) {
+                    // ensures date picker is updated when present. 
+                    if (this.canHaveDatePicker()) {
+                        this.calendarComponent.setDate([domain.begin, domain.end], true);
+                        this.savedDates = this.calendarComponent.selectedDates;
+                        this.calendarComponent.redraw();
+                    }
                     this.subcomponentMain.select([{
                         beginX: domain.begin,
                         endX: domain.end
@@ -1110,6 +1126,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.subcomponentMain.select([]);
             this.selectedArea = null;
+            if (this.canHaveDatePicker()) {
+                this.calendarComponent.clear();
+                this.savedDates = null;
+            }
         }
 
         // Select individual filtered items.
