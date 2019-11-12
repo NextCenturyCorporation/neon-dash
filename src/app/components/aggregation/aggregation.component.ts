@@ -193,6 +193,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private calendarComponent: any = null;
     private savedDates: Date[] = null;
+    private changedThroughPickr: boolean = false;
 
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
     private _filteredLegendValues: any[] = [];
@@ -256,17 +257,30 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 enableTime: true,
                 defaultHour: 0,
                 plugins: [rangePlugin({ input: '#endDate' })],
-                formatDate: (date: Date, format: string) => DateUtil.fromDateToString(date, DateFormat.MINUTE),
+                dateFormat: 'M d, Y, h:i K \\G\\MT+0000',
+                formatDate: (date, format) => {
+                    if (!DateUtil.getUseLocalTime()){
+                        format = 'M d, Y, h:i K \\G\\MT+0000';
+                    }  
+                    else {
+                        format = 'M d, Y, h:i K';
+                    }                
+                    return flatpickr.formatDate(date, format);
+                },
+
                 onOpen: (selectedDates, __dateStr, instance) => {
                     instance.clear();
                 },
-                onValueUpdate: (selectedDates, __dateStr, instance) => {
-                },
-                onClose: (selectedDates, __dateStr, instance) => {
+                onClose: (selectedDates, dateStr, instance) => {
                     if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
-                        selectedDates[0].setUTCHours(selectedDates[0].getHours());
-                        selectedDates[1].setUTCHours(selectedDates[1].getHours());
-                        this.exchangeFilters([this.createFilterDesignOnDomain(selectedDates[0], selectedDates[1])]);
+                        let begin = selectedDates[0];
+                        let end = selectedDates[1];
+                        if (!DateUtil.getUseLocalTime()){
+                            begin.setUTCHours(selectedDates[0].getHours());
+                            end.setUTCHours(selectedDates[1].getHours());
+                        }
+                        this.changedThroughPickr = true;
+                        this.exchangeFilters([this.createFilterDesignOnDomain(begin, end)]);
                         this.savedDates = selectedDates;
                     }
                     else {
@@ -1108,12 +1122,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
                 const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
                 if (fieldKey.field === this.options.xField.columnName) {
+                    
                     // ensures date picker is updated when present. 
-                    if (this.canHaveDatePicker()) {
+                    if (this.canHaveDatePicker() && !this.changedThroughPickr) {
                         this.calendarComponent.setDate([domain.begin, domain.end], true);
                         this.savedDates = this.calendarComponent.selectedDates;
                         this.calendarComponent.redraw();
                     }
+                    this.changedThroughPickr = false; 
+
                     this.subcomponentMain.select([{
                         beginX: domain.begin,
                         endX: domain.end
