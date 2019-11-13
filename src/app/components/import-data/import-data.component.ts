@@ -41,7 +41,6 @@ import * as Papa from 'papaparse';
     selector: 'app-import-data',
     templateUrl: './import-data.component.html',
     styleUrls: ['./import-data.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.Emulated
 })
 export class ImportDataComponent implements OnDestroy {
@@ -59,7 +58,6 @@ export class ImportDataComponent implements OnDestroy {
     public warningMessage: string;
 
     constructor(
-        private changeDetection: ChangeDetectorRef,
         dashboardService: DashboardService,
         protected connectionService: InjectableConnectionService
     ) {
@@ -105,8 +103,12 @@ export class ImportDataComponent implements OnDestroy {
 
     import(result: any) {
         if (result.errors.length > 0) {
-            this.csvParseError = `Parsing error at line ${result.errors[0].row}: ${result.errors[0].message}`;
+            this.csvParseError = `CSV parsing error at line ${result.errors[0].row}: ${result.errors[0].message}`;
             return;
+        }
+        else
+        {
+            this.csvParseError = "";
         }
 
         this.csvParseError = '';
@@ -125,7 +127,6 @@ export class ImportDataComponent implements OnDestroy {
                         this.warningMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
                                                do not exist in destination table. They will be added as new columns. 
                                                Click on 'Import' again to proceed?`;
-                        this.changeDetection.detectChanges();
                         return;
                     }
                 }
