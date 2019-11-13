@@ -219,7 +219,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (!styleImport) {
             styleImport = document.createElement('link');
             styleImport.rel = 'stylesheet';
-            styleImport.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+            styleImport.href = 'assets/flatpickr/dist/flatpickr.min.css';
             document.head.appendChild(styleImport);
         }
     }
@@ -1336,6 +1336,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.canHaveDatePicker()) {
             this.calendarComponent.setDate([beginX, endX], true);
             this.calendarComponent.redraw();
+            this.changedThroughPickr = true;
         }
 
         this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
