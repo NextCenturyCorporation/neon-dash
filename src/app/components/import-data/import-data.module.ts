@@ -18,6 +18,8 @@ import { ImportDataComponent } from './import-data.component';
 import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule, MatButtonModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
+import * as papaparse from 'papaparse';
+
 @NgModule({
     declarations: [ImportDataComponent],
     exports: [ImportDataComponent],
@@ -30,6 +32,9 @@ import { FormsModule } from '@angular/forms';
         MatFormFieldModule,
         FormsModule,
         CommonModule
+    ],
+    providers: [
+        { provide: Object, useValue: papaparse }
     ]
 })
 export class ImportDataModule { }
