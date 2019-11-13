@@ -34,7 +34,6 @@ import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
-import * as _ from 'lodash';
 
 import * as Papa from 'papaparse';
 
@@ -56,7 +55,7 @@ export class ImportDataComponent implements OnDestroy {
     public isFileSelected: boolean;
     public readonly dashboardState: DashboardState;
 
-    public csvParseError: String;
+    public csvParseError: string;
     public warningMessage: string;
 
     constructor(
@@ -78,111 +77,91 @@ export class ImportDataComponent implements OnDestroy {
         this.messenger.unsubscribeAll();
     }
 
-    public onDatastoreChanged()
-    {
+    public onDatastoreChanged() {
         this.optionCollection.updateDatabases(this.dataset);
     }
 
-    public onDatabaseChanged()
-    {
+    public onDatabaseChanged() {
         this.optionCollection.updateTables(this.dataset);
     }
 
-    public get selectedFile()
-    {
+    public get selectedFile() {
         return this.isFileSelected ? this.inputFile.nativeElement.files[0].name : '';
     }
 
     public onFileSelected() {
         this.isFileSelected = true;
     }
- 
-    public onCancel()
-    {
+
+    public onCancel() {
         this.sideNavRight.close();
     }
 
     public onImportClick() {
         let file = this.inputFile.nativeElement.files[0];
-        
-        let reader: FileReader = new FileReader();
-        reader.readAsText(file);
-        reader.onload = (e) => {
-            let csv: string = reader.result as string;
-            Papa.parse(file, { header: true,
-                complete: this.import.bind(this) })
-        };        
+        Papa.parse(file, { header: true,
+            complete: this.import.bind(this) });
     }
 
-    import(result: any)
-    {
-        if (result.errors.length > 0)
-        {
+    import(result: any) {
+        if (result.errors.length > 0) {
             this.csvParseError = `Parsing error at line ${result.errors[0].row}: ${result.errors[0].message}`;
             return;
         }
-        else 
-        {
-            this.csvParseError = '';
-        }
 
+        this.csvParseError = '';
         let sourceColumns = Object.keys(result.data[0]);
 
         let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
             this.dashboardState.getDatastoreHost());
 
-        connection.getTableNamesAndFieldNames(this.optionCollection.database.name, 
+        connection.getTableNamesAndFieldNames(this.optionCollection.database.name,
             ((response: any) => {
                 let destinatinColumns: string[] = response[this.optionCollection.table.name];
-                if (!this.warningMessage && destinatinColumns)
-                {//check if source and destination columns match, and if not show warning to user
-                    let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinatinColumns.indexOf(sourceColumn) == -1 );
-                    if (newSourceColumns.length > 0)
-                    {
-                        this.warningMessage = `The columns <b>${newSourceColumns.join(", ")}</b> in the CSV file
+                if (!this.warningMessage && destinatinColumns) {
+                    // Check if source and destination columns match, and if not show warning to user
+                    let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinatinColumns.indexOf(sourceColumn) === -1);
+                    if (newSourceColumns.length > 0) {
+                        this.warningMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
                                                do not exist in destination table. They will be added as new columns. 
                                                Click on 'Import' again to proceed?`;
                         this.changeDetection.detectChanges();
-                        return;                         
-                    }    
+                        return;
+                    }
                 }
 
-                let importQuery = { 
-                    hostName: this.optionCollection.datastore.host, 
+                let importQuery = {
+                    hostName: this.optionCollection.datastore.host,
                     dataStoreType: this.optionCollection.datastore.type,
-                    database: this.optionCollection.database.name, 
+                    database: this.optionCollection.database.name,
                     table: this.optionCollection.table.name,
-                    source: result.data.map(row => JSON.stringify(row))
-                };                
-                
+                    source: result.data.map((row) => JSON.stringify(row))
+                };
+
                 connection.runImportQuery(importQuery,
-                    ((response: any) => {
+                    ((importResponse: any) => {
                         this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                            message: response[0].failCount == 0 ? 
-                                    `All ${response[0].total} records successfully imported!`:
-                                    `Out of ${response[0].total} records, ${response[0].total - response[0].failCount} successfully imported and ${response[0].failCount} failed.`
-                        });     
+                            message: importResponse.failCount === 0 ?
+                                `All ${importResponse.total} records successfully imported!` :
+                                `Out of ${importResponse.total} records, ${importResponse.total - importResponse.failCount} 
+                                successfully imported and ${importResponse.failCount} failed.`
+                        });
 
-                        this.sideNavRight.close();                   
+                        this.sideNavRight.close();
+                    }),
 
-                    }).bind(this),
-
-                    ((response: any) => {
+                    ((error: any) => {
                         this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                            message: 'Import failed:' + response
-                        });                
-                    }).bind(this)
-                );
-
-            }).bind(this),
+                            message: 'Import failed:' + error
+                        });
+                    }));
+            }),
 
             ((response: any) => {
                 let error = response.responseJSON ? response.responseJSON.message : response.statusText;
-                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {                    
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                     message: 'Error accessing destination columns:' + error
-                });                
-            }).bind(this)
-        );             
-
+                });
+            }));
     }
 }
