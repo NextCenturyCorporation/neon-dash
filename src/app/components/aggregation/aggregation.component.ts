@@ -273,14 +273,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 },
                 onClose: (selectedDates, dateStr, instance) => {
                     if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
-                        let begin = selectedDates[0];
-                        let end = selectedDates[1];
+                        let deepCopyDates: Date[] = [ new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime()) ];
                         if (!DateUtil.getUseLocalTime()){
-                            begin.setUTCHours(selectedDates[0].getHours());
-                            end.setUTCHours(selectedDates[1].getHours());
+                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
+                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
                         }
                         this.changedThroughPickr = true;
-                        this.exchangeFilters([this.createFilterDesignOnDomain(begin, end)]);
+                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
                         this.savedDates = selectedDates;
                     }
                     else {
