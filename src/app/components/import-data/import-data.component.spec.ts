@@ -30,9 +30,16 @@ describe('Component: Import-Data', () => {
     let component: ImportDataComponent;
     let fixture: ComponentFixture<ImportDataComponent>;
 
+    let mockCsvParser = {
+        parse: (file: File, settings: any) => {
+            
+        }
+    }
+
     initializeTestBed('ImportData', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: Object, useValue: mockCsvParser },
             Injector
         ],
         imports: [
@@ -46,7 +53,7 @@ describe('Component: Import-Data', () => {
         fixture.detectChanges();
     });
 
-    it('exists', (() => {
+    it('initialized', (() => {
         expect(component).toBeTruthy();
     }));
 });

@@ -14,14 +14,13 @@
  */
 
 import {
-    ChangeDetectorRef,
-    ChangeDetectionStrategy,
     Component,
     OnDestroy,
     ViewEncapsulation,
     Input,
     ViewChild,
-    ElementRef
+    ElementRef,
+    Inject
 } from '@angular/core';
 
 import { MatSidenav } from '@angular/material';
@@ -34,8 +33,6 @@ import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
-
-import * as Papa from 'papaparse';
 
 @Component({
     selector: 'app-import-data',
@@ -59,7 +56,8 @@ export class ImportDataComponent implements OnDestroy {
 
     constructor(
         dashboardService: DashboardService,
-        protected connectionService: InjectableConnectionService
+        protected connectionService: InjectableConnectionService,
+        @Inject(Object) private papa: any
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
@@ -77,10 +75,12 @@ export class ImportDataComponent implements OnDestroy {
 
     public onDatastoreChanged() {
         this.optionCollection.updateDatabases(this.dataset);
+        this.warningMessage = null;
     }
 
     public onDatabaseChanged() {
         this.optionCollection.updateTables(this.dataset);
+        this.warningMessage = null;
     }
 
     public get selectedFile() {
@@ -97,7 +97,7 @@ export class ImportDataComponent implements OnDestroy {
 
     public onImportClick() {
         let file = this.inputFile.nativeElement.files[0];
-        Papa.parse(file, { header: true,
+        this.papa.parse(file, { header: true,
             complete: this.import.bind(this) });
     }
 
