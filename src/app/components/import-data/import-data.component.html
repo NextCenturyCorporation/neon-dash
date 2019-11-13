@@ -13,7 +13,7 @@
                         {{ datastore.name }}</mat-option>
                 </mat-select>
             </mat-form-field>
-        
+
             <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null">
                 <mat-select placeholder="Database" [(ngModel)]="optionCollection.database" required="true"
                     [name]="optionCollection._id + '_database'" (ngModelChange)="onDatabaseChanged()"
@@ -24,7 +24,7 @@
             </mat-form-field>
 
             <mat-form-field class="option-container" *ngIf="optionCollection.database != null">
-                <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true" 
+                <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true"
                     [name]="optionCollection._id + '_table'" [disabled]="optionCollection.tables.length < 2">
                     <mat-option *ngFor="let table of optionCollection.tables" [value]="table">{{ table.prettyName }}
                     </mat-option>
@@ -34,12 +34,10 @@
     </div>
     <div class="warning-message" [innerHTML]="warningMessage"></div>
     <div class="button-footer" align="right">
-        <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content"
-            (click)="onCancel()">
+        <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content" (click)="onCancel()">
             Cancel
         </button>
-        <button mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
-            (click)="onImportClick()">
+        <button mat-raised-button matTooltipPosition="below" matTooltip="Import file content" (click)="onImportClick()">
             Import
         </button>
     </div>
