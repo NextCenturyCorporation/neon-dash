@@ -48,7 +48,7 @@ import {
     ListFilterDesign
 } from '../../library/core/models/filters';
 import { DatasetUtil } from '../../library/core/models/dataset';
-import { DateUtil, DateFormat } from '../../library/core/date.util';
+import { DateUtil } from '../../library/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -248,7 +248,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     this.options.aggregation || this.options.yField.prettyName;
         }
     }
-    
+
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
@@ -257,36 +257,24 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 enableTime: true,
                 defaultHour: 0,
                 plugins: [rangePlugin({ input: '#endDate' })],
-                dateFormat: 'M d, Y, h:i K \\G\\MT+0000',
-                formatDate: (date, format) => {
-                    if (!DateUtil.USE_LOCAL_TIME){
-                        format = 'M d, Y, h:i K \\G\\MT+0000';
-                    }  
-                    else {
-                        format = 'M d, Y, h:i K';
-                    }                
-                    return flatpickr.formatDate(date, format);
-                },
-
-                onOpen: (selectedDates, __dateStr, instance) => {
+                dateFormat: 'M d, Y, h:i K',
+                onOpen: (__selectedDates, __dateStr, instance) => {
                     instance.clear();
                 },
-                onClose: (selectedDates, dateStr, instance) => {
+                onClose: (selectedDates, __dateStr, instance) => {
                     if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
-                        let deepCopyDates: Date[] = [ new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime()) ];
-                        if (!DateUtil.USE_LOCAL_TIME){
+                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
+                        if (!DateUtil.USE_LOCAL_TIME) {
                             deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
                             deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
                         }
                         this.changedThroughPickr = true;
                         this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
                         this.savedDates = selectedDates;
-                    }
-                    else {
-                        if (this.savedDates) {
-                            instance.setDate(this.savedDates, true);
-                            instance.redraw();
-                        }
+                    } 
+                    if (this.savedDates) {
+                        instance.setDate(this.savedDates, true);
+                        instance.redraw();
                     }
                 }
             });
@@ -1121,14 +1109,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
                 const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
                 if (fieldKey.field === this.options.xField.columnName) {
-                    
-                    // ensures date picker is updated when present. 
+                    // Ensures date picker is updated when present.
                     if (this.canHaveDatePicker() && !this.changedThroughPickr) {
                         this.calendarComponent.setDate([domain.begin, domain.end], true);
                         this.savedDates = this.calendarComponent.selectedDates;
                         this.calendarComponent.redraw();
                     }
-                    this.changedThroughPickr = false; 
+                    this.changedThroughPickr = false;
 
                     this.subcomponentMain.select([{
                         beginX: domain.begin,
