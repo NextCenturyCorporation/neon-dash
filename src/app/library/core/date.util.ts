@@ -29,10 +29,6 @@ export class DateUtil {
     static STANDARD_FORMAT: DateFormat = DateFormat.ISO;
     static USE_LOCAL_TIME: boolean = false;
 
-    static getUseLocalTime(): boolean {
-        return this.USE_LOCAL_TIME;
-    }
-
     /**
      * Add one of the given interval (minute/hour/day/month/year) to the given date object, subtract one second, and
      * return the new date.

@@ -259,7 +259,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 plugins: [rangePlugin({ input: '#endDate' })],
                 dateFormat: 'M d, Y, h:i K \\G\\MT+0000',
                 formatDate: (date, format) => {
-                    if (!DateUtil.getUseLocalTime()){
+                    if (!DateUtil.USE_LOCAL_TIME){
                         format = 'M d, Y, h:i K \\G\\MT+0000';
                     }  
                     else {
@@ -274,7 +274,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 onClose: (selectedDates, dateStr, instance) => {
                     if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
                         let deepCopyDates: Date[] = [ new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime()) ];
-                        if (!DateUtil.getUseLocalTime()){
+                        if (!DateUtil.USE_LOCAL_TIME){
                             deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
                             deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
                         }
