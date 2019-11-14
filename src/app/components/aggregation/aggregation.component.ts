@@ -85,6 +85,7 @@ import { MatDialog } from '@angular/material';
 import { CoreUtil } from '../../library/core/core.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
+import * as moment from 'moment';
 
 let styleImport: any;
 
@@ -1320,9 +1321,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // If you are setting a date filter by the click and scroll, make sure to update the calendar setter.
         if (this.canHaveDatePicker()) {
-            this.calendarComponent.setDate([beginX, endX], true);
+            let newBegin = moment.parseZone(beginX).local().toDate();
+            let newEnd = moment.parseZone(endX).local().toDate();
+            newBegin.setHours(beginX.getUTCHours());
+            newEnd.setHours(endX.getUTCHours());
+            this.calendarComponent.setDate([newBegin, newEnd], true);
             this.calendarComponent.redraw();
             this.changedThroughPickr = true;
+            this.savedDates = [newBegin, newEnd];
         }
 
         this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
