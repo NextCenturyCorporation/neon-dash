@@ -1323,8 +1323,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.canHaveDatePicker()) {
             let newBegin = moment.parseZone(beginX).local().toDate();
             let newEnd = moment.parseZone(endX).local().toDate();
-            newBegin.setHours(beginX.getUTCHours());
-            newEnd.setHours(endX.getUTCHours());
+            if (!DateUtil.USE_LOCAL_TIME) {
+                newBegin.setHours(beginX.getUTCHours());
+                newEnd.setHours(endX.getUTCHours());
+            }
             this.calendarComponent.setDate([newBegin, newEnd], true);
             this.calendarComponent.redraw();
             this.changedThroughPickr = true;
