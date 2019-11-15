@@ -20,6 +20,8 @@ import { Color } from '../../library/core/models/color';
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
+    public barPercentage: number = 0.9;
+    public categoryPercentage: number = 0.9;
     public hoverBackgroundColor: string[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
@@ -113,10 +115,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
             (this.options.logScaleX && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
         chartOptions.scales.yAxes[0].type = this.horizontal ? 'category' : (this.axisTypeY === 'number' ?
             (this.options.logScaleY && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
-        chartOptions.scales.xAxes[0].barPercentage = 0.9;
-        chartOptions.scales.yAxes[0].barPercentage = 0.9;
-        chartOptions.scales.xAxes[0].categoryPercentage = 0.9;
-        chartOptions.scales.yAxes[0].categoryPercentage = 0.9;
         chartOptions.scales.xAxes[0].stacked = true;
         chartOptions.scales.yAxes[0].stacked = true;
         chartOptions.tooltips.position = 'average';

@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 import { ElementRef } from '@angular/core';
+import { AbstractChartJsDataset, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
-import { SelectMode } from './subcomponent.chartjs.abstract';
+import { Color } from '../../library/core/models/color';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
     /**
@@ -32,6 +33,22 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
     }
 
     /**
+     * Creates and returns the chart dataset object for the given color and label and array of X values.
+     *
+     * @arg {Color} color
+     * @arg {string} label
+     * @arg {any[]} xList
+     * @return {AbstractChartJsDataset}
+     * @override
+     */
+    protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
+        let dataset = super.createChartDataset(color, label, xList);
+        (dataset as any).barPercentage = 0.98;
+        (dataset as any).categoryPercentage = 0.98;
+        return dataset;
+    }
+
+    /**
      * Returns the width of the given chart element.
      *
      * @arg {any} item
@@ -39,23 +56,6 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      */
     protected findChartElementWidth(item: any): number {
         return item._model.width || super.findChartElementWidth(item);
-    }
-
-    /**
-     * Finalizes and returns the given chart options.
-     *
-     * @arg {any} chartOptions
-     * @arg {any} meta
-     * @return {any}
-     * @override
-     */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
-        let superclassOptions = super.finalizeChartOptions(chartOptions, meta);
-        superclassOptions.scales.xAxes[0].barPercentage = 1.0;
-        superclassOptions.scales.yAxes[0].barPercentage = 1.0;
-        superclassOptions.scales.xAxes[0].categoryPercentage = 1.0;
-        superclassOptions.scales.yAxes[0].categoryPercentage = 1.0;
-        return chartOptions;
     }
 
     /**
