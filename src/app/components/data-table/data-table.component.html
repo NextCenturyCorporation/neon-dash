@@ -20,7 +20,7 @@
     <div class="table-container">
         <!-- beautify ignore:start -->
             <ngx-datatable #table class="material table"
-                [class.selectable]="options.filterable || options.idField.columnName"
+                [class.selectable]="options.filterable || (options.idField && options.idField.columnName)"
                 [rows]="tableData"
                 [headerHeight]="25"
                 [footerHeight]="0"
