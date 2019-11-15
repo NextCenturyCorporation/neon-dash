@@ -71,13 +71,13 @@ export function DashboardModified() {
     ]
 })
 export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
-    @ViewChild(NgGrid) grid: NgGrid;
+    @ViewChild(NgGrid, { static: true }) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-    @ViewChild(SimpleSearchFilterComponent) simpleFilter: SimpleSearchFilterComponent;
-    @ViewChild(MatSidenav) sideNavRight: MatSidenav;
-    @ViewChild('scrollable') scrollArea: ElementRef;
+    @ViewChild(SimpleSearchFilterComponent, { static: true }) simpleFilter: SimpleSearchFilterComponent;
+    @ViewChild(MatSidenav, { static: true }) sideNavRight: MatSidenav;
+    @ViewChild('scrollable', { static: true }) scrollArea: ElementRef;
 
-    @ViewChild(ContextMenuComponent) contextMenu: ContextMenuComponent;
+    @ViewChild(ContextMenuComponent, { static: true }) contextMenu: ContextMenuComponent;
 
     updatedData = 0;
 
@@ -587,7 +587,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     refreshViz(item: NeonGridItem) {
         const cmp = this.widgets.get(item.id).getWidgetOptionMenuCallbacks();
-        cmp.changeData(undefined, false);
+        cmp.changeOptions(undefined, false);
     }
 
     /**

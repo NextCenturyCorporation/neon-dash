@@ -69,8 +69,8 @@ export class LegendComponent implements OnInit {
      */
     @Output() itemSelected = new EventEmitter<{ fieldName: string, value: string, currentlyActive: boolean }>();
 
-    @ViewChild('legend') legend: ElementRef;
-    @ViewChild('menu') menu: ElementRef;
+    @ViewChild('legend', { static: true }) legend: ElementRef;
+    @ViewChild('menu', { static: true }) menu: ElementRef;
 
     public menuIcon: string;
     public colorSets: ColorSet[] = [];

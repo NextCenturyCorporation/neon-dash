@@ -1,0 +1,33 @@
+<mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
+        </span>
+        <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+    </span>
+</mat-toolbar>
+
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
+
+<app-data-message *ngIf="showNoData"></app-data-message>
+
+<div class="text-cloud body-container" mat-fill layout="col">
+    <a (click)="onClick(item)" class="text" [class.filter]="item.selected" [class.paragraphs]="options.paragraphs"
+        *ngFor="let item of textCloudData" [matTooltip]="item.key + ': ' + item.value + (item.selected ? ' (Selected)' : '')"
+        tooltip-position="below" [rel]="item.value" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
+        <span>{{ item.key }}</span>
+        <span *ngIf="options.showCounts">({{ item.value }})</span>
+    </a>
+</div>
+
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
+    </div>
+</div>
