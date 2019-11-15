@@ -40,6 +40,11 @@
                 "output": "assets/angular-tree-component/dist"
               },
               {
+                "glob": "flatpickr.min.css",
+                "input": "node_modules/flatpickr/dist",
+                "output": "assets/flatpickr/dist"
+              }, 
+              {
                 "glob": "**/*",
                 "input": "node_modules/ngx-monaco-editor/assets/monaco",
                 "output": "assets/monaco"
