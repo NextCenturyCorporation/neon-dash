@@ -395,31 +395,24 @@ export class DashboardService {
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
 
-        // Assign first datastore
-        const firstName = Object.keys(this.config.datastores || {}).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
-        this.setActiveDatastore(this.config.datastores[firstName]);
+        this.setActiveDatastores(Object.keys(this.config.datastores).map((id) => this.config.datastores[id]));
 
-        // Load filters
         this.filterService.setFilters(this._translateFilters(dashboard.filters) || []);
         this.stateSubject.next(this.state);
     }
 
     /**
-     * Sets the active dataset to the given dataset.
-     * @param {Object} The dataset containing {String} name, {String} layout, {String} datastore, {String} hostname,
-     * and {Array} databases.  Each database is an Object containing {String} name and {Array} tables.
-     * Each table is an Object containing {String} name, {Array} fields, and {Object} labelOptions.  Each
-     * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
-     * identifier used by the visualizations and each value is a field name.
+     * Sets the datastores for the dashboard.
      */
-    // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
-    // to connect to multiple datasets
-    public setActiveDatastore(datastore: DatastoreConfig): void {
-        const validated: DatastoreConfig = DatasetUtil.validateDatastore(datastore);
-        if (validated) {
-            this.config.datastores[validated.name] = validated;
-            this.state.datastore = validated;
-        }
+    public setActiveDatastores(datastores: DatastoreConfig[]): void {
+        this.state.datastores = datastores.map((datastore) => {
+            const validated: DatastoreConfig = DatasetUtil.validateDatastore(datastore);
+            if (validated) {
+                this.config.datastores[validated.name] = validated;
+                return validated;
+            }
+            return null;
+        }).filter((datastore) => !!datastore);
     }
 
     /**
