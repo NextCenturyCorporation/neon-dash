@@ -38,6 +38,16 @@
     }
 }
 
+.icon {
+    margin-top: 3px;
+    margin-right: 3px;
+    float: right;
+}
+
+.date {
+    float: right;
+}
+
 .subcomponent-container {
     height: 100%;
     min-height: 100px;
@@ -78,7 +88,7 @@
     width: auto;
 }
 
-:host ::ng-deep {
+:host /deep/ {
     .list-subcomponent {
         .list-item {
             cursor: pointer;
@@ -156,4 +166,11 @@
             }
         }
     }
+}
+
+input {
+    background-color: var(--color-background, white);
+    border: 2px solid var(--color-background-contrast, dimgrey);
+    color: var(--color-text, dimgrey);
+    height: 18px;
 }

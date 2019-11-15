@@ -58,10 +58,10 @@ import { MediaTypes } from '../../models/types';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('filter') filter: ElementRef;
-    @ViewChild(MatAccordion) accordion: MatAccordion;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('filter', { static: false }) filter: ElementRef;
+    @ViewChild(MatAccordion, { static: false }) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
     public noDataId: string = undefined;
