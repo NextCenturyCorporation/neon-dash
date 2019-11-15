@@ -16,7 +16,6 @@ import { inject } from '@angular/core/testing';
 
 import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardChoiceConfig, NeonDashboardLeafConfig } from '../models/types';
-import { DatastoreConfig } from 'component-library/dist/core/models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
