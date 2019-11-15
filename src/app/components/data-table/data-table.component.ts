@@ -203,8 +203,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     protected initializeProperties() {
-        const showFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) =>
-            fieldObject.columnName);
+        const showFieldNames: string[] = (this.options.showFields || []).filter((fieldObject) => !!fieldObject.columnName)
+            .map((fieldObject) => fieldObject.columnName);
 
         this.headers = this.options.fields.map((fieldObject) => ({
             cellClass: this.getCellClassFunction(),
@@ -251,7 +251,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {boolean}
      */
     optionsHeatmapTable(options: any): boolean {
-        return options.heatmapField.columnName;
+        return options.heatmapField && options.heatmapField.columnName;
     }
 
     getVisualizationWidth(): number {
