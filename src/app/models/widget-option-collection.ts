@@ -60,6 +60,11 @@ export class OptionCollection {
     public datastores: DatastoreConfig[] = [];
     public fields: FieldConfig[] = [];
     public tables: TableConfig[] = [];
+    public tableKey: any;
+    public database: DatabaseConfig;
+    public datastore: DatastoreConfig;
+    public table: TableConfig;
+    public filter: any;
 
     constructor(protected dataset: Dataset = new Dataset({}), protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
@@ -303,7 +308,7 @@ export class OptionCollection {
      * Updates all the tables and fields in the options.
      */
     public updateTables(dataset: Dataset): void {
-        this.tables = !this.database ? [] : Object.values(this.database.tables as TableConfig[]).sort((tableA, tableB) =>
+        this.tables = !this.database ? [] : Object.values(this.database.tables).sort((tableA, tableB) =>
             tableA.name.localeCompare(tableB.name));
 
         // If the previously set table is not in the newly set list, unset it.
@@ -491,8 +496,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
 export interface ConfigurableWidget {
     options: RootWidgetOptionCollection;
-    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
-    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    changeOptions(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
     finalizeCreateLayer(layerOptions: any): void;
     deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
