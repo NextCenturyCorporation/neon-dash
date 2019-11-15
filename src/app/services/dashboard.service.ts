@@ -491,9 +491,9 @@ export class DashboardService {
                 let parent = path[path.length - 2];
 
                 // If no choices are present, then this might be the last level of nested choices,
-                // which should instead have table keys and a layout specified. If not, delete choice.
-                if (!leaf['layout'] || !leaf['tables']) {
-                    Object.keys(parent.choices).forEach((choiceId) => {
+                // which should instead have a name and a layout specified. If not, delete choice.
+                if (!leaf['layout'] || !leaf['name']) {
+                    Object.keys(parent ? parent.choices : {}).forEach((choiceId) => {
                         if (parent.choices[choiceId].name === leaf.name) {
                             delete parent.choices[choiceId];
                         }
@@ -534,7 +534,7 @@ export class DashboardService {
                     const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
 
                     if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
-                        Object.keys(parent.choices).forEach((choiceId) => {
+                        Object.keys(parent ? parent.choices : {}).forEach((choiceId) => {
                             if (parent.choices[choiceId].name === leaf.name) {
                                 delete parent.choices[choiceId];
                             }
