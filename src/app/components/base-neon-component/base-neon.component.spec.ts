@@ -20,7 +20,8 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     OnInit,
-    ViewEncapsulation
+    ViewEncapsulation,
+    OnDestroy
 } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -46,7 +47,6 @@ import {
     OptionChoices
 } from 'component-library/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
@@ -846,7 +846,7 @@ describe('BaseNeonComponent', () => {
             }
         });
         component['layerIdToQueryIdToQueryObject'].set('testId', queryIdToQueryObject);
-        let spy = spyOn(component, 'handleChangeData');
+        let spy = spyOn(component, 'handleChangeOptions');
         component['finalizeDeleteLayer'](options);
         expect(calledA).toEqual(1);
         expect(calledB).toEqual(1);
@@ -1039,16 +1039,7 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.count()).toEqual(2);
     });
 
-    it('handleChangeFilterField does work as expected', () => {
-        let spyChangeData = spyOn(component, 'handleChangeData');
-
-        component.handleChangeFilterField(component.options);
-
-        expect(spyChangeData.calls.count()).toEqual(1);
-        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options, undefined]);
-    });
-
-    it('handleChangeData does work as expected', () => {
+    it('handleChangeOptions does work as expected', () => {
         let spyChangeData = spyOn(component, 'onChangeData');
         let spyExecuteQuery = spyOn(component, 'executeAllQueryChain');
         component['layerIdToElementCount'].set(component.options._id, 1234);
@@ -1056,7 +1047,7 @@ describe('BaseNeonComponent', () => {
         component['lastPage'] = false;
         component['page'] = 2;
         component['showingZeroOrMultipleElementsPerResult'] = true;
-        component.handleChangeData();
+        component.handleChangeOptions();
         expect(component['layerIdToElementCount'].get(component.options._id)).toEqual(0);
         expect(component['errorMessage']).toEqual('');
         expect(component['lastPage']).toEqual(true);
@@ -1066,7 +1057,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('handleChangeData with options argument does work as expected', () => {
+    it('handleChangeOptions with options argument does work as expected', () => {
         let spyChangeData = spyOn(component, 'onChangeData');
         let spyExecuteQuery = spyOn(component, 'executeQueryChain');
         let options = {
@@ -1077,7 +1068,7 @@ describe('BaseNeonComponent', () => {
         component['lastPage'] = false;
         component['page'] = 2;
         component['showingZeroOrMultipleElementsPerResult'] = true;
-        component.handleChangeData(options as WidgetOptionCollection); // TODO: Verify Typings
+        component.handleChangeOptions(options as WidgetOptionCollection); // TODO: Verify Typings
         expect(component['layerIdToElementCount'].get('testId')).toEqual(0);
         expect(component['errorMessage']).toEqual('');
         expect(component['lastPage']).toEqual(true);
