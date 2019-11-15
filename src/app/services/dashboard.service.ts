@@ -16,7 +16,7 @@ import { Injectable } from '@angular/core';
 
 import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig } from 'component-library/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -564,7 +564,6 @@ export class DashboardService {
             if (tableKeyObject.database && datastores[tableKeyObject.datastore].databases[tableKeyObject.database]) {
                 if (tableKeyObject.table &&
                     datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table]) {
-
                     console.warn('Deleting table "' + failedTableKey + '" because its update failed (maybe it doesn\'t exist?)');
                     delete datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table];
                 }
