@@ -90,7 +90,7 @@ describe('Component: Options-Section', () => {
         optionList.append(new ConfigOptionFreeText('freeText', '', false, ''));
         optionList.append(new ConfigOptionSelect('select', '', false, false, OptionChoices.NoFalseYesTrue));
         optionList.append(new ConfigOptionSelect('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
-        expect(component.getRequiredNonFields(optionList)).toEqual([]);
+        expect(component.getRequiredNonFields(optionList)).toEqual(['datastore']);
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {
