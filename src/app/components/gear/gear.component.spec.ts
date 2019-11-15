@@ -36,8 +36,7 @@ import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget 
 
 class MockConfigurable implements ConfigurableWidget {
     options: RootWidgetOptionCollection;
-    calledChangeData = 0;
-    calledChangeFilterData = 0;
+    calledChangeOptions = 0;
     calledFinalizeCreateLayer = 0;
     calledFinalizeDeleteLayer = 0;
     calledCreateLayer = 0;
@@ -49,12 +48,8 @@ class MockConfigurable implements ConfigurableWidget {
         this.options = new RootWidgetOptionCollection(dashboardState.asDataset());
     }
 
-    changeData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
-        this.calledChangeData++;
-    }
-
-    changeFilterData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
-        this.calledChangeFilterData++;
+    changeOptions(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
+        this.calledChangeOptions++;
     }
 
     finalizeCreateLayer(__layerOptions: any): void {
@@ -134,7 +129,7 @@ describe('Component: Gear Component', () => {
         })).toEqual('keyboard_arrow_up');
     });
 
-    it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
+    it('handleApplyClick with non-field change does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -160,8 +155,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testOption).toEqual('testText');
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -171,7 +165,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with field change does update originalOptions and call handleChangeFilterData', () => {
+    it('handleApplyClick with field change does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -197,8 +191,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -208,7 +201,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with database change does update originalOptions and call handleChangeFilterData', () => {
+    it('handleApplyClick with database change does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -230,8 +223,7 @@ describe('Component: Gear Component', () => {
         component.handleApplyClick();
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -241,7 +233,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with table change does update originalOptions and call handleChangeFilterData', () => {
+    it('handleApplyClick with table change does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -263,8 +255,7 @@ describe('Component: Gear Component', () => {
         component.handleApplyClick();
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -274,7 +265,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with created layer does update originalOptions and call handleChangeData', () => {
+    it('handleApplyClick with created layer does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -303,8 +294,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(1);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -316,7 +306,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with changed layer does update originalOptions and call handleChangeData', () => {
+    it('handleApplyClick with changed layer does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -352,8 +342,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -365,7 +354,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with deleted layer does update originalOptions and call handleChangeData', () => {
+    it('handleApplyClick with deleted layer does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -393,8 +382,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(0);
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(1);
@@ -406,7 +394,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.tables).toEqual([]);
     });
 
-    it('handleApplyClick with many changes does update originalOptions and call expected function', () => {
+    it('handleApplyClick with many changes does update originalOptions and call changeOptions', () => {
         const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
@@ -454,8 +442,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeOptions).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
