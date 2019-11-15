@@ -917,9 +917,10 @@ describe('Dashboard Custom', () => {
         });
 
         let testDashboard = NeonDashboardLeafConfig.get({
-            layout: 'DISCOVERY',
-            fullTitle: ['Test Title'],
             category: 'Select an option...',
+            fullTitle: ['Test Title'],
+            layout: 'DISCOVERY',
+            name: 'Test Name',
             options: {
                 connectOnLoad: true
             }
@@ -1002,7 +1003,10 @@ describe('Dashboard Custom', () => {
             category: 'Select an option...',
             fullTitle: ['Test Title'],
             layout: 'DISCOVERY',
-            options: { connectOnLoad: true }
+            name: 'Test Name',
+            options: {
+                connectOnLoad: true
+            }
         });
 
         component.dashboardService.stateSource.pipe(take(1)).subscribe((state) => {
