@@ -25,14 +25,14 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import {
     AggregationType,
     CompoundFilterType,
@@ -44,11 +44,11 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     OptionChoices
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';

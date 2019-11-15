@@ -24,7 +24,7 @@ import {
     ElementRef
 } from '@angular/core';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
@@ -48,7 +48,7 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
-import { DateUtil } from '../library/core/date.util';
+import { DateUtil } from 'component-library/dist/core/date.util';
 
 import * as _ from 'lodash';
 
