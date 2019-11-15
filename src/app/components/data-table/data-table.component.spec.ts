@@ -102,7 +102,9 @@ describe('Component: DataTable', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
+    it('initializeProperties does create the expected headers in order', () => {
+        let spy = spyOn(component, 'recalculateActiveHeaders');
+
         component.headers = [];
         component.options.fields = [
             FieldConfig.get({ columnName: 'category', prettyName: 'Category' }),
@@ -110,350 +112,514 @@ describe('Component: DataTable', () => {
             FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
             FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
         ];
-        component.options.allColumnStatus = 'show';
-        component.options.fieldsConfig = [
-            { name: 'date' },
-            { name: 'field2', hide: true }
-        ];
 
-        component.initializeHeadersFromFieldsConfig();
+        component['initializeProperties']();
 
         expect(component.headers.length).toEqual(4);
-        expect(component.headers[3].prop).toEqual('date');
-        expect(component.headers[3].name).toEqual('Date');
-        expect(component.headers[3].active).toEqual(true);
-        expect(component.headers[3].style).toEqual({});
-        expect(component.headers[3].cellClass).toBeDefined();
-        expect(component.headers[3].width).toEqual(150);
-        expect(component.headers[2].prop).toEqual('field2');
-        expect(component.headers[2].name).toEqual('Field 2');
-        expect(component.headers[2].active).toEqual(true);
-        expect(component.headers[2].style).toEqual({});
-        expect(component.headers[2].cellClass).toBeDefined();
-        expect(component.headers[2].width).toEqual(150);
-        expect(component.headers[1].prop).toEqual('field1');
-        expect(component.headers[1].name).toEqual('Field 1');
-        expect(component.headers[1].active).toEqual(true);
-        expect(component.headers[1].style).toEqual({});
-        expect(component.headers[1].cellClass).toBeDefined();
-        expect(component.headers[1].width).toEqual(150);
         expect(component.headers[0].prop).toEqual('category');
         expect(component.headers[0].name).toEqual('Category');
         expect(component.headers[0].active).toEqual(true);
         expect(component.headers[0].style).toEqual({});
         expect(component.headers[0].cellClass).toBeDefined();
-        expect(component.headers[0].width).toEqual(150);
+        expect(component.headers[0].widthAuto).toEqual(100);
+        expect(component.headers[0].widthUser).toEqual(null);
+        expect(component.headers[1].prop).toEqual('field1');
+        expect(component.headers[1].name).toEqual('Field 1');
+        expect(component.headers[1].active).toEqual(true);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].widthAuto).toEqual(100);
+        expect(component.headers[1].widthUser).toEqual(null);
+        expect(component.headers[2].prop).toEqual('field2');
+        expect(component.headers[2].name).toEqual('Field 2');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].widthAuto).toEqual(100);
+        expect(component.headers[2].widthUser).toEqual(null);
+        expect(component.headers[3].prop).toEqual('date');
+        expect(component.headers[3].name).toEqual('Date');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].widthAuto).toEqual(100);
+        expect(component.headers[3].widthUser).toEqual(null);
+
+        expect(spy).toHaveBeenCalled();
     });
 
-    it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
+    it('initializeProperties does work as expected with configured showFields', () => {
+        let spy = spyOn(component, 'recalculateActiveHeaders');
+
+        component.headers = [];
+        component.options.fields = [
+            FieldConfig.get({ columnName: 'category', prettyName: 'Category' }),
+            FieldConfig.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
+        ];
+        component.options.showFields = [component.options.fields[0], component.options.fields[3]];
+
+        component['initializeProperties']();
+
+        expect(component.headers.length).toEqual(4);
+        expect(component.headers[0].prop).toEqual('category');
+        expect(component.headers[0].name).toEqual('Category');
+        expect(component.headers[0].active).toEqual(true);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].widthAuto).toEqual(100);
+        expect(component.headers[0].widthUser).toEqual(null);
+        expect(component.headers[1].prop).toEqual('field1');
+        expect(component.headers[1].name).toEqual('Field 1');
+        expect(component.headers[1].active).toEqual(false);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].widthAuto).toEqual(100);
+        expect(component.headers[1].widthUser).toEqual(null);
+        expect(component.headers[2].prop).toEqual('field2');
+        expect(component.headers[2].name).toEqual('Field 2');
+        expect(component.headers[2].active).toEqual(false);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].widthAuto).toEqual(100);
+        expect(component.headers[2].widthUser).toEqual(null);
+        expect(component.headers[3].prop).toEqual('date');
+        expect(component.headers[3].name).toEqual('Date');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].widthAuto).toEqual(100);
+        expect(component.headers[3].widthUser).toEqual(null);
+
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('initializeProperties does work as expected with configured customColumnWidths', () => {
+        let spy = spyOn(component, 'recalculateActiveHeaders');
+
+        component.headers = [];
+        component.options.fields = [
+            FieldConfig.get({ columnName: 'category', prettyName: 'Category' }),
+            FieldConfig.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
+        ];
+        component.options.customColumnWidths = [
+            ['category', 123],
+            ['date', 456]
+        ];
+
+        component['initializeProperties']();
+
+        expect(component.headers.length).toEqual(4);
+        expect(component.headers[0].prop).toEqual('category');
+        expect(component.headers[0].name).toEqual('Category');
+        expect(component.headers[0].active).toEqual(true);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].widthAuto).toEqual(123);
+        expect(component.headers[0].widthUser).toEqual(null);
+        expect(component.headers[1].prop).toEqual('field1');
+        expect(component.headers[1].name).toEqual('Field 1');
+        expect(component.headers[1].active).toEqual(true);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].widthAuto).toEqual(100);
+        expect(component.headers[1].widthUser).toEqual(null);
+        expect(component.headers[2].prop).toEqual('field2');
+        expect(component.headers[2].name).toEqual('Field 2');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].widthAuto).toEqual(100);
+        expect(component.headers[2].widthUser).toEqual(null);
+        expect(component.headers[3].prop).toEqual('date');
+        expect(component.headers[3].name).toEqual('Date');
+        expect(component.headers[3].active).toEqual(true);
+        expect(component.headers[3].style).toEqual({});
+        expect(component.headers[3].cellClass).toBeDefined();
+        expect(component.headers[3].widthAuto).toEqual(456);
+        expect(component.headers[3].widthUser).toEqual(null);
+
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('retrieveConfiguredColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
         component.options.customColumnWidths = [
             ['fieldWithCustomWidth', 260]
         ];
 
-        expect(component.getColumnWidth('fieldWithCustomWidth')).toEqual(260);
+        expect(component.retrieveConfiguredColumnWidth('fieldWithCustomWidth')).toEqual(260);
     });
 
-    it('getColumnWidth returns the default width if field not found in options.customColumnWidths', () => {
+    it('retrieveConfiguredColumnWidth returns the default width if field not found in options.customColumnWidths', () => {
         component.options.customColumnWidths = [
             ['fieldWithNoMatch', 300]
         ];
 
-        expect(component.getColumnWidth('anotherColumn')).toEqual(150);
-    });
-
-    it('initializeProperties does call expected methods if options.showFields exists', () => {
-        component.options.showFields = [
-            { name: 'testField' }
-        ];
-        let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
-        let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
-
-        component.initializeProperties();
-        expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalled();
-        expect(recalcActiveHeadersSpy).toHaveBeenCalled();
-    });
-
-    it('initializeProperties does call expected methods if options.showFields does not exist', () => {
-        let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
-        let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
-
-        component.initializeProperties();
-        expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalledTimes(0);
-        expect(recalcActiveHeadersSpy).toHaveBeenCalled();
+        expect(component.retrieveConfiguredColumnWidth('anotherColumn')).toEqual(null);
     });
 
     it('recalculateActiveHeaders does update activeHeaders and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
         component.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
+            prop: 'field1',
+            name: 'Field 1',
             active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
         }];
-        component.headerWidths.set('createdDate', 150);
+
+        spyOn(component, 'getVisualizationWidth').and.returnValue(100);
 
         component.recalculateActiveHeaders();
 
         expect(spy).toHaveBeenCalled();
         expect(component.headers).toEqual([{
-            prop: 'createdDate',
-            name: 'Date Created',
+            prop: 'field1',
+            name: 'Field 1',
             active: true,
             style: {},
             cellClass: '',
-            width: 150,
-            $$oldWidth: 150
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
         }]);
         expect(component.activeHeaders).toEqual([{
-            prop: 'createdDate',
-            name: 'Date Created',
+            prop: 'field1',
+            name: 'Field 1',
             active: true,
             style: {},
             cellClass: '',
-            width: 150,
-            $$oldWidth: 150
+            widthAuto: 100,
+            widthUser: null
         }]);
-        expect(component.headerWidths.get('createdDate')).toEqual(150);
     });
 
-    it('recalculateActiveHeaders does update widths if table is bigger than visualization and call detectChanges', () => {
+    it('recalculateActiveHeaders does increase widths if visualization is bigger than table and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
-        component.activeHeaders = [{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            cellClass: ''
-        }];
-
-        /* eslint-disable-next-line dot-notation */
-        component.activeHeaders[0]['width'] = 50000;
-
         component.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
+            prop: 'field1',
+            name: 'Field 1',
             active: true,
             style: {},
             cellClass: '',
-            width: 50000
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
         }];
-        component.headerWidths.set('createdDate', 50000);
+
+        spyOn(component, 'getVisualizationWidth').and.returnValue(900);
 
         component.recalculateActiveHeaders();
 
         expect(spy).toHaveBeenCalled();
-
-        expect(component.headers[0].prop).toEqual('createdDate');
-        expect(component.headers[0].name).toEqual('Date Created');
-        expect(component.headers[0].active).toBeTruthy();
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[0].cellClass).toEqual('');
-
-        /* eslint-disable-next-line dot-notation */
-        expect(component.headers[0]['width']).toBeLessThan(50000);
-        /* eslint-disable-next-line dot-notation */
-        expect(component.headers[0]['$$oldWidth']).toBeLessThan(50000);
-
-        expect(component.activeHeaders.length).toBe(1);
-        expect(component.activeHeaders[0].prop).toEqual('createdDate');
-        expect(component.activeHeaders[0].name).toEqual('Date Created');
-        expect(component.activeHeaders[0].active).toBeTruthy();
-        expect(component.activeHeaders[0].style).toEqual({});
-        expect(component.activeHeaders[0].cellClass).toEqual('');
-
-        /* eslint-disable-next-line dot-notation */
-        expect(component.activeHeaders[0]['width']).toBeLessThan(50000);
-        /* eslint-disable-next-line dot-notation */
-        expect(component.activeHeaders[0]['$$oldWidth']).toBeLessThan(50000);
-
-        expect(component.headerWidths.get('createdDate')).toBeLessThan(50000);
-        expect(spy).toHaveBeenCalled();
+        expect(component.headers).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }]);
+        expect(component.activeHeaders).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }]);
     });
 
-    it('getActiveHeaders does return list of active headers', (() => {
-        component.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'inactiveField',
-            name: 'Inactive Field',
-            active: false,
-            style: {},
-            cellClass: '',
-            width: 100
-        }];
-
-        expect(component.getActiveHeaders()).toEqual([{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }]);
-    }));
-
-    it('getHeaderByName does return expected header, or null if not found', (() => {
-        let headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            width: 100
-        }, {
-            prop: 'inactiveField',
-            name: 'Inactive Field',
-            active: false,
-            style: {},
-            width: 100
-        }];
-
-        expect(component.getHeaderByName('testField', headers)).toEqual({
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            width: 100
-        });
-        expect(component.getHeaderByName('Inactive Field', headers)).toEqual({
-            prop: 'inactiveField',
-            name: 'Inactive Field',
-            active: false,
-            style: {},
-            width: 100
-        });
-        expect(component.getHeaderByName('notFound', headers)).toEqual(null);
-    }));
-
-    it('deactivateAllHeaders does set all headers to inactive and calls detectChanges', (() => {
+    it('recalculateActiveHeaders does decrease widths if table is bigger than visualization and call detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
+
         component.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
+            prop: 'field1',
+            name: 'Field 1',
             active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 500,
+            widthUser: null
         }, {
-            prop: 'testField',
-            name: 'Test Field',
+            prop: 'field2',
+            name: 'Field 2',
             active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 500,
+            widthUser: null
         }, {
-            prop: 'anotherField',
-            name: 'Another Field',
+            prop: 'field3',
+            name: 'Field 3',
             active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 500,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 500,
+            widthUser: null
         }];
 
-        component.deactivateAllHeaders();
-        expect(component.headers).toEqual([{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: false,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: false,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'anotherField',
-            name: 'Another Field',
-            active: false,
-            style: {},
-            cellClass: '',
-            width: 100
-        }]);
-        expect(spy).toHaveBeenCalled();
-    }));
+        spyOn(component, 'getVisualizationWidth').and.returnValue(900);
 
-    it('activateAllHeaders does set all headers to active and calls detectChanges', (() => {
+        component.recalculateActiveHeaders();
+
+        expect(spy).toHaveBeenCalled();
+        expect(component.headers).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 500,
+            widthUser: null
+        }]);
+        expect(component.activeHeaders).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }]);
+    });
+
+    it('recalculateActiveHeaders does not change widths of columns with widthUser', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
+
         component.headers = [{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: false,
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 100,
+            widthUser: 100
         }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: false,
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 100,
+            widthUser: 500
         }, {
-            prop: 'anotherField',
-            name: 'Another Field',
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
             active: false,
             style: {},
             cellClass: '',
-            width: 100
+            widthAuto: 100,
+            widthUser: null
         }];
 
-        component.activateAllHeaders();
-        expect(component.headers).toEqual([{
-            prop: 'createdDate',
-            name: 'Date Created',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField',
-            name: 'Test Field',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'anotherField',
-            name: 'Another Field',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }]);
+        spyOn(component, 'getVisualizationWidth').and.returnValue(900);
+
+        component.recalculateActiveHeaders();
+
         expect(spy).toHaveBeenCalled();
-    }));
+        expect(component.headers).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: 100
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: 500
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }, {
+            prop: 'field4',
+            name: 'Field 4',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }]);
+        expect(component.activeHeaders).toEqual([{
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: 100
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: 500
+        }, {
+            prop: 'field3',
+            name: 'Field 3',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 300,
+            widthUser: null
+        }]);
+    });
 
     it('refreshVisualization does call expected functions', ((done) => {
         let recalcHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
@@ -463,7 +629,7 @@ describe('Component: DataTable', () => {
         component.refreshVisualization();
 
         setTimeout(() => {
-            expect(recalcHeadersSpy).toHaveBeenCalledTimes(2);
+            expect(recalcHeadersSpy).toHaveBeenCalled();
             expect(tableRecalcSpy).toHaveBeenCalled();
             expect(detectChangesSpy).toHaveBeenCalled();
             done();
@@ -575,321 +741,6 @@ describe('Component: DataTable', () => {
             { _filtered: false, _id: 2, category: 'books', testField: 'some other value' }
         ]);
         expect(actual).toEqual(2);
-    });
-
-    it('isDragging does return expected boolean', () => {
-        component.drag.mousedown = true;
-        component.drag.downIndex = 5;
-
-        expect(component.isDragging()).toBeTruthy();
-
-        component.drag.downIndex = -1;
-
-        expect(component.isDragging()).toBeFalsy();
-
-        component.drag.mousedown = false;
-
-        expect(component.isDragging()).toBeFalsy();
-
-        component.drag.downIndex = 5;
-
-        expect(component.isDragging()).toBeFalsy();
-    });
-
-    it('onMouseUp does set expected drag properties and call clearHeaderStyles, but not recalculateActiveHeaders', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }];
-        component.drag.mousedown = true;
-        component.drag.downIndex = 5;
-
-        let clearStylesSpy = spyOn(component, 'clearHeaderStyles');
-        let recalcHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
-
-        component.onMouseUp(0);
-
-        expect(component.drag.downIndex).toEqual(-1);
-        expect(component.drag.mousedown).toBeFalsy();
-        expect(clearStylesSpy).toHaveBeenCalled();
-        expect(recalcHeadersSpy).toHaveBeenCalledTimes(0);
-    });
-
-    it('onMouseUp does set expected drag properties and call clearHeaderStyles, recalculateActiveHeaders', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField2',
-            name: 'Test Field 2',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }];
-        component.drag.mousedown = true;
-        component.drag.downIndex = 0;
-
-        let clearStylesSpy = spyOn(component, 'clearHeaderStyles');
-        let recalcHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
-
-        component.onMouseUp(1);
-
-        expect(component.drag.downIndex).toEqual(-1);
-        expect(component.drag.mousedown).toBeFalsy();
-        expect(clearStylesSpy).toHaveBeenCalled();
-        expect(recalcHeadersSpy).toHaveBeenCalled();
-    });
-
-    it('onMouseDown does set styles as expected', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }];
-        component.onMouseDown(-5);
-
-        expect(component.drag).toEqual({
-            mousedown: false,
-            downIndex: -1,
-            currentIndex: -1,
-            field: null,
-            x: 0,
-            y: 0
-        });
-
-        component.onMouseDown(0);
-
-        expect(component.drag).toEqual({
-            mousedown: true,
-            downIndex: 0,
-            currentIndex: -1,
-            field: null,
-            x: 0,
-            y: 0
-        });
-        expect(component.headers[0].style).toEqual({
-            color: 'black',
-            backgroundColor: 'rgba(0, 0, 0, .2)',
-            border: 'grey dashed 1px'
-        });
-    });
-
-    it('onMouseEnter does not set drag object or styles if isDragging is false', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }];
-        component.onMouseEnter(0);
-
-        expect(component.drag).toEqual({
-            mousedown: false,
-            downIndex: -1,
-            currentIndex: -1,
-            field: null,
-            x: 0,
-            y: 0
-        });
-        expect(component.headers[0].style).toEqual({ color: 'black' });
-    });
-
-    it('onMouseEnter does set drag object and styles if isDragging is true', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField2',
-            name: 'Test Field 2',
-            active: true,
-            style: {},
-            cellClass: '',
-            width: 100
-        }];
-        component.drag.mousedown = true;
-        component.drag.downIndex = 1;
-
-        component.onMouseEnter(0);
-
-        expect(component.drag).toEqual({
-            mousedown: true,
-            downIndex: 1,
-            currentIndex: 0,
-            field: null,
-            x: 0,
-            y: 0
-        });
-        expect(component.headers[0].style).toEqual({
-            color: 'black',
-            borderTop: 'thick solid grey'
-        });
-        expect(component.headers[1].style).toEqual({});
-
-        component.drag.downIndex = 0;
-
-        component.onMouseEnter(1);
-
-        expect(component.drag).toEqual({
-            mousedown: true,
-            downIndex: 0,
-            currentIndex: 1,
-            field: null,
-            x: 0,
-            y: 0
-        });
-        expect(component.headers[0].style).toEqual({
-            color: 'black',
-            borderTop: 'thick solid grey'
-        });
-        expect(component.headers[1].style).toEqual({
-            borderBottom: 'thick solid grey'
-        });
-    });
-
-    it('onMouseLeaveItem does not set styles if isDragging is false or index matches drag.downIndex', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: {
-                borderTop: 'thick solid grey',
-                borderBottom: 'thick solid grey'
-            },
-            cellClass: '',
-            width: 100
-        }];
-        component.onMouseLeaveItem(0);
-
-        expect(component.headers[0].style).toEqual({
-            borderTop: 'thick solid grey',
-            borderBottom: 'thick solid grey'
-        });
-
-        component.drag.mousedown = true;
-        component.drag.downIndex = 0;
-
-        component.onMouseLeaveItem(0);
-
-        expect(component.headers[0].style).toEqual({
-            borderTop: 'thick solid grey',
-            borderBottom: 'thick solid grey'
-        });
-    });
-
-    it('onMouseLeaveItem does set styles if isDragging is true and index does not match drag.downIndex', () => {
-        component.drag.mousedown = true;
-        component.drag.downIndex = 1;
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: {
-                borderTop: 'thick solid grey',
-                borderBottom: 'thick solid grey'
-            },
-            cellClass: '',
-            width: 100
-        }];
-        component.onMouseLeaveItem(0);
-
-        expect(component.headers[0].style).toEqual({
-            borderTop: null,
-            borderBottom: null
-        });
-    });
-
-    it('onMouseLeaveArea does set expected drag properties and clears header styles', () => {
-        component.drag = {
-            mousedown: true,
-            downIndex: 1,
-            currentIndex: 0,
-            field: null,
-            x: 0,
-            y: 0
-        };
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { borderTop: 'thick solid grey' },
-            cellClass: '',
-            width: 100
-        }];
-
-        component.onMouseLeaveArea();
-
-        expect(component.drag.downIndex).toEqual(-1);
-        expect(component.drag.mousedown).toBeFalsy();
-        expect(component.headers[0].style).toEqual({});
-    });
-
-    it('onMouseMove does not set drag object if isDragging is false', () => {
-        component.onMouseMove({ screenX: 40, screenY: 55 });
-
-        expect(component.drag).toEqual({
-            mousedown: false,
-            downIndex: -1,
-            currentIndex: -1,
-            field: null,
-            x: 0,
-            y: 0
-        });
-    });
-
-    it('onMouseMove does set drag object if isDragging is true', () => {
-        component.drag.mousedown = true;
-        component.drag.downIndex = 1;
-        component.onMouseMove({ screenX: 40, screenY: 55 });
-
-        expect(component.drag).toEqual({
-            mousedown: true,
-            downIndex: 1,
-            currentIndex: -1,
-            field: null,
-            x: 40,
-            y: 55
-        });
-    });
-
-    it('clearHeaderStyles does clear styles', () => {
-        component.headers = [{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: { color: 'black' },
-            cellClass: '',
-            width: 100
-        }, {
-            prop: 'testField2',
-            name: 'Test Field 2',
-            active: true,
-            style: { padding: '10px' },
-            cellClass: '',
-            width: 100
-        }];
-
-        component.clearHeaderStyles();
-
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[1].style).toEqual({});
     });
 
     it('onSelect does update selected array and calls publishAnyCustomEvents, but not publishSelectId', () => {
@@ -1237,34 +1088,38 @@ describe('Component: DataTable', () => {
         ], []]);
     });
 
-    it('onTableResize updates headerWidths and calls refreshVisualization', () => {
+    it('onTableResize updates headers and calls refreshVisualization', () => {
         let spy = spyOn(component, 'refreshVisualization');
 
-        component.activeHeaders = [{
-            prop: 'createdDate',
-            name: 'Date Created',
+        component.headers = [{
+            prop: 'testField1',
+            name: 'Test Field 2',
             active: true,
             style: {},
-            cellClass: ''
+            cellClass: '',
+            widthUser: 500
         }, {
-            prop: 'testField',
-            name: 'Test Field',
+            prop: 'testField2',
+            name: 'Test Field 2',
             active: true,
             style: {},
-            cellClass: ''
+            cellClass: '',
+            widthUser: null
         }];
 
-        /* eslint-disable-next-line dot-notation */
-        component.activeHeaders[0]['width'] = 75;
-        /* eslint-disable-next-line dot-notation */
-        component.activeHeaders[1]['width'] = 150;
+        component.onTableResize({ column: { prop: 'testField1' }, newValue: 100 });
 
-        component.onTableResize({ column: { prop: 'someField', width: 100 }, newValue: 50 });
+        expect(component.headers[0].widthUser).toEqual(100);
+        expect(component.headers[1].widthUser).toEqual(null);
 
-        expect(component.headerWidths.get('createdDate')).toEqual(75);
-        expect(component.headerWidths.get('someField')).toEqual(50);
-        expect(component.headerWidths.get('testField')).toEqual(200);
-        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.count()).toEqual(1);
+
+        component.onTableResize({ column: { prop: 'testField2' }, newValue: 200 });
+
+        expect(component.headers[0].widthUser).toEqual(100);
+        expect(component.headers[1].widthUser).toEqual(200);
+
+        expect(spy.calls.count()).toEqual(2);
     });
 
     it('getElementRefs does return expected object', () => {
@@ -1272,10 +1127,6 @@ describe('Component: DataTable', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('getOptions does return options object', () => {
-        expect(component.options).toEqual(component.options);
     });
 
     it('getCellClassFunction does return function', () => {
@@ -1643,17 +1494,51 @@ describe('Component: DataTable', () => {
         });
     });
 
-    it('getTableHeaderHeight and getTableRowHeight both return expected number', () => {
-        expect(component.getTableHeaderHeight()).toEqual(30);
-        expect(component.getTableRowHeight()).toEqual(25);
+    it('onChangeData does update headers if database or table is updated', () => {
+        let spy = spyOn(component, 'initializeProperties');
 
-        component.options.skinny = true;
+        component.onChangeData(true);
 
-        expect(component.getTableHeaderHeight()).toEqual(20);
-        expect(component.getTableRowHeight()).toEqual(20);
+        expect(spy).toHaveBeenCalled();
     });
 
-    it('onChangeData does update headers if database or table is updated', () => {
+    it('onChangeData does use configured showFields to update active status in existing headers', () => {
+        let spy = spyOn(component, 'recalculateActiveHeaders');
+
+        component.headers = [{
+            prop: 'category',
+            name: 'Category',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field1',
+            name: 'Field 1',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'date',
+            name: 'Date',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }];
+
         component.options.fields = [
             FieldConfig.get({ columnName: 'category', prettyName: 'Category' }),
             FieldConfig.get({ columnName: 'field1', prettyName: 'Field 1' }),
@@ -1661,32 +1546,71 @@ describe('Component: DataTable', () => {
             FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
         ];
 
-        component.onChangeData(true);
+        component.options.showFields = [component.options.fields[0], component.options.fields[3]];
 
-        expect(component.headers.length).toEqual(4);
-        expect(component.headers[0].prop).toEqual('category');
-        expect(component.headers[0].name).toEqual('Category');
-        expect(component.headers[0].active).toEqual(true);
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[0].cellClass).toBeDefined();
-        expect(component.headers[0].width).toEqual(150);
-        expect(component.headers[1].prop).toEqual('field1');
-        expect(component.headers[1].name).toEqual('Field 1');
-        expect(component.headers[1].active).toEqual(true);
-        expect(component.headers[1].style).toEqual({});
-        expect(component.headers[1].cellClass).toBeDefined();
-        expect(component.headers[1].width).toEqual(150);
-        expect(component.headers[2].prop).toEqual('field2');
-        expect(component.headers[2].name).toEqual('Field 2');
-        expect(component.headers[2].active).toEqual(true);
-        expect(component.headers[2].style).toEqual({});
-        expect(component.headers[2].cellClass).toBeDefined();
-        expect(component.headers[2].width).toEqual(150);
-        expect(component.headers[3].prop).toEqual('date');
-        expect(component.headers[3].name).toEqual('Date');
-        expect(component.headers[3].active).toEqual(true);
-        expect(component.headers[3].style).toEqual({});
-        expect(component.headers[3].cellClass).toBeDefined();
-        expect(component.headers[3].width).toEqual(150);
+        component.onChangeData();
+
+        expect(component.headers).toEqual([{
+            prop: 'category',
+            name: 'Category',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field1',
+            name: 'Field 1',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'field2',
+            name: 'Field 2',
+            active: false,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }, {
+            prop: 'date',
+            name: 'Date',
+            active: true,
+            style: {},
+            cellClass: '',
+            widthAuto: 100,
+            widthUser: null
+        }]);
+
+        expect(spy).toHaveBeenCalled();
+
+        expect(component.selected).toEqual([]);
+    });
+
+    it('generateLink does return the expected string', () => {
+        expect(component.generateLink('testLink')).toEqual('testLink');
+        component.options.linkPrefix = 'http://hostname/endpoint?argument=';
+        expect(component.generateLink('testLink')).toEqual('http://hostname/endpoint?argument=testLink');
+        expect(component.generateLink('http://hostname/endpoint?argument=testLink')).toEqual('http://hostname/endpoint?argument=testLink');
+        expect(component.generateLink('http://testLink')).toEqual('http://testLink');
+    });
+
+    it('isLinkColumn does return the expected result', () => {
+        component.options.fields = [
+            FieldConfig.get({ columnName: 'category', prettyName: 'Category' }),
+            FieldConfig.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
+        ];
+
+        expect(component.isLinkColumn('field1')).toEqual(false);
+
+        component.options.linkFields = [component.options.fields[1]];
+
+        expect(component.isLinkColumn('field1')).toEqual(true);
+        expect(component.isLinkColumn('field2')).toEqual(false);
+        expect(component.isLinkColumn('')).toEqual(false);
     });
 });

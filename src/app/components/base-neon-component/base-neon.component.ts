@@ -124,7 +124,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
             this.destroyVisualization();
             this.constructVisualization();
-            this.handleChangeFilterField();
+            this.handleChangeOptions();
         });
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
@@ -134,7 +134,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                         if (eventMessageId !== this.selectedDataId) {
                             this.onSelectId(layer, eventMessageId);
                             this.selectedDataId = eventMessageId;
-                            this.handleChangeData(layer);
+                            this.handleChangeOptions(layer);
                         }
                     }
                 });
@@ -200,7 +200,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
         this.layerIdToQueryIdToQueryObject.delete(layerOptions._id);
         // Delete the layer's data from this visualization.
-        this.handleChangeData(layerOptions);
+        this.handleChangeOptions(layerOptions);
     }
 
     /**
@@ -717,16 +717,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected abstract designEachFilterWithNoValues(): AbstractFilterDesign[];
 
     /**
-     * Updates filters whenever a filter field is changed and then runs the visualization query.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} [databaseOrTableChange]
-     */
-    public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        this.handleChangeData(options, databaseOrTableChange);
-    }
-
-    /**
      * Updates elements and properties whenever the widget config is changed.
      * @arg {boolean} [databaseOrTableChange]
      */
@@ -740,7 +730,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @arg {boolean} [databaseOrTableChange]
      */
-    public handleChangeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+    public handleChangeOptions(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
@@ -764,7 +754,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * then runs the visualization query.
      */
     public handleChangeSubcomponentType(options?: WidgetOptionCollection | any) {
-        this.handleChangeData(options);
+        this.handleChangeOptions(options);
     }
 
     /**
@@ -858,8 +848,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     getOptions(): ConfigurableWidget {
         return {
-            changeData: this.handleChangeData.bind(this),
-            changeFilterData: this.handleChangeFilterField.bind(this),
+            changeOptions: this.handleChangeOptions.bind(this),
             createLayer: this.createLayer.bind(this),
             deleteLayer: this.deleteLayer.bind(this),
             exportData: this.createExportData.bind(this),

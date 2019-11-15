@@ -19,15 +19,13 @@
 <div class="body-container" *ngIf="!showNoData">
     <div class="table-container">
         <!-- beautify ignore:start -->
-            <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
-                [class.selectable]="options.filterable || options.idField.columnName"
+            <ngx-datatable #table class="material table"
+                [class.selectable]="options.filterable || (options.idField && options.idField.columnName)"
                 [rows]="tableData"
-                [columnMode]="'force'"
-                [columns]="activeHeaders"
-                [headerHeight]="getTableHeaderHeight()"
+                [headerHeight]="25"
                 [footerHeight]="0"
                 [rowClass]="getRowClassFunction()"
-                [rowHeight]="getTableRowHeight()"
+                [rowHeight]="25"
                 [scrollbarH]="true"
                 [scrollbarV]="true"
                 [reorderable]="options.reorderable"
@@ -35,6 +33,15 @@
                 [selectionType]="'multi'"
                 (resize)="onTableResize($event)"
                 (select)="onSelect($event)">
+
+                <ngx-datatable-column *ngFor="let header of activeHeaders" [name]="header.name" [prop]="header.prop"
+                    [width]="header.widthUser || header.widthAuto">
+                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                        <a *ngIf="isLinkColumn(header.prop)" class="cell-link" [href]="generateLink(value)" target="_blank"
+                            matTooltip="Open in New Tab" tooltip-position="below">{{ value }}</a>
+                        <span *ngIf="!isLinkColumn(header.prop)">{{ value }}</span>
+                    </ng-template>
+                </ngx-datatable-column>
             </ngx-datatable>
         <!-- beautify ignore:end -->
     </div>
