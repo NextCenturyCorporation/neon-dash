@@ -308,6 +308,9 @@ export class DashboardService {
     private readonly stateSubject = new Subject<DashboardState>();
     public readonly stateSource: Observable<DashboardState>;
 
+    // A collection that maps datastore name to database name to table names.
+    private _finishedUpdates: Record<string, Record<string, string[]>> = {};
+
     constructor(
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
@@ -330,15 +333,23 @@ export class DashboardService {
         const promises = datastores.map((datastore: DatastoreConfig) => {
             const connection = this.connectionService.connect(datastore.type, datastore.host);
             if (connection) {
-                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: DatabaseConfig[]) => {
-                    failedDatabases.forEach((database) => {
-                        console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
-                        this._deleteInvalidDashboards(config.dashboards, database.name);
+                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, this._finishedUpdates[datastore.name] || {},
+                    (failedTableKeys: string[]) => {
+                        failedTableKeys.forEach((failedTableKey) => {
+                            this._deleteInvalidTable(config.datastores, failedTableKey);
+                            this._deleteInvalidDashboards(config.dashboards, failedTableKey);
+                        });
                     });
-                });
             }
             return undefined;
         }).filter((promise) => !!promise);
+
+        datastores.forEach((datastore) => {
+            this._finishedUpdates[datastore.name] = {};
+            Object.values(datastore.databases).forEach((database) => {
+                this._finishedUpdates[datastore.name][database.name] = Object.keys(database.tables);
+            });
+        });
 
         return from(promises.length ? Promise.all(promises) : Promise.resolve(null))
             .pipe(
@@ -529,20 +540,18 @@ export class DashboardService {
     }
 
     /**
-     * Delete dashboards associated with the given database so users cannot select them.
+     * Deletes all dashboards containing the given table key so users cannot select them.
      */
-    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, invalidDatabaseName: string): any {
+    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, failedTableKey: string): void {
         ConfigUtil.visitDashboards(dashboard, {
             leaf: (leaf, path) => {
-                let tableKeys = Object.keys(leaf.tables);
                 const parent = path[path.length - 2];
-
-                for (const tableKey of tableKeys) {
-                    const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
-
-                    if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
+                for (const tableKey of Object.values(leaf.tables || {})) {
+                    if (tableKey === failedTableKey) {
                         Object.keys(parent ? parent.choices : {}).forEach((choiceId) => {
                             if (parent.choices[choiceId].name === leaf.name) {
+                                console.warn('Deleting dashboard "' + leaf.fullTitle.slice(1).join(' / ') +
+                                    '" because of deleting table "' + failedTableKey + '"');
                                 delete parent.choices[choiceId];
                             }
                         });
@@ -551,8 +560,23 @@ export class DashboardService {
                 }
             }
         });
+    }
 
-        return null;
+    /**
+     * Deletes the table with the given table key so users cannot select it.
+     */
+    private _deleteInvalidTable(datastores: Record<string, DatastoreConfig>, failedTableKey: string): void {
+        const tableKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(failedTableKey);
+        if (tableKeyObject.datastore && datastores[tableKeyObject.datastore]) {
+            if (tableKeyObject.database && datastores[tableKeyObject.datastore].databases[tableKeyObject.database]) {
+                if (tableKeyObject.table &&
+                    datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table]) {
+
+                    console.warn('Deleting table "' + failedTableKey + '" because its update failed (maybe it doesn\'t exist?)');
+                    delete datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table];
+                }
+            }
+        }
     }
 }
 
