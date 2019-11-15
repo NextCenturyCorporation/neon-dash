@@ -18,17 +18,17 @@ import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../library/core/services/abstract.search.service';
+} from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilter, AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
+import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
+import { Dataset, DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     ConfigOption,
     OptionType
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -36,10 +36,10 @@ import {
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
 
-import { eventing } from 'neon-framework';
+import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from '../../library/core/services/connection.service';
+import { RequestWrapper } from 'component-library/dist/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
 
 /**
