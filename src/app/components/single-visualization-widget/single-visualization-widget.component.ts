@@ -72,8 +72,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     /* eslint-disable-next-line no-invalid-this */
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
 
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
     @ViewChildren('visualization') visualizations: QueryList<any>;
 
     public errorMessage: string = '';
@@ -430,8 +430,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public getWidgetOptionMenuCallbacks(): ConfigurableWidget {
         return {
-            changeData: this._handleChangeOptions.bind(this),
-            changeFilterData: this._handleChangeOptions.bind(this),
+            changeOptions: this._handleChangeOptions.bind(this),
             createLayer: SingleVisualizationWidgetComponent.handleCreateLayer.bind(this),
             deleteLayer: SingleVisualizationWidgetComponent.handleDeleteLayer.bind(this),
             exportData: this.createExportData.bind(this),

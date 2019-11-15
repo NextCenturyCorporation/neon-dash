@@ -25,7 +25,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 export class VisualizationInjectorComponent {
     currentComponent: ComponentRef<VisualizationWidget> = null;
 
-    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
+    @ViewChild('dynamicComponentContainer', { read: ViewContainerRef, static: true }) dynamicComponentContainer: ViewContainerRef;
 
     // Component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value

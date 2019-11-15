@@ -430,8 +430,7 @@ describe('SingleVisualizationWidgetComponent', () => {
     it('getWidgetOptionMenuCallbacks does return expected data', () => {
         const callbacks = component.getWidgetOptionMenuCallbacks();
         /* eslint-disable @typescript-eslint/unbound-method */
-        expect(typeof callbacks.changeData).toBe('function');
-        expect(typeof callbacks.changeFilterData).toBe('function');
+        expect(typeof callbacks.changeOptions).toBe('function');
         expect(typeof callbacks.createLayer).toBe('function');
         expect(typeof callbacks.deleteLayer).toBe('function');
         expect(typeof callbacks.exportData).toBe('function');
@@ -442,7 +441,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(callbacks.options).toEqual(component.options);
     });
 
-    it('getWidgetOptionMenuCallbacks.changeData does update expected properties and publish expected events', () => {
+    it('getWidgetOptionMenuCallbacks.changeOptions does update expected properties and publish expected events', () => {
         let spyTransform = spyOn(SingleVisualizationWidgetComponent, 'transformComponentLibraryOptions');
         let spyPublish = spyOn(component['_eventMessenger'], 'publish');
 
@@ -455,7 +454,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component['_page'] = 2;
 
         const callbacks = component.getWidgetOptionMenuCallbacks();
-        callbacks.changeData();
+        callbacks.changeOptions();
 
         expect(spyTransform.calls.count()).toEqual(1);
         expect(spyPublish.calls.count()).toEqual(1);
