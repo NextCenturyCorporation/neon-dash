@@ -239,26 +239,6 @@ export class NeonConfig {
     }
 }
 
-/*
-TODO: THOR-825: This was turned into Datastore -- leaving old commented out
-version here along with comments on updates made for reference until all
-THOR-825 related tasks are complete.
-
-export class Dataset {
-    public connectOnLoad: boolean = false;
-    public databases: NeonDatabase[] = [];
-    public layout: string = ''; // layouts are now specified in dashboards
-    //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
-
-    constructor(
-        public name: string = '',
-        public datastore: string = '', // this became 'type'
-        public hostname: string = '', // this was updated to 'host'
-        public title: string = '', // renamed projectTitle, moved to base level of config file and read in within app.component.ts
-        public icon: string = '' // renamed projectIcon, moved to base level of config file and read in within app.component.ts
-    ) {}
-}*/
-
 export const MediaTypes = {
     audio: 'aud',
     html: 'html',

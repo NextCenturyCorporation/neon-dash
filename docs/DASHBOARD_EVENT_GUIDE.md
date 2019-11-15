@@ -7,7 +7,7 @@ Event Channel | Intent | Event Payload
 DASHBOARD_MESSAGE | Shows an error message. | { error?: Error | Exception | string, message: string }
 DASHBOARD_REFRESH | Signals a resize on all of the widgets. | {}
 SELECT_ID | Selects a data item in the dashboard.  Some visualizations will update to highlight this data selection. | { item: any, metadata: any }
-SHOW_OPTION_MENU | Opens the options menu from the navbar to show a specific visualization's options. | { changeData: Function, changeFilterData: Function, createLayer: Function, deleteLayer: Function, exportData: Function, finalizeCreateLayer: Function, finalizeDeleteLayer: Function, handleChangeSubcomponentType: Function, options: WidgetOptionCollection }
+SHOW_OPTION_MENU | Opens the options menu from the navbar to show a specific visualization's options. | { changeOptions: Function, createLayer: Function, deleteLayer: Function, exportData: Function, finalizeCreateLayer: Function, finalizeDeleteLayer: Function, handleChangeSubcomponentType: Function, options: WidgetOptionCollection }
 TOGGLE_FILTER_TRAY | Toggles the filter tray in the navbar. | { show: boolean }
 TOGGLE_SIMPLE_SEARCH | Toggles the simple search in the navbar. | { show: boolean }
 TOGGLE_VISUALZATIONS_SHORTCUT | Toggles the visualizations shortcut in the navbar. | { show: boolean }

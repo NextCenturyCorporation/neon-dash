@@ -24,7 +24,7 @@ import { environment } from '../../../environments/environment';
     styleUrls: ['about-neon.component.scss']
 })
 export class AboutNeonComponent implements OnInit {
-    @ViewChild('customAboutTextDiv') customAboutTextDiv: ElementRef;
+    @ViewChild('customAboutTextDiv', { static: true }) customAboutTextDiv: ElementRef;
 
     public dashBuildDate = environment.buildDate;
     public dashGitCommit = environment.recentGit;

@@ -45,8 +45,8 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryBarComponent extends BaseNeonComponent {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
-    @ViewChild('queryBar') queryBar: ElementRef;
+    @ViewChild('visualization', { read: ElementRef, static: false }) visualization: ElementRef;
+    @ViewChild('queryBar', { static: false }) queryBar: ElementRef;
 
     autoComplete: boolean = true;
     queryValues: string[] = [];
