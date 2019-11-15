@@ -51,7 +51,7 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(DatastoreConfig.get());
+        expect(dashboardService.state.datastores).toEqual([]);
     });
 
     it('should have no active dashboards at creation', () => {
@@ -123,7 +123,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active datastore at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(DATASTORE);
+        expect(dashboardService.state.datastores).toEqual([DATASTORE]);
     });
 
     it('should return active datastores by name', () => {

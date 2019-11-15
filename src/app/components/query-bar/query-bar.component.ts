@@ -87,7 +87,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         values: any[] = [undefined]
     ): ListFilterDesign {
-        return new ListFilterDesign(CompoundFilterType.OR, this.dashboardState.datastore.name + '.' + databaseName + '.' + tableName +
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + databaseName + '.' + tableName +
             '.' + fieldName, '=', values);
     }
 
@@ -320,7 +320,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         this.extensionFiltersCollection.set(collectionId, null);
         let extensionQuery = new query.Query().selectFrom(extensionField.database, extensionField.table);
         let queryFields = [extensionField.idField, extensionField.filterField];
-        let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
+        let execute = this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, {
             query: extensionQuery
         });
         let filterFieldValues = [];

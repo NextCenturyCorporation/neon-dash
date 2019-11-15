@@ -39,7 +39,7 @@ export class CustomConnectionComponent implements AfterContentInit {
     private currentStepIndex: number;
 
     constructor(
-        private datasetService: DashboardService,
+        private dashboardService: DashboardService,
         private filterService: InjectableFilterService
     ) {
         this.messenger = new eventing.Messenger();
@@ -83,13 +83,13 @@ export class CustomConnectionComponent implements AfterContentInit {
             acc[db.name] = db;
             return acc;
         }, {} as { [key: string]: DatabaseConfig });
-        this.datasetService.setActiveDatastore(datastore);
+        this.dashboardService.setActiveDatastores(this.dashboardService.state.datastores.concat(datastore));
 
         // TODO: THOR-1056: fix so that the dashboard is added to existing list
         // TODO: THOR-1056: make enough information available to set entire currentDashboard here.
 
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
-        // this.datasetService.setCurrentDashboard(??)
+        // this.dashboardService.setCurrentDashboard(??)
 
         this.filterService.deleteFilters('CustomConnection');
         this.datasetCreated.emit(datastore);
