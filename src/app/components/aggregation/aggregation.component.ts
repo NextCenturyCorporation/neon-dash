@@ -272,7 +272,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         this.changedThroughPickr = true;
                         this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
                         this.savedDates = selectedDates;
-                    } 
+                    }
                     if (this.savedDates) {
                         instance.setDate(this.savedDates, true);
                         instance.redraw();
