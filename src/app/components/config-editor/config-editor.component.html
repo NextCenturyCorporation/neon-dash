@@ -1,6 +1,6 @@
-<div class="messages">
-    <div class="messages-header">Configuration Editor</div>
-    <div class="message-body">
+<div class="editor">
+    <div class="editor-header">Edit Current Dashboard Configuration</div>
+    <div class="editor-body">
         <ngx-monaco-editor #editor [options]="{
       theme: 'vs',
       language: 'yaml',
@@ -11,13 +11,16 @@
   }" [(ngModel)]="configText">
         </ngx-monaco-editor>
     </div>
-    <div class="messages-footer">
-        <button mat-raised-button class="neon-button-large" (click)="save()" aria-label="Save"
-            matTooltip="Saves configuration to Property Service.  Refresh is required to see changes."
-            matTooltipPosition="below">Save</button>
-        <button mat-raised-button class="neon-button-large" (click)="reset()" aria-label="Reset"
-            matTooltip="Reset changes to actively loaded configuation." matTooltipPosition="below">Reset</button>
-        <button mat-raised-button class="neon-button-large" matDialogClose="close" aria-label="Close"
-            matTooltip="Close configuration editor and discard changes." matTooltipPosition="below">Close</button>
+    <div class="editor-footer">
+        <mat-form-field>
+            <input matInput placeholder="Dashboard Name" maxlength="100" [(ngModel)]="dashboardName">
+        </mat-form-field>
+        <button mat-raised-button class="neon-button-large" matDialogClose="close" (click)="save()" aria-label="Save as New Dashboard"
+            [disabled]="!dashboardName">
+            Save as New Dashboard
+        </button>
+        <button mat-raised-button class="neon-button-large" matDialogClose="close" (click)="cancel()" aria-label="Cancel">
+            Cancel
+        </button>
     </div>
 </div>

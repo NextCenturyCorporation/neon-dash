@@ -33,8 +33,7 @@
             <div *ngIf="currentDashboard">
                 <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!dashboardService.state.modified"
                     matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
-                    {{ currentDashboard.name }}
-                    <small *ngIf="currentDashboard.fullTitle">- {{ currentDashboard.fullTitle }}</small>
+                    {{ retrieveFullDashboardTitle(currentDashboard.fullTitle) }}
                 </div>
             </div>
             <div *ngIf="!currentDashboard">Choose Dashboard...</div>
@@ -60,8 +59,8 @@
                 id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large">filter_list</mat-icon>
             </button>
-
-            <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+            <button mat-icon-button class="neon-icon-button-large" matTooltip="Dashboard Menu" matTooltipPosition="below"
+                [matMenuTriggerFor]="appMenu">
                 <mat-icon class="neon-icon-large">menu</mat-icon>
             </button>
 
@@ -69,14 +68,14 @@
                 <button mat-menu-item (click)="setPanel('addVis', 'Add Visualizations');">
                     <mat-icon>add_circle</mat-icon>Add Visualizations
                 </button>
-                <button mat-menu-item (click)="setPanel('savedState', 'Save States');">
-                    <mat-icon>save</mat-icon>Saved States
+                <button mat-menu-item (click)="setPanel('savedState', 'Create or Save Dashboard');">
+                    <mat-icon>save</mat-icon>Dashboard States
                 </button>
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
-                <button mat-menu-item (click)="setPanel('customRequests', 'Submit Data');">
-                    <mat-icon>save_alt</mat-icon>Submit Data
+                <button mat-menu-item *ngIf="showCustomRequestsMenuItem()" (click)="setPanel('customRequests', '');">
+                    <mat-icon>save_alt</mat-icon>{{ retrieveCustomRequestsDisplayLabel() }}
                 </button>
                 <button mat-menu-item (click)="setPanel('importData', 'Import CSV');">
                     <mat-icon>cloud_upload</mat-icon>Import CSV
@@ -84,8 +83,8 @@
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
                 </button>
-                <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
-                    <mat-icon>info</mat-icon>About the Neon Dashboard
+                <button mat-menu-item (click)="setPanel('aboutNeon', 'About');">
+                    <mat-icon>info</mat-icon>About This Neon Dashboard
                 </button>
 
                 <!-- TODO THOR-1056

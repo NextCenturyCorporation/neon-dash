@@ -18,14 +18,13 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { Dataset, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { Dataset, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -47,8 +46,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public searchField: FieldConfig;
 
     public showFilterTray: boolean = true;
-    public showSimpleSearch: boolean;
+    public showSimpleSearch: boolean = false;
     public showVisualizationsShortcut: boolean = true;
+    public showLocalTimes: boolean = false;
     public readonly dashboardState: DashboardState;
 
     constructor(
@@ -92,23 +92,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
+        this.messenger.subscribe(neonEvents.TOGGLE_LOCAL_TIMES, (message) => {
+            this.showLocalTimes = message.show;
+        });
+
         this.dashboardService.stateSource.subscribe(() => {
             this.updateSimpleSearchFilter();
         });
 
         this.changeDetection.detectChanges();
-    }
-
-    openEditConfigDialog() {
-        this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'config-editor'
-            },
-            height: '80%',
-            width: '80%',
-            hasBackdrop: true,
-            disableClose: true
-        });
     }
 
     publishShowFilterTray() {
@@ -132,6 +124,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
     }
 
+    publishShowLocalTimes() {
+        this.showLocalTimes = !this.showLocalTimes;
+        this.messenger.publish(neonEvents.TOGGLE_LOCAL_TIMES, {
+            show: this.showLocalTimes
+        });
+    }
+
     setCurrentTheme(themeId: any) {
         if (themeId) {
             this.colorThemeService.setTheme(themeId);
@@ -142,9 +141,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private updateSimpleSearchFilter() {
         let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
-        if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
+        if (this.dashboardState.datastores.length && simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
             const dataset: Dataset = this.dashboardState.asDataset();
-            const datastoreName = this.dashboardState.datastore.name;
+            // TODO THOR-1062 Properly handle multiple datastores.
+            const datastoreName = this.dashboardState.datastores[0].name;
             const table: TableConfig = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
             const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
@@ -153,7 +153,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.dashboardState.getActiveFields();
+            this.fields = [];
+            this.searchField = undefined;
+            this.showSimpleSearch = false;
         }
     }
 }

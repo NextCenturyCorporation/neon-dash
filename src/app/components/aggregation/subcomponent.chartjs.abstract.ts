@@ -14,8 +14,8 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../models/color';
-import { DateUtil } from '../../library/core/date.util';
+import { Color } from 'component-library/dist/core/models/color';
+import { DateUtil } from 'component-library/dist/core/date.util';
 
 import * as Chart from 'chart.js';
 
@@ -37,19 +37,19 @@ export abstract class AbstractChartJsDataset {
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.getComputedCss(this.elementRef);
+        return this.color.getComputedCss(this.elementRef.nativeElement);
     }
 
     public getColorDeselected(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef.nativeElement);
     }
 
     public getColorSelected(): string {
-        return this.color.getComputedCss(this.elementRef);
+        return this.color.getComputedCss(this.elementRef.nativeElement);
     }
 
     public getColorHover(): string {
-        return this.color.getComputedCssHoverColor(this.elementRef);
+        return this.color.getComputedCssHoverColor(this.elementRef.nativeElement);
     }
 
     public getLabels(): any[] {

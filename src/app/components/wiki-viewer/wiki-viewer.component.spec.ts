@@ -14,21 +14,20 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { WikiViewerModule } from './wiki-viewer.module';
 
@@ -38,10 +37,9 @@ describe('Component: WikiViewer', () => {
 
     initializeTestBed('Wiki Viewer', {
         providers: [
-            DashboardService,
+            { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
 
         ],
         imports: [
@@ -157,10 +155,9 @@ describe('Component: WikiViewer with mock HTTP', () => {
 
     initializeTestBed('Wiki Viewer', {
         providers: [
-            DashboardService,
+            { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
 
         ],
         imports: [
@@ -325,13 +322,7 @@ describe('Component: WikiViewer with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'tableKey', useValue: 'table_key_1' },
-            { provide: 'id', useValue: 'testId' },
-            { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'linkField', useValue: 'testLinkField' },
-            { provide: 'title', useValue: 'Test Title' }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             WikiViewerModule,
@@ -342,6 +333,13 @@ describe('Component: WikiViewer with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(WikiViewerComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            tableKey: 'table_key_1',
+            id: 'testId',
+            idField: 'testIdField',
+            linkField: 'testLinkField',
+            title: 'Test Title'
+        };
         fixture.detectChanges();
     });
 

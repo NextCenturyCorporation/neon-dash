@@ -116,7 +116,9 @@ export abstract class AbstractMap {
 
     // Utility
     areBoundsSet() {
-        return this.mapOptions.west !== null && this.mapOptions.east !== null &&
+        return typeof this.mapOptions.west !== 'undefined' && typeof this.mapOptions.east !== 'undefined' &&
+            typeof this.mapOptions.north !== 'undefined' && typeof this.mapOptions.south !== 'undefined' &&
+            this.mapOptions.west !== null && this.mapOptions.east !== null &&
             this.mapOptions.north !== null && this.mapOptions.south !== null;
     }
 }

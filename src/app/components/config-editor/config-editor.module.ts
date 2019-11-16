@@ -16,8 +16,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfigEditorComponent } from './config-editor.component';
 import {
-    MatToolbarModule, MatTooltipModule, MatSelectModule,
-    MatDialogModule, MatButtonModule
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatToolbarModule,
+    MatTooltipModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
@@ -33,11 +38,13 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     imports: [
         FormsModule,
         MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
-        MatDialogModule,
         MatButtonModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
         MatToolbarModule,
         MatTooltipModule,
-        MatSelectModule,
         CommonModule
     ]
 })

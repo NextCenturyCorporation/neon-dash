@@ -19,21 +19,21 @@ import {
     Component,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    Injector,
     OnInit,
-    ViewEncapsulation
+    ViewEncapsulation,
+    OnDestroy
 } from '@angular/core';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import {
     AggregationType,
     CompoundFilterType,
@@ -45,11 +45,10 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     OptionChoices
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
@@ -73,7 +72,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         changeDetection: ChangeDetectorRef,
         dialog: MatDialog
     ) {
@@ -81,7 +79,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             dashboardService,
             filterService,
             searchService,
-            injector,
             changeDetection,
             dialog
         );
@@ -186,7 +183,6 @@ describe('BaseNeonComponent', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
@@ -235,7 +231,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.options.filter).toEqual(null);
+        expect(component.options.filter).toEqual(undefined);
         expect(component.options.hideUnfiltered).toEqual(false);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -850,7 +846,7 @@ describe('BaseNeonComponent', () => {
             }
         });
         component['layerIdToQueryIdToQueryObject'].set('testId', queryIdToQueryObject);
-        let spy = spyOn(component, 'handleChangeData');
+        let spy = spyOn(component, 'handleChangeOptions');
         component['finalizeDeleteLayer'](options);
         expect(calledA).toEqual(1);
         expect(calledB).toEqual(1);
@@ -1043,16 +1039,7 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.count()).toEqual(2);
     });
 
-    it('handleChangeFilterField does work as expected', () => {
-        let spyChangeData = spyOn(component, 'handleChangeData');
-
-        component.handleChangeFilterField(component.options);
-
-        expect(spyChangeData.calls.count()).toEqual(1);
-        expect(spyChangeData.calls.argsFor(0)).toEqual([component.options, undefined]);
-    });
-
-    it('handleChangeData does work as expected', () => {
+    it('handleChangeOptions does work as expected', () => {
         let spyChangeData = spyOn(component, 'onChangeData');
         let spyExecuteQuery = spyOn(component, 'executeAllQueryChain');
         component['layerIdToElementCount'].set(component.options._id, 1234);
@@ -1060,7 +1047,7 @@ describe('BaseNeonComponent', () => {
         component['lastPage'] = false;
         component['page'] = 2;
         component['showingZeroOrMultipleElementsPerResult'] = true;
-        component.handleChangeData();
+        component.handleChangeOptions();
         expect(component['layerIdToElementCount'].get(component.options._id)).toEqual(0);
         expect(component['errorMessage']).toEqual('');
         expect(component['lastPage']).toEqual(true);
@@ -1070,7 +1057,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('handleChangeData with options argument does work as expected', () => {
+    it('handleChangeOptions with options argument does work as expected', () => {
         let spyChangeData = spyOn(component, 'onChangeData');
         let spyExecuteQuery = spyOn(component, 'executeQueryChain');
         let options = {
@@ -1081,7 +1068,7 @@ describe('BaseNeonComponent', () => {
         component['lastPage'] = false;
         component['page'] = 2;
         component['showingZeroOrMultipleElementsPerResult'] = true;
-        component.handleChangeData(options as WidgetOptionCollection); // TODO: Verify Typings
+        component.handleChangeOptions(options as WidgetOptionCollection); // TODO: Verify Typings
         expect(component['layerIdToElementCount'].get('testId')).toEqual(0);
         expect(component['errorMessage']).toEqual('');
         expect(component['lastPage']).toEqual(true);
@@ -1636,49 +1623,44 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: DashboardService, useValue: dashboardService },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: getConfigService(testConfig) },
-            { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
-            { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
-            {
-                provide: 'customEventsToPublish',
-                useValue: [{
-                    id: 'testPublishId',
-                    fields: [{
-                        columnName: 'testPublishColumnName',
-                        prettyName: 'testPublishPrettyName'
-                    }]
-                }]
-            },
-            {
-                provide: 'customEventsToReceive',
-                useValue: [{
-                    id: 'testReceiveId',
-                    fields: [{
-                        columnName: 'testReceiveColumnName',
-                        type: 'testReceiveType'
-                    }]
-                }]
-            },
-            { provide: 'hideUnfiltered', useValue: true },
-            { provide: 'limit', useValue: 10 },
-            { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'testArray', useValue: [4, 3, 2, 1] },
-            { provide: 'testFreeText', useValue: 'the quick brown fox jumps over the lazy dog' },
-            { provide: 'testMultipleFields', useValue: ['testXField', 'testYField'] },
-            { provide: 'testMultipleSelect', useValue: ['b', 'c'] },
-            { provide: 'testObject', useValue: { key: 'value' } },
-            { provide: 'testOptionalField', useValue: 'testNameField' },
-            { provide: 'testRequiredField', useValue: 'testSizeField' },
-            { provide: 'testSelect', useValue: 'z' },
-            { provide: 'testToggle', useValue: true },
-            { provide: 'title', useValue: 'VisualizationTitle' }
+            { provide: ConfigService, useValue: getConfigService(testConfig) }
         ]
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestAdvancedNeonComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            configFilter: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' },
+            contributionKeys: ['organization1', 'organization2'],
+            customEventsToPublish: [{
+                id: 'testPublishId',
+                fields: [{
+                    columnName: 'testPublishColumnName',
+                    prettyName: 'testPublishPrettyName'
+                }]
+            }],
+            customEventsToReceive: [{
+                id: 'testReceiveId',
+                fields: [{
+                    columnName: 'testReceiveColumnName',
+                    type: 'testReceiveType'
+                }]
+            }],
+            hideUnfiltered: true,
+            limit: 10,
+            tableKey: 'table_key_2',
+            testArray: [4, 3, 2, 1],
+            testFreeText: 'the quick brown fox jumps over the lazy dog',
+            testMultipleFields: ['testXField', 'testYField'],
+            testMultipleSelect: ['b', 'c'],
+            testObject: { key: 'value' },
+            testOptionalField: 'testNameField',
+            testRequiredField: 'testSizeField',
+            testSelect: 'z',
+            testToggle: true,
+            title: 'VisualizationTitle'
+        };
         fixture.detectChanges();
     });
 
