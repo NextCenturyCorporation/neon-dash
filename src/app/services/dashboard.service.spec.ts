@@ -14,9 +14,8 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from '../library/core/models/config-option';
-import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
-import { DatastoreConfig } from '../library/core/models/dataset';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { FilterConfig, NeonConfig, NeonDashboardChoiceConfig, NeonDashboardLeafConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -33,8 +32,8 @@ import {
     ListFilter,
     ListFilterDesign,
     PairFilter
-} from '../library/core/models/filters';
-import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from '../library/core/models/mock.dataset';
+} from 'component-library/dist/core/models/filters';
+import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from 'component-library/dist/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;
@@ -51,7 +50,7 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(DatastoreConfig.get());
+        expect(dashboardService.state.datastores).toEqual([]);
     });
 
     it('should have no active dashboards at creation', () => {
@@ -123,7 +122,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active datastore at creation', () => {
-        expect(dashboardService.state.datastore).toEqual(DATASTORE);
+        expect(dashboardService.state.datastores).toEqual([DATASTORE]);
     });
 
     it('should return active datastores by name', () => {
@@ -247,7 +246,7 @@ describe('Service: DashboardService with Mock Data', () => {
             },
             layouts,
             dashboards: {
-                fullTitle: 'Full Title',
+                fullTitle: ['Full Title'],
                 layout: 'testState',
                 name: 'dashName',
                 filters,
@@ -275,7 +274,7 @@ describe('Service: DashboardService with Mock Data', () => {
         return { config, filters, layouts };
     }
 
-    it('exportConfig should produce valid results', (done) => {
+    it('exportToConfig should produce valid results', (done) => {
         const { config, filters, layouts } = getConfig([
             {
                 id: 'id1',
@@ -328,7 +327,7 @@ describe('Service: DashboardService with Mock Data', () => {
 
             const data = localDashboardService
                 .exportToConfig('testState') as NeonConfig & { dashboards: NeonDashboardLeafConfig };
-            expect(data.dashboards.fullTitle).toEqual('Full Title');
+            expect(data.dashboards.fullTitle).toEqual(['Full Title']);
             expect(data.dashboards.layout).toEqual('testState');
             expect(data.dashboards.name).toEqual('testState');
             expect(data.dashboards.tables).toEqual({
@@ -373,7 +372,7 @@ describe('Service: DashboardService with Mock Data', () => {
         localConfigService.setActive(config);
     });
 
-    it('exportConfig should produce valid results with string filter', (done) => {
+    it('exportToConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
             ["id1", ["relation1"], "datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
             ["and", "id2", ["relation2"],
@@ -398,7 +397,7 @@ describe('Service: DashboardService with Mock Data', () => {
 
             const data = localDashboardService
                 .exportToConfig('testState') as NeonConfig & { dashboards: NeonDashboardLeafConfig };
-            expect(data.dashboards.fullTitle).toEqual('Full Title');
+            expect(data.dashboards.fullTitle).toEqual(['Full Title']);
             expect(data.dashboards.layout).toEqual('testState');
             expect(data.dashboards.name).toEqual('testState');
             expect(data.dashboards.tables).toEqual({
@@ -439,6 +438,28 @@ describe('Service: DashboardService with Mock Data', () => {
         });
 
         localConfigService.setActive(config);
+    });
+
+    it('createEmptyDashboardConfig does return expected object', () => {
+        expect(dashboardService.createEmptyDashboardConfig('testDashboardName')).toEqual(NeonConfig.get({
+            dashboards: NeonDashboardChoiceConfig.get({
+                choices: {
+                    testDashboardName: {
+                        layout: 'empty',
+                        options: {
+                            connectOnLoad: true
+                        }
+                    }
+                }
+            }),
+            datastores: {
+                datastore1: DATASTORE
+            },
+            layouts: {
+                empty: []
+            },
+            projectTitle: 'testDashboardName'
+        }));
     });
 });
 

@@ -21,6 +21,14 @@
 <div class="legend" *ngIf="showLegend()">
     <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
     </app-legend>
+    <div class="date" *ngIf="canHaveDatePicker()">
+        <input id="startDate">
+        <b> - </b>
+        <input id="endDate" disabled>
+    </div>
+    <div class="icon" *ngIf="canHaveDatePicker()">
+        <img src="./assets/icons/dashboard/calendar.png" width="18" height="18">
+    </div>
 </div>
 
 <div class="body-container">

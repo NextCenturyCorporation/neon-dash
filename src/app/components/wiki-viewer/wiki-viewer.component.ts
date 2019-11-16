@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -27,20 +26,20 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     OptionChoices,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
@@ -64,8 +63,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     static WIKI_LINK_PREFIX_URL: string = 'en.wikipedia.org/wiki/';
     static WIKI_LINK_PREFIX_WIKI: string = '/wiki/';
     static WIKI_LINK_PREFIX_WIKI_FULL: string = 'https://en.wikipedia.org/wiki/';
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public wikiViewerData: any[] = [];
 
@@ -73,7 +72,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer,
@@ -84,7 +82,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );

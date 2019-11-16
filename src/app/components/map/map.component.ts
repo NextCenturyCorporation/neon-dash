@@ -18,14 +18,13 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -39,7 +38,7 @@ import {
     ListFilterDesign,
     PairFilter,
     PairFilterDesign
-} from '../../library/core/models/filters';
+} from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -52,9 +51,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
+import { DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -64,7 +63,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -82,11 +81,11 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('mapElement') mapElement: ElementRef;
-    @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
+    @ViewChild('mapElement', { static: true }) mapElement: ElementRef;
+    @ViewChild('mapOverlay', { static: true }) mapOverlayRef: ElementRef;
 
     public colorKeys: string[] = [];
 
@@ -108,7 +107,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
@@ -118,7 +116,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -151,7 +148,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     initializeProperties() {
         // Backwards compatibility (mapType deprecated and replaced by type).
-        this.options.type = this.injector.get('mapType', this.options.type);
+        if (typeof this.options.mapType !== 'undefined') {
+            this.options.type = this.options.mapType;
+        }
     }
 
     /**
@@ -160,7 +159,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     constructVisualization() {
-        if (!super.isNumber(this.options.type)) {
+        if (!CoreUtil.isNumber(this.options.type)) {
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
         switch (this.options.type) {
@@ -381,7 +380,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             let color = rgbColor;
             if (!this.options.singleColor) {
                 color = !unique.colorValue ? whiteString : this.colorThemeService.getColor(databaseName, tableName, colorField,
-                    unique.colorValue).getComputedCss(this.visualization);
+                    unique.colorValue).getComputedCss(this.visualization.nativeElement);
             }
 
             let name = `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`;
@@ -483,7 +482,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterMap: Map<string, any>, idValue: string, lat: number, lng: number,
         colorField: string, colorValue: string, hoverPopupValue: string) {
-        if (!super.isNumber(lat) || !super.isNumber(lng)) {
+        if (!CoreUtil.isNumber(lat) || !CoreUtil.isNumber(lng)) {
             return;
         }
 

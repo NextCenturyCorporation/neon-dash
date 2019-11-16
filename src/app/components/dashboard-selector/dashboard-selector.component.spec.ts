@@ -28,7 +28,7 @@ let dashboards = NeonDashboardChoiceConfig.get({
     category: 'Choose an option',
     choices: {
         dash1: {
-            fullTitle: 'Test Discovery Config',
+            fullTitle: ['Test Discovery Config'],
             layout: 'DISCOVERY',
             tables: {
                 tableKey: 'datastore1.database1.table1'
@@ -38,11 +38,11 @@ let dashboards = NeonDashboardChoiceConfig.get({
             }
         },
         dash2: {
-            fullTitle: 'Other Config',
+            fullTitle: ['Other Config'],
             category: 'Select an option...',
             choices: {
                 nextChoice: {
-                    fullTitle: 'Last Config',
+                    fullTitle: ['Other Config', 'Last Config'],
                     layout: 'layout3',
                     tables: {
                         tableKey: 'datastore2.database2.table1'
@@ -87,8 +87,8 @@ describe('Component: Dashboard Selector', () => {
 
     it('getDashboardName() should return correct dashboard name', (() => {
         const choices = component.getNextChoices(component.dashboards);
-        expect(choices.find((ch) => ch.name === 'dash1').fullTitle).toEqual('Test Discovery Config');
-        expect(choices.find((ch) => ch.name === 'dash2').fullTitle).toEqual('Other Config');
+        expect(choices.find((ch) => ch.name === 'dash1').fullTitle).toEqual(['Test Discovery Config']);
+        expect(choices.find((ch) => ch.name === 'dash2').fullTitle).toEqual(['Other Config']);
     }));
 
     it('updateDashboardState() should navigate to dashboard name', (() => {

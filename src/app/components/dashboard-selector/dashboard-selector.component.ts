@@ -91,7 +91,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     return [root, ...res];
                 }
             }
-        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+        } else if (this.dashboardChoice && _.isEqual(root.fullTitle, this.dashboardChoice.fullTitle)) {
             return [root];
         }
         return [];
@@ -105,7 +105,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     return [key, ...res];
                 }
             }
-        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+        } else if (this.dashboardChoice && _.isEqual(root.fullTitle, this.dashboardChoice.fullTitle)) {
             return [];
         }
         return undefined;
@@ -116,9 +116,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * dashboardChoice to the appropriate value.
      */
     public selectDashboard(dashboard: NeonDashboardConfig, idx: number) {
-        if ('choices' in dashboard && !_.isEmpty(dashboard.choices)) {
-            this.choices = [...this.choices.slice(0, idx + 1), dashboard];
-        } else {
+        this.choices = [...this.choices.slice(0, idx + 1), dashboard];
+        if (!('choices' in dashboard) || _.isEmpty(dashboard.choices)) {
             this.dashboardChoice = dashboard;
         }
     }

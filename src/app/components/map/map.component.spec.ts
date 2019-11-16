@@ -17,14 +17,13 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
-    Injector,
     ViewEncapsulation
 } from '@angular/core';
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/config-option';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -34,16 +33,16 @@ import {
     FilterCollection,
     ListFilterDesign,
     PairFilterDesign
-} from '../../library/core/models/filters';
+} from 'component-library/dist/core/models/filters';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
@@ -60,10 +59,6 @@ class TestMapComponent extends MapComponent {
         this.options.type = -1;
         this.mapObject = new TestMap();
         return this.mapObject;
-    }
-
-    getInjector(): Injector {
-        return this.injector;
     }
 
     getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldConfig[], lngField: string,
@@ -187,9 +182,7 @@ describe('Component: Map', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
             InjectableColorThemeService
-
         ],
         imports: [
             CommonWidgetModule,
@@ -205,19 +198,19 @@ describe('Component: Map', () => {
 
     it('does have expected default options', () => {
         expect(component.options.clusterPixelRange).toEqual(15);
-        expect(component.options.customServer).toEqual(null);
+        expect(component.options.customServer).toEqual(undefined);
         expect(component.options.disableCtrlZoom).toEqual(false);
-        expect(component.options.hoverSelect).toEqual(null);
+        expect(component.options.hoverSelect).toEqual(undefined);
         expect(component.options.limit).toEqual(1000);
         expect(component.options.minClusterSize).toEqual(5);
         expect(component.options.singleColor).toEqual(false);
         expect(component.options.title).toEqual('Map');
         expect(component.options.type).toEqual(MapType.Leaflet);
 
-        expect(component.options.west).toEqual(null);
-        expect(component.options.east).toEqual(null);
-        expect(component.options.north).toEqual(null);
-        expect(component.options.south).toEqual(null);
+        expect(component.options.west).toEqual(undefined);
+        expect(component.options.east).toEqual(undefined);
+        expect(component.options.north).toEqual(undefined);
+        expect(component.options.south).toEqual(undefined);
     });
 
     it('does have expected public properties', () => {
@@ -261,10 +254,18 @@ describe('Component: Map', () => {
 
         let colorThemeService = getService(InjectableColorThemeService);
 
-        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
-        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
-        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
-        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
+        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(
+            component.visualization.nativeElement
+        );
+        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(
+            component.visualization.nativeElement
+        );
 
         let dataset1 = {
             data: [
@@ -947,33 +948,7 @@ describe('Component: Map with config', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            InjectableColorThemeService,
-            { provide: 'tableKey', useValue: 'table_key_1' },
-            {
-                provide: 'layers',
-                useValue: [{
-                    colorField: 'testColorField',
-                    hoverPopupField: 'testHoverField',
-                    dateField: 'testDateField',
-                    latitudeField: 'testLatitudeField',
-                    longitudeField: 'testLongitudeField',
-                    sizeField: 'testSizeField',
-                    title: 'Test Layer Title'
-                }]
-            },
-            { provide: 'limit', useValue: 9999 },
-            { provide: 'clusterPixelRange', useValue: 20 },
-            { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
-            { provide: 'disableCtrlZoom', useValue: true },
-            { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
-            { provide: 'minClusterSize', useValue: 10 },
-            { provide: 'singleColor', useValue: true },
-            { provide: 'west', useValue: 1 },
-            { provide: 'east', useValue: 2 },
-            { provide: 'south', useValue: 3 },
-            { provide: 'north', useValue: 4 },
-            { provide: 'title', useValue: 'Test Title' }
+            InjectableColorThemeService
         ],
         imports: [
             CommonWidgetModule,
@@ -984,6 +959,30 @@ describe('Component: Map with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            tableKey: 'table_key_1',
+            layers: [{
+                colorField: 'testColorField',
+                hoverPopupField: 'testHoverField',
+                dateField: 'testDateField',
+                latitudeField: 'testLatitudeField',
+                longitudeField: 'testLongitudeField',
+                sizeField: 'testSizeField',
+                title: 'Test Layer Title'
+            }],
+            limit: 9999,
+            clusterPixelRange: 20,
+            customServer: { mapUrl: 'testUrl', layer: 'testLayer' },
+            disableCtrlZoom: true,
+            hoverSelect: { hoverTime: 5 },
+            minClusterSize: 10,
+            singleColor: true,
+            west: 1,
+            east: 2,
+            south: 3,
+            north: 4,
+            title: 'Test Title'
+        };
         fixture.detectChanges();
     });
 

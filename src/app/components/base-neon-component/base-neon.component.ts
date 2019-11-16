@@ -12,23 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../library/core/services/abstract.search.service';
+} from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilter, AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
+import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
+import { Dataset, DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     ConfigOption,
     OptionType
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -39,15 +39,8 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from '../../library/core/services/connection.service';
+import { RequestWrapper } from 'component-library/dist/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
-
-export class InjectorOptionConfig extends OptionConfig {
-    public get(bindingKey: string, defaultValue: any): any {
-        // Assume config is an Angular Injector
-        return this.config.get(bindingKey, defaultValue);
-    }
-}
 
 /**
  * @class BaseNeonComponent
@@ -87,6 +80,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected lastPage: boolean = true;
     protected page: number = 1;
 
+    @Input() configOptions: { [key: string]: any };
     public options: RootWidgetOptionCollection & { [key: string]: any };
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
@@ -97,7 +91,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         protected dashboardService: DashboardService,
         protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService,
-        protected injector: Injector,
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
@@ -123,14 +116,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public ngOnInit(): void {
         this.initializing = true;
 
-        this.options = this.createWidgetOptions(this.injector, this.getVisualizationDefaultTitle(), this.getVisualizationDefaultLimit());
+        this.options = this.createWidgetOptions(this.configOptions, this.getVisualizationDefaultTitle(),
+            this.getVisualizationDefaultLimit());
         this.options.title = this.getVisualizationTitle(this.options.title);
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
             this.destroyVisualization();
             this.constructVisualization();
-            this.handleChangeFilterField();
+            this.handleChangeOptions();
         });
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
@@ -140,7 +134,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                         if (eventMessageId !== this.selectedDataId) {
                             this.onSelectId(layer, eventMessageId);
                             this.selectedDataId = eventMessageId;
-                            this.handleChangeData(layer);
+                            this.handleChangeOptions(layer);
                         }
                     }
                 });
@@ -206,7 +200,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
         this.layerIdToQueryIdToQueryObject.delete(layerOptions._id);
         // Delete the layer's data from this visualization.
-        this.handleChangeData(layerOptions);
+        this.handleChangeOptions(layerOptions);
     }
 
     /**
@@ -723,16 +717,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected abstract designEachFilterWithNoValues(): AbstractFilterDesign[];
 
     /**
-     * Updates filters whenever a filter field is changed and then runs the visualization query.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} [databaseOrTableChange]
-     */
-    public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        this.handleChangeData(options, databaseOrTableChange);
-    }
-
-    /**
      * Updates elements and properties whenever the widget config is changed.
      * @arg {boolean} [databaseOrTableChange]
      */
@@ -746,7 +730,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @arg {boolean} [databaseOrTableChange]
      */
-    public handleChangeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+    public handleChangeOptions(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
@@ -770,7 +754,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * then runs the visualization query.
      */
     public handleChangeSubcomponentType(options?: WidgetOptionCollection | any) {
-        this.handleChangeData(options);
+        this.handleChangeOptions(options);
     }
 
     /**
@@ -864,8 +848,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     getOptions(): ConfigurableWidget {
         return {
-            changeData: this.handleChangeData.bind(this),
-            changeFilterData: this.handleChangeFilterField.bind(this),
+            changeOptions: this.handleChangeOptions.bind(this),
             createLayer: this.createLayer.bind(this),
             deleteLayer: this.deleteLayer.bind(this),
             exportData: this.createExportData.bind(this),
@@ -962,15 +945,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
-     *
-     * @arg {Injector} injector
-     * @arg {string} visualizationTitle
-     * @arg {number} defaultLimit
-     * @return {any}
      */
-    private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
+    private createWidgetOptions(configOptions: any, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
+            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new OptionConfig(configOptions));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
@@ -1118,16 +1096,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected getContributorsForComponent() {
         let allContributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(allContributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(allContributors);
 
         return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
 
     protected getContributorAbbreviations() {
         let contributors = this.dashboardState.dashboard.contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(contributors);
+        let contributorKeys = this.options.contributionKeys || Object.keys(contributors);
 
         let contributorAbbreviations = contributorKeys.filter((key) =>
             !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);
