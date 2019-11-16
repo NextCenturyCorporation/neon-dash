@@ -26,7 +26,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { Dataset } from '../../library/core/models/dataset';
+import { Dataset } from 'component-library/dist/core/models/dataset';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
@@ -41,7 +41,7 @@ import { DashboardState } from '../../models/dashboard-state';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class ImportDataComponent implements OnDestroy {
-    @ViewChild('inputFile') inputFile: ElementRef;
+    @ViewChild('inputFile', { static: true }) inputFile: ElementRef;
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
 
@@ -106,16 +106,15 @@ export class ImportDataComponent implements OnDestroy {
             this.csvParseError = `CSV parsing error at line ${result.errors[0].row}: ${result.errors[0].message}`;
             return;
         }
-        else
-        {
-            this.csvParseError = "";
-        }
+
+        this.csvParseError = '';
 
         this.csvParseError = '';
         let sourceColumns = Object.keys(result.data[0]);
 
-        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
-            this.dashboardState.getDatastoreHost());
+        // TODO THOR-1062 Iterate over, connect, and call runExportQuery on each datastore.
+        let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
+            this.dashboardState.datastores[0].host);
 
         connection.getTableNamesAndFieldNames(this.optionCollection.database.name,
             ((response: any) => {
