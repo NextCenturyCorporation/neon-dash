@@ -28,7 +28,7 @@ import {
     TABLE_KEYS,
     TABLES,
     TABLES_LIST
-} from '../library/core/models/mock.dataset';
+} from 'component-library/dist/core/models/mock.dataset';
 
 export class ConnectionServiceMock extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
@@ -47,11 +47,9 @@ export class DashboardServiceMock extends DashboardService {
     public static DATASTORE = DATASTORE;
 
     static init(svc: DashboardServiceMock) {
-        const datastore = DATASTORE;
-
         svc.config.fileName = '-';
 
-        svc.setActiveDatastore(datastore);
+        svc.setActiveDatastores([DATASTORE]);
 
         const dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',

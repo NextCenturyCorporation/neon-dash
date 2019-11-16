@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -25,15 +24,16 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
+import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
+import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import {
     OptionChoices,
     SortOrder,
@@ -42,7 +42,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -55,8 +55,8 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public documentViewerData: any[] = null;
 
@@ -66,7 +66,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog,
@@ -76,7 +75,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -91,8 +89,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     initializeProperties() {
         // Backwards compatibility (sortOrder deprecated and replaced by sortDescending).
-        let sortOrder = this.injector.get('sortOrder', null);
-        this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        if (typeof this.options.sortOrder !== 'undefined') {
+            let sortOrder = this.options.sortOrder;
+            this.options.sortDescending = sortOrder ? (sortOrder === 'DESCENDING') : this.options.sortDescending;
+        }
     }
 
     /**
@@ -267,7 +267,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
         if (activeItemText) {
             activeItem.rows.push({
-                name: name || (this.options.findField(field) || this.createEmptyField()).prettyName || field,
+                name: name || (this.options.findField(field) || FieldConfig.get()).prettyName || field,
                 text: activeItemText
             });
         }

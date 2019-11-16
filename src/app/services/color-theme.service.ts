@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractColorThemeService, Theme } from '../library/core/services/abstract.color-theme.service';
-import { Color, ColorMap, ColorSet } from '../models/color';
+import { AbstractColorThemeService, Theme } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { Color, ColorMap, ColorSet } from 'component-library/dist/core/models/color';
+import { NeonDashboardColorSet } from '../models/color-set';
 
 export class NeonTheme implements Theme {
     public accentColorObject: Color;
@@ -57,7 +58,7 @@ export class ColorThemeService extends AbstractColorThemeService {
         let colorKey = this.getColorKey(databaseName, tableName, fieldName);
         let colorSet = this.colorKeyToColorSet.get(colorKey);
         if (!colorSet) {
-            colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName);
+            colorSet = new NeonDashboardColorSet(colorKey, databaseName, tableName, fieldName);
             this.colorKeyToColorSet.set(colorKey, colorSet);
         }
         let colorValue = (value instanceof Array) ? value.join() : value;
@@ -170,7 +171,7 @@ export class ColorThemeService extends AbstractColorThemeService {
                         valueToColor.set(valueName, Color.fromString(color));
                     });
                     let colorKey = this.getColorKey(databaseName, tableName, fieldName);
-                    let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
+                    let colorSet = new NeonDashboardColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
                     this.colorKeyToColorSet.set(colorKey, colorSet);
                 });
             });

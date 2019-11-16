@@ -17,18 +17,17 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -40,8 +39,8 @@ import {
     ConfigOptionField,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
-import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
+} from 'component-library/dist/core/models/config-option';
+import { TextCloud, SizeOptions, ColorOptions } from 'component-library/dist/visualizations/text-cloud/TextCloud';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -52,8 +51,8 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public textCloud: TextCloud;
 
@@ -66,7 +65,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
@@ -76,7 +74,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -89,7 +86,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
-        this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
+        if (typeof this.options.sizeAggregation !== 'undefined') {
+            this.options.aggregation = this.options.sizeAggregation;
+        }
+
+        this.options.aggregation = (this.options.aggregation || AggregationType.COUNT).toLowerCase();
     }
 
     /**

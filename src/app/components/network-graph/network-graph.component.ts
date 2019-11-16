@@ -18,22 +18,21 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../library/core/models/dataset';
-import { CoreUtil } from '../../library/core/core.util';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -45,7 +44,7 @@ import {
     ConfigOption,
     ConfigOptionSelect,
     ConfigOptionColor
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -166,9 +165,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     static DEFAULT_EDGE_COLOR: string ='#2b7ce9';
     static DEFAULT_NODE_COLOR: string ='#96c1fc';
 
-    @ViewChild('graphElement') graphElement: ElementRef;
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('graphElement', { static: true }) graphElement: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public graphData: GraphData = new GraphData();
     public responseData: any[] = [];
@@ -241,7 +240,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
@@ -251,7 +249,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -275,7 +272,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
 
         this.displayGraph = !this.options.hideUnfiltered;
     }
@@ -828,7 +827,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let elementLabel = this.getVisualizationElementLabel(totalDataCount);
 
         if (this.options.isReified) {
-            return super.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
+            return CoreUtil.prettifyInteger(totalDataCount) + (this.displayGraph ? '' : ' Hidden') +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
 
@@ -961,7 +960,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 // If there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
                 if (colorField && this.prettifiedNodeLegendLabels.length === 0) {
                     color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                        colorMapVal).getComputedCss(this.visualization);
+                        colorMapVal).getComputedCss(this.visualization.nativeElement);
                 }
 
                 // Set node name with or without type description
@@ -991,7 +990,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             for (const nodeLabel of this.prettifiedNodeLegendLabels) {
                                 if (nodeLabel === shortName) {
                                     color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                                        nodeLabel).getComputedCss(this.visualization);
+                                        nodeLabel).getComputedCss(this.visualization.nativeElement);
                                     break;
                                 }
                             }
@@ -1057,7 +1056,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // If there is a valid colorField and no modifications to the legend labels, override the default colorString
         if (colorField && this.prettifiedEdgeLegendLabels.length === 0) {
             color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                colorMapVal).getComputedCss(this.visualization);
+                colorMapVal).getComputedCss(this.visualization.nativeElement);
         }
 
         let colorObject = { color: color, highlight: color };
@@ -1072,7 +1071,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (edgeLabel === shortName) {
                         colorMapVal = edgeLabel;
                         color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name,
-                            colorField, edgeLabel).getComputedCss(this.visualization);
+                            colorField, edgeLabel).getComputedCss(this.visualization.nativeElement);
                         colorObject = { color: color, highlight: color };
                         break;
                     }
@@ -1437,10 +1436,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     resetColors() {
-        this.options.linkColor = this.injector.get('linkColor', NetworkGraphComponent.DEFAULT_NODE_COLOR);
-        this.options.nodeColor = this.injector.get('nodeColor', NetworkGraphComponent.DEFAULT_NODE_COLOR);
-        this.options.edgeColor = this.injector.get('edgeColor', NetworkGraphComponent.DEFAULT_EDGE_COLOR);
-        this.options.fontColor = this.injector.get('fontColor', NetworkGraphComponent.DEFAULT_FONT_COLOR);
+        this.options.linkColor = this.options.access('linkColor').valueDefault;
+        this.options.nodeColor = this.options.access('nodeColor').valueDefault;
+        this.options.edgeColor = this.options.access('edgeColor').valueDefault;
+        this.options.fontColor = this.options.access('fontColor').valueDefault;
         this.reloadGraph();
     }
 }

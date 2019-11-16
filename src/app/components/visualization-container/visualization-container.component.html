@@ -1,24 +1,28 @@
 <div class="visualization-toolbar">
     <div class="icon-container">
-        <button mat-icon-button aria-label="Move to top" matTooltip="Move to Top" matTooltipPosition="below" (click)="moveToTop()">
+        <button mat-icon-button aria-label="Move to top" matTooltip="Move Widget to Top" matTooltipPosition="below" (click)="moveToTop()">
             <mat-icon color="accent">arrow_upward</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" matTooltipPosition="below" (click)="moveToBottom()">
+        <button mat-icon-button aria-label="Move to bottom" matTooltip="Move Widget to Bottom" matTooltipPosition="below"
+            (click)="moveToBottom()">
             <mat-icon color="accent">arrow_downward</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Menu" matTooltip="Expand" matTooltipPosition="below" (click)="expand()" *ngIf="!expanded">
+        <button mat-icon-button aria-label="Menu" matTooltip="Expand Widget" matTooltipPosition="below" (click)="expand()"
+            *ngIf="!expanded">
             <mat-icon color="accent">fullscreen</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Menu" matTooltip="Contract" matTooltipPosition="below" (click)="contract()" *ngIf="expanded">
+        <button mat-icon-button aria-label="Menu" matTooltip="Contract Widget" matTooltipPosition="below" (click)="contract()"
+            *ngIf="expanded">
             <mat-icon color="accent">fullscreen_exit</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Close" matTooltip="Close visualization" matTooltipPosition="below" (click)="close()">
+        <button mat-icon-button aria-label="Close" matTooltip="Delete Widget" matTooltipPosition="below" (click)="close()">
             <mat-icon color="warn">close</mat-icon>
         </button>
     </div>
     <div class="fill-remaining drag-handle">{{visualization.sizex}}x{{visualization.sizey}}</div>
 </div>
-<button class="settings" mat-icon-button aria-label="Settings" matToolTip="Settings" (click)="openSettings()">
+<button class="settings" mat-icon-button aria-label="Settings" matTooltip="Open Widget Settings" matTooltipPosition="below"
+    (click)="openSettings()">
     <mat-icon>more_vert</mat-icon>
 </button>
 <app-visualization-injector [componentData]="visualization" class="visualization-container"></app-visualization-injector>

@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
-import { Injector } from '@angular/core';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/config-option';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
 
@@ -39,9 +38,7 @@ describe('Component: NewsFeed', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             NewsFeedModule
@@ -57,7 +54,7 @@ describe('Component: NewsFeed', () => {
 
     // Checks if all class properties are there
     it('does have expected class options properties', () => {
-        expect(component.options.id).toEqual(null);
+        expect(component.options.id).toEqual(undefined);
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.contentField).toEqual(FieldConfig.get());
         expect(component.options.secondaryContentField).toEqual(FieldConfig.get());
