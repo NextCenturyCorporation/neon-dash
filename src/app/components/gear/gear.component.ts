@@ -29,7 +29,7 @@ import { OptionType } from 'component-library/dist/core/models/config-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { neonEvents } from '../../models/neon-namespaces';
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 import * as _ from 'lodash';
 
