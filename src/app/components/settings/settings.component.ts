@@ -24,7 +24,7 @@ import { neonEvents } from '../../models/neon-namespaces';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({

@@ -29,7 +29,7 @@ import { QueryBarComponent } from './query-bar.component';
 import { DatasetOptions, SimpleFilter } from '../../models/types';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { query } from 'component-library/node_modules/neon-framework/dist/neon';
+import { query } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
