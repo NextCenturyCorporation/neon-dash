@@ -59,6 +59,9 @@ src/app/config/config.yaml
 src/app/config/config\.working\.json
 src/app/config/config\.working\.yaml
 
+# custom assets
+src/assets/custom/*
+
 # Lockfiles
 # The build should depend on the package.json, so don't depend on the lockfiles
 yarn.lock

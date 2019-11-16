@@ -18,7 +18,6 @@ import {
     Component,
     ElementRef,
     HostListener,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild
@@ -28,7 +27,7 @@ import {
     AbstractSearchService,
     FilterClause,
     QueryPayload
-} from '../../library/core/services/abstract.search.service';
+} from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -39,13 +38,13 @@ import {
     DomainValues,
     FilterCollection,
     ListFilterDesign
-} from '../../library/core/models/filters';
+} from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     AggregationType,
     CompoundFilterType,
@@ -55,10 +54,10 @@ import {
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -72,10 +71,10 @@ import * as d3 from 'd3';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('svg') svg: ElementRef;
+    @ViewChild('svg', { static: true }) svg: ElementRef;
 
     protected selected: Date[] = null;
 
@@ -95,7 +94,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
@@ -105,7 +103,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -206,7 +203,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
     }
 
     /**

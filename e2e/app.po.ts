@@ -42,7 +42,7 @@ export class NeonGtdPage {
 
     async getVizPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
         const text = await (element.element(By.css('mat-toolbar .info.text')).getText());
-        const cleaned = text.replace(/[^0-9]+/g, ' ').trim();
+        const cleaned = text.replace(/,/g, '').replace(/[^0-9]+/g, ' ').trim();
 
         if (cleaned) {
             const parts = cleaned.split(/\s/).map((val) => parseInt(val, 10));
