@@ -32,9 +32,9 @@ describe('Component: Import-Data', () => {
 
     let mockCsvParser = {
         parse: (file: File, settings: any) => {
-            
+
         }
-    }
+    };
 
     initializeTestBed('ImportData', {
         providers: [
