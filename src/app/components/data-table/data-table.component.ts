@@ -146,7 +146,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new ConfigOptionFieldArray('showFields', 'Show Field(s)', true),
             new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
-                this.optionsFilterable.bind(this)),
+                this.optionsNotFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
             new ConfigOptionSelect('arrayFilterOperator', 'Filter Operator', false, 'and', [{
                 prettyName: 'OR',
@@ -154,10 +154,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }, {
                 prettyName: 'AND',
                 variable: 'and'
-            }], this.optionsFilterable.bind(this)),
+            }], this.optionsNotFilterable.bind(this)),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
-                this.optionsFilterable.bind(this)),
-            new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+                this.optionsNotFilterable.bind(this)),
+            new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsNotHeatmap.bind(this)),
             new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
             new ConfigOptionSelect('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
@@ -235,23 +235,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns whether the widget is filterable.
+     * Returns whether the widget is not filterable.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsFilterable(options: any): boolean {
-        return options.filterable;
+    optionsNotFilterable(options: any): boolean {
+        return !options.filterable;
     }
 
     /**
-     * Returns whether the widget is a heatmap table.
+     * Returns whether the widget is not a heatmap table.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsHeatmapTable(options: any): boolean {
-        return options.heatmapField && options.heatmapField.columnName;
+    optionsNotHeatmap(options: any): boolean {
+        return !options.heatmapField || !options.heatmapField.columnName;
     }
 
     getVisualizationWidth(): number {
