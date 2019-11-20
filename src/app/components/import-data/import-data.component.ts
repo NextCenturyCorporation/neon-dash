@@ -26,7 +26,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { Dataset } from '../../library/core/models/dataset';
+import { Dataset, FieldConfig } from '../../library/core/models/dataset';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
@@ -56,7 +56,7 @@ export class ImportDataComponent implements OnDestroy {
 
     constructor(
         dashboardService: DashboardService,
-        protected connectionService: InjectableConnectionService,
+        private connectionService: InjectableConnectionService,
         @Inject(Object) private papa: any
     ) {
         this.messenger = new eventing.Messenger();
@@ -98,17 +98,14 @@ export class ImportDataComponent implements OnDestroy {
     public onImportClick() {
         let file = this.inputFile.nativeElement.files[0];
         this.papa.parse(file, { header: true,
+            skipEmptyLines: true,
             complete: this.import.bind(this) });
     }
 
-    import(result: any) {
+    private import(result: any) {
         if (result.errors.length > 0) {
             this.csvParseError = `CSV parsing error at line ${result.errors[0].row}: ${result.errors[0].message}`;
             return;
-        }
-        else
-        {
-            this.csvParseError = "";
         }
 
         this.csvParseError = '';
@@ -117,51 +114,41 @@ export class ImportDataComponent implements OnDestroy {
         let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
             this.dashboardState.getDatastoreHost());
 
-        connection.getTableNamesAndFieldNames(this.optionCollection.database.name,
-            ((response: any) => {
-                let destinatinColumns: string[] = response[this.optionCollection.table.name];
-                if (!this.warningMessage && destinatinColumns) {
-                    // Check if source and destination columns match, and if not show warning to user
-                    let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinatinColumns.indexOf(sourceColumn) === -1);
-                    if (newSourceColumns.length > 0) {
-                        this.warningMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
-                                               do not exist in destination table. They will be added as new columns. 
-                                               Click on 'Import' again to proceed?`;
-                        return;
-                    }
-                }
+        let destinationColumns: string[] = this.optionCollection.fields.map((field: FieldConfig) => field.columnName);
+        if (!this.warningMessage && destinationColumns) {
+            // Check if source and destination columns match, and if not show warning to user
+            let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinationColumns.indexOf(sourceColumn) === -1);
+            if (newSourceColumns.length > 0) {
+                this.warningMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
+                                        do not exist in destination table. They will be added as new columns. 
+                                        Click on 'Import' again to proceed?`;
+                return;
+            }
+        }
 
-                let importQuery = {
-                    hostName: this.optionCollection.datastore.host,
-                    dataStoreType: this.optionCollection.datastore.type,
-                    database: this.optionCollection.database.name,
-                    table: this.optionCollection.table.name,
-                    source: result.data.map((row) => JSON.stringify(row))
-                };
+        let importQuery = {
+            hostName: this.optionCollection.datastore.host,
+            dataStoreType: this.optionCollection.datastore.type,
+            database: this.optionCollection.database.name,
+            table: this.optionCollection.table.name,
+            source: result.data.map((row) => JSON.stringify(row))
+        };
 
-                connection.runImportQuery(importQuery,
-                    ((importResponse: any) => {
-                        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                            message: importResponse.failCount === 0 ?
-                                `All ${importResponse.total} records successfully imported!` :
-                                `Out of ${importResponse.total} records, ${importResponse.total - importResponse.failCount} 
-                                successfully imported and ${importResponse.failCount} failed.`
-                        });
+        connection.runImportQuery(importQuery,
+            ((importResponse: any) => {
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    message: importResponse.failCount === 0 ?
+                        `All ${importResponse.total} records successfully imported!` :
+                        `Out of ${importResponse.total} records, ${importResponse.total - importResponse.failCount} 
+                        successfully imported and ${importResponse.failCount} failed.`
+                });
 
-                        this.sideNavRight.close();
-                    }),
-
-                    ((error: any) => {
-                        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                            message: 'Import failed:' + error
-                        });
-                    }));
+                this.sideNavRight.close();
             }),
 
-            ((response: any) => {
-                let error = response.responseJSON ? response.responseJSON.message : response.statusText;
+            ((error: any) => {
                 this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                    message: 'Error accessing destination columns:' + error
+                    message: 'Import failed:' + error
                 });
             }));
     }
