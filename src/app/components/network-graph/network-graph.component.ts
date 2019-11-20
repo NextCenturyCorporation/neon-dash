@@ -298,19 +298,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     protected createOptions(): ConfigOption[] {
         return [
-            new ConfigOptionField('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('nodeField', 'Node Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('targetNameField', 'Target Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('linkField', 'Link Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('linkNameField', 'Link Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('edgeColorField', 'Edge Color Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('targetColorField', 'Target Color Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('xPositionField', 'X Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('yPositionField', 'Y Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('xTargetPositionField', 'X Target Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('yTargetPositionField', 'Y Target Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('typeField', 'Type Field', false, this.optionsIsReified.bind(this)),
             new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
             new ConfigOptionSelect('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('isReified', 'Data Format', false, false, [{
@@ -329,26 +329,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }, {
                 prettyName: 'AND',
                 variable: 'and'
-            }], this.optionsFilterable.bind(this)),
+            }], this.optionsNotFilterable.bind(this)),
             new ConfigOptionSelect('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
-                this.optionsDoesHaveColorField.bind(this)),
+                this.optionsDoesNotHaveColorField.bind(this)),
             new ConfigOptionSelect('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionColor('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
-                this.optionsNotReified.bind(this)),
+                this.optionsIsReified.bind(this)),
             new ConfigOptionNumber('edgeWidth', 'Edge Width', false, 1),
             new ConfigOptionColor('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
-                this.optionsNotReified.bind(this)),
+                this.optionsIsReified.bind(this)),
             new ConfigOptionColor('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
-                this.optionsNotReified.bind(this)),
+                this.optionsIsReified.bind(this)),
             new ConfigOptionColor('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
-                this.optionsNotReified.bind(this)),
+                this.optionsIsReified.bind(this)),
             new ConfigOptionFreeText('nodeShape', 'Node Shape', false, 'box'),
             new ConfigOptionSelect('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsNotReified.bind(this)),
+                this.optionsIsReified.bind(this)),
             new ConfigOptionFreeText('relationNodeIdentifier', 'Relation Node Identifier', false, ''),
-            new ConfigOptionField('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('relationNameField', 'Relation Name Field', false, this.optionsIsReified.bind(this)),
             new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue)
@@ -363,11 +363,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     protected createOptionsForLayer(): ConfigOption[] {
         return [
-            new ConfigOptionField('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
-            new ConfigOptionField('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
+            new ConfigOptionField('idField', 'Id Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nameField', 'Name Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('colorField', 'Color Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('param1Field', 'Parameter 1 Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('param2Field', 'Parameter 2 Field', true, this.optionsIsReified.bind(this)),
             new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
             new ConfigOptionFreeText('layerType', 'Layer Type', true, '', false)
         ];
@@ -424,33 +424,33 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Returns whether the widget has any color fields.
+     * Returns whether the widget does not have any color fields.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsDoesHaveColorField(options: any): boolean {
-        return options.nodeColorField.columnName || options.edgeColorField.columnName || options.targetColorField.columnName;
+    optionsDoesNotHaveColorField(options: any): boolean {
+        return !options.nodeColorField.columnName && !options.edgeColorField.columnName && !options.targetColorField.columnName;
     }
 
     /**
-     * Returns whether the widget is filterable.
+     * Returns whether the widget is not filterable.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsFilterable(options: any): boolean {
-        return options.filterable;
+    optionsNotFilterable(options: any): boolean {
+        return !options.filterable;
     }
 
     /**
-     * Returns whether the widget is not reified.
+     * Returns whether the widget is reified.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsNotReified(options: any): boolean {
-        return !options.isReified;
+    optionsIsReified(options: any): boolean {
+        return options.isReified;
     }
 
     toggleFitContainer(fitContainer: boolean, autoZoom: boolean): void {
