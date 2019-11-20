@@ -19,7 +19,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { neonEvents } from '../../models/neon-namespaces';
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -52,14 +52,15 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
 
         const simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
-        if (!this.validateSimpleFilter(simpleFilter)) {
+        if (!this.validateSimpleFilter(simpleFilter) || !this.dashboardState.datastores.length) {
             return;
         }
 
         this.inputPlaceholder = simpleFilter.placeholder || '';
 
         const dataset: Dataset = this.dashboardState.asDataset();
-        const datastoreName = this.dashboardState.datastore.name;
+        // TODO THOR-1062 Properly handle multiple datastores.
+        const datastoreName = this.dashboardState.datastores[0].name;
         const database: DatabaseConfig = dataset.retrieveDatabase(datastoreName, simpleFilter.databaseName);
         const table: TableConfig = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
         const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,

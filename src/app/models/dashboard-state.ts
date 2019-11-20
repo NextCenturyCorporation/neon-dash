@@ -20,7 +20,7 @@ export class DashboardState {
 
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
-        public datastore: DatastoreConfig = DatastoreConfig.get()
+        public datastores: DatastoreConfig[] = []
     ) { }
 
     get id() {
@@ -62,20 +62,6 @@ export class DashboardState {
     }
 
     /**
-     * Returns whether a datastore is active.
-     */
-    public hasDatastore(): boolean {
-        return (this.datastore.type && this.datastore.host && (Object.keys(this.datastore.databases).length > 0));
-    }
-
-    /**
-     * Returns the name of the active datastore.
-     */
-    public getDatastoreName(): string {
-        return this.datastore.name;
-    }
-
-    /**
      * Returns the layout name for the currently selected dashboard.
      */
     public getLayout(): string {
@@ -90,20 +76,6 @@ export class DashboardState {
     }
 
     /**
-     * Returns the datastore type for the active datastore (elasticsearchrest, mongo, etc)
-     */
-    public getDatastoreType(): string {
-        return this.datastore.type;
-    }
-
-    /**
-     * Returns the hostname for the active datastore.
-     */
-    public getDatastoreHost(): string {
-        return this.datastore.host;
-    }
-
-    /**
      * Returns the options for the current dashboard.
      */
     public getOptions(): NeonDashboardLeafConfig['options'] {
@@ -114,10 +86,13 @@ export class DashboardState {
      * Returns the current dashboard state as a dataset.
      */
     public asDataset(): Dataset {
-        let datastores = {};
-        if (this.datastore && this.datastore.name) {
-            datastores[this.datastore.name] = this.datastore;
-        }
+        let datastores = this.datastores.reduce((collection, datastore) => {
+            if (datastore.name) {
+                collection[datastore.name] = datastore;
+            }
+            return collection;
+        }, {});
+
         return new Dataset(datastores, null, null, this.dashboard.relations, this.dashboard.tables, this.dashboard.fields);
     }
 }
