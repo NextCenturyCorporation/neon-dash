@@ -2603,30 +2603,30 @@ describe('Component: Aggregation', () => {
         expect(component.yList).toEqual([]);
     });
 
-    it('optionsAggregationIsNotCount does return expected boolean', () => {
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-h' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-v' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'doughnut' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'histogram' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'pie' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'table' })).toEqual(false);
+    it('optionsAggregationIsCountOrNA does return expected boolean', () => {
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'bar-h' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'bar-v' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'doughnut' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'histogram' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'pie' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'line' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'scatter' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'table' })).toEqual(true);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'line-xy' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'scatter-xy' })).toEqual(true);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-h' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-v' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'doughnut' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'histogram' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'pie' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'table' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'bar-h' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'bar-v' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'doughnut' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'histogram' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'pie' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'line' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'scatter' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'table' })).toEqual(false);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'line-xy' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'scatter-xy' })).toEqual(true);
     });
 
     it('optionsTypeIsContinuous does return expected boolean', () => {
@@ -2643,47 +2643,61 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsContinuous({ type: 'table' })).toEqual(false);
     });
 
-    it('optionsTypeIsDualViewCompatible does return expected boolean', () => {
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'histogram' })).toEqual(true);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'line-xy' })).toEqual(true);
+    it('optionsTypeIsNotDualViewCompatible does return expected boolean', () => {
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'line-xy' })).toEqual(false);
 
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'table' })).toEqual(true);
     });
 
-    it('optionsTypeIsLine does return expected boolean', () => {
-        expect(component.optionsTypeIsLine({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeIsLine({ type: 'line-xy' })).toEqual(true);
+    it('optionsTypeIsNotLine does return expected boolean', () => {
+        expect(component.optionsTypeIsNotLine({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotLine({ type: 'line-xy' })).toEqual(false);
 
-        expect(component.optionsTypeIsLine({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'histogram' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotLine({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'table' })).toEqual(true);
     });
 
-    it('optionsTypeIsList does return expected boolean', () => {
-        expect(component.optionsTypeIsList({ type: 'list' })).toEqual(true);
+    it('optionsTypeIsNotList does return expected boolean', () => {
+        expect(component.optionsTypeIsNotList({ type: 'list' })).toEqual(false);
 
-        expect(component.optionsTypeIsList({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'histogram' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'line' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'line-xy' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotList({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'table' })).toEqual(true);
+    });
+
+    it('optionsTypeIsNotGrid does return expected boolean', () => {
+        expect(component.optionsTypeIsNotGrid({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'scatter-xy' })).toEqual(false);
+
+        expect(component.optionsTypeIsNotGrid({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotGrid({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotGrid({ type: 'table' })).toEqual(true);
     });
 
     it('optionsTypeIsNotXY does return expected boolean', () => {
@@ -2700,20 +2714,6 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsNotXY({ type: 'scatter-xy' })).toEqual(false);
     });
 
-    it('optionsTypeUsesGrid does return expected boolean', () => {
-        expect(component.optionsTypeUsesGrid({ type: 'bar-h' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'bar-v' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'histogram' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'line-xy' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'scatter' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'scatter-xy' })).toEqual(true);
-
-        expect(component.optionsTypeUsesGrid({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeUsesGrid({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeUsesGrid({ type: 'table' })).toEqual(false);
-    });
-
     it('optionsTypeIsXY does return expected boolean', () => {
         expect(component.optionsTypeIsXY({ type: 'bar-h' })).toEqual(false);
         expect(component.optionsTypeIsXY({ type: 'bar-v' })).toEqual(false);
@@ -2728,18 +2728,18 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsXY({ type: 'scatter-xy' })).toEqual(true);
     });
 
-    it('optionsXFieldIsDate does return expected boolean', () => {
-        expect(component.optionsXFieldIsDate({ xField: { type: 'date' } })).toEqual(true);
+    it('optionsXFieldIsNotDate does return expected boolean', () => {
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'date' } })).toEqual(false);
 
-        expect(component.optionsXFieldIsDate({ xField: { type: 'boolean' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'float' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'keyword' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'int' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'long' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'number' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'object' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'string' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'boolean' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'float' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'keyword' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'int' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'long' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'number' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'object' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'string' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'text' } })).toEqual(true);
     });
 
     it('redrawSubcomponents does recreate main subcomponent and call expected functions', () => {

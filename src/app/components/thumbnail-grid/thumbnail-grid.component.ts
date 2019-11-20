@@ -164,9 +164,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('border', 'Border', false, ''),
             new ConfigOptionFreeText('borderCompareValue', 'Border Comparison Field Equals', false, '',
-                this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
+                this.optionsBorderIsNotPercentCompareOrValueCompare.bind(this)),
             new ConfigOptionNumber('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
-                this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
+                this.optionsBorderIsNotPercentCompareOrPercentField.bind(this)),
             new ConfigOptionSelect('cropAndScale', 'Crop or Scale', false, '', [{
                 prettyName: 'None',
                 variable: ''
@@ -474,8 +474,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsBorderIsPercentCompareOrPercentField(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'percentField';
+    optionsBorderIsNotPercentCompareOrPercentField(options: any): boolean {
+        return options.border !== 'percentCompare' && options.border !== 'percentField';
     }
 
     /**
@@ -484,8 +484,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsBorderIsPercentCompareOrValueCompare(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'valueCompare';
+    optionsBorderIsNotPercentCompareOrValueCompare(options: any): boolean {
+        return options.border !== 'percentCompare' && options.border !== 'valueCompare';
     }
 
     /**
