@@ -16,7 +16,7 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/cor
 
 import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../models/types';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
 
 import * as _ from 'lodash';
