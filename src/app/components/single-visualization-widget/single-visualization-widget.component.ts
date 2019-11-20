@@ -53,7 +53,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
 
 import { neonEvents } from '../../models/neon-namespaces';
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 
 import { NextCenturyTextCloudAngularComponent } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
 
@@ -76,27 +76,30 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     @ViewChild('infoText', { static: true }) infoText: ElementRef;
     @ViewChildren('visualization') visualizations: QueryList<any>;
 
+    // Title toolbar variables.
     public errorMessage: string = '';
     public infoButtonText: string = '';
     public loadingCount: number = 0;
     public showNoData: boolean = false;
 
-    public options: RootWidgetOptionCollection & { [key: string]: any };
+    // Wrapped visualization variables.
+    public dataset: Dataset;
     public componentLibraryOptions: { [key: string]: any };
+    public options: RootWidgetOptionCollection & { [key: string]: any };
+    public visElementId: string;
 
     private _eventMessenger: eventing.Messenger;
     private _id: string;
-    private _visElementId: string;
 
-    // Maps the options/layer ID to the element count.
+    // A collection that maps the options/layer ID to the element count.
     private _layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
+    // Pagination button variables.
     private _cachedPage: number = -1;
     private _lastPage: boolean = true;
     private _page: number = 1;
 
     readonly dashboardState: DashboardState;
-    private _dataset: Dataset;
 
     /**
      * Creates and returns the text for the info button using the given count map, options, and page number.
@@ -398,9 +401,9 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         super();
         this._eventMessenger = new eventing.Messenger();
         this.dashboardState = _dashboardService.state;
-        this._dataset = this.dashboardState.asDataset();
+        this.dataset = this.dashboardState.asDataset();
         _dashboardService.stateSource.subscribe((dashboardState) => {
-            this._dataset = dashboardState.asDataset();
+            this.dataset = dashboardState.asDataset();
         });
     }
 
@@ -466,7 +469,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public ngAfterViewInit(): void {
         // Add the event listeners to the visualization only after the HTML elements are stable.
-        const visElement: HTMLElement = this._getHtmlElement().querySelector('#' + this._visElementId);
+        const visElement: HTMLElement = this._getHtmlElement().querySelector('#' + this.visElementId);
         visElement.addEventListener('searchCanceled', this._onSearchCanceledOrFailed.bind(this));
         visElement.addEventListener('searchFailed', this._onSearchCanceledOrFailed.bind(this));
         visElement.addEventListener('searchFinished', this._onSearchFinished.bind(this));
@@ -492,10 +495,10 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      * Angular lifecycle hook:  Initializes widget properties and registers its event listeners as needed.
      */
     public ngOnInit(): void {
-        this.options = SingleVisualizationWidgetComponent.createWidgetOptionCollection(this, this.configOptions, this._dataset,
+        this.options = SingleVisualizationWidgetComponent.createWidgetOptionCollection(this, this.configOptions, this.dataset,
             this.visualizationType);
         this._id = this.options._id;
-        this._visElementId = 'widget-' + this._id;
+        this.visElementId = 'widget-' + this._id;
 
         if (this.dashboardState.dashboard && this.dashboardState.dashboard.visualizationTitles &&
             this.dashboardState.dashboard.visualizationTitles[this.options.title]) {
@@ -677,7 +680,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     private _updateHeaderStyles() {
-        const visElement = this._getHtmlElement().querySelector('#' + this._visElementId);
+        const visElement = this._getHtmlElement().querySelector('#' + this.visElementId);
         if (this.headerText && this.infoText && visElement) {
             this.headerText.nativeElement.style.maxWidth = Math.floor(visElement.clientWidth - this.infoText.nativeElement.clientWidth -
                 this.TOOLBAR_EXTRA_WIDTH - 1) + 'px';
