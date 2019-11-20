@@ -25,21 +25,44 @@ import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ImportDataModule } from './import-data.module';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 describe('Component: Import-Data', () => {
     let component: ImportDataComponent;
     let fixture: ComponentFixture<ImportDataComponent>;
 
-    let mockCsvParser = {
-        parse: (file: File, settings: any) => {
-            
+    // Setup mock services
+    let mockCSVParser = jasmine.createSpyObj('csvParser', ['parse']);
+    mockCSVParser.parse.and.callFake((file: File, settings: any) => {
+        if (file.name === 'invalid.csv') {
+            settings.complete({
+                errors: [{ row: 1, message: 'failed to parse' }],
+                data: []
+            });
+        } else {
+            settings.complete({
+                errors: [],
+                data: [{ col1: 'val1', col2: 'val2' }]
+            });
         }
-    }
+    });
+
+    let mockConnection = jasmine.createSpyObj('connection', ['runImportQuery']);
+    mockConnection.runImportQuery.and.callFake((importQuery, callBack) => {
+        let importResponse = { total: 3, failCount: null };
+        importResponse.failCount = importQuery.hostName === 'testHostname' ? 0 : 1;
+        callBack(importResponse);
+    });
+
+    let mockConnectionService = jasmine.createSpyObj('connectionService', ['connect']);
+    mockConnectionService.connect.and.returnValue(mockConnection);
 
     initializeTestBed('ImportData', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: Object, useValue: mockCsvParser },
+            { provide: InjectableConnectionService, useValue: mockConnectionService },
+            { provide: Object, useValue: mockCSVParser },
             Injector
         ],
         imports: [
@@ -53,7 +76,71 @@ describe('Component: Import-Data', () => {
         fixture.detectChanges();
     });
 
-    it('initialized', (() => {
+    it('component should be initialized', (() => {
         expect(component).toBeTruthy();
+    }));
+
+    it('should report CSV parse errors', (() => {
+        let file = new File(['col1,col2', 'val1,val2'], 'invalid.csv', {
+            type: 'text/plain'
+        });
+        component.inputFile.nativeElement = { files: [file] };
+
+        component.onImportClick();
+
+        expect(component.csvParseError.length).toBeGreaterThan(0);
+    }));
+
+    it('should warn when source and destination schema don\'t match', (() => {
+        // Setup source file
+        let file = new File(['col1,col2', 'val1,val2'], 'valid.csv', {
+            type: 'text/plain'
+        });
+        component.inputFile.nativeElement = { files: [file] };
+
+        // Setup destination schema
+        component.optionCollection = new WidgetOptionCollection();
+        component.optionCollection.fields = [
+            { columnName: 'col1', prettyName: 'col1', type: 'text', hide: false },
+            { columnName: 'col3', prettyName: 'col3', type: 'text', hide: false }
+        ];
+
+        component.onImportClick();
+
+        expect(mockConnectionService.connect).toHaveBeenCalledWith('testDatastore', 'testHostname');
+
+        expect(component.warningMessage.length).toBeGreaterThan(0);
+    }));
+
+    it('Should run import for valid csv file', (() => {
+        // Setup source file
+        let file = new File(['col1,col2', 'val1,val2'], 'valid.csv', {
+            type: 'text/plain'
+        });
+        component.inputFile.nativeElement = { files: [file] };
+        component.sideNavRight = jasmine.createSpyObj('sideNavRight', ['close']);
+
+        // Setup destination store
+        component.optionCollection = new WidgetOptionCollection();
+        component.optionCollection.datastore = { host: 'testHostname', name: 'testDatastore', type: 'es', databases: null };
+        component.optionCollection.database = { name: 'testDatabase', prettyName: 'Test Database', tables: null };
+        component.optionCollection.table = { name: 'testTable', prettyName: 'Test Table', fields: null, labelOptions: null };
+        component.optionCollection.fields = [
+            { columnName: 'col1', prettyName: 'col1', type: 'text', hide: false },
+            { columnName: 'col2', prettyName: 'col2', type: 'text', hide: false }
+        ];
+
+        component.onImportClick();
+
+        expect(mockConnectionService.connect).toHaveBeenCalledWith('testDatastore', 'testHostname');
+
+        let importQuery = {
+            hostName: component.optionCollection.datastore.host,
+            dataStoreType: component.optionCollection.datastore.type,
+            database: component.optionCollection.database.name,
+            table: component.optionCollection.table.name,
+            source: [{ col1: 'val1', col2: 'val2' }].map((row) => JSON.stringify(row))
+        };
+        expect(mockConnection.runImportQuery).toHaveBeenCalledWith(importQuery, jasmine.any(Function), jasmine.any(Function));
     }));
 });
