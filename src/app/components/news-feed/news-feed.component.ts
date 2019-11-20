@@ -147,7 +147,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new ConfigOptionSelect('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('contentLabel', 'Content Label', false, ''),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
-                this.optionsFilterable.bind(this)),
+                this.optionsNotFilterable.bind(this)),
             new ConfigOptionFreeText('id', 'ID', false, null),
             new ConfigOptionFreeText('delimiter', 'Link Delimiter', false, ','),
             new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
@@ -320,13 +320,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns whether the widget is filterable.
+     * Returns whether the widget is not filterable.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsFilterable(options: any): boolean {
-        return options.filterable;
+    optionsNotFilterable(options: any): boolean {
+        return !options.filterable;
     }
 
     /**
