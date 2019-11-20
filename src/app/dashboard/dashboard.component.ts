@@ -24,7 +24,7 @@ import {
     ElementRef
 } from '@angular/core';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { VisualizationWidget } from '../models/visualization-widget';

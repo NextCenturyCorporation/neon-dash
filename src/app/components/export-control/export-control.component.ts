@@ -20,7 +20,7 @@ import { DashboardState } from '../../models/dashboard-state';
 
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-export-control',
@@ -87,8 +87,13 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
-            this.dashboardState.getDatastoreHost());
+        if (!this.dashboardState.datastores.length) {
+            return;
+        }
+
+        // TODO THOR-1062 Iterate over, connect, and call runExportQuery on each datastore.
+        let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
+            this.dashboardState.datastores[0].host);
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
             name: ((this.exportCallbacks.length > 1) ? 'All_Widgets' : 'Export'),
@@ -102,6 +107,7 @@ export class ExportControlComponent {
             return;
         }
 
+        // TODO THOR-1062 The exportCallbacks should return the query datastore name.
         let widgetExportDataList: ({ name: string, data: any }[])[] = this.exportCallbacks.map((callback) => callback());
 
         for (let widgetExportData of widgetExportDataList) {
