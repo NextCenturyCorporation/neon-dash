@@ -11,6 +11,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#custom-dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
 * [Planned Efforts](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#planned-efforts)
+* [Example Data](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#example-data)
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
 * [Contact Us](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#contact-us)
@@ -377,6 +378,10 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 * Set data access restrictions
 * Plan new data visualizations
 * Move visualizations into the Next Century Component Library
+
+## Example Data
+
+Access geospatial/temporal earthquake data [here](./e2e/docker/data) (source?)
 
 ## Apache 2 Open Source License
 
