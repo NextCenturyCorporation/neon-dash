@@ -407,7 +407,7 @@ describe('SingleVisualizationWidgetComponent', () => {
 
     function retrieveVisualizationEventListener(eventName: string, index: number, options?: any): any {
         let visElementMock = document.createElement('div');
-        visElementMock.setAttribute('id', component['_visElementId']);
+        visElementMock.setAttribute('id', component.visElementId);
         widgetElementMock.appendChild(visElementMock);
 
         // eslint-disable-next-line jasmine/no-unsafe-spy
@@ -424,7 +424,7 @@ describe('SingleVisualizationWidgetComponent', () => {
     }
 
     it('does set dataset in component constructor', () => {
-        expect(component['_dataset']).toEqual(DATASET);
+        expect(component.dataset).toEqual(DATASET);
     });
 
     it('getWidgetOptionMenuCallbacks does return expected data', () => {
@@ -527,7 +527,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         let spyTransform = spyOn(SingleVisualizationWidgetComponent, 'transformComponentLibraryOptions');
 
         let visElementMock = document.createElement('div');
-        visElementMock.setAttribute('id', component['_visElementId']);
+        visElementMock.setAttribute('id', component.visElementId);
         widgetElementMock.appendChild(visElementMock);
 
         let spyOnVis = spyOn(visElementMock, 'addEventListener');
