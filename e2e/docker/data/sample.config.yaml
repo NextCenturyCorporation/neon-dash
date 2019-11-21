@@ -1,0 +1,228 @@
+datastores:
+    es_1:
+        host: localhost
+        type: elasticsearch
+        databases:
+            earthquakes:
+                prettyName: 'Earthquakes'
+                tables:
+                    quakedata:
+                        prettyName: Earthquake Data
+                        fields:
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: mag_type
+                              prettyName: Magnitude Type
+                            - columnName: depth
+                              prettyName: Depth
+                            - columnName: latitude
+                              prettyName: Latitude
+                            - columnName: longitude
+                              prettyName: Longitude
+                            - columnName: time
+                              prettyName: Time
+                            - columnName: net
+                              prettyName: Net
+                            - columnName: type
+                              prettyName: Earthquake Type
+                            - columnName: id
+                              prettyName: Earthquake ID
+
+    mysql_1:
+        host: test@localhost
+        type: mysql
+        databases:
+            earthquakes:
+                prettyName: 'Earthquakes'
+                tables:
+                    quakedata:
+                        prettyName: Earthquake Data
+                        fields:
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: mag_type
+                              prettyName: Magnitude Type
+                            - columnName: depth
+                              prettyName: Depth
+                            - columnName: latitude
+                              prettyName: Latitude
+                            - columnName: longitude
+                              prettyName: Longitude
+                            - columnName: time
+                              prettyName: Time
+                            - columnName: net
+                              prettyName: Net
+                            - columnName: type
+                              prettyName: Earthquake Type
+                            - columnName: id
+                              prettyName: Earthquake ID
+
+    postgresql_1:
+        host: test:test@localhost/earthquakes
+        type: postgresql
+        databases:
+            earthquakes:
+                prettyName: 'Earthquakes'
+                tables:
+                    quakedata:
+                        prettyName: Earthquake Data
+                        fields:
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: mag_type
+                              prettyName: Magnitude Type
+                            - columnName: depth
+                              prettyName: Depth
+                            - columnName: latitude
+                              prettyName: Latitude
+                            - columnName: longitude
+                              prettyName: Longitude
+                            - columnName: time
+                              prettyName: Time
+                            - columnName: net
+                              prettyName: Net
+                            - columnName: type
+                              prettyName: Earthquake Type
+                            - columnName: id
+                              prettyName: Earthquake ID
+
+
+dashboards:
+    category: 'Select a dashboard...'
+    choices:
+        earthquakes_es:
+            name: Earthquakes Elasticsearch
+            layout: quakedata
+            tables:
+                table_key_1: es_1.earthquakes.quakedata
+            fields:
+                mag_key: es_1.eqarthquakes.quakedata.mag
+                depth_key: es_1.eqarthquakes.quakedata.depth
+                latitude_key: es_1.eqarthquakes.quakedata.latitude
+                longitude_key: es_1.eqarthquakes.quakedata.longitude
+                time_key: es_1.eqarthquakes.quakedata.time
+                net_key: es_1.eqarthquakes.quakedata.net
+                type_key: es_1.eqarthquakes.quakedata.type
+                id_key: es_1.eqarthquakes.quakedata.id
+            options:
+                connectOnLoad: true
+
+        earthquakes_mysql:
+            name: Earthquakes MySQL
+            layout: quakedata
+            tables:
+                table_key_1: mysql_1.earthquakes.quakedata
+            fields:
+                mag_key: mysql_1.eqarthquakes.quakedata.mag
+                depth_key: mysql_1.eqarthquakes.quakedata.depth
+                latitude_key: mysql_1.eqarthquakes.quakedata.latitude
+                longitude_key: mysql_1.eqarthquakes.quakedata.longitude
+                time_key: mysql_1.eqarthquakes.quakedata.time
+                net_key: mysql_1.eqarthquakes.quakedata.net
+                type_key: mysql_1.eqarthquakes.quakedata.type
+                id_key: mysql_1.eqarthquakes.quakedata.id
+
+        earthquakes_postgresql:
+            name: Earthquakes PostgreSQL
+            layout: quakedata
+            tables:
+                table_key_1: postgresql_1.earthquakes.quakedata
+            fields:
+                mag_key: postgresql_1.eqarthquakes.quakedata.mag
+                depth_key: postgresql_1.eqarthquakes.quakedata.depth
+                latitude_key: postgresql_1.eqarthquakes.quakedata.latitude
+                longitude_key: postgresql_1.eqarthquakes.quakedata.longitude
+                time_key: postgresql_1.eqarthquakes.quakedata.time
+                net_key: postgresql_1.eqarthquakes.quakedata.net
+                type_key: postgresql_1.eqarthquakes.quakedata.type
+                id_key: postgresql_1.eqarthquakes.quakedata.id
+
+layouts:
+    quakedata:
+        - type: aggregation
+          col: 1
+          row: 1
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Timeline
+              type: histogram
+              tableKey: table_key_1
+              xField: time_key
+              granularity: dayOfMonth
+              groupField: net_key
+              ignoreSelf: true
+              limit: 100
+
+        - type: aggregation
+          col: 1
+          row: 5
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Networks
+              type: bar-h
+              tableKey: table_key_1
+              xField: net_key
+              groupField: net_key
+              sortByAggregation: true
+              ignoreSelf: true
+              limit: 11
+
+        - type: aggregation
+          col: 1
+          row: 9
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Magnitudes
+              type: histogram
+              tableKey: table_key_1
+              xField: mag_key
+              groupField: net_key
+              ignoreSelf: true           
+              limit: 100
+
+        - type: aggregation
+          col: 1
+          row: 13
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Depths
+              type: histogram
+              tableKey: table_key_1
+              xField: depth_key
+              groupField: net_key
+              ignoreSelf: true           
+              limit: 100
+
+        - type: map
+          col: 7
+          row: 1
+          sizex: 6
+          sizey: 10
+          bindings:
+              title: Locations
+              mapType: leaflet
+              tableKey: table_key_1
+              limit: 5000
+              layers:
+                  - title: Earthquakes
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    colorField: net_key
+
+        - type: dataTable
+          col: 7
+          row: 11
+          sizex: 6
+          sizey: 6
+          bindings:
+              title: Raw Data
+              tableKey: table_key_1
+              sortField: time_key
+              ignoreSelf: false              
+              limit: 100
+
