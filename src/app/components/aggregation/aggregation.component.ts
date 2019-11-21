@@ -1171,14 +1171,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let findAxisType = (type) => {
-            // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
-            if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||
-                type === 'half_float' || type === 'scaled_float') {
-                return 'number';
-            }
-            return type === 'date' ? 'date' : 'string';
-        };
+        let findAxisType = (type) => ((type === 'decimal' || type === 'integer') ? 'number' : (type === 'date' ? 'date' : 'string'));
 
         let isXY = this.optionsTypeIsXY(this.options);
         let meta = {
