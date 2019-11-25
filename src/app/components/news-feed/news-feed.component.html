@@ -76,19 +76,6 @@
     </mat-accordion>
 </div>
 
-<!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-<div class="footer" *ngIf="showPagination()">
-    <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
-            Previous
-        </button>
-        <span class="pagination-button-spacer"></span>
-        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
-            Next
-        </button>
-    </div>
-</div>
-
 <div class="contribution-text" *ngIf="showContribution()">
     <div class="contribution-text-container">
         <a (click)="openContributionDialog()">

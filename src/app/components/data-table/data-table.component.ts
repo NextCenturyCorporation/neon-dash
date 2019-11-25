@@ -123,6 +123,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
+    @HostListener("window:scroll", ["$event"])
+    onWindowScroll() {
+        //browser scroll is given to body tag
+        let pos = (document.documentElement.scrollTop || document.body.scrollTop) + document.documentElement.offsetHeight;
+        let max = document.documentElement.scrollHeight;
+        // max is bottom of screen
+        if (pos == max)   {
+            this.goToNextPage();
+        }
+    }
+
     private createFilterDesignOnValues(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return new ListFilterDesign(compoundFilterType, this.options.datastore.name + '.' + this.options.database.name + '.' +
@@ -414,7 +425,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this._filterFieldsToFilteredValues = CoreUtil.updateValuesFromListFilters(this.options.filterFields, filters,
             this._filterFieldsToFilteredValues, this.createFilterDesignOnValues.bind(this));
 
-        this.tableData = results.map((result) => {
+        let newData: any[] = results.map((result) => {
             let item: any = {};
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
@@ -428,6 +439,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
             return item;
         });
+
+        if (this.page > 1){
+            this.tableData.concat(newData);
+        }
+        else { // this.page === 1
+            this.tableData = newData;
+        }
+
         return this.tableData.length;
     }
 

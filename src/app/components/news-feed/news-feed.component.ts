@@ -20,7 +20,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation, 
+    HostListener
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
@@ -96,6 +97,17 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.redrawOnResize = true;
         this.visualizationQueryPaginates = true;
+    }
+
+    @HostListener("window:scroll", ["$event"])
+    onWindowScroll() {
+        //browser scroll is given to body tag
+        let pos = (document.documentElement.scrollTop || document.body.scrollTop) + document.documentElement.offsetHeight;
+        let max = document.documentElement.scrollHeight;
+        // max is bottom of screen
+        if (pos == max)   {
+            this.goToNextPage();
+        }
     }
 
     relativeTime(date: Date) {
@@ -270,7 +282,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         let listFilters: ListFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnText()) as ListFilter[];
         this._filteredText = CoreUtil.retrieveValuesFromListFilters(listFilters);
 
-        this.newsFeedData = results.map((result) => {
+        let newData: any[] = results.map((result) => {
             let item: any = {
                 field: {},
                 media: undefined
@@ -319,6 +331,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
             return item;
         });
+
+        if (this.page > 1){
+            this.newsFeedData.concat(newData);
+        }
+        else { // this.page === 1
+            this.newsFeedData = newData;
+        }
+        
         return this.newsFeedData.length;
     }
 
