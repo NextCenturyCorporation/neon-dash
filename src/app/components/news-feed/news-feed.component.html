@@ -56,6 +56,11 @@
                         <app-text-with-url [text]=item.field[options.secondaryContentField.columnName]>
                         </app-text-with-url>
                     </div>
+                    <!-- insert ngFor div here, that looks like divs on contentField and secondaryContentField -->
+                    <div class="text multiple-line" *ngFor="let cField of options.contentFields; let idx = index">
+                        <h4 *ngIf="options.contentLabels[idx]">{{options.contentLabels[idx]}}</h4>
+                        <app-text-with-url [text]=item.field[cField.columnName]></app-text-with-url>
+                    </div>
                     <div class="appendix">
                         <span class="date" *ngIf="options.dateField.columnName != ''">{{ item.field[options.dateField.columnName] }}</span>
                         <a mat-icon-button *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
