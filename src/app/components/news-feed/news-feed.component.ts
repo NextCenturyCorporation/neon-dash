@@ -36,6 +36,7 @@ import {
     OptionChoices,
     SortOrder,
     ConfigOptionField,
+    ConfigOptionFieldArray,
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect,
@@ -154,7 +155,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new ConfigOptionFreeText('secondaryContentLabel', 'Secondary Content Label', false, ''),
             new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
             new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {})
+            new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {}),
+            new ConfigOptionFieldArray('contentFields', 'Content Fields', false),
+            new ConfigOptionNonPrimitive('contentLabels', 'Content Labels', false, {})
         ];
     }
 
