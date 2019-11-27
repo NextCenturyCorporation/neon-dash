@@ -17,7 +17,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 
 import { MatDialog } from '@angular/material';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { VisualizationWidget } from '../../models/visualization-widget';
 import { Dataset, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
@@ -34,7 +34,7 @@ import { DashboardState } from '../../models/dashboard-state';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
+    @Input() public widgets: Map<string, VisualizationWidget> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'
@@ -67,7 +67,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.dashboardState.setSimpleFilterFieldName(this.searchField);
     }
 
-    getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
+    getExportCallbacks(widgets: Map<string, VisualizationWidget>): (() => { name: string, data: any }[])[] {
         return Array.from(widgets.values()).map((widget) => widget.createExportData.bind(widget));
     }
 

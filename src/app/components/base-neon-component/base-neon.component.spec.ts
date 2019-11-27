@@ -1304,22 +1304,6 @@ describe('BaseNeonComponent', () => {
         component['handleTransformVisualizationQueryResults'](expectedOptions, expectedResults, successCallback, failureCallback);
     });
 
-    it('isNumber does return expected boolean', () => {
-        expect(component.isNumber(true)).toEqual(false);
-        expect(component.isNumber('a')).toEqual(false);
-        expect(component.isNumber([1, 2])).toEqual(false);
-        expect(component.isNumber({
-            value: 1
-        })).toEqual(false);
-
-        expect(component.isNumber(1)).toEqual(true);
-        expect(component.isNumber(12.34)).toEqual(true);
-        expect(component.isNumber(-12.34)).toEqual(true);
-        expect(component.isNumber('1')).toEqual(true);
-        expect(component.isNumber('12.34')).toEqual(true);
-        expect(component.isNumber('-12.34')).toEqual(true);
-    });
-
     it('onResizeStop works as expected', () => {
         let spyUpdateHeader = spyOn(component, 'updateHeaderTextStyles');
         let spyUpdateSubclass = spyOn(component, 'updateOnResize');
@@ -1342,15 +1326,6 @@ describe('BaseNeonComponent', () => {
             expect(spyRefreshVisualization.calls.count()).toEqual(1);
             done();
         }, 500);
-    });
-
-    it('prettifyInteger does return expected string', () => {
-        expect(component.prettifyInteger(0)).toEqual('0');
-        expect(component.prettifyInteger(1)).toEqual('1');
-        expect(component.prettifyInteger(12)).toEqual('12');
-        expect(component.prettifyInteger(123)).toEqual('123');
-        expect(component.prettifyInteger(1234)).toEqual('1,234');
-        expect(component.prettifyInteger(1234567890)).toEqual('1,234,567,890');
     });
 
     it('shouldFilterSelf does return expected boolean', () => {
