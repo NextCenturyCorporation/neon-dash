@@ -16,7 +16,19 @@
 //@import '../base-neon-component/base-neon.component';
 @import '../gear/gear.component';
 
-.warning-message {
+.warning {
     width: 100%;
     color: red;
+}
+
+.progress {
+    width: 100%;
+
+    &.error {
+        color: red;
+    }
+
+    &.success {
+        color: green;
+    }
 }
