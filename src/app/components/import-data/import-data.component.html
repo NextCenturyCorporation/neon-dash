@@ -2,7 +2,7 @@
     <div class="option-well">
         <h4>Please make sure that CSV file has a header row</h4>
         <div class="option-container">
-            <input #inputFile type="file" name="input-file" id="input-file" accept=".csv" (change)="onFileSelected($event)" />
+            <input #inputFile type="file" name="input-file" id="input-file" accept=".csv" (change)="onFileSelected()" />
         </div>
 
         <div *ngIf="isFileSelected">
@@ -33,13 +33,19 @@
             </mat-form-field>
         </div>
     </div>
-    <div class="warning-message" [innerHTML]="warningMessage"></div>
-    <div class="warning-message">{{csvParseError}}</div>
+    <div class="message warning" [innerHTML]="warningMessage"></div>
+    <div class="progress" [ngClass]="progressIndicator.cssClass">{{progressIndicator.message}}</div>
+    <div class="button-footer">
+        <button *ngIf="parseErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('parse')">Download Parse
+            Errors</button>
+        <button *ngIf="dbErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('db')">Download DB Errors</button>
+    </div>
     <div class="button-footer" align="right">
         <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content" (click)="onCancel()">
             Cancel
         </button>
-        <button mat-raised-button matTooltipPosition="below" matTooltip="Import file content" (click)="onImportClick()">
+        <button [disabled]="inProgress" mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
+            (click)="onImportClick()">
             Import
         </button>
     </div>
