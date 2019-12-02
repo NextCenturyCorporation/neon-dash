@@ -325,7 +325,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (options.xField.type === 'date') {
             switch (options.granularity) {
                 case TimeInterval.SECOND:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -333,7 +333,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     } as FieldKey, TimeInterval.SECOND, '_' + TimeInterval.SECOND);
                 // Falls through
                 case TimeInterval.MINUTE:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -341,7 +341,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     } as FieldKey, TimeInterval.MINUTE, '_' + TimeInterval.MINUTE);
                 // Falls through
                 case TimeInterval.HOUR:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -349,7 +349,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     } as FieldKey, TimeInterval.HOUR, '_' + TimeInterval.HOUR);
                 // Falls through
                 case TimeInterval.DAY_OF_MONTH:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -357,7 +357,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     } as FieldKey, TimeInterval.DAY_OF_MONTH, '_' + TimeInterval.DAY_OF_MONTH);
                 // Falls through
                 case TimeInterval.MONTH:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -365,7 +365,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     } as FieldKey, TimeInterval.MONTH, '_' + TimeInterval.MONTH);
                 // Falls through
                 case TimeInterval.YEAR:
-                    this.searchService.withGroupDate(query, {
+                    this.searchService.withGroupByDate(query, {
                         datastore: options.datastore.name,
                         database: options.database.name,
                         table: options.table.name,
@@ -378,31 +378,31 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 database: options.database.name,
                 table: options.table.name,
                 field: options.xField.columnName
-            } as FieldKey, this.searchService.getAggregationName('date'), AggregationType.MIN);
-            this.searchService.withOrderGroup(query, this.searchService.getAggregationName('date'));
+            } as FieldKey, this.searchService.getAggregationLabel('date'), AggregationType.MIN);
+            this.searchService.withOrderByOperation(query, this.searchService.getAggregationLabel('date'));
             countField = null;
             countGroup = '_' + options.granularity;
         } else {
-            this.searchService.withGroupField(query, {
+            this.searchService.withGroup(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
                 field: options.xField.columnName
             } as FieldKey);
             if (!options.sortByAggregation) {
-                this.searchService.withOrderField(query, {
+                this.searchService.withOrder(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
                     field: options.xField.columnName
                 } as FieldKey);
             } else {
-                this.searchService.withOrderGroup(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
+                this.searchService.withOrderByOperation(query, this.searchService.getAggregationLabel(), SortOrder.DESCENDING);
             }
         }
 
         if (this.optionsTypeIsXY(options)) {
-            this.searchService.withGroupField(query, {
+            this.searchService.withGroup(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
@@ -417,7 +417,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (options.groupField.columnName) {
-            this.searchService.withGroupField(query, {
+            this.searchService.withGroup(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
@@ -434,9 +434,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     database: options.database.name,
                     table: options.table.name,
                     field: (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName)
-                } as FieldKey, this.searchService.getAggregationName(), options.aggregation);
+                } as FieldKey, this.searchService.getAggregationLabel(), options.aggregation);
             } else if (countGroup) {
-                this.searchService.withGroupAggregation(query, countGroup, this.searchService.getAggregationName());
+                this.searchService.withAggregationByGroupCount(query, countGroup, this.searchService.getAggregationLabel());
             }
         }
 
@@ -872,7 +872,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 group: group,
                 x: CoreUtil.deepFind(item, options.xField.columnName),
                 y: isXY ? CoreUtil.deepFind(item, options.yField.columnName) :
-                    (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
+                    (Math.round(item[this.searchService.getAggregationLabel()] * 10000) / 10000)
             };
         };
 
@@ -880,7 +880,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let shownResults = [];
 
         if (!isXY) {
-            queryResults = queryResults.filter((item) => item[this.searchService.getAggregationName()] !== 'NaN');
+            queryResults = queryResults.filter((item) => item[this.searchService.getAggregationLabel()] !== 'NaN');
         }
 
         if (options.xField.type === 'date' && queryResults.length) {
@@ -903,9 +903,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }
 
             let beginDate = options.savePrevious && this.xList.length ? this.xList[0] :
-                queryResults[0][this.searchService.getAggregationName('date')];
+                queryResults[0][this.searchService.getAggregationLabel('date')];
             let endDate = options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
-                queryResults[queryResults.length - 1][this.searchService.getAggregationName('date')];
+                queryResults[queryResults.length - 1][this.searchService.getAggregationLabel('date')];
             this.dateBucketizer.setStartDate(new Date(beginDate));
             this.dateBucketizer.setEndDate(new Date(endDate));
 
@@ -926,7 +926,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     transformations = new Array(xDomainLength).fill(undefined).map(() => []);
                     groupToTransformations.set(transformation.group, transformations);
                 }
-                let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationName('date')]));
+                let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationLabel('date')]));
                 // Fix the X so it is a readable date string.
                 transformation.x = DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index));
                 transformations[index].push(transformation);

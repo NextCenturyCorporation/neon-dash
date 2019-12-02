@@ -653,7 +653,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             } as FieldKey, '!=', null)), CompoundFilterType.OR);
 
         this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)))
-            .withOrderField(query, {
+            .withOrder(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
