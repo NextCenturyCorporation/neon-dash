@@ -836,45 +836,19 @@ describe('Component: ThumbnailGrid with config', () => {
             mov: 'vid'
         });
 
-        expect(component.options.categoryField).toEqual(
-            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
-        );
-        expect(component.options.compareField).toEqual(
-            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
-        );
-        expect(component.options.dateField).toEqual(
-            FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' })
-        );
-        expect(component.options.filterFields).toEqual(
-            [FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' })]
-        );
-        expect(component.options.idField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.linkField).toEqual(
-            FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
-        );
-        expect(component.options.nameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.objectIdField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.objectNameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.percentField).toEqual(
-            FieldConfig.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' })
-        );
-        expect(component.options.predictedNameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.sortField).toEqual(
-            FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' })
-        );
-        expect(component.options.typeField).toEqual(
-            FieldConfig.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' })
-        );
+        expect(component.options.categoryField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.compareField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.dateField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(component.options.filterFields).toEqual([DashboardServiceMock.FIELD_MAP.FILTER]);
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
+        expect(component.options.nameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.objectIdField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.objectNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.percentField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(component.options.predictedNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.sortField).toEqual(DashboardServiceMock.FIELD_MAP.SORT);
+        expect(component.options.typeField).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
     });
 
     it('does show header in toolbar with visualization title from config', () => {
