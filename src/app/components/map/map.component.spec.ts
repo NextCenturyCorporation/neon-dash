@@ -46,6 +46,7 @@ import { SearchServiceMock } from 'component-library/dist/core/services/mock.sea
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 @Component({
     selector: 'app-map',
@@ -780,36 +781,82 @@ describe('Component: Map', () => {
 
         component.options.limit = 5678;
 
-        expect(component.finalizeVisualizationQuery(component.options.layers[0], {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testYField',
+        let searchObject = new CoreSearch(component.options.layers[0].database.name, component.options.layers[0].table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options.layers[0], searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
         updateMapLayer2(component);
 
-        expect(component.finalizeVisualizationQuery(component.options.layers[1], {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testYField',
+        searchObject = new CoreSearch(component.options.layers[1].database.name, component.options.layers[1].table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options.layers[1], searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase2',
+                        table: 'testTable2',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase2',
+                        table: 'testTable2',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 

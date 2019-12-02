@@ -30,6 +30,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { WikiViewerModule } from './wiki-viewer.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
@@ -65,25 +66,48 @@ describe('Component: WikiViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase1' });
+        component.options.table = TableConfig.get({ name: 'testTable1' });
         component.options.id = 'testId';
         component.options.idField = FieldConfig.get({ columnName: 'testIdField' });
         component.options.linkField = FieldConfig.get({ columnName: 'testLinkField' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testIdField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testIdField'
+                    },
                     operator: '=',
-                    value: 'testId'
+                    rhs: 'testId'
                 }, {
-                    field: 'testLinkField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     }));
 

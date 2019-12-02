@@ -26,12 +26,7 @@ import {
 
 import { Color } from 'component-library/dist/core/models/color';
 
-import {
-    AbstractSearchService,
-    FilterClause,
-    QueryGroup,
-    QueryPayload
-} from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -47,7 +42,7 @@ import {
     ListFilter,
     ListFilterDesign
 } from 'component-library/dist/core/models/filters';
-import { DatasetUtil } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldKey } from 'component-library/dist/core/models/dataset';
 import { DateUtil } from 'component-library/dist/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -312,62 +307,140 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let groups: QueryGroup[] = [];
-        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let visualizationFilters: FilterClause[] = [this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: options.xField.columnName
+        } as FieldKey, '!=', null)];
         let countField = options.xField.columnName;
+        let countGroup = null;
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
+                case TimeInterval.SECOND:
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.SECOND, '_' + TimeInterval.SECOND);
+                // Falls through
                 case TimeInterval.MINUTE:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.MINUTE, '_' + TimeInterval.MINUTE);
                 // Falls through
                 case TimeInterval.HOUR:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.HOUR, '_' + TimeInterval.HOUR);
                 // Falls through
                 case TimeInterval.DAY_OF_MONTH:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.DAY_OF_MONTH, '_' + TimeInterval.DAY_OF_MONTH);
                 // Falls through
                 case TimeInterval.MONTH:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.MONTH, '_' + TimeInterval.MONTH);
                 // Falls through
                 case TimeInterval.YEAR:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
+                    this.searchService.withGroupDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.YEAR, '_' + TimeInterval.YEAR);
                 // Falls through
             }
-            this.searchService.updateAggregation(query, AggregationType.MIN, this.searchService.getAggregationName('date'),
-                options.xField.columnName).updateSort(query, this.searchService.getAggregationName('date'));
-            countField = '_' + options.granularity;
-        } else if (!options.sortByAggregation) {
-            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
-            this.searchService.updateSort(query, options.xField.columnName);
+            this.searchService.withAggregation(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.xField.columnName
+            } as FieldKey, this.searchService.getAggregationName('date'), AggregationType.MIN);
+            this.searchService.withOrderGroup(query, this.searchService.getAggregationName('date'));
+            countField = null;
+            countGroup = '_' + options.granularity;
         } else {
-            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
-            this.searchService.updateSort(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
+            this.searchService.withGroupField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.xField.columnName
+            } as FieldKey);
+            if (!options.sortByAggregation) {
+                this.searchService.withOrderField(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.xField.columnName
+                } as FieldKey);
+            } else {
+                this.searchService.withOrderGroup(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
+            }
         }
 
         if (this.optionsTypeIsXY(options)) {
-            groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
-            filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
+            this.searchService.withGroupField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.yField.columnName
+            } as FieldKey);
+            visualizationFilters.push(this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.yField.columnName
+            } as FieldKey, '!=', null));
         }
 
         if (options.groupField.columnName) {
-            groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
+            this.searchService.withGroupField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.groupField.columnName
+            } as FieldKey);
             countField = options.groupField.columnName;
+            countGroup = null;
         }
 
         if (!this.optionsTypeIsXY(options)) {
-            this.searchService.updateAggregation(query, options.aggregation, this.searchService.getAggregationName(),
-                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
+            if (options.aggregation !== AggregationType.COUNT || countField) {
+                this.searchService.withAggregation(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName)
+                } as FieldKey, this.searchService.getAggregationName(), options.aggregation);
+            } else if (countGroup) {
+                this.searchService.withGroupAggregation(query, countGroup, this.searchService.getAggregationName());
+            }
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateGroups(query, groups);
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(visualizationFilters)));
 
         return query;
     }
