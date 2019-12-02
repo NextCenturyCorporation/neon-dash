@@ -27,24 +27,27 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ImportDataModule } from './import-data.module';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
+import { CSVService } from '../../services/csv.service';
 
 describe('Component: Import-Data', () => {
     let component: ImportDataComponent;
     let fixture: ComponentFixture<ImportDataComponent>;
 
     // Setup mock services
-    let mockCSVParser = jasmine.createSpyObj('csvParser', ['parse']);
-    mockCSVParser.parse.and.callFake((file: File, settings: any) => {
+    let mockCSVService = jasmine.createSpyObj('csvParser', ['parse', 'abort', 'pause', 'resume']);
+    mockCSVService.parse.and.callFake((file: File, settings: any) => {
         if (file.name === 'invalid.csv') {
-            settings.complete({
+            settings.chunk({
                 errors: [{ row: 1, message: 'failed to parse' }],
-                data: []
-            });
+                data: [{ col1: 'val1', col2: 'val2' }],
+                meta: { fields: ['col1', 'col2'] }
+            }, mockCSVService);
         } else {
-            settings.complete({
+            settings.chunk({
                 errors: [],
-                data: [{ col1: 'val1', col2: 'val2' }]
-            });
+                data: [{ col1: 'val1', col2: 'val2' }],
+                meta: { fields: ['col1', 'col2'] }
+            }, mockCSVService);
         }
     });
 
@@ -62,7 +65,7 @@ describe('Component: Import-Data', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: InjectableConnectionService, useValue: mockConnectionService },
-            { provide: Object, useValue: mockCSVParser },
+            { provide: CSVService, useValue: mockCSVService },
             Injector
         ],
         imports: [
@@ -85,10 +88,11 @@ describe('Component: Import-Data', () => {
             type: 'text/plain'
         });
         component.inputFile.nativeElement = { files: [file] };
+        component.maxAllowedErrors = 0;
 
         component.onImportClick();
 
-        expect(component.csvParseError.length).toBeGreaterThan(0);
+        expect(component.parseErrors.length).toBeGreaterThan(0);
     }));
 
     it('should warn when source and destination schema don\'t match', (() => {
@@ -110,6 +114,7 @@ describe('Component: Import-Data', () => {
         expect(mockConnectionService.connect).toHaveBeenCalledWith('testDatastore', 'testHostname');
 
         expect(component.warningMessage.length).toBeGreaterThan(0);
+        expect(mockCSVService.abort).toHaveBeenCalledWith();
     }));
 
     it('Should run import for valid csv file', (() => {
@@ -142,5 +147,10 @@ describe('Component: Import-Data', () => {
             source: [{ col1: 'val1', col2: 'val2' }].map((row) => JSON.stringify(row))
         };
         expect(mockConnection.runImportQuery).toHaveBeenCalledWith(importQuery, jasmine.any(Function), jasmine.any(Function));
+        expect(mockCSVService.pause).toHaveBeenCalledWith();
+
+        expect(component.processedRecordsCount).toEqual(1);
+        expect(component.dbErrors.length).toEqual(0);
+        expect(mockCSVService.resume).toHaveBeenCalledWith();
     }));
 });
