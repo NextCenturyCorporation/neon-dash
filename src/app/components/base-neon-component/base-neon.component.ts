@@ -17,16 +17,15 @@ import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@ang
 import {
     AbstractSearchService,
     FilterClause,
-    QueryPayload
+    SearchObject
 } from 'component-library/dist/core/services/abstract.search.service';
 import { CoreUtil } from 'component-library/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil } from 'component-library/dist/core/models/dataset';
+import { Dataset, DatasetUtil, FieldKey } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
-    AggregationType,
     ConfigOption,
     OptionType
 } from 'component-library/dist/core/models/config-option';
@@ -213,12 +212,12 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      */
     public createExportData(): { name: string, data: any }[] {
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
-            let query: QueryPayload = this.createCompleteVisualizationQuery(options);
+            let query: SearchObject = this.createCompleteVisualizationQuery(options);
             let title = options.title.split(':').join(' ') + '-' + options._id;
             let hostName = this.options.datastore.host;
             let dataStoreType = this.options.datastore.type;
             return query ?
-                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
+                this.searchService.transformSearchToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
                 null;
         }).filter((exportObject) => !!exportObject);
     }
@@ -372,13 +371,13 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         if (!this.initializing && this.validateVisualizationQuery(queryOptions)) {
             this.changeDetection.detectChanges();
 
-            let query: QueryPayload = this.createCompleteVisualizationQuery(queryOptions);
+            let query: SearchObject = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
-                this.searchService.updateLimit(query, this.options.limit);
+                this.searchService.withLimit(query, this.options.limit);
 
                 if (this.visualizationQueryPaginates) {
-                    this.searchService.updateOffset(query, (this.page - 1) * this.options.limit);
+                    this.searchService.withOffset(query, (this.page - 1) * this.options.limit);
                 }
 
                 this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
@@ -401,17 +400,17 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      */
     public abstract finalizeVisualizationQuery(
         options: WidgetOptionCollection,
-        queryPayload: QueryPayload,
-        sharedFilters: FilterClause[]
-    ): QueryPayload;
+        query: SearchObject,
+        filters: FilterClause[]
+    ): SearchObject;
 
     /**
      * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {QueryPayload}
+     * @return {SearchObject}
      */
-    public createCompleteVisualizationQuery(options: WidgetOptionCollection): QueryPayload {
+    public createCompleteVisualizationQuery(options: WidgetOptionCollection): SearchObject {
         let fields: string[] = options.list().reduce((list: string[], option: ConfigOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
@@ -449,7 +448,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             });
         }
 
-        let query: QueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
+        let query: SearchObject = this.searchService.createSearch(options.database.name, options.table.name, fields);
         return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
     }
 
@@ -465,9 +464,12 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
         (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
             if (filter && filter.lhs && filter.operator && filter.rhs) {
-                filterClauses = filterClauses.concat(this.searchService.buildFilterClause(
-                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection), filter.operator, filter.rhs
-                ));
+                filterClauses = filterClauses.concat(this.searchService.createFilterClause({
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection)
+                } as FieldKey, filter.operator, filter.rhs));
             }
         });
 
@@ -549,12 +551,11 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             this.errorMessage = '';
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-                let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
+                let countQuery: SearchObject = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
-                        this.searchService.getAggregationName('count'), '*');
+                    this.searchService.withTotalCountAggregation(countQuery, this.searchService.getAggregationName('count'));
 
                     // FIXME The following block is a hack
                     if ((countQuery as any).query) {
@@ -629,11 +630,11 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Runs the given query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} query
+     * @arg {SearchObject} query
      * @arg {string} queryId
      * @arg {(options: WidgetOptionCollection, response: any, callback: () => void) => void} callback
      */
-    private executeQuery(options: WidgetOptionCollection, query: QueryPayload, queryId: string,
+    private executeQuery(options: WidgetOptionCollection, query: SearchObject, queryId: string,
         callback: (options: WidgetOptionCollection, response: any, callback: () => void) => void) {
         this.loadingCount++;
 
@@ -664,7 +665,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
-            callback(options, this.searchService.transformQueryResultsValues(response, this.getLabelOptions(options)),
+            callback(options, this.searchService.transformSearchResultValues(response, this.getLabelOptions(options)),
                 this.finishQueryExecution.bind(this));
         });
 

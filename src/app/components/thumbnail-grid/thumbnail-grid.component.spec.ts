@@ -30,6 +30,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -306,53 +307,136 @@ describe('Component: ThumbnailGrid', () => {
         component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
         component.options.sortField = FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
         component.options.sortDescending = true;
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
-        delete component.options.sortField.columnName;
+        component.options.sortField = new FieldConfig();
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 

@@ -26,7 +26,7 @@ import {
 import {
     AbstractSearchService,
     FilterClause,
-    QueryPayload
+    SearchObject
 } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -57,7 +57,7 @@ import {
 } from 'component-library/dist/core/models/config-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -248,48 +248,98 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(options.dateField.columnName, '!=', null);
-
-        let groups = [];
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let filter: FilterClause = this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: options.dateField.columnName
+        } as FieldKey, '!=', null);
 
         if (options.filterField.columnName) {
-            groups.push(this.searchService.buildQueryGroup(options.filterField.columnName));
+            this.searchService.withGroupField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.filterField.columnName
+            } as FieldKey);
 
             if (options.idField.columnName) {
-                groups.push(this.searchService.buildQueryGroup(options.idField.columnName));
+                this.searchService.withGroupField(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.idField.columnName
+                } as FieldKey);
             }
         }
 
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            case TimeInterval.SECOND:
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.SECOND, '_' + TimeInterval.SECOND);
+            // Falls through
             case TimeInterval.MINUTE:
-                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.MINUTE, '_' + TimeInterval.MINUTE);
             // Falls through
             case TimeInterval.HOUR:
-                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.HOUR, '_' + TimeInterval.HOUR);
             // Falls through
             case TimeInterval.DAY_OF_MONTH:
-                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.DAY_OF_MONTH, '_' + TimeInterval.DAY_OF_MONTH);
             // Falls through
             case TimeInterval.MONTH:
-                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.MONTH, '_' + TimeInterval.MONTH);
             // Falls through
             case TimeInterval.YEAR:
-                groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
+                this.searchService.withGroupDate(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.dateField.columnName
+                } as FieldKey, TimeInterval.YEAR, '_' + TimeInterval.YEAR);
             // Falls through
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateGroups(query, groups)
-            .updateAggregation(query, AggregationType.MIN, this.searchService.getAggregationName('date'), options.dateField.columnName)
-            .updateSort(query, this.searchService.getAggregationName('date'))
-            .updateAggregation(query, AggregationType.COUNT, this.searchService.getAggregationName(), '_' + options.granularity);
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)))
+            .withAggregation(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.dateField.columnName
+            } as FieldKey, this.searchService.getAggregationName('date'), AggregationType.MIN)
+            .withOrderGroup(query, this.searchService.getAggregationName('date'))
+            .withGroupAggregation(query, '_' + options.granularity, this.searchService.getAggregationName());
 
         return query;
     }
