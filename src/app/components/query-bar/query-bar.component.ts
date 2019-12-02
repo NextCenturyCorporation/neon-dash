@@ -17,7 +17,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, View
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
@@ -35,8 +35,8 @@ import {
     ConfigOptionSelect
 } from 'component-library/dist/core/models/config-option';
 
-import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
+import { FieldKey } from 'component-library/dist/core/models/dataset';
 
 @Component({
     selector: 'app-query-bar',
@@ -139,16 +139,26 @@ export class QueryBarComponent extends BaseNeonComponent {
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {query} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, queryPayload: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(options.filterField.columnName, '!=', null);
-        this.searchService.updateFilter(queryPayload, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateSort(queryPayload, options.filterField.columnName);
-        return queryPayload;
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let filter: FilterClause = this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: options.filterField.columnName
+        } as FieldKey, '!=', null);
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)))
+            .withOrderField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.filterField.columnName
+            } as FieldKey);
+        return query;
     }
 
     /**
@@ -318,20 +328,25 @@ export class QueryBarComponent extends BaseNeonComponent {
      */
     private extensionFilter(text: string, extensionField: any, values: any[], collectionId: string): void {
         this.extensionFiltersCollection.set(collectionId, null);
-        let extensionQuery = new query.Query().selectFrom(extensionField.database, extensionField.table);
-        let queryFields = [extensionField.idField, extensionField.filterField];
-        let execute = this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, {
-            query: extensionQuery
-        });
+        let extensionQuery = this.searchService.createSearch(extensionField.database, extensionField.table, [extensionField.idField,
+            extensionField.filterField]);
+
         let filterFieldValues = [];
         let queryClauses = [];
         for (const value of values) {
-            queryClauses.push(query.where(extensionField.filterField, '=', value[this.options.idField.columnName]));
+            queryClauses.push(this.searchService.createFilterClause({
+                datastore: this.options.datastore.name,
+                database: extensionField.database,
+                table: extensionField.table,
+                field: extensionField.filterField
+            } as FieldKey, '=', value[this.options.idField.columnName]));
             filterFieldValues.push(value[this.options.idField.columnName]);
         }
 
-        extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
-        execute.done((response) => {
+        const filterClause = this.searchService.createCompoundFilterClause(queryClauses, CompoundFilterType.OR);
+        this.searchService.withFilter(extensionQuery, filterClause);
+
+        this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, extensionQuery).done((response) => {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {

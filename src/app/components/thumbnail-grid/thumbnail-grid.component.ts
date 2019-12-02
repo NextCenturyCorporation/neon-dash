@@ -25,13 +25,13 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
 import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
@@ -230,29 +230,36 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters = sharedFilters;
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withAllFields(query);
 
-        if (this.options.linkField && this.options.linkField.columnName && this.options.sortField.columnName) {
-            filters = [
-                ...filters,
-                this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
-            ];
-        }
-
-        this.searchService.updateFieldsToMatchAll(query);
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.linkField.columnName ? [
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.linkField.columnName
+            } as FieldKey, '!=', null),
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.linkField.columnName
+            } as FieldKey, '!=', '')
+        ] : [])));
 
         if (options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName,
-                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+            this.searchService.withOrderField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
         }
 
         return query;

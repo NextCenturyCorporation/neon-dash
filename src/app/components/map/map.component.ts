@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -51,7 +51,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
@@ -281,18 +281,26 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.latitudeField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.longitudeField.columnName, '!=', null)
-        ];
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat([
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.latitudeField.columnName
+            } as FieldKey, '!=', null),
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.longitudeField.columnName
+            } as FieldKey, '!=', null)
+        ])));
 
         return query;
     }
