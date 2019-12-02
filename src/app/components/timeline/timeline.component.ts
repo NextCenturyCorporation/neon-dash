@@ -262,7 +262,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         } as FieldKey, '!=', null);
 
         if (options.filterField.columnName) {
-            this.searchService.withGroupField(query, {
+            this.searchService.withGroup(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
@@ -270,7 +270,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             } as FieldKey);
 
             if (options.idField.columnName) {
-                this.searchService.withGroupField(query, {
+                this.searchService.withGroup(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -282,7 +282,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case TimeInterval.SECOND:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -290,7 +290,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 } as FieldKey, TimeInterval.SECOND, '_' + TimeInterval.SECOND);
             // Falls through
             case TimeInterval.MINUTE:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -298,7 +298,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 } as FieldKey, TimeInterval.MINUTE, '_' + TimeInterval.MINUTE);
             // Falls through
             case TimeInterval.HOUR:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -306,7 +306,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 } as FieldKey, TimeInterval.HOUR, '_' + TimeInterval.HOUR);
             // Falls through
             case TimeInterval.DAY_OF_MONTH:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -314,7 +314,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 } as FieldKey, TimeInterval.DAY_OF_MONTH, '_' + TimeInterval.DAY_OF_MONTH);
             // Falls through
             case TimeInterval.MONTH:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -322,7 +322,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 } as FieldKey, TimeInterval.MONTH, '_' + TimeInterval.MONTH);
             // Falls through
             case TimeInterval.YEAR:
-                this.searchService.withGroupDate(query, {
+                this.searchService.withGroupByDate(query, {
                     datastore: options.datastore.name,
                     database: options.database.name,
                     table: options.table.name,
@@ -337,9 +337,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 database: options.database.name,
                 table: options.table.name,
                 field: options.dateField.columnName
-            } as FieldKey, this.searchService.getAggregationName('date'), AggregationType.MIN)
-            .withOrderGroup(query, this.searchService.getAggregationName('date'))
-            .withGroupAggregation(query, '_' + options.granularity, this.searchService.getAggregationName());
+            } as FieldKey, this.searchService.getAggregationLabel('date'), AggregationType.MIN)
+            .withOrderByOperation(query, this.searchService.getAggregationLabel('date'))
+            .withAggregationByGroupCount(query, '_' + options.granularity, this.searchService.getAggregationLabel());
 
         return query;
     }
@@ -375,8 +375,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         value: 1,
                         ids: [uniqueIdentifier],
                         filters: [currentItem[options.filterField.columnName]],
-                        origDate: currentItem[this.searchService.getAggregationName('date')],
-                        date: new Date(currentItem[this.searchService.getAggregationName('date')])
+                        origDate: currentItem[this.searchService.getAggregationLabel('date')],
+                        date: new Date(currentItem[this.searchService.getAggregationLabel('date')])
                     });
                 }
 
@@ -384,8 +384,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }, []);
         } else {
             this.timelineQueryResults = results.map((item) => ({
-                value: item[this.searchService.getAggregationName()],
-                date: new Date(item[this.searchService.getAggregationName('date')])
+                value: item[this.searchService.getAggregationLabel()],
+                date: new Date(item[this.searchService.getAggregationLabel('date')])
             }));
         }
 
@@ -405,7 +405,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     findDateInPreviousItem(previousItems: any[], current: any) {
         if (previousItems.length) {
-            let currentDate = new Date(current[this.searchService.getAggregationName('date')]);
+            let currentDate = new Date(current[this.searchService.getAggregationLabel('date')]);
             let currentMonth = currentDate.getUTCMonth();
             let currentYear = currentDate.getUTCFullYear();
 

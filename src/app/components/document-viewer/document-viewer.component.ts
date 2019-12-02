@@ -170,7 +170,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
 
         if (options.sortField.columnName) {
-            this.searchService.withOrderField(query, {
+            this.searchService.withOrder(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,

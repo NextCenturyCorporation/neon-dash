@@ -194,7 +194,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             } as FieldKey, '!=', null) : [])));
 
         if (options.sortField.columnName) {
-            this.searchService.withOrderField(query, {
+            this.searchService.withOrder(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,

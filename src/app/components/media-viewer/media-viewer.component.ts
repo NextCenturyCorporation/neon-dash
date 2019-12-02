@@ -250,7 +250,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (options.sortField.columnName) {
-            this.searchService.withOrderField(query, {
+            this.searchService.withOrder(query, {
                 datastore: options.datastore.name,
                 database: options.database.name,
                 table: options.table.name,
