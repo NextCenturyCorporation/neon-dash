@@ -40,6 +40,7 @@ import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -246,22 +247,54 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testXField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                field: 'testXField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testXField'],
-            sort: {
-                field: 'testXField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -275,22 +308,57 @@ describe('Component: Aggregation', () => {
         component.options.sortByAggregation = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testXField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: '_aggregation',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_aggregation',
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -302,24 +370,71 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testXField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testYField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testYField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -329,41 +444,100 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            aggregation: [{
-                field: 'testCategoryField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -375,41 +549,100 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            aggregation: [{
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -421,40 +654,107 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testYField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testYField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -464,30 +764,68 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testCategoryField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -499,30 +837,68 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -534,33 +910,78 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testDateField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testYField',
-                    operator: '!=',
-                    value: null
-                }],
-                type: 'and'
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testYField', 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testDateField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -569,50 +990,117 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
-        component.options.granularity = TimeInterval.MINUTE;
+        component.options.granularity = TimeInterval.SECOND;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_minute',
-                type: 'minute'
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
             }, {
-                field: 'testDateField',
-                name: '_hour',
-                type: 'hour'
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_second',
+                operation: 'second'
             }, {
-                field: 'testDateField',
-                name: '_dayOfMonth',
-                type: 'dayOfMonth'
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_minute',
+                operation: 'minute'
             }, {
-                field: 'testDateField',
-                name: '_month',
-                type: 'month'
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_hour',
+                operation: 'hour'
             }, {
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_dayOfMonth',
+                operation: 'dayOfMonth'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_month',
+                operation: 'month'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 

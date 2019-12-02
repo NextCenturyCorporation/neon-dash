@@ -30,6 +30,7 @@ import { TimelineModule } from './timeline.module';
 import { DomainFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -178,69 +179,127 @@ describe('Component: Timeline', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }],
-            aggregation: [
-                {
-                    type: 'min',
-                    name: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
                     field: 'testDateField'
                 },
-                {
-                    type: 'count',
-                    name: '_aggregation',
-                    field: '_year'
-                }
-            ],
-            sort: {
-                field: '_date',
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'group',
+                group: '_year',
+                label: '_aggregation'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
-        component.options.granularity = TimeInterval.MONTH;
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_month',
-                type: 'month'
-            },
-            {
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }],
-            aggregation: [
-                {
-                    type: 'min',
-                    name: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
                     field: 'testDateField'
                 },
-                {
-                    type: 'count',
-                    name: '_aggregation',
-                    field: '_month'
-                }
-            ],
-            sort: {
-                field: '_date',
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'group',
+                group: '_dayOfMonth',
+                label: '_aggregation'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_dayOfMonth',
+                operation: 'dayOfMonth'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_month',
+                operation: 'month'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
@@ -251,78 +310,155 @@ describe('Component: Timeline', () => {
         component.options.filterField = FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
         component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testFilterField',
-                'testIdField',
-                {
-                    field: 'testDateField',
-                    name: '_year',
-                    type: 'year'
-                }],
-            aggregation: [
-                {
-                    type: 'min',
-                    name: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
                     field: 'testDateField'
                 },
-                {
-                    type: 'count',
-                    name: '_aggregation',
-                    field: '_year'
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'group',
+                group: '_year',
+                label: '_aggregation'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testFilterField'
                 }
-            ],
-            sort: {
-                field: '_date',
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testIdField'
+                }
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
         component.options.granularity = TimeInterval.DAY_OF_MONTH;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testFilterField',
-                'testIdField',
-                {
-                    field: 'testDateField',
-                    name: '_dayOfMonth',
-                    type: 'dayOfMonth'
-                },
-                {
-                    field: 'testDateField',
-                    name: '_month',
-                    type: 'month'
-                },
-                {
-                    field: 'testDateField',
-                    name: '_year',
-                    type: 'year'
-                }],
-            aggregation: [
-                {
-                    type: 'min',
-                    name: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
                     field: 'testDateField'
                 },
-                {
-                    type: 'count',
-                    name: '_aggregation',
-                    field: '_dayOfMonth'
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'group',
+                group: '_dayOfMonth',
+                label: '_aggregation'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testFilterField'
                 }
-            ],
-            sort: {
-                field: '_date',
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testIdField'
+                }
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_dayOfMonth',
+                operation: 'dayOfMonth'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_month',
+                operation: 'month'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }],
+            orderByClauses: [{
+                type: 'group',
+                group: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 
