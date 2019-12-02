@@ -222,8 +222,8 @@ describe('Component: Timeline', () => {
                 operation: 'year'
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -293,8 +293,8 @@ describe('Component: Timeline', () => {
                 operation: 'year'
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -367,8 +367,8 @@ describe('Component: Timeline', () => {
                 operation: 'year'
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -452,8 +452,8 @@ describe('Component: Timeline', () => {
                 operation: 'year'
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,

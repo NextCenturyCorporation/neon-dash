@@ -206,7 +206,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 table: options.table.name,
                 field: options.idField.columnName
             } as FieldKey, '!=', null)
-        ]))).withOrderField(query, {
+        ]))).withOrder(query, {
             datastore: options.datastore.name,
             database: options.database.name,
             table: options.table.name,
