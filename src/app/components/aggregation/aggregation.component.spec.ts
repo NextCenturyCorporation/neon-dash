@@ -352,8 +352,8 @@ describe('Component: Aggregation', () => {
                 }
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_aggregation',
+                type: 'operation',
+                operation: '_aggregation',
                 order: -1
             }],
             limitClause: null,
@@ -819,8 +819,8 @@ describe('Component: Aggregation', () => {
                 }
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -892,8 +892,8 @@ describe('Component: Aggregation', () => {
                 }
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -975,8 +975,8 @@ describe('Component: Aggregation', () => {
                 }
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
@@ -1094,8 +1094,8 @@ describe('Component: Aggregation', () => {
                 }
             }],
             orderByClauses: [{
-                type: 'group',
-                group: '_date',
+                type: 'operation',
+                operation: '_date',
                 order: 1
             }],
             limitClause: null,
