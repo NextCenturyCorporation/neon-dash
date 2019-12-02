@@ -347,6 +347,19 @@ If you define `datastores` in your configuration file but you do not define any 
 
 For the full, detailed instructions, please see the [Neon Dashboard Configuration Guide](./docs/DASHBOARD_CONFIGURATION_GUIDE.md)
 
+### Datastore Types
+
+- `elasticsearch` or `elasticsearchrest` (both work the same)
+- `mysql`
+- `postgresql`
+
+### Datastore Authentication
+
+To add datastore authentication, you either:
+
+- Add your username (or username and password) to your datastore's `host` property like this: `username@host` or `username:password@host`.  This will allow any users to see your password, though.
+- Add authentication to your Neon Server as described [here](https://github.com/NextCenturyCorporation/neon-server/blob/master/README.md#datastore-authentication).  You will need to rebuild and redeploy your Neon Server afterward.
+
 ### Elasticsearch Notes
 
 Elasticsearch does not have "databases" or "tables"; instead, it has "indexes" and "mapping types".  In Neon, we consider "indexes" to be the equivalent of "databases" and "mapping types" to be the equivalent of "tables".
@@ -354,6 +367,21 @@ Elasticsearch does not have "databases" or "tables"; instead, it has "indexes" a
 #### Elasticsearch 7
 
 In Elasticsearch 7, mapping types have been removed.  In the Neon Dashboard's configuration file, please use the word `properties` for all Elasticsearch 7 `tables` (and there should only be one per index).
+
+### PostgreSQL Notes
+
+PostgreSQL connections are always database-specific, so any `postgresql` datastore in your config file must have a `host` property that ends with a slash and the database name, like `host:port/database`.  In Neon, we consider PostgreSQL "schemas" to be the equivalent of "databases".  For example, if you have a PostgreSQL running at `http://my_host:1234` with a database `my_database` containing schema `my_schema`, the beginning of the definition of this datastore in your config file should look like:
+
+```yaml
+datastores:
+    postgresql_id:
+        host: "http://my_host:1234/my_database"
+        type: postgresql
+        databases:
+            my_schema:
+                tables:
+```
+
 
 ## Technical Stack
 

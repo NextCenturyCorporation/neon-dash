@@ -555,6 +555,12 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
                     // Do not add a limit or an offset!
                     this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
                         this.searchService.getAggregationName('count'), '*');
+
+                    // FIXME The following block is a hack
+                    if ((countQuery as any).query) {
+                        (countQuery as any).query.sortClauses = [];
+                    }
+
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
