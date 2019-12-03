@@ -48,6 +48,9 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
+import { DateUtil } from 'component-library/dist/core/date.util';
+
+import * as _ from 'lodash';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -68,13 +71,13 @@ export function DashboardModified() {
     ]
 })
 export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
-    @ViewChild(NgGrid) grid: NgGrid;
+    @ViewChild(NgGrid, { static: true }) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-    @ViewChild(SimpleSearchFilterComponent) simpleFilter: SimpleSearchFilterComponent;
-    @ViewChild(MatSidenav) sideNavRight: MatSidenav;
-    @ViewChild('scrollable') scrollArea: ElementRef;
+    @ViewChild(SimpleSearchFilterComponent, { static: true }) simpleFilter: SimpleSearchFilterComponent;
+    @ViewChild(MatSidenav, { static: true }) sideNavRight: MatSidenav;
+    @ViewChild('scrollable', { static: true }) scrollArea: ElementRef;
 
-    @ViewChild(ContextMenuComponent) contextMenu: ContextMenuComponent;
+    @ViewChild(ContextMenuComponent, { static: true }) contextMenu: ContextMenuComponent;
 
     updatedData = 0;
 
@@ -127,7 +130,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentDashboardId: string;
+    private currentDashboardId: string[];
 
     private _filterChangeData: {
         callerId: string;
@@ -215,7 +218,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         // Clean on different dashboard
-        if (this.currentDashboardId !== state.id) {
+        if (!_.isEqual(this.currentDashboardId, state.id)) {
             this.dashboardService.state.modified = false;
 
             this.pendingInitialRegistrations = this.widgets.size;
@@ -453,6 +456,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_MESSAGE, this.handleDashboardMessage.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
+        this.messageReceiver.subscribe(neonEvents.TOGGLE_LOCAL_TIMES, this.updateShowLocalTimes.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
@@ -530,6 +534,20 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Returns the configured (or default) display label for the custom requests navbar menu item.
+     */
+    public retrieveCustomRequestsDisplayLabel(): string {
+        return ((this.dashboardService.state.getOptions() || {}).customRequestsDisplayLabel || 'Custom Requests');
+    }
+
+    /**
+     * Returns the full dashboard title to show in the navbar.
+     */
+    public retrieveFullDashboardTitle(fullTitle: string[]): string {
+        return (fullTitle || []).slice(1, fullTitle.length).join(' / ');
+    }
+
+    /**
      * Indicates to the dashboard that there is new data available
      */
     dataAvailableDashboard(event: { message: MessageEvent }) {
@@ -551,18 +569,25 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     setPanel(newPanel: string, newTitle: string) {
         this.currentPanel = newPanel;
-        this.rightPanelTitle = newTitle;
+        this.rightPanelTitle = newPanel === 'customRequests' ? this.retrieveCustomRequestsDisplayLabel() : newTitle;
         this.sideNavRight.open();
+    }
+
+    /**
+     * Returns whether to show the custom requests navbar menu item.
+     */
+    public showCustomRequestsMenuItem(): boolean {
+        return !!((this.dashboardService.state.getOptions() || {}).customRequests || []).length;
     }
 
     showVizSettings(cmp: NeonGridItem) {
         this.configurableComponent = this.widgets.get(cmp.id).getOptions();
-        this.setPanel('gear', 'Component Settings');
+        this.setPanel('gear', 'Widget Settings');
     }
 
     refreshViz(item: NeonGridItem) {
         const cmp = this.widgets.get(item.id).getOptions();
-        cmp.changeData(undefined, false);
+        cmp.changeOptions(undefined, false);
     }
 
     /**
@@ -578,6 +603,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowVisualizationsShortcut(event: { show: boolean }) {
         this.showVisualizationsShortcut = event.show;
+    }
+
+    /**
+     * Updates the showLocalTimes boolean value from the messenger channel
+     */
+    private updateShowLocalTimes(event: { show: boolean }) {
+        DateUtil.USE_LOCAL_TIME = event.show;
+        this.refreshDashboard();
     }
 
     /**

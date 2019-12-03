@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
-import { AbstractColorThemeService } from './library/core/services/abstract.color-theme.service';
-import { AbstractSearchService } from './library/core/services/abstract.search.service';
+import { AbstractColorThemeService } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
@@ -43,6 +43,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 
 @NgModule({
     declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent],
+    entryComponents: [AppComponent, DynamicDialogComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -68,7 +69,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
             useClass: InjectableSearchService
         }
     ],
-    entryComponents: [AppComponent, DynamicDialogComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

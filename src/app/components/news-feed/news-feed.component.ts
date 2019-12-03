@@ -17,21 +17,20 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from '../../library/core/date.util';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
+import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -41,7 +40,7 @@ import {
     ConfigOption,
     ConfigOptionSelect,
     ConfigOptionNonPrimitive
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
@@ -59,10 +58,10 @@ import { MediaTypes } from '../../models/types';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('filter') filter: ElementRef;
-    @ViewChild(MatAccordion) accordion: MatAccordion;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('filter', { static: false }) filter: ElementRef;
+    @ViewChild(MatAccordion, { static: false }) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
     public noDataId: string = undefined;
@@ -82,7 +81,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -91,7 +89,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -101,7 +98,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     relativeTime(date: Date) {
-        return DateUtil.retrievePastTime(date, DateFormat.SHORT);
+        return DateUtil.retrievePastTime(date, DateFormat.MINUTE);
     }
 
     /**
@@ -339,9 +336,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
+
         // Backwards compatibility (ascending deprecated and replaced by sortDescending).
-        this.options.sortDescending = !(this.injector.get('ascending', !this.options.sortDescending));
+        if (typeof this.options.ascending !== 'undefined') {
+            this.options.sortDescending = !this.options.ascending;
+        }
     }
 
     /**

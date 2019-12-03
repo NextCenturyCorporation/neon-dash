@@ -24,13 +24,13 @@ import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
-import { AbstractSearchService } from '../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../services/mock.dashboard-service';
-import { SearchServiceMock } from '../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';
@@ -845,6 +845,15 @@ describe('Dashboard', () => {
         component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
     });
+
+    it('retrieveFullDashboardTitle does return expected string', () => {
+        expect(component.retrieveFullDashboardTitle([])).toEqual('');
+        expect(component.retrieveFullDashboardTitle(['a'])).toEqual('');
+        expect(component.retrieveFullDashboardTitle(['a', 'b'])).toEqual('b');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c'])).toEqual('b / c');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c', 'd'])).toEqual('b / c / d');
+        expect(component.retrieveFullDashboardTitle(['a', 'b', 'c', 'd', 'e'])).toEqual('b / c / d / e');
+    });
 });
 
 describe('Dashboard Custom', () => {
@@ -908,9 +917,10 @@ describe('Dashboard Custom', () => {
         });
 
         let testDashboard = NeonDashboardLeafConfig.get({
-            layout: 'DISCOVERY',
-            fullTitle: 'Test Title',
             category: 'Select an option...',
+            fullTitle: ['Test Title'],
+            layout: 'DISCOVERY',
+            name: 'Test Name',
             options: {
                 connectOnLoad: true
             }
@@ -920,7 +930,7 @@ describe('Dashboard Custom', () => {
             fixture.detectChanges();
 
             expect(state.dashboard).toEqual(testDashboard);
-            expect(state.datastore).toEqual(config.datastores.testName1);
+            expect(state.datastores).toEqual([config.datastores.testName1, config.datastores.testName2]);
 
             expect(spySender.calls.count()).toEqual(4);
             expect(spySender.calls.argsFor(0)).toEqual([neonEvents.WIDGET_ADD, {
@@ -991,16 +1001,19 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             category: 'Select an option...',
-            fullTitle: 'Test Title',
+            fullTitle: ['Test Title'],
             layout: 'DISCOVERY',
-            options: { connectOnLoad: true }
+            name: 'Test Name',
+            options: {
+                connectOnLoad: true
+            }
         });
 
         component.dashboardService.stateSource.pipe(take(1)).subscribe((state) => {
             fixture.detectChanges();
 
             expect(state.dashboard).toEqual(testDashboard);
-            expect(state.datastore).toEqual(config.datastores.testName1);
+            expect(state.datastores).toEqual([config.datastores.testName1, config.datastores.testName2]);
 
             expect(spySender.calls.count()).toEqual(4);
 

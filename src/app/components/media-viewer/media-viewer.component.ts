@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -26,14 +25,14 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MediaTypes } from '../../models/types';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     OptionChoices,
     SortOrder,
@@ -44,7 +43,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 import { MediaMetaData } from '../media-group/media-group.component';
 
@@ -64,8 +63,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected TAB_HEIGHT: number = 30;
     protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
 
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
     public mediaTypes: any = MediaTypes;
 
@@ -89,7 +88,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         dialog: MatDialog,
@@ -99,7 +97,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
