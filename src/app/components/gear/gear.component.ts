@@ -25,7 +25,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType } from '../../library/core/models/config-option';
+import { OptionType } from 'component-library/dist/core/models/config-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { neonEvents } from '../../models/neon-namespaces';
@@ -97,12 +97,11 @@ export class GearComponent implements OnDestroy {
      * handleChange functions accordingly.
      */
     public handleApplyClick() {
-        let filterDataChange = this.originalOptions.database.name !== this.modifiedOptions.database.name ||
-            this.originalOptions.table.name !== this.modifiedOptions.table.name;
-
-        let databaseOrTableChange = this.originalOptions.database !== this.modifiedOptions.database ||
+        let databaseOrTableChange = this.originalOptions.datastore !== this.modifiedOptions.datastore ||
+            this.originalOptions.database !== this.modifiedOptions.database ||
             this.originalOptions.table !== this.modifiedOptions.table;
 
+        this.originalOptions.datastore = this.modifiedOptions.datastore;
         this.originalOptions.database = this.modifiedOptions.database;
         this.originalOptions.databases = this.modifiedOptions.databases;
         this.originalOptions.table = this.modifiedOptions.table;
@@ -110,9 +109,6 @@ export class GearComponent implements OnDestroy {
         this.originalOptions.fields = this.modifiedOptions.fields;
 
         this.modifiedOptions.list().forEach((option) => {
-            if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
-                filterDataChange = true;
-            }
             this.originalOptions[option.bindingKey] = option.valueCurrent;
         });
 
@@ -138,13 +134,19 @@ export class GearComponent implements OnDestroy {
             this.comp.handleChangeSubcomponentType();
         }
 
-        if (filterDataChange) {
-            this.comp.changeFilterData(undefined, databaseOrTableChange);
-        } else {
-            this.comp.changeData(undefined, databaseOrTableChange);
-        }
+        this.comp.changeOptions(undefined, databaseOrTableChange);
 
         this.resetOptionsAndClose();
+    }
+
+    /**
+     * Handles the change of datastore in the given options.
+     *
+     * @arg {any} options A WidgetOptionCollection
+     */
+    public handleChangeDatastore(options: WidgetOptionCollection): void {
+        options.updateDatabases(this.dashboardState.asDataset());
+        this.changeMade = true;
     }
 
     /**
@@ -189,11 +191,6 @@ export class GearComponent implements OnDestroy {
                 message: 'Sorry, you cannot delete the final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
             });
         }
-    }
-
-    private isFilterData(optionType: OptionType): boolean {
-        return optionType === OptionType.DATABASE || optionType === OptionType.TABLE || optionType === OptionType.FIELD ||
-            optionType === OptionType.FIELD_ARRAY;
     }
 
     ngOnDestroy() {

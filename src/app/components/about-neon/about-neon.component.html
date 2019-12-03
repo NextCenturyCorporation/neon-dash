@@ -1,20 +1,64 @@
-<div class="about-container" align="left">
-    <div class="about-body-container">
-        <p><img class="neon-svg-icon" src="./assets/icons/dashboard/neon_logo.svg"></p>
-        <p><a href="http://www.neonframework.org" target="_blank">www.neonframework.org</a></p>
-
-        <!-- TODO THOR-1134 -->
-        <p>Neon is an open-source, configurable big data exploration and visualization framework.</p>
-
-        <!-- TODO THOR-1079
-        <p>Neon Server: {{ backendVersion }}</p>
-        -->
-
-        <!-- TODO THOR-1011
-        <p>Neon Dashboard: {{ dashboardVersion }}</p>
-        -->
-        <p>Build Date: {{ buildDate }}</p>
-
-        <p>GIT Commit ID: {{ commitId }}</p>
+<div class="about-container">
+    <div class="about-subheader">
+        <H2>Neon Dashboard</H2>
     </div>
+    <p>
+        The Neon Dashboard is a highly configurable, open-source data analysis application that allows users to explore massive, complex
+        datasets using a collection of data visualization widgets in a common web-based environment. The Neon Dashboard is powered by the
+        Next Century Component Library, an open-source JavaScript library that offers aggregated search and filter behavior along with
+        customizable data visualization components that operate directly on your own datastores and integrate into any JavaScript
+        application.
+    </p>
+    <p><a href="https://github.com/NextCenturyCorporation/neon-dash-internal" target="_blank">Click here to visit our website</a></p>
+    <p><img class="center" src="./assets/icons/dashboard/ncc_logo.png"></p>
+
+    <hr>
+
+    <div class="about-subheader">
+        <H2>Technical Information</H2>
+    </div>
+    <p>Neon Dash Last Build Date: {{ dashBuildDate }}</p>
+    <p>Neon Dash GIT Commit ID: {{ dashGitCommit }}</p>
+    <p>Neon Server Last Build Date: {{ serverBuildDate }}</p>
+    <p>Neon Server GIT Commit ID: {{ serverGitCommit }}</p>
+
+    <hr>
+
+    <div *ngIf="info">
+        <div class="about-subheader" *ngIf="info.header">
+            <H2>{{ info.header }}</H2>
+        </div>
+
+        <p *ngIf="info.data">{{ info.data }}</p>
+
+        <p *ngIf="info.link"><a [href]="info.link" target="_blank">Website</a></p>
+
+        <p *ngIf="info.leader">{{ info.leader }}</p>
+
+        <p *ngIf="info.icon"><img class="center" [src]="info.icon"></p>
+
+        <hr>
+    </div>
+
+    <div *ngIf="memberList">
+        <div class="about-subheader" *ngIf="memberList.header">
+            <H2>{{ memberList.header }}</H2>
+        </div>
+
+        <p *ngFor="let member of memberList.data">{{ member }}</p>
+
+        <hr>
+    </div>
+
+    <div *ngFor="let item of misc">
+        <div class="about-subheader" *ngIf="item.header">
+            <H2>{{ item.header }}</H2>
+        </div>
+
+        <p *ngIf="item.data">{{ item.data }}</p>
+
+        <hr>
+    </div>
+
+    <div #customAboutTextDiv></div>
 </div>

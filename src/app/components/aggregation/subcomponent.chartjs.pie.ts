@@ -15,7 +15,7 @@
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../models/color';
+import { Color } from 'component-library/dist/core/models/color';
 
 // http://www.chartjs.org/docs/latest/charts/doughnut.html#dataset-properties
 export class ChartJsPieDataset extends AbstractChartJsDataset {

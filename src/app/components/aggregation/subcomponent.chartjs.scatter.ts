@@ -16,7 +16,7 @@ import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
-import { Color } from '../../models/color';
+import { Color } from 'component-library/dist/core/models/color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 class ChartJsScatterDataset extends ChartJsLineDataset {

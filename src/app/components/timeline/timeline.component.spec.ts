@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
-import { FieldConfig } from '../../library/core/models/dataset';
-import { CompoundFilterType, TimeInterval } from '../../library/core/models/config-option';
+import { DomainFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -41,8 +40,7 @@ describe('Component: Timeline', () => {
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             TimelineModule
@@ -188,6 +186,7 @@ describe('Component: Timeline', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }],
             aggregation: [
@@ -218,10 +217,12 @@ describe('Component: Timeline', () => {
             },
             groups: [{
                 field: 'testDateField',
+                name: '_month',
                 type: 'month'
             },
             {
                 field: 'testDateField',
+                name: '_year',
                 type: 'year'
             }],
             aggregation: [
@@ -260,6 +261,7 @@ describe('Component: Timeline', () => {
                 'testIdField',
                 {
                     field: 'testDateField',
+                    name: '_year',
                     type: 'year'
                 }],
             aggregation: [
@@ -292,14 +294,17 @@ describe('Component: Timeline', () => {
                 'testIdField',
                 {
                     field: 'testDateField',
+                    name: '_dayOfMonth',
                     type: 'dayOfMonth'
                 },
                 {
                     field: 'testDateField',
+                    name: '_month',
                     type: 'month'
                 },
                 {
                     field: 'testDateField',
+                    name: '_year',
                     type: 'year'
                 }],
             aggregation: [

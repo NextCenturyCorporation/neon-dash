@@ -18,14 +18,14 @@ import { ViewContainerRef, NgModuleFactoryLoader } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ConfirmationDialogModule } from '../../components/confirmation-dialog/confirmation-dialog.module';
@@ -143,6 +143,22 @@ describe('Component: SaveStateComponent', () => {
 
         expect(deleteCalls).toEqual(1);
         expect(confirmCalls).toEqual(3);
+    });
+
+    it('createState does call configService.save with expected data', () => {
+        let calls = 0;
+
+        spyOn(component['dashboardService'], 'createEmptyDashboardConfig').and.callFake(() => ({}));
+
+        spyOn(component['configService'], 'save').and.callFake((data) => {
+            calls++;
+            expect(data).toEqual({});
+            return of(1);
+        });
+
+        component.createState('testState');
+
+        expect(calls).toEqual(1);
     });
 
     it('saveState does call configService.save with expected data', () => {

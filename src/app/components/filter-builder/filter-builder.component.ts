@@ -18,12 +18,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '../../library/core/models/filters';
-import { CompoundFilterType } from '../../library/core/models/config-option';
+import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '../../library/core/models/dataset';
+import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -108,9 +108,11 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this._dataset);
-        filterClause.changeTable = filterClause.table;
+        if (filterClause.changeDatabase && filterClause.changeDatabase.name) {
+            filterClause.database = filterClause.changeDatabase;
+            filterClause.updateTables(this._dataset);
+            filterClause.changeTable = filterClause.table;
+        }
     }
 
     /**
@@ -128,7 +130,9 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeFieldOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.field = filterClause.changeField;
+        if (filterClause.changeField && filterClause.changeField.columnName) {
+            filterClause.field = filterClause.changeField;
+        }
     }
 
     /**
@@ -137,8 +141,10 @@ export class FilterBuilderComponent {
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
-        filterClause.table = filterClause.changeTable;
-        filterClause.updateFields();
+        if (filterClause.changeTable && filterClause.changeTable.name) {
+            filterClause.table = filterClause.changeTable;
+            filterClause.updateFields();
+        }
     }
 
     /**

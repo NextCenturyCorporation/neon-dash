@@ -12,12 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from '../library/core/models/dataset';
+import {
+    Dataset,
+    DatasetUtil,
+    DatabaseConfig,
+    DatastoreConfig,
+    FieldConfig,
+    TableConfig
+} from 'component-library/dist/core/models/dataset';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
     ConfigOption,
     ConfigOptionDatabase,
+    ConfigOptionDatastore,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
@@ -25,14 +33,18 @@ import {
     isFieldOption,
     OptionChoices,
     OptionType
-} from '../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 export class OptionConfig {
-    constructor(protected config: any) { }
+    constructor(protected config: any = {}) { }
 
     public get(bindingKey: string, defaultValue: any): any {
         // Assume config is just a Record<string, any>
         return typeof this.config[bindingKey] === 'undefined' ? defaultValue : this.config[bindingKey];
+    }
+
+    public set(bindingKey: string, newValue: any): void {
+        this.config[bindingKey] = newValue;
     }
 }
 
@@ -44,23 +56,28 @@ export class OptionCollection {
     private _collection: { [bindingKey: string]: ConfigOption } = {};
 
     public _id: string;
-    public database: DatabaseConfig = null;
     public databases: DatabaseConfig[] = [];
-    public datastore: DatastoreConfig = null;
     public datastores: DatastoreConfig[] = [];
     public fields: FieldConfig[] = [];
-    public table: TableConfig = null;
     public tables: TableConfig[] = [];
+    public tableKey: any;
+    public database: DatabaseConfig;
+    public datastore: DatastoreConfig;
+    public table: TableConfig;
+    public filter: any;
 
-    /**
-     * @constructor
-     * @arg {OptionConfig} [config] An object with configured bindings.
-     */
-    constructor(protected config: OptionConfig = new OptionConfig({})) {
+    constructor(protected dataset: Dataset = new Dataset({}), protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = this.config.get('_id', uuidv4());
-        this.append(new ConfigOptionDatabase(), DatabaseConfig.get());
-        this.append(new ConfigOptionTable(), TableConfig.get());
+        const datastoreName = this.config.get('datastore', '');
+        const databaseName = this.config.get('database', '');
+        const tableName = this.config.get('table', '');
+        const tableKey = this.config.get('tableKey', (datastoreName && databaseName && tableName) ?
+            (datastoreName + '.' + databaseName + '.' + tableName) : '');
+        this.append(new ConfigOptionDatastore(), dataset.retrieveDatastore(datastoreName) || DatastoreConfig.get());
+        this.append(new ConfigOptionDatabase(), dataset.retrieveDatabase(datastoreName, databaseName) || DatabaseConfig.get());
+        this.append(new ConfigOptionTable(), dataset.retrieveTable(datastoreName, databaseName, tableName) || TableConfig.get());
+        this.append(new ConfigOptionFreeText('tableKey', 'Table Key', true, '', true), tableKey);
     }
 
     [key: string]: any; // Ordering demands it be placed here
@@ -88,18 +105,27 @@ export class OptionCollection {
             get: () => this._collection[option.bindingKey].valueCurrent,
             set: (value: any) => {
                 this._collection[option.bindingKey].valueCurrent = value;
+                // Also update the original config object to keep the new value in case the dashboard is saved later.
+                if (option.bindingKey === 'datastore' || option.bindingKey === 'database' || option.bindingKey === 'table') {
+                    const datastoreName = this._collection.datastore.getValueToSaveInBindings();
+                    const databaseName = this._collection.database.getValueToSaveInBindings();
+                    const tableName = this._collection.table.getValueToSaveInBindings();
+                    if (datastoreName && databaseName && tableName) {
+                        this.tableKey = datastoreName + '.' + databaseName + '.' + tableName;
+                    }
+                } else if (option.bindingKey !== '_id') {
+                    const newValue = option.getValueToSaveInBindings();
+                    this.config.set(option.bindingKey, newValue === null ? undefined : newValue);
+                }
             }
         });
     }
 
     protected copyCommonProperties(copy: this): this {
         copy._id = this._id;
-        copy.database = this.database;
         copy.databases = this.databases;
-        copy.datastore = this.datastore;
         copy.datastores = this.datastores;
         copy.fields = this.fields;
-        copy.table = this.table;
         copy.tables = this.tables;
         this.list().forEach((option: ConfigOption) => {
             copy.append(_.cloneDeep(option), option.valueCurrent);
@@ -113,7 +139,7 @@ export class OptionCollection {
      * @return {OptionCollection}
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.config);
+        let copy = new (this.getConstructor())(this.dataset, this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -193,24 +219,22 @@ export class OptionCollection {
         this.databases = Object.values(dataset.datastores).reduce((list, datastore) =>
             list.concat(Object.values(datastore.databases).sort((one, two) => one.name.localeCompare(two.name))), []);
 
-        this.database = this.databases[0] || this.database;
+        // If the previously set database is not in the newly set list, unset it.
+        if (this.database.name && this.databases.length && this.databases.map((item) => item.name).indexOf(this.database.name) < 0) {
+            this.database = DatabaseConfig.get();
+        }
 
         if (this.databases.length) {
-            // By default, set the initial database to the first one in the dataset's configured table keys.
-            let configuredTableKeys = Object.keys(dataset.tableKeyCollection || {});
-            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
-                configuredTableKeys[0], dataset.tableKeyCollection
-            ).database;
+            let configuredDatabase;
 
-            // Look for the table key configured for the specific visualization.
-            let configuredTableKey = this.config.get('tableKey', null);
-            if (configuredTableKey && dataset.tableKeyCollection[configuredTableKey]) {
-                configuredDatabase = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey,
-                    dataset.tableKeyCollection).database;
+            if (this.tableKey) {
+                // The table key is either a tablekey string (datastore.database.table) or a unique ID in the dataset's tableKeyCollection.
+                const datasetTableKey = dataset.tableKeyCollection[this.tableKey];
+                configuredDatabase = DatasetUtil.deconstructTableOrFieldKeySafely(datasetTableKey || this.tableKey).database;
             }
 
             if (configuredDatabase) {
-                for (let database of this.databases) {
+                for (const database of this.databases) {
                     if (configuredDatabase === database.name) {
                         this.database = database;
                         break;
@@ -218,6 +242,9 @@ export class OptionCollection {
                 }
             }
         }
+
+        // Ensure that the database object is not empty, but only once the table key (if any) is reviewed.
+        this.database = this.database.name ? this.database : this.databases[0];
 
         return this.updateTables(dataset);
     }
@@ -227,7 +254,33 @@ export class OptionCollection {
      */
     public updateDatastores(dataset: Dataset): void {
         this.datastores = Object.values(dataset.datastores);
-        this.datastore = this.datastores[0] || this.datastore;
+
+        // If the previously set datastore is not in the newly set list, unset it.
+        if (this.datastore.name && this.datastores.length && this.datastores.map((item) => item.name).indexOf(this.datastore.name) < 0) {
+            this.datastore = DatastoreConfig.get();
+        }
+
+        if (this.datastores.length) {
+            let configuredDatastore;
+
+            if (this.tableKey) {
+                // The table key is either a tablekey string (datastore.database.table) or a unique ID in the dataset's tableKeyCollection.
+                const datasetTableKey = dataset.tableKeyCollection[this.tableKey];
+                configuredDatastore = DatasetUtil.deconstructTableOrFieldKeySafely(datasetTableKey || this.tableKey).datastore;
+            }
+
+            if (configuredDatastore) {
+                for (const datastore of this.datastores) {
+                    if (configuredDatastore === datastore.name) {
+                        this.datastore = datastore;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Ensure that the datastore object is not empty, but only once the table key (if any) is reviewed.
+        this.datastore = this.datastore.name ? this.datastore : this.datastores[0];
 
         return this.updateDatabases(dataset);
     }
@@ -258,24 +311,22 @@ export class OptionCollection {
         this.tables = !this.database ? [] : Object.values(this.database.tables).sort((tableA, tableB) =>
             tableA.name.localeCompare(tableB.name));
 
-        this.table = this.tables[0] || this.table;
+        // If the previously set table is not in the newly set list, unset it.
+        if (this.table.name && this.tables.length && this.tables.map((table) => table.name).indexOf(this.table.name) < 0) {
+            this.table = TableConfig.get();
+        }
 
-        if (this.tables.length > 0) {
-            // By default, set the initial table to the first one in the dataset's configured table keys.
-            let configuredTableKeys = Object.keys(dataset.tableKeyCollection || {});
-            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
-                configuredTableKeys[0], dataset.tableKeyCollection
-            ).table;
+        if (this.tables.length) {
+            let configuredTable;
 
-            // Look for the table key configured for the specific visualization.
-            let configuredTableKey = this.config.get('tableKey', null);
-            if (configuredTableKey && dataset.tableKeyCollection[configuredTableKey]) {
-                configuredTable = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey,
-                    dataset.tableKeyCollection).table;
+            if (this.tableKey) {
+                // The table key is either a tablekey string (datastore.database.table) or a unique ID in the dataset's tableKeyCollection.
+                const datasetTableKey = dataset.tableKeyCollection[this.tableKey];
+                configuredTable = DatasetUtil.deconstructTableOrFieldKeySafely(datasetTableKey || this.tableKey).table;
             }
 
             if (configuredTable) {
-                for (let table of this.tables) {
+                for (const table of this.tables) {
                     if (configuredTable === table.name) {
                         this.table = table;
                         break;
@@ -283,6 +334,9 @@ export class OptionCollection {
                 }
             }
         }
+
+        // Ensure that the table object is not empty, but only once the table key (if any) is reviewed.
+        this.table = this.table.name ? this.table : this.tables[0];
 
         return this.updateFields();
     }
@@ -292,22 +346,14 @@ export class OptionCollection {
  * Manages configurable options with common widget options and a custom options callback function to initialize them.
  */
 export class WidgetOptionCollection extends OptionCollection {
-    /**
-     * @constructor
-     * @arg {Dataset} [dataset] The current dataset.
-     * @arg {function} [createOptionsCallback] A callback function to create the options.
-     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
-     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
-     * @arg {OptionConfig} [config] An object with configured bindings.
-     */
     constructor(
-        protected dataset: Dataset = new Dataset({}),
+        dataset: Dataset = new Dataset({}),
         protected createOptionsCallback: () => ConfigOption[] = () => [],
         defaultTitle: string = '',
         defaultLimit: number = 0,
         config: OptionConfig = new OptionConfig({})
     ) {
-        super(config);
+        super(dataset, config);
 
         let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
@@ -364,16 +410,6 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
     private _nextLayerIndex = 1;
 
-    /**
-     * @constructor
-     * @arg {Dataset} [dataset] The current dataset.
-     * @arg {function} [createOptionsCallback] A callback function to create the options.
-     * @arg {function} [createOptionsForLayerCallback] A callback function to create the options for the layers (if any).
-     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
-     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
-     * @arg {boolean} [defaultLayer] Whether to add a default layer.
-     * @arg {OptionConfig} [config] An object with configured bindings.
-     */
     constructor(
         dataset: Dataset = new Dataset({}),
         createOptionsCallback: () => ConfigOption[] = () => [],
@@ -386,7 +422,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
         super(dataset, createOptionsCallback, defaultTitle, defaultLimit, config);
 
         // Backwards compatibility (configFilter deprecated and renamed to filter).
-        this.filter = this.filter || this.config.get('configFilter', null);
+        this.filter = this.filter || this.config.get('configFilter', undefined);
 
         this.config.get('layers', []).forEach((layerBindings) => {
             this.addLayer(layerBindings);
@@ -399,6 +435,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
         // Remove the database and the table from this options if it has a layer to manage them both.
         if (defaultLayer) {
+            this.datastore = null;
             this.database = null;
             this.table = null;
         }
@@ -436,9 +473,9 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
         return [
             new ConfigOptionNonPrimitive('customEventsToPublish', 'Custom Events To Publish', false, [], true),
             new ConfigOptionNonPrimitive('customEventsToReceive', 'Custom Events To Receive', false, [], true),
-            new ConfigOptionNonPrimitive('filter', 'Custom Widget Filter', false, null),
+            new ConfigOptionNonPrimitive('filter', 'Custom Widget Filter', false, undefined),
             new ConfigOptionSelect('hideUnfiltered', 'Hide Widget if Unfiltered', false, false, OptionChoices.NoFalseYesTrue),
-            new ConfigOptionNonPrimitive('contributionKeys', 'Contribution Keys', false, null, true),
+            new ConfigOptionNonPrimitive('contributionKeys', 'Contribution Keys', false, undefined, true),
             ...super.createOptions()
         ];
     }
@@ -459,8 +496,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
 export interface ConfigurableWidget {
     options: RootWidgetOptionCollection;
-    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
-    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    changeOptions(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
     finalizeCreateLayer(layerOptions: any): void;
     deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
