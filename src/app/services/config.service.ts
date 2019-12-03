@@ -186,9 +186,9 @@ export class ConfigService {
     /**
      * Saves config under name
      */
-    save(config: NeonConfig): Observable<void> {
+    save(config: NeonConfig, name: string): Observable<void> {
         return from(new Promise<void>((resolve, reject) => {
-            config.projectTitle = ConfigUtil.validateName(config.projectTitle);
+            config.projectTitle = ConfigUtil.validateName(name || config.projectTitle);
             config['stateName'] = config.projectTitle;
             this.openConnection().saveState(config, resolve, reject);
         })).pipe(take(1));

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { ColorMap } from './color';
-import { CompoundFilterType } from '../library/core/models/config-option';
-import { DeepPartial, DatastoreConfig, translateValues } from '../library/core/models/dataset';
+import { ColorMap } from 'component-library/dist/core/models/color';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { DeepPartial, DatastoreConfig, translateValues } from 'component-library/dist/core/models/dataset';
 
 export interface CommonFilterConfig {
     id?: string;
@@ -119,6 +119,7 @@ export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
     customRequests?: NeonCustomRequests[];
+    customRequestsDisplayLabel?: string;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
@@ -132,7 +133,7 @@ export interface NeonContributor {
 }
 
 export interface NeonDashboardBaseConfig {
-    fullTitle?: string; // Added to dashboard in validateDashboards()
+    fullTitle?: string[]; // The fullTitle is added to the dashboard object during runtime.
     name?: string;
 }
 
@@ -157,7 +158,7 @@ export class NeonDashboardLeafConfig {
             options: {},
             visualizationTitles: {},
             contributors: {},
-            fullTitle: '',
+            fullTitle: [],
             ...dash
         } as NeonDashboardLeafConfig;
     }
@@ -171,7 +172,7 @@ export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
 export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
-            fullTitle: '',
+            fullTitle: [],
             ...dash,
             choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
         } as NeonDashboardChoiceConfig;
@@ -206,55 +207,37 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonConfig {
-    projectTitle?: string;
-    projectIcon?: string;
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
     datastores: Record<string, DatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
+
+    about?: any;
     errors?: any[];
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
     neonServerUrl?: string;
-    version: string;
+    projectIcon?: string;
+    projectTitle?: string;
+    version?: string;
 }
 
 export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
+            about: '',
             errors: [],
             layouts: {},
-            version: '',
             neonServerUrl: '',
             projectIcon: '',
             projectTitle: '',
+            version: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
             datastores: translateValues(config.datastores || {}, DatastoreConfig.get.bind(null), true)
         } as NeonConfig;
     }
 }
-
-/*
-TODO: THOR-825: This was turned into Datastore -- leaving old commented out
-version here along with comments on updates made for reference until all
-THOR-825 related tasks are complete.
-
-export class Dataset {
-    public connectOnLoad: boolean = false;
-    public databases: NeonDatabase[] = [];
-    public layout: string = ''; // layouts are now specified in dashboards
-    //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
-
-    constructor(
-        public name: string = '',
-        public datastore: string = '', // this became 'type'
-        public hostname: string = '', // this was updated to 'host'
-        public title: string = '', // renamed projectTitle, moved to base level of config file and read in within app.component.ts
-        public icon: string = '' // renamed projectIcon, moved to base level of config file and read in within app.component.ts
-    ) {}
-}*/
 
 export const MediaTypes = {
     audio: 'aud',

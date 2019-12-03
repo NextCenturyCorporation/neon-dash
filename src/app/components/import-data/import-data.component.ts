@@ -47,7 +47,7 @@ enum ImportStatus {
     encapsulation: ViewEncapsulation.Emulated
 })
 export class ImportDataComponent implements OnDestroy {
-    @ViewChild('inputFile') inputFile: ElementRef;
+    @ViewChild('inputFile', { static: true }) inputFile: ElementRef;
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
 
@@ -194,8 +194,9 @@ export class ImportDataComponent implements OnDestroy {
 
         let sourceColumns = result.meta.fields.map((field) => field.trim());
 
-        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
-            this.dashboardState.getDatastoreHost());
+        // TODO THOR-1062 Iterate over, connect, and call runExportQuery on each datastore.
+        let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
+            this.dashboardState.datastores[0].host);
 
         let destinationColumns: string[] = this.optionCollection.fields.map((field: FieldConfig) => field.columnName);
         if (!this.warningMessage && destinationColumns) {

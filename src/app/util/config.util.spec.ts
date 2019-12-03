@@ -94,15 +94,15 @@ describe('Config Util Tests', () => {
         });
         ConfigUtil.nameDashboards(config, 'prefix');
 
-        expect(config.fullTitle).toBeFalsy();
+        expect(config.fullTitle).toEqual([]);
         expect(config.name).toEqual('g');
 
-        expect(config.choices.a.fullTitle).toBeFalsy();
+        expect(config.choices.a.fullTitle).toEqual([]);
         expect(config.choices.a.name).toEqual('a');
-        expect((config.choices.a as NeonDashboardChoiceConfig).choices.c.fullTitle).toEqual('prefix / g / a / c');
+        expect((config.choices.a as NeonDashboardChoiceConfig).choices.c.fullTitle).toEqual(['prefix', 'g', 'a', 'c']);
         expect((config.choices.a as NeonDashboardChoiceConfig).choices.c.name).toEqual('c');
 
-        expect(config.choices.b.fullTitle).toEqual('prefix / g / b');
+        expect(config.choices.b.fullTitle).toEqual(['prefix', 'g', 'b']);
         expect(config.choices.b.name).toEqual('b');
     });
 

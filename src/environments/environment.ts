@@ -12,9 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { DateUtil, DateFormat } from 'component-library/dist/core/date.util';
+function buildDate(){
+    let okDate: string = new Date().toISOString();
+    let bDate: string = DateUtil.retrievePastTime(okDate, DateFormat.MINUTE);
+    return bDate;
+}
+
 export const environment = {
     config: ['./app/config/config.yaml', './app/config/config.json'],
     production: false,
-    buildDate: new Date().toISOString(),
+    buildDate: buildDate(),
     recentGit: 'HEAD'
 };

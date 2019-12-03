@@ -17,14 +17,19 @@ import { OptionsSectionComponent } from '../options-section/options-section.comp
 import { OptionsSectionModule } from '../options-section/options-section.module';
 
 import { Injector } from '@angular/core';
-import { AbstractColorThemeService } from '../../library/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from 'component-library/dist/core/services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigOptionField, ConfigOptionFreeText, ConfigOptionSelect, OptionChoices } from '../../library/core/models/config-option';
+import {
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionSelect,
+    OptionChoices
+} from 'component-library/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 describe('Component: Options-Section', () => {
@@ -85,7 +90,7 @@ describe('Component: Options-Section', () => {
         optionList.append(new ConfigOptionFreeText('freeText', '', false, ''));
         optionList.append(new ConfigOptionSelect('select', '', false, false, OptionChoices.NoFalseYesTrue));
         optionList.append(new ConfigOptionSelect('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
-        expect(component.getRequiredNonFields(optionList)).toEqual([]);
+        expect(component.getRequiredNonFields(optionList)).toEqual(['datastore']);
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {

@@ -14,20 +14,19 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
-import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { FilterCollection } from '../../library/core/models/filters';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { FilterCollection } from 'component-library/dist/core/models/filters';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
@@ -38,11 +37,9 @@ describe('Component: MediaViewer', () => {
 
     initializeTestBed('Media Viewer', {
         providers: [
-            DashboardService,
+            { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             MediaViewerModule
@@ -671,21 +668,7 @@ describe('Component: MediaViewer with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'tableKey', useValue: 'table_key_1' },
-            { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'linkField', useValue: 'testLinkField' },
-            { provide: 'nameField', useValue: 'testNameField' },
-            { provide: 'typeField', useValue: 'testTypeField' },
-            { provide: 'border', useValue: 'grey' },
-            { provide: 'linkPrefix', useValue: 'prefix/' },
-            { provide: 'id', useValue: 'testId' },
-            { provide: 'resize', useValue: false },
-            { provide: 'typeMap', useValue: { jpg: 'img' } },
-            { provide: 'url', useValue: 'https://kafka.apache.org/intro' },
-            { provide: 'autoplay', useValue: true }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             MediaViewerModule
@@ -695,6 +678,21 @@ describe('Component: MediaViewer with config', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(MediaViewerComponent);
         component = fixture.componentInstance;
+        component.configOptions = {
+            title: 'Test Title',
+            tableKey: 'table_key_1',
+            idField: 'testIdField',
+            linkField: 'testLinkField',
+            nameField: 'testNameField',
+            typeField: 'testTypeField',
+            border: 'grey',
+            linkPrefix: 'prefix/',
+            id: 'testId',
+            resize: false,
+            typeMap: { jpg: 'img' },
+            url: 'https://kafka.apache.org/intro',
+            autoplay: true
+        };
         fixture.detectChanges();
     });
 

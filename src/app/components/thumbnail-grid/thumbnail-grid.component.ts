@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -26,15 +25,15 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../library/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -46,7 +45,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -66,9 +65,9 @@ export const ViewType = {
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private CANVAS_SIZE: number = 100.0;
 
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('thumbnailGrid', { static: true }) thumbnailGrid: ElementRef;
 
     public gridArray: any[] = [];
 
@@ -83,7 +82,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         dialog: MatDialog,
@@ -93,7 +91,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -521,7 +518,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
-        this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+        if (typeof this.options.showOnlyFiltered !== 'undefined') {
+            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+        }
 
         // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).
         if (this.options.filterField.columnName && !this.options.filterFields.length) {
@@ -709,7 +708,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             video.onerror = () => {
                                 if (link.includes('youtube')) {
                                     let img: HTMLImageElement = new Image();
-                                    img.src = './assets/images/youtube_logo.png';
+                                    img.src = './assets/icons/dashboard/youtube_logo.png';
                                     img.onload = () => {
                                         thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
                                     };
@@ -720,7 +719,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         }
                         case this.mediaTypes.audio: {
                             let image: HTMLImageElement = new Image();
-                            image.src = '/assets/images/volume_up.svg';
+                            image.src = '/assets/icons/dashboard/volume_up.svg';
                             image.onclick = () => this.displayMediaTab(grid);
                             image.onload = () => {
                                 thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
@@ -741,7 +740,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 if (this.options.border) {
                     switch (this.options.border) {
                         case 'percentField': {
-                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            if (typeof percentage !== 'undefined' && CoreUtil.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
                                 borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
                             } else {
@@ -750,7 +749,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             break;
                         }
                         case 'percentCompare': {
-                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            if (typeof percentage !== 'undefined' && CoreUtil.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
                                 if ((percentFloat > this.options.borderPercentThreshold &&
                                     comparison === this.options.borderCompareValue) ||
