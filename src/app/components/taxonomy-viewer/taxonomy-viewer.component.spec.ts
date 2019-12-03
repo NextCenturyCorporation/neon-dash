@@ -14,18 +14,17 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
-import { CompoundFilterType } from '../../library/core/models/config-option';
-import { FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
@@ -153,9 +152,7 @@ describe('Component: TaxonomyViewer', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             TaxonomyViewerModule

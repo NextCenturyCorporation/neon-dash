@@ -84,14 +84,7 @@ export class ConfigUtil {
     static nameDashboards(dashboard: NeonDashboardConfig, prefix: string) {
         this.visitDashboards(dashboard, {
             leaf: (dash, choices) => {
-                const name = [
-                    { name: prefix }, ...choices
-                ]
-                    .filter((ds) => !!ds.name && ds.name !== this.DEFAULT_CONFIG_NAME)
-                    .map((ds) => ds.name)
-                    .join(' / ');
-
-                dash.fullTitle = name;
+                dash.fullTitle = [{ name: prefix }, ...choices].filter((ds) => !!ds.name).map((ds) => ds.name);
             }
         });
     }
@@ -118,6 +111,7 @@ export class ConfigUtil {
     static setAutoShowDashboard(dashboard: NeonDashboardConfig, auto: NeonDashboardLeafConfig) {
         this.visitDashboards(dashboard, {
             leaf: (dash) => {
+                dash.options = dash.options || {};
                 dash.options.connectOnLoad = dash === auto;
             }
         });

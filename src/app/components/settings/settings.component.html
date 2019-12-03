@@ -10,13 +10,7 @@
             </mat-radio-button>
         </mat-radio-group>
     </div>
-    <mat-divider class="divider"></mat-divider>
-    <h3 class="header">Property Service Configuration</h3>
 
-    <button mat-raised-button class="neon-button-small btn-open-config-edit" matTooltip="Open configuration editor."
-        tooltip-position="below" (click)="openEditConfigDialog()">
-        Edit Configuration
-    </button>
     <mat-divider class="divider"></mat-divider>
     <h3 class="header">Display Tools</h3>
     <div class="display-tools-container">
@@ -40,6 +34,10 @@
         <div class="checkmark-container">
             <input type="checkbox" [checked]="showVisualizationsShortcut" (change)="publishShowVisualizationsShortcut()">
             Show Visualization Shortcut
+        </div>
+        <div class="checkmark-container">
+            <input type="checkbox" [checked]="showLocalTimes" (change)="publishShowLocalTimes()">
+            Show Local Times
         </div>
     </div>
 </form>

@@ -27,6 +27,10 @@ module.exports = function (config) {
             require('@angular-devkit/build-angular/plugins/karma')
         ],
         files: [
+            // Required by Web Components
+            'node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js',
+            'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js',
+
             // Include support libraries and angular material
 
             // Required by Angular

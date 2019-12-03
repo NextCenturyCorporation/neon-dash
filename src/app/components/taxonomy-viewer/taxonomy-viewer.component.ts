@@ -17,21 +17,20 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from '../../library/core/models/dataset';
-import { CoreUtil } from '../../library/core/core.util';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -41,7 +40,7 @@ import {
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -80,9 +79,9 @@ export interface TaxonomyGroup extends TaxonomyNode {
 })
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('treeRoot') treeRoot: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('treeRoot', { static: true }) treeRoot: ElementRef;
 
     private counter = 0;
     public taxonomyGroups: TaxonomyGroup[] = [];
@@ -110,7 +109,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -119,7 +117,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -338,7 +335,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         currentGroup.nodeIds.add(child.externalId);
                     }
                 }
-                currentGroup.sourceIds.push(...child.sourceIds);
+                if (currentGroup.sourceIds && child.sourceIds) {
+                    currentGroup.sourceIds.push(...child.sourceIds);
+                }
                 currentGroup = currentGroup.parent;
             }
         }

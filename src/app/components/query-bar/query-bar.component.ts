@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -33,7 +33,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -45,8 +45,8 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryBarComponent extends BaseNeonComponent {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
-    @ViewChild('queryBar') queryBar: ElementRef;
+    @ViewChild('visualization', { read: ElementRef, static: false }) visualization: ElementRef;
+    @ViewChild('queryBar', { static: false }) queryBar: ElementRef;
 
     autoComplete: boolean = true;
     queryValues: string[] = [];
@@ -66,7 +66,6 @@ export class QueryBarComponent extends BaseNeonComponent {
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog
@@ -75,7 +74,6 @@ export class QueryBarComponent extends BaseNeonComponent {
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -89,7 +87,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         values: any[] = [undefined]
     ): ListFilterDesign {
-        return new ListFilterDesign(CompoundFilterType.OR, this.dashboardState.datastore.name + '.' + databaseName + '.' + tableName +
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + databaseName + '.' + tableName +
             '.' + fieldName, '=', values);
     }
 
@@ -322,7 +320,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         this.extensionFiltersCollection.set(collectionId, null);
         let extensionQuery = new query.Query().selectFrom(extensionField.database, extensionField.table);
         let queryFields = [extensionField.idField, extensionField.filterField];
-        let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
+        let execute = this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, {
             query: extensionQuery
         });
         let filterFieldValues = [];

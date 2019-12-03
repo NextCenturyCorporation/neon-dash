@@ -13,22 +13,20 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection, ListFilter, ListFilterDesign } from '../../library/core/models/filters';
-import { DatabaseConfig, FieldConfig, TableConfig } from '../../library/core/models/dataset';
-
-import { Injector } from '@angular/core';
+import { FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 
 import { TextCloudComponent } from './text-cloud.component';
 
-import { AbstractSearchService } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType } from '../../library/core/models/config-option';
+import { AggregationType, CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '../../library/core/services/mock.search.service';
+import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { TextCloudModule } from './text-cloud.module';
 
@@ -39,14 +37,9 @@ describe('Component: TextCloud', () => {
     initializeTestBed('Text Cloud', {
         providers: [
             InjectableColorThemeService,
-            {
-                provide: DashboardService,
-                useClass: DashboardServiceMock
-            },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector
-
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
             TextCloudModule

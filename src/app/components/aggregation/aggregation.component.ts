@@ -18,21 +18,20 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../models/color';
+import { Color } from 'component-library/dist/core/models/color';
 
 import {
     AbstractSearchService,
     FilterClause,
     QueryGroup,
     QueryPayload
-} from '../../library/core/services/abstract.search.service';
+} from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -47,9 +46,9 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from '../../library/core/models/filters';
-import { DatasetUtil } from '../../library/core/models/dataset';
-import { DateUtil } from '../../library/core/date.util';
+} from 'component-library/dist/core/models/filters';
+import { DatasetUtil } from 'component-library/dist/core/models/dataset';
+import { DateUtil } from 'component-library/dist/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -75,7 +74,7 @@ import {
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -83,7 +82,12 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from '../../library/core/core.util';
+import { CoreUtil } from 'component-library/dist/core/core.util';
+import flatpickr from 'flatpickr';
+import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
+import * as moment from 'moment';
+
+let styleImport: any;
 
 @Component({
     selector: 'app-aggregation',
@@ -93,11 +97,11 @@ import { CoreUtil } from '../../library/core/core.util';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('subcomponentMain') subcomponentMainElementRef: ElementRef;
-    @ViewChild('subcomponentZoom') subcomponentZoomElementRef: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('hiddenCanvas', { static: true }) hiddenCanvas: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
+    @ViewChild('subcomponentMain', { static: true }) subcomponentMainElementRef: ElementRef;
+    @ViewChild('subcomponentZoom', { static: true }) subcomponentZoomElementRef: ElementRef;
 
     private DEFAULT_GROUP: string = 'All';
 
@@ -188,6 +192,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private viewInitialized = false;
 
+    private calendarComponent: any = null;
+    private savedDates: Date[] = null;
+    private changedThroughPickr: boolean = false;
+
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
     private _filteredLegendValues: any[] = [];
     private _filteredSingleValues: any[] = [];
@@ -196,7 +204,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: InjectableColorThemeService,
@@ -206,10 +213,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
+
+        if (!styleImport) {
+            styleImport = document.createElement('link');
+            styleImport.rel = 'stylesheet';
+            styleImport.href = 'assets/flatpickr/dist/flatpickr.min.css';
+            document.head.appendChild(styleImport);
+        }
     }
 
     /**
@@ -240,6 +253,33 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
+        if (this.canHaveDatePicker()) {
+            this.calendarComponent = flatpickr('#startDate', {
+                enableTime: true,
+                defaultHour: 0,
+                plugins: [rangePlugin({ input: '#endDate' })],
+                dateFormat: 'M d, Y, h:i K',
+                onOpen: (__selectedDates, __dateStr, instance) => {
+                    instance.clear();
+                },
+                onClose: (selectedDates, __dateStr, instance) => {
+                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
+                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
+                        if (!DateUtil.USE_LOCAL_TIME) {
+                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
+                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
+                        }
+                        this.changedThroughPickr = true;
+                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
+                        this.savedDates = selectedDates;
+                    }
+                    if (this.savedDates) {
+                        instance.setDate(this.savedDates, true);
+                        instance.redraw();
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -1070,6 +1110,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
                 const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
                 if (fieldKey.field === this.options.xField.columnName) {
+                    // Ensures date picker is updated when present.
+                    if (this.canHaveDatePicker() && !this.changedThroughPickr) {
+                        this.calendarComponent.setDate([domain.begin, domain.end], true);
+                        this.savedDates = this.calendarComponent.selectedDates;
+                        this.calendarComponent.redraw();
+                    }
+                    this.changedThroughPickr = false;
+
                     this.subcomponentMain.select([{
                         beginX: domain.begin,
                         endX: domain.end
@@ -1082,6 +1130,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.subcomponentMain.select([]);
             this.selectedArea = null;
+            if (this.canHaveDatePicker()) {
+                this.calendarComponent.clear();
+                this.savedDates = null;
+            }
         }
 
         // Select individual filtered items.
@@ -1159,6 +1211,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.colorKeys = [this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
+    }
+
+    canHaveDatePicker(): boolean {
+        return this.options.type === 'histogram' && this.optionsXFieldIsDate(this.options);
     }
 
     /**
@@ -1261,6 +1317,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         if (this.options.notFilterable) {
             return;
+        }
+
+        // If you are setting a date filter by the click and scroll, make sure to update the calendar setter.
+        if (this.canHaveDatePicker()) {
+            let newBegin = moment.parseZone(beginX).local().toDate();
+            let newEnd = moment.parseZone(endX).local().toDate();
+            if (!DateUtil.USE_LOCAL_TIME) {
+                newBegin.setHours(beginX.getUTCHours());
+                newEnd.setHours(endX.getUTCHours());
+            }
+            this.calendarComponent.setDate([newBegin, newEnd], true);
+            this.calendarComponent.redraw();
+            this.changedThroughPickr = true;
+            this.savedDates = [newBegin, newEnd];
         }
 
         this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);

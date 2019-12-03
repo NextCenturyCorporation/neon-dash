@@ -17,7 +17,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -25,25 +24,27 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from '../../library/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '../../library/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig } from '../../library/core/models/dataset';
-import { CoreUtil } from '../../library/core/core.util';
+import { DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { CoreUtil } from 'component-library/dist/core/core.util';
+import { DateUtil, DateFormat } from 'component-library/dist/core/date.util';
 import {
     CompoundFilterType,
     OptionChoices,
     SortOrder,
     ConfigOptionFieldArray,
     ConfigOptionField,
+    ConfigOptionFreeText,
     ConfigOptionNumber,
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from '../../library/core/models/config-option';
+} from 'component-library/dist/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -55,17 +56,15 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('headerText') headerText: ElementRef;
-    @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('headerText', { static: true }) headerText: ElementRef;
+    @ViewChild('infoText', { static: true }) infoText: ElementRef;
 
-    @ViewChild('table') table: any;
-    @ViewChild('dragView') dragView: ElementRef;
+    @ViewChild('table', { static: false }) table: any;
+    @ViewChild('dragView', { static: false }) dragView: ElementRef;
 
-    private DEFAULT_COLUMN_WIDTH: number = 150;
     private MINIMUM_COLUMN_WIDTH: number = 100;
 
     public activeHeaders: { prop: string, name: string, active: boolean, style: Record<string, any>, cellClass: any }[] = [];
-    public headerWidths: Map<string, number> = new Map<string, number>();
     public headers: any[] = [];
     public selected: any[] = [];
     public styleRules: string[] = [];
@@ -98,7 +97,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
         searchService: AbstractSearchService,
-        injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -107,7 +105,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             dashboardService,
             filterService,
             searchService,
-            injector,
             ref,
             dialog
         );
@@ -145,6 +142,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new ConfigOptionField('idField', 'ID Field', false),
             new ConfigOptionField('sortField', 'Sort Field', false),
             new ConfigOptionFieldArray('filterFields', 'Filter Field(s)', false),
+            new ConfigOptionFieldArray('linkFields', 'Link Field(s)', false),
             new ConfigOptionFieldArray('showFields', 'Show Field(s)', true),
             new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
@@ -160,15 +158,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+            new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
             new ConfigOptionSelect('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
-            new ConfigOptionSelect('skinny', 'Table Style', false, false, [{
-                prettyName: 'Normal',
-                variable: false
-            }, {
-                prettyName: 'Skinny',
-                variable: true
-            }]),
             new ConfigOptionNonPrimitive('customColumnWidths', 'Custom Column Widths', false, [], true)
         ];
     }
@@ -210,62 +202,36 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Table';
     }
 
-    initializeHeadersFromFieldsConfig() {
-        let existingFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) => {
-            this.headers.push({
-                cellClass: this.getCellClassFunction(),
-                prop: fieldObject.columnName,
-                name: fieldObject.prettyName,
-                active: true,
-                style: {},
-                width: this.getColumnWidth(fieldObject.columnName)
-            });
-            return fieldObject.columnName;
-        });
+    protected initializeProperties() {
+        const showFieldNames: string[] = (this.options.showFields || []).filter((fieldObject) => !!fieldObject.columnName)
+            .map((fieldObject) => fieldObject.columnName);
 
-        for (let showField of this.options.showFields) {
-            let fieldObject = this.options.findField(showField.name);
-            if (fieldObject && fieldObject.columnName) {
-                existingFieldNames.push(fieldObject.columnName);
-                this.headers.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: !showField.hide,
-                    style: {},
-                    width: this.getColumnWidth(showField.name)
-                });
-            }
-        }
+        this.headers = this.options.fields.map((fieldObject) => ({
+            cellClass: this.getCellClassFunction(),
+            prop: fieldObject.columnName,
+            name: fieldObject.prettyName,
+            // If showFields is populated, hide each field that is not in showFields.  If showFields is not populated, show each field.
+            active: !showFieldNames.length || (showFieldNames.indexOf(fieldObject.columnName) >= 0),
+            style: {},
+            widthAuto: this.retrieveConfiguredColumnWidth(fieldObject.columnName) || this.MINIMUM_COLUMN_WIDTH,
+            widthUser: null
+        }));
 
-        // Create a header object for each field that was not in showFields.
-        for (let fieldObject of this.options.fields) {
-            if (existingFieldNames.indexOf(fieldObject.columnName) < 0) {
-                this.headers.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
-                    active: !this.options.showFields.length,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject['name']) // TODO: Investigate
-                });
-            }
-        }
+        this.recalculateActiveHeaders();
     }
 
     /**
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
-    getColumnWidth(fieldConfig) {
-        for (let miniArray of this.options.customColumnWidths) {
-            let name = DatasetUtil.translateFieldKeyToFieldName(miniArray[0], this.dashboardState.dashboard.fields);
+    retrieveConfiguredColumnWidth(fieldConfig): number {
+        for (let customColumnWidthArray of this.options.customColumnWidths) {
+            let name = DatasetUtil.translateFieldKeyToFieldName(customColumnWidthArray[0], this.dashboardState.dashboard.fields);
             if (fieldConfig === name) {
-                return miniArray[1];
+                return customColumnWidthArray[1];
             }
         }
-        return this.DEFAULT_COLUMN_WIDTH;
+        return null;
     }
 
     /**
@@ -285,90 +251,44 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {boolean}
      */
     optionsHeatmapTable(options: any): boolean {
-        return options.heatmapField.columnName;
+        return options.heatmapField && options.heatmapField.columnName;
     }
 
-    /**
-     * Initilizes any visualization properties when the widget is created.
-     *
-     * @override
-     */
-    initializeProperties() {
-        if (this.options.showFields.length) {
-            this.initializeHeadersFromFieldsConfig();
-        }
-        this.recalculateActiveHeaders();
+    getVisualizationWidth(): number {
+        const refs = this.getElementRefs();
+        // Subtract 15 from the width to adjust for the scrollbar.
+        return refs.visualization.nativeElement.clientWidth - 15;
     }
 
     recalculateActiveHeaders() {
+        this.activeHeaders = this.headers.filter((header: any) => header.active);
+
         // Update the widths of the headers based on the width of the visualization itself.
-        let refs = this.getElementRefs();
-        let tableWidth = this.activeHeaders.reduce((sum, header: any) => sum + (this.headerWidths.get(header.prop) || 0), 0);
+        const tableWidth = this.activeHeaders.reduce((sum, header: any) => sum + (header.widthUser || header.widthAuto), 0);
+        const visualizationWidth = this.getVisualizationWidth();
+        const numberOfAutoWidthColumns = this.activeHeaders.filter((header: any) => !header.widthUser).length;
 
-        // Subtract 30 to adjust for the margins and the scrollbar.
-        let visualizationWidth = refs.visualization.nativeElement.clientWidth - 30;
-
-        // If the table is bigger than the visualization and the minimum table width (based on the number of columns and the minimum column
-        // width) is not bigger than the visualization, reduce the width of the columns to try to fit the table inside the visualization.
-        if ((visualizationWidth < tableWidth) && (visualizationWidth > this.activeHeaders.length * this.MINIMUM_COLUMN_WIDTH)) {
-            // Start with the last column and work backward.
-            for (let index = this.activeHeaders.length - 1; index >= 0; --index) {
-                let header: any = this.activeHeaders[index];
-                let oldHeaderWidth = this.headerWidths.get(header.prop) || 0;
-                let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), this.MINIMUM_COLUMN_WIDTH);
-                this.headerWidths.set(header.prop, newHeaderWidth);
-                tableWidth = tableWidth - oldHeaderWidth + newHeaderWidth;
-                // Only shrink headers until the table fits inside the visualization.
-                if (visualizationWidth >= tableWidth) {
-                    break;
+        // If the visualization is bigger than the table, increase the width of the columns to fit the table inside the visualization.
+        if (visualizationWidth > tableWidth) {
+            const widthToAddToEachColumn = Math.trunc((visualizationWidth - tableWidth) / numberOfAutoWidthColumns);
+            this.activeHeaders.forEach((header: any) => {
+                if (!header.widthUser) {
+                    header.widthAuto += widthToAddToEachColumn;
                 }
-            }
+            });
         }
 
-        // Update the widths of the headers for the table object.
-        this.activeHeaders = this.getActiveHeaders().map((header: any) => {
-            // Must set both width and $$oldWidth here to update the widths of the headers and the table container.
-            header.width = this.headerWidths.get(header.prop) || header.width;
-            header.$$oldWidth = this.headerWidths.get(header.prop) || header.$$oldWidth;
-            return header;
-        });
+        // If the table is bigger than the visualization, decrease the width of the columns to fit the table inside the visualization.
+        if (visualizationWidth < tableWidth) {
+            const widthToRemoveFromEachColumn = Math.trunc((tableWidth - visualizationWidth) / numberOfAutoWidthColumns);
+            this.activeHeaders.forEach((header: any) => {
+                if (!header.widthUser) {
+                    header.widthAuto = Math.max(header.widthAuto - widthToRemoveFromEachColumn, this.MINIMUM_COLUMN_WIDTH);
+                }
+            });
+        }
 
         // Redraw.
-        this.changeDetection.detectChanges();
-    }
-
-    getActiveHeaders() {
-        let active = [];
-        for (let header of this.headers) {
-            if (header.active) {
-                active.push(header);
-            }
-        }
-        return active;
-    }
-
-    getHeaderByName(headerName, list) {
-        for (let header of list) {
-            if (headerName === header.prop || headerName === header.name) {
-                return header;
-            }
-        }
-        return null;
-    }
-
-    deactivateAllHeaders() {
-        this.activeHeaders = [];
-        for (let header of this.headers) {
-            header.active = false;
-        }
-        this.changeDetection.detectChanges();
-    }
-
-    activateAllHeaders() {
-        this.activeHeaders = this.headers;
-        for (let header of this.headers) {
-            header.active = true;
-        }
         this.changeDetection.detectChanges();
     }
 
@@ -402,8 +322,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 // Must detectChanges on the ChangeDetectorRef object in the table itself.
                 this.table.cd.detectChanges();
             }
-            // Must recalculateActiveHeaders a second time to remove unneeded scrollbars from within the table.
-            this.recalculateActiveHeaders();
         }, 300);
     }
 
@@ -499,93 +417,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     item[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
+                    if (field.type === 'date') {
+                        item[field.columnName] = DateUtil.retrievePastTime(item[field.columnName], DateFormat.MINUTE);
+                    }
                 }
             }
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
             return item;
         });
         return this.tableData.length;
-    }
-
-    isDragging(): boolean {
-        return (this.drag.mousedown && this.drag.downIndex >= 0);
-    }
-
-    // Mouse up in a drag and drop element
-    onMouseUp(index) {
-        if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
-            let length = this.headers.length;
-            if (this.drag.downIndex >= length || index >= length || this.drag.downIndex < 0 || index < 0) {
-                // Do nothing
-            } else {
-                let headers = this.headers;
-                let si = this.drag.downIndex; // StartIndex
-                let ei = index; // EndIndex
-                let dir = (si > ei ? -1 : 1);
-                let moved = headers[si];
-                for (let ci = si; ci !== ei; ci += dir) {
-                    headers[ci] = headers[ci + dir];
-                }
-                headers[ei] = moved;
-                this.recalculateActiveHeaders();
-            }
-        }
-        this.clearHeaderStyles();
-        this.drag.downIndex = -1;
-        this.drag.mousedown = false;
-    }
-
-    // Clicks on a drag and drop icon of an element
-    onMouseDown(index) {
-        if (index >= 0) {
-            this.drag.downIndex = index;
-            this.drag.mousedown = true;
-            this.setStyle(index, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(index, 'border', 'grey dashed 1px');
-        }
-    }
-
-    // Enters a NEW drag and drop element
-    onMouseEnter(index) {
-        if (this.isDragging()) {
-            this.drag.currentIndex = index;
-            let style = 'thick solid grey';
-            if (index < this.drag.downIndex) {
-                this.setStyle(index, 'borderTop', style);
-            } else if (index > this.drag.downIndex) {
-                this.setStyle(index, 'borderBottom', style);
-            }
-        }
-    }
-
-    onMouseLeaveItem(index) {
-        if (this.isDragging()) {
-            if (index !== this.drag.downIndex) {
-                this.setStyle(index, 'borderBottom', null);
-                this.setStyle(index, 'borderTop', null);
-            }
-        }
-    }
-
-    // Leaves drag and drop area
-    onMouseLeaveArea() {
-        this.drag.downIndex = -1;
-        this.drag.mousedown = false;
-        this.clearHeaderStyles();
-    }
-
-    // Moving in drag and drop area
-    onMouseMove(event) {
-        if (this.isDragging()) {
-            this.drag.x = event.screenX;
-            this.drag.y = event.screenY;
-        }
-    }
-
-    clearHeaderStyles() {
-        for (let header of this.headers) {
-            header.style = {};
-        }
     }
 
     /**
@@ -607,7 +447,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @fires select_id
      * @private
      */
-    onSelect({ selected }) {
+    public onSelect({ selected }): void {
         let selectedItem = selected && selected.length ? selected[0] : null;
         if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
             this.publishSelectId(selectedItem[this.options.idField.columnName]);
@@ -651,31 +491,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
-    onTableResize(event) {
-        this.activeHeaders.forEach((header: any) => {
-            if (!this.headerWidths.has(header.prop)) {
-                this.headerWidths.set(header.prop, header.width);
+    public onTableResize(event: any): void {
+        this.headers.forEach((header) => {
+            if (header.prop === event.column.prop) {
+                header.widthUser = event.newValue;
             }
         });
-        let lastColumn: any = this.activeHeaders[this.activeHeaders.length - 1];
-        if (event.column.prop !== lastColumn.prop) {
-            this.headerWidths.set(event.column.prop, event.newValue);
-            // Adjust the width of the last column based on the added or subtracted width of the event's column.
-            this.headerWidths.set(lastColumn.prop, lastColumn.width + event.column.width - event.newValue);
-        }
         this.refreshVisualization();
-    }
-
-    /**
-     * Sets the given style in the headers with the given index to the given value.
-     *
-     * @arg {number} index
-     * @arg {string} style
-     * @arg {string} value
-     * @private
-     */
-    private setStyle(index: number, style: string, value: string) {
-        this.headers[index].style[style] = value;
     }
 
     /**
@@ -686,7 +508,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @arg {string} value
      * @return {function}
      */
-    getCellClassFunction(): any {
+    public getCellClassFunction(): any {
         return ({ column, value }): any => {
             let cellClass: any = {};
             if (column && this.options.colorField.columnName === column.prop) {
@@ -720,7 +542,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
      * @override
      */
-    getElementRefs() {
+    public getElementRefs() {
         return {
             visualization: this.visualization,
             headerText: this.headerText,
@@ -734,7 +556,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      *
      * @return {function}
      */
-    getRowClassFunction(): any {
+    public getRowClassFunction(): any {
         return (row): any => {
             let rowClass: any = {
                 active: !!row._filtered
@@ -746,7 +568,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 let heatmapValue = row[this.options.heatmapField.columnName];
 
                 // Ignore undefined, nulls, strings, or NaNs.
-                if (typeof heatmapValue !== 'undefined' && this.isNumber(heatmapValue)) {
+                if (typeof heatmapValue !== 'undefined' && CoreUtil.isNumber(heatmapValue)) {
                     // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
                     if (heatmapDivisor % 1) {
                         // Find the number of digits following the decimal point in the divisor.
@@ -765,43 +587,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         };
     }
 
-    getTableHeaderHeight() {
-        return this.options.skinny ? 20 : 30;
-    }
-
-    getTableRowHeight() {
-        return this.options.skinny ? 20 : 25;
-    }
-
     /**
      * Updates elements and properties whenever the widget config is changed.
      *
      * @override
      */
-    onChangeData(databaseOrTableChange?: boolean) {
-        // If database or table has been updated, need to update list of available headers/fields
+    onChangeData(databaseOrTableChange?: boolean): void {
         if (databaseOrTableChange) {
-            let initialHeaderLimit = 25;
-            let unorderedHeaders = [];
-            let show = true; // Show all columns up to the limit, since now the user will need to decide what to show/not show
-
-            for (let fieldObject of this.options.fields) {
-                unorderedHeaders.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: show && unorderedHeaders.length < initialHeaderLimit,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject.columnName)
-                });
-            }
-            this.headers = unorderedHeaders;
+            // If the database or table was updated, update the headers.
+            this.initializeProperties();
         } else {
-            this.headers = [];
             this.selected = [];
-            this.activeHeaders = [];
-            this.initializeHeadersFromFieldsConfig();
+
+            const showFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) =>
+                fieldObject.columnName);
+
+            this.headers.forEach((header: any) => {
+                header.active = !showFieldNames.length || (showFieldNames.indexOf(header.prop) >= 0);
+            });
+
             this.recalculateActiveHeaders();
         }
+    }
+
+    public generateLink(link: string): string {
+        return ((!!link && link.indexOf(this.options.linkPrefix) !== 0 && link.indexOf('http') !== 0) ? (this.options.linkPrefix + link) :
+            link);
+    }
+
+    public isLinkColumn(columnName: string): boolean {
+        return !!this.options.linkFields.length && this.options.linkFields.some((linkField) => linkField.columnName === columnName);
     }
 }
