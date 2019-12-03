@@ -25,7 +25,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { Dataset, FieldConfig } from '../../library/core/models/dataset';
+import { Dataset, FieldConfig } from 'component-library/dist/core/models/dataset';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
