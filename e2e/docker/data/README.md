@@ -22,6 +22,6 @@ Replace `user` and `host` as needed.
 
 ```
 createdb -h host -U user -W earthquakes
-psql -h host -U user -W -W -d earthquakes < postgresql.earthquakes.sql
+psql -h host -U user -W -d earthquakes -c "CREATE SCHEMA earthquakes"
+psql -h host -U user -W -d earthquakes < postgresql.earthquakes.sql
 ```
-
