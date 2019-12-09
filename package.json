@@ -59,6 +59,7 @@
     "ngx-monaco-editor": "^7.0.0",
     "node-sass": "^4.12.0",
     "npx": "^10.2.0",
+    "papaparse": "^5.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.5.3",
     "tslib": "^1.9.3",

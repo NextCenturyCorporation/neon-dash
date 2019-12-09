@@ -1,0 +1,52 @@
+<form class="gear-container">
+    <div class="option-well">
+        <h4>Please make sure that CSV file has a header row</h4>
+        <div class="option-container">
+            <input #inputFile type="file" name="input-file" id="input-file" accept=".csv" (change)="onFileSelected()" />
+        </div>
+
+        <div *ngIf="isFileSelected">
+            <mat-form-field class="option-container" *ngIf="optionCollection.datastores != null">
+                <mat-select placeholder="Datastore" [(ngModel)]="optionCollection.datastore" required="true"
+                    [name]="optionCollection._id + '_datastore'" (ngModelChange)="onDatastoreChanged()"
+                    [disabled]="optionCollection.datastores.length < 2">
+                    <mat-option *ngFor="let datastore of optionCollection.datastores" [value]="datastore">
+                        {{ datastore.name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null">
+                <mat-select placeholder="Database" [(ngModel)]="optionCollection.database" required="true"
+                    [name]="optionCollection._id + '_database'" (ngModelChange)="onDatabaseChanged()"
+                    [disabled]="optionCollection.databases.length < 2">
+                    <mat-option *ngFor="let database of optionCollection.databases" [value]="database">
+                        {{ database.prettyName }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="option-container" *ngIf="optionCollection.database != null">
+                <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true"
+                    [name]="optionCollection._id + '_table'" [disabled]="optionCollection.tables.length < 2">
+                    <mat-option *ngFor="let table of optionCollection.tables" [value]="table">{{ table.prettyName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="message warning" [innerHTML]="warningMessage"></div>
+    <div class="progress" [ngClass]="progressIndicator.cssClass">{{progressIndicator.message}}</div>
+    <div class="button-footer">
+        <button *ngIf="parseErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('parse')">Download Parse
+            Errors</button>
+        <button *ngIf="dbErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('db')">Download DB Errors</button>
+    </div>
+    <div class="button-footer" align="right">
+        <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content" (click)="onCancel()">
+            Cancel
+        </button>
+        <button [disabled]="inProgress" mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
+            (click)="onImportClick()">
+            Import
+        </button>
+    </div>
+</form>
