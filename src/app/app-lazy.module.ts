@@ -120,6 +120,10 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
         ReactiveComponentLoaderModule.withModule({
             moduleId: 'custom-connection',
             loadChildren: './components/custom-connection/custom-connection.module#CustomConnectionModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
+            moduleId: 'import-data',
+            loadChildren: './components/import-data/import-data.module#ImportDataModule'
         })
     ]
 })
