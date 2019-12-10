@@ -48,6 +48,11 @@ export class ConfigService {
         private connectionService: InjectableConnectionService
     ) {
         neon.setNeonServerUrl('../neon');
+
+        if (this.connectionService) {
+            // Listen for new data notification updates.
+            this.connectionService.connect('.', '.', false);
+        }
     }
 
     private openConnection() {
