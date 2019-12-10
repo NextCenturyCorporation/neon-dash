@@ -352,12 +352,8 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.linkField).toEqual(
-            FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
-        );
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
         expect(component.options.id).toEqual('testId');
     });
 
