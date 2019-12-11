@@ -51,12 +51,12 @@ export class ConfigService {
 
         if (this.connectionService) {
             // Listen for new data notification updates.
-            this.connectionService.connect('.', '.', false);
+            this.connectionService.connect('.', '.', true);
         }
     }
 
     private openConnection() {
-        return this.connectionService.connect('.', '.', true);
+        return this.connectionService.connect('.', '.');
     }
 
     private handleConfigFileError(error) {
