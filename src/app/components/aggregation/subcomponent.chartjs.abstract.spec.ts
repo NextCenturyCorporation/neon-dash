@@ -17,7 +17,7 @@
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {

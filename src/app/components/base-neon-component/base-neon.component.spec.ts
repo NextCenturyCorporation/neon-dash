@@ -26,14 +26,14 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import {
     CompoundFilterType,
     ConfigOption,
@@ -44,10 +44,10 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     OptionChoices
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
@@ -296,6 +296,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -398,6 +399,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -445,6 +447,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -476,6 +479,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -510,6 +514,7 @@ describe('BaseNeonComponent', () => {
                     orderByClauses: [],
                     limitClause: null,
                     offsetClause: null,
+                    joinClauses: [],
                     isDistinct: false
                 },
                 hostName: 'testHostname',
@@ -574,6 +579,7 @@ describe('BaseNeonComponent', () => {
                     orderByClauses: [],
                     limitClause: null,
                     offsetClause: null,
+                    joinClauses: [],
                     isDistinct: false
                 },
                 hostName: 'testHostname',
@@ -601,6 +607,7 @@ describe('BaseNeonComponent', () => {
                     orderByClauses: [],
                     limitClause: null,
                     offsetClause: null,
+                    joinClauses: [],
                     isDistinct: false
                 },
                 hostName: 'testHostname',
@@ -860,6 +867,7 @@ describe('BaseNeonComponent', () => {
                 limit: 1000
             },
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
@@ -905,6 +913,7 @@ describe('BaseNeonComponent', () => {
             offsetClause: {
                 offset: 0
             },
+            joinClauses: [],
             isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
@@ -930,6 +939,7 @@ describe('BaseNeonComponent', () => {
             offsetClause: {
                 offset: 1000
             },
+            joinClauses: [],
             isDistinct: false
         });
         expect(spy.calls.argsFor(1)[2]).toEqual('default visualization query');
@@ -1042,6 +1052,7 @@ describe('BaseNeonComponent', () => {
                 limit: 1000
             },
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
@@ -1411,6 +1422,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
@@ -1458,6 +1470,7 @@ describe('BaseNeonComponent', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
@@ -1982,6 +1995,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });

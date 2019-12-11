@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
-import { CoreSearch } from 'component-library/dist/core/services/search.service';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -152,6 +152,7 @@ describe('Component: NewsFeed', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
 
@@ -170,6 +171,7 @@ describe('Component: NewsFeed', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     }));

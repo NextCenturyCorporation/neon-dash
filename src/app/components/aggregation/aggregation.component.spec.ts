@@ -22,9 +22,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
+import { AggregationType, CompoundFilterType, TimeInterval } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     BoundsFilterDesign,
@@ -32,15 +32,15 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { CoreSearch } from 'component-library/dist/core/services/search.service';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -294,6 +294,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -358,6 +359,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -434,6 +436,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -537,6 +540,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -642,6 +646,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -754,6 +759,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -825,6 +831,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -898,6 +905,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -981,6 +989,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -1100,6 +1109,7 @@ describe('Component: Aggregation', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });

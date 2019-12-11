@@ -18,18 +18,18 @@ import { } from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
-import { CoreSearch } from 'component-library/dist/core/services/search.service';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 // TODO Change toHaveBeenCalled to toHaveBeenCalledWith
 /* eslint-disable jasmine/prefer-toHaveBeenCalledWith */
@@ -702,6 +702,7 @@ describe('Component: DataTable', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
 
@@ -720,6 +721,7 @@ describe('Component: DataTable', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
