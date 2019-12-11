@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'component-library/dist/core/models/dataset';
 
 import { } from 'jasmine-core';
 
@@ -28,6 +28,7 @@ import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -109,35 +110,67 @@ describe('Component: NewsFeed', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
-        component.options.idField = FieldConfig.get({ columnName: 'testIdField' });
-        component.options.sortField = FieldConfig.get({ columnName: 'testSortField' });
-        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField' });
-        component.options.contentField = FieldConfig.get({ columnName: 'testContentField' });
-        component.options.secondaryContentField = FieldConfig.get({ columnName: 'testContentField' });
-        component.options.titleContentField = FieldConfig.get({ columnName: 'testContentField' });
-        component.options.dateField = FieldConfig.get({ columnName: 'testDateField' });
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
+        component.options.contentField = DashboardServiceMock.FIELD_MAP.TYPE;
+        component.options.secondaryContentField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.titleContentField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                field: 'testIdField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
-                order: -1
-            }
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
+                order: 1
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
-        delete component.options.sortField.columnName;
+        component.options.sortField = new FieldConfig();
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     }));
 

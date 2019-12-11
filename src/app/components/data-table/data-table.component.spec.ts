@@ -29,6 +29,7 @@ import { SearchServiceMock } from 'component-library/dist/core/services/mock.sea
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 // TODO Change toHaveBeenCalled to toHaveBeenCalledWith
 /* eslint-disable jasmine/prefer-toHaveBeenCalledWith */
@@ -664,30 +665,62 @@ describe('Component: DataTable', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected object', () => {
-        component.options.database = DatabaseConfig.get({ name: 'someDatastore' });
-        component.options.table = TableConfig.get({ name: 'documents' });
-        component.options.sortField = FieldConfig.get({ columnName: 'testSortField' });
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
         component.options.limit = 25;
         (component as any).page = 1;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                field: 'testSortField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
 
-        delete component.options.sortField.columnName;
+        component.options.sortField = new FieldConfig();
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     });
 

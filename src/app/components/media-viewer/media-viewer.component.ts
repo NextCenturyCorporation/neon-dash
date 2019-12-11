@@ -25,7 +25,7 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -46,6 +46,7 @@ import {
 } from 'component-library/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 import { MediaMetaData } from '../media-group/media-group.component';
+import { FieldKey } from 'component-library/dist/core/models/dataset';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -225,24 +226,39 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = options.linkFields.map((linkField) =>
-            this.searchService.buildFilterClause(linkField.columnName, '!=', null));
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let visualizationFilters: FilterClause[] = options.linkFields.map((linkField) =>
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: linkField.columnName
+            } as FieldKey, '!=', null));
 
         if (options.idField.columnName) {
-            filters = filters.concat(this.searchService.buildFilterClause(options.idField.columnName, '=', options.id));
+            visualizationFilters = visualizationFilters.concat(this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.idField.columnName
+            } as FieldKey, '=', options.id));
         }
 
         if (options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName, SortOrder.ASCENDING);
+            this.searchService.withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, SortOrder.ASCENDING);
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(visualizationFilters)));
 
         return query;
     }
