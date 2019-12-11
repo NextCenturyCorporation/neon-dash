@@ -23,13 +23,13 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
 import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
@@ -193,18 +193,25 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
-        ];
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateSort(query, options.categoryField.columnName, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat([
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.idField.columnName
+            } as FieldKey, '!=', null)
+        ]))).withOrder(query, {
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: options.categoryField.columnName
+        } as FieldKey, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
 
         return query;
     }

@@ -24,14 +24,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
 import { CoreUtil } from 'component-library/dist/core/core.util';
 import {
     CompoundFilterType,
@@ -616,12 +616,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
         let names: string[];
         let sortFieldName: string;
         let sortOrder: SortOrder = SortOrder.DESCENDING;
@@ -644,11 +644,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 sortOrder = SortOrder.ASCENDING;
         }
 
-        let filter: FilterClause = this.searchService.buildCompoundFilterClause(names.map((name) =>
-            this.searchService.buildFilterClause(name, '!=', null)), CompoundFilterType.OR);
+        let filter: FilterClause = this.searchService.createCompoundFilterClause(names.map((name) =>
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: name
+            } as FieldKey, '!=', null)), CompoundFilterType.OR);
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateSort(query, sortFieldName, sortOrder);
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)))
+            .withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: sortFieldName
+            } as FieldKey, sortOrder);
 
         return query;
     }
