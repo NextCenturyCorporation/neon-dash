@@ -30,6 +30,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -196,16 +197,38 @@ describe('Component: TaxonomyViewer', () => {
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testIdField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testCategoryField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testIdField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     }));
 

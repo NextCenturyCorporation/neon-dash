@@ -29,6 +29,7 @@ import { SearchServiceMock } from 'component-library/dist/core/services/mock.sea
 
 import { NetworkGraphModule } from './network-graph.module';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
+import { CoreSearch } from 'component-library/dist/core/services/search.service';
 
 describe('Component: NetworkGraph', () => {
     let component: NetworkGraphComponent;
@@ -105,23 +106,50 @@ describe('Component: NetworkGraph', () => {
             FieldConfig.get({ columnName: 'testFilter2' })
         ];
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testNodeField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }],
-                type: 'or'
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testNodeColorField',
+            whereClause: {
+                type: 'or',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testNodeField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testNodeColorField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            isDistinct: false
         });
     }));
 
