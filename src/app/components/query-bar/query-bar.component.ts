@@ -17,14 +17,14 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, View
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -33,10 +33,10 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 
 import { MatDialog } from '@angular/material';
-import { FieldKey } from 'component-library/dist/core/models/dataset';
+import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 @Component({
     selector: 'app-query-bar',

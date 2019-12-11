@@ -48,7 +48,7 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
-import { DateUtil } from 'component-library/dist/core/date.util';
+import { DateUtil } from 'nucleus/dist/core/date.util';
 
 import * as _ from 'lodash';
 
@@ -352,7 +352,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Handles the given error and message.
      */
     private handleDashboardMessage(event: { error?: any, message: string }) {
-        // Errors may be strings or objects.  Neon Server errors have a responseJSON property.  JS Error objects have a message property.
+        // Errors may be strings or objects.  NUCLEUS Server errors have a responseJSON property.  JS Error objects have a message property.
         let errorLabel = !event.error ? '' : (typeof event.error === 'string' ? event.error : (event.error.responseJSON ?
             (event.error.responseJSON.status + ' ' + event.error.responseJSON.error + ' ' + event.error.responseJSON.trace[0]) :
             (event.error.message || '')));

@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ConnectionService } from 'component-library/dist/core/services/connection.service';
+import { ConnectionService } from 'nucleus/dist/core/services/connection.service';
 
 @Injectable({
     providedIn: 'root'

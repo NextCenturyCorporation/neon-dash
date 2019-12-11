@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -38,7 +38,7 @@ import {
     ListFilterDesign,
     PairFilter,
     PairFilterDesign
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -51,9 +51,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -63,7 +63,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 

@@ -16,10 +16,10 @@
 <app-data-message *ngIf="showNoData"></app-data-message>
 
 <div class="body-container" *ngIf="!showNoData">
-    <app-next-century-angular-text-cloud #visualization *ngIf="visualizationType == VISUALIZATION_TYPE.TEXT_CLOUD" [attr.id]="visElementId"
+    <app-nucleus-angular-text-cloud #visualization *ngIf="visualizationType == VISUALIZATION_TYPE.TEXT_CLOUD" [attr.id]="visElementId"
         [dataset]="dataset" [filterService]="filterService" [id]="visElementId" [options]="componentLibraryOptions"
         [searchService]="searchService">
-    </app-next-century-angular-text-cloud>
+    </app-nucleus-angular-text-cloud>
 </div>
 
 <div class="footer" *ngIf="showPagination()">

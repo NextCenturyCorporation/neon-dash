@@ -24,9 +24,9 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -41,9 +41,9 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from 'component-library/dist/core/models/filters';
-import { DatasetUtil, FieldKey } from 'component-library/dist/core/models/dataset';
-import { DateUtil } from 'component-library/dist/core/date.util';
+} from 'nucleus/dist/core/models/filters';
+import { DatasetUtil, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { DateUtil } from 'nucleus/dist/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -69,7 +69,7 @@ import {
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -77,7 +77,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import * as moment from 'moment';

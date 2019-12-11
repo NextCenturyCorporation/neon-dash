@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { DateUtil, DateFormat } from 'component-library/dist/core/date.util';
+import { DateUtil, DateFormat } from 'nucleus/dist/core/date.util';
 function buildDate(){
     let okDate: string = new Date().toISOString();
     let bDate: string = DateUtil.retrievePastTime(okDate, DateFormat.MINUTE);
