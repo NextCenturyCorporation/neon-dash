@@ -27,7 +27,7 @@ import {
     AbstractSearchService,
     FilterClause,
     SearchObject
-} from 'component-library/dist/core/services/abstract.search.service';
+} from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -38,13 +38,13 @@ import {
     DomainValues,
     FilterCollection,
     ListFilterDesign
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     AggregationType,
     CompoundFilterType,
@@ -54,10 +54,10 @@ import {
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';

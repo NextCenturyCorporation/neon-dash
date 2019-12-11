@@ -23,14 +23,14 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
+import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -41,12 +41,12 @@ import {
     ConfigOption,
     ConfigOptionSelect,
     ConfigOptionNonPrimitive
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
-import { FieldKey } from 'component-library/dist/core/models/dataset';
+import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.

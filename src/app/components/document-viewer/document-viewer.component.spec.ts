@@ -14,21 +14,21 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from 'component-library/dist/core/models/filters';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { FilterCollection } from 'nucleus/dist/core/models/filters';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DocumentViewerModule } from './document-viewer.module';
-import { CoreSearch } from 'component-library/dist/core/services/search.service';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
@@ -109,6 +109,7 @@ describe('Component: DocumentViewer', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -152,6 +153,7 @@ describe('Component: DocumentViewer', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -199,6 +201,7 @@ describe('Component: DocumentViewer', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -259,6 +262,7 @@ describe('Component: DocumentViewer', () => {
             orderByClauses: [],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });

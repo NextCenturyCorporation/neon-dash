@@ -20,7 +20,7 @@ import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
-import { DatastoreConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
+import { DatastoreConfig, DatabaseConfig } from 'nucleus/dist/core/models/dataset';
 
 @Component({
     selector: 'app-custom-connection',

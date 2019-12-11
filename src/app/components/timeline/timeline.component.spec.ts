@@ -18,19 +18,19 @@ import { } from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
-import { CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
-import { CoreSearch } from 'component-library/dist/core/services/search.service';
+import { DomainFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import { CompoundFilterType, TimeInterval } from 'nucleus/dist/core/models/config-option';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -228,6 +228,7 @@ describe('Component: Timeline', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
 
@@ -299,6 +300,7 @@ describe('Component: Timeline', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
@@ -373,6 +375,7 @@ describe('Component: Timeline', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
 
@@ -458,6 +461,7 @@ describe('Component: Timeline', () => {
             }],
             limitClause: null,
             offsetClause: null,
+            joinClauses: [],
             isDistinct: false
         });
     });
