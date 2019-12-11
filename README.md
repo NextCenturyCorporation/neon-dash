@@ -1,6 +1,6 @@
 # Neon Dashboard
 
-The Neon Dashboard is a big data exploration and visualization user interface that is used with the [Neon Server](https://github.com/NextCenturyCorporation/neon-server), the [Neon Middleware](https://github.com/NextCenturyCorporation/neon-framework), and the [Next Century Component Library](https://github.com/NextCenturyCorporation/component-library).
+The Neon Dashboard is a big data exploration and visualization user interface that is used with [NUCLEUS](https://github.com/NextCenturyCorporation/nucleus) and the [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/neon-server)
 
 ## Table of Content
 
@@ -32,7 +32,7 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 
 ### Install Dependencies
 
-* [Neon Server](https://github.com/NextCenturyCorporation/neon-server)
+* [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/neon-server)
 * [Node and NPM](https://nodejs.org/en/)
 * (Optional) [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
 
@@ -46,11 +46,11 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 
 ### Load Data
 
-Please see the Neon Server's Initial Setup Instructions for more information on [loading data](https://github.com/NextCenturyCorporation/neon-server#load-data) into your datastore.
+Please see the NUCLEUS Data Server's Initial Setup Instructions for more information on [loading data](https://github.com/NextCenturyCorporation/neon-server#load-data) into your datastore.
 
 ### Other Setup
 
-Copy `sample.proxy.conf.json` to `./proxy.conf.json` and, if your Neon Server will not run on `http://localhost:8090` (the default), change the hostname and/or port (under `target`) with a text editor.
+Copy `sample.proxy.conf.json` to `./proxy.conf.json` and, if your NUCLEUS Data Server isn't running on `http://localhost:8090` (the default), change the hostname and/or port (under `target`) with a text editor.
 
 ### Dashboard Configuration
 
@@ -64,7 +64,7 @@ If you were not given a sample data bundle and/or do not have a configuration fi
 
 ### Run Locally
 
-To run the Neon Dashboard, first start the Neon Server, then run `npm start`
+To run the Neon Dashboard, first start the NUCLEUS Data Server, then run `npm start`
 
 This will start the Neon Dashboard on http://localhost:4200 and should auto-reload the page whenever you modify a file.
 
@@ -104,9 +104,9 @@ Please see the documentation on [End-to-End Testing in the Neon Dashboard](./doc
 
 The Neon Dashboard can be deployed as either:
 
-- A [single Docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-single-docker-container).  This is useful if you want to separately deploy both the Neon Server and a datastore.
-- A [Docker container with the Neon Server, but not a datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server).  This is useful if you already have a datastore that you want to link to the Neon system.
-- A [Docker container with the Neon Server and an Elasticsearch datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server-and-elasticsearch).  This is useful if you want to deploy the entire Neon system on a clean machine (like a new AWS EC2 instance).
+- A [single Docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-single-docker-container).  This is useful if you want to separately deploy both the NUCLEUS Data Server and a datastore.
+- A [Docker container with the NUCLEUS Data Server, but not a datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server).  This is useful if you already have a datastore that you want to link to the Neon system.
+- A [Docker container with the NUCLEUS Data Server and an Elasticsearch datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server-and-elasticsearch).  This is useful if you want to deploy the entire Neon system on a clean machine (like a new AWS EC2 instance).
 - A [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-war-file-in-apache-tomcat).  This is useful if you want to deploy the Neon Dashboard alongside other applications in Tomcat.
 
 ### Deploy the Dashboard as a Single Docker Container
@@ -135,7 +135,7 @@ docker build -t neon-dash .
 
 - In `<neon-dash-internal>/nginx.dash-only.conf`, change the number `4200` in the line `listen 4200;` to your port.
 
-**Note**: By default, the Docker container assumes the Neon Server is running with hostname and port `http://localhost:8090`.  If you want to use a different port:
+**Note**: By default, the Docker container assumes the NUCLEUS Data Server is running with the hostname and port `http://localhost:8090`.  If you want to use a different port:
 
 - In `<neon-dash-internal>/nginx.dash-only.conf`, change the hostname and port `http://localhost:8090` in the line `proxy_pass http://localhost:8090/neon` to your hostname and port.
 
@@ -181,9 +181,9 @@ npm run-script build
 
 This will generate the `<neon-dash-internal>/dist` directory.
 
-#### 5. Run the Neon Server and Neon Dashboard Docker Containers with Docker Compose
+#### 5. Run the NUCLEUS Data Server and the Neon Dashboard Docker Containers with Docker Compose
 
-This option uses Docker Compose to deploy the Neon Dashboard within an Nginx docker image alongside your existing Neon Server docker image.
+This deployment option uses Docker Compose to deploy the Neon Dashboard within an Nginx docker image alongside your existing NUCLEUS Data Server docker image.
 
 Run the following commands:
 
@@ -196,7 +196,7 @@ docker-compose -f docker-compose-neon-only.yml up -d
 
 - In `<neon-dash-internal>/docker-compose-neon-only.yml`, change the first `80` in the line `- 80:80` to your port.
 
-**Note**: By default, docker-compose runs the Neon Server on port `8090`.  If you want to use a different port:
+**Note**: By default, docker-compose runs the NUCLEUS Data Server on port `8090`.  If you want to use a different port:
 
 - In `<neon-dash-internal>/docker-compose-neon-only.yml`, change both of the `8090` in the line `- 8090:8090` to your port and change the `8090` in the line `SERVER_PORT: 8090` to your port.
 
@@ -211,7 +211,7 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 #### Assumptions
 
 - The UI (Neon Dashboard) runs on port 80.
-- The Neon Server runs on port 8090. You don't need to worry about this unless you have another application running on port 8090.
+- The NUCLEUS Data Server runs on port 8090. You don't need to worry about this unless you have another application running on port 8090.
 - Elasticsearch runs on port 9200.
 
 *Note: If you need to change any of the above ports, update the `docker-compose.yml` and `nginx.conf` files in the `neon-dash-internal` repository as needed.*
@@ -226,7 +226,7 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 
 *Note: I followed [these steps](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html) to install Docker on my AWS EC2 instance but had to logout and log back in again to make it work.*
 
-#### 2. Build the Neon Server Docker Container
+#### 2. Build the NUCLEUS Data Server Docker Container
 
 ```
 git clone https://github.com/NextCenturyCorporation/neon-server.git
@@ -277,7 +277,7 @@ docker-compose up -d
 
 ### Deploy the Dashboard as a WAR File in Apache Tomcat
 
-**Note**:  These instructions assume that you've already installed the Neon Server and your datastores on your machine.
+**Note**:  These instructions assume that you've already installed the NUCLEUS Data Server and your datastores on your machine.
 
 #### 1. Perform All Initial Setup
 
@@ -285,9 +285,9 @@ Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporatio
 
 #### 2. Install [Apache Tomcat](http://tomcat.apache.org/)
 
-#### 3. Run the Neon Server as a Docker Container
+#### 3. Run the NUCLEUS Data Server as a Docker Container
 
-While the Neon Dashboard can run in Apache Tomcat, the Neon Server can't, so you need to deploy it as a docker container.
+While the Neon Dashboard can run in Apache Tomcat, the NUCLEUS Data Server cannot, so you need to deploy it as a separate docker container.
 
 ```
 cd <neon-server>
@@ -358,7 +358,7 @@ For the full, detailed instructions, please see the [Neon Dashboard Configuratio
 To add datastore authentication, you either:
 
 - Add your username (or username and password) to your datastore's `host` property like this: `username@host` or `username:password@host`.  This will allow any users to see your password, though.
-- Add authentication to your Neon Server as described [here](https://github.com/NextCenturyCorporation/neon-server/blob/master/README.md#datastore-authentication).  You will need to rebuild and redeploy your Neon Server afterward.
+- Add authentication to your NUCLEUS Data Server as described [here](https://github.com/NextCenturyCorporation/neon-server/blob/master/README.md#datastore-authentication).  You will need to rebuild and redeploy your NUCLEUS Data Server afterward.
 
 ### Elasticsearch Notes
 

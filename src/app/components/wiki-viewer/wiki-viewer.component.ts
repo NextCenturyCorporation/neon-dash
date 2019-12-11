@@ -26,22 +26,22 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     OptionChoices,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
-import { FieldKey } from 'component-library/dist/core/models/dataset';
+import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 export class WikiData {
     constructor(public name: string, public text: SafeHtml) { }

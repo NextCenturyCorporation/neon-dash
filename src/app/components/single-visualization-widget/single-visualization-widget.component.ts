@@ -29,7 +29,7 @@ import {
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { MatDialog } from '@angular/material';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import {
     AggregationType,
     ConfigOption,
@@ -37,17 +37,17 @@ import {
     ConfigOptionSelect,
     OptionChoices,
     OptionType
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
     RootWidgetOptionCollection,
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { Dataset } from 'component-library/dist/core/models/dataset';
+import { Dataset } from 'nucleus/dist/core/models/dataset';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
@@ -55,7 +55,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 
-import { NextCenturyTextCloudAngularComponent } from 'component-library/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
+import { NucleusTextCloudAngularComponent } from 'nucleus/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
 
 @Component({
     selector: 'app-single-visualization-widget',
@@ -349,7 +349,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     /**
-     * Transforms the given widget option collection for a visualization with the given type into a NCCL visualization options JSON object.
+     * Transforms the given widget option collection for a visualization with the given type into a NUCLEUS visualization options JSON
+     * object.
      */
     static transformComponentLibraryOptions(
         colorThemeService: InjectableColorThemeService,
@@ -421,7 +422,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    return (visArray[0] as NextCenturyTextCloudAngularComponent).createExportData(exportFields, filename);
+                    return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
             }
         }
 
@@ -465,7 +466,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     /**
-     * Angular lifecycle hook:  Add event listeners for the NCCL visualization and sets its options to trigger initialization.
+     * Angular lifecycle hook:  Add event listeners for the NUCLEUS visualization and sets its options to trigger initialization.
      */
     public ngAfterViewInit(): void {
         // Add the event listeners to the visualization only after the HTML elements are stable.
@@ -573,7 +574,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    (visArray[0] as NextCenturyTextCloudAngularComponent).redraw();
+                    (visArray[0] as NucleusTextCloudAngularComponent).redraw();
             }
         }
     }

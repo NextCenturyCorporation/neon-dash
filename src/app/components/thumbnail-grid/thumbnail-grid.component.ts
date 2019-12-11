@@ -25,15 +25,15 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig, FieldKey } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -45,7 +45,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
