@@ -23,7 +23,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'component-library/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
 import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'component-library/dist/core/models/filters';
@@ -46,6 +46,7 @@ import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
+import { FieldKey } from 'component-library/dist/core/models/dataset';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -176,28 +177,29 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters = sharedFilters;
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withAllFields(query);
 
-        if (this.options.sortField.columnName) {
-            filters = [
-                ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
-            ];
-        }
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.sortField.columnName ?
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, '!=', null) : [])));
 
-        this.searchService.updateFieldsToMatchAll(query);
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
-
-        if (this.options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName,
-                !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        if (options.sortField.columnName) {
+            this.searchService.withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
         }
 
         return query;
