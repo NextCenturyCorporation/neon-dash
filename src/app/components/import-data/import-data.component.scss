@@ -16,7 +16,17 @@
 //@import '../base-neon-component/base-neon.component';
 @import '../gear/gear.component';
 
-.warning {
+.example-container {
+    display: flex;
+    flex-direction: column;
+}
+  
+.example-container > * {
+    width: 100%;
+}
+  
+
+.alert {
     width: 100%;
     color: red;
 }

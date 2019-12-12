@@ -1,4 +1,4 @@
-<form class="gear-container">
+<form #importForm="ngForm">
     <div class="option-well">
         <h4>Please make sure that CSV file has a header row</h4>
         <div class="option-container">
@@ -15,36 +15,47 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null">
+            <section class="option-container" *ngIf="optionCollection.datastore != null">
+                <mat-checkbox class="example-margin" [(ngModel)]="isNew" name="isNew">Create new Database</mat-checkbox>
+            </section>
+
+            <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null && !isNew">
                 <mat-select placeholder="Database" [(ngModel)]="optionCollection.database" required="true"
                     [name]="optionCollection._id + '_database'" (ngModelChange)="onDatabaseChanged()"
                     [disabled]="optionCollection.databases.length < 2">
                     <mat-option *ngFor="let database of optionCollection.databases" [value]="database">
                         {{ database.prettyName }}</mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field>            
 
-            <mat-form-field class="option-container" *ngIf="optionCollection.database != null">
+            <mat-form-field class="option-container" *ngIf="optionCollection.database != null && !isNew">
                 <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true"
                     [name]="optionCollection._id + '_table'" [disabled]="optionCollection.tables.length < 2">
                     <mat-option *ngFor="let table of optionCollection.tables" [value]="table">{{ table.prettyName }}
                     </mat-option>
                 </mat-select>
+            </mat-form-field>            
+
+            <mat-form-field class="example-container" *ngIf="optionCollection.datastore != null && isNew">
+                <input matInput placeholder="New Database" [(ngModel)]="newDb" required="true" name="newDb">
             </mat-form-field>
+
+            <mat-form-field class="example-container" *ngIf="optionCollection.database != null && isNew">
+                <input matInput placeholder="New Table" [(ngModel)]="newTable" required="true" name="newTable">
+            </mat-form-field>            
         </div>
     </div>
-    <div class="message warning" [innerHTML]="warningMessage"></div>
+    <div class="message alert" [innerHTML]="alertMessage"></div>
     <div class="progress" [ngClass]="progressIndicator.cssClass">{{progressIndicator.message}}</div>
     <div class="button-footer">
-        <button *ngIf="parseErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('parse')">Download Parse
-            Errors</button>
-        <button *ngIf="dbErrors.length > 0 && !inProgress" mat-raised-button (click)="onDownloadErrors('db')">Download DB Errors</button>
+        <button *ngIf="showParseErrorBtn" mat-raised-button (click)="onDownloadErrors('parse')">Download Parse Errors</button>
+        <button *ngIf="showDBErrorBtn" mat-raised-button (click)="onDownloadErrors('db')">Download DB Errors</button>
     </div>
     <div class="button-footer" align="right">
         <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content" (click)="onCancel()">
             Cancel
         </button>
-        <button [disabled]="inProgress" mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
+        <button [disabled]="inProgress || importForm.invalid" mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
             (click)="onImportClick()">
             Import
         </button>
