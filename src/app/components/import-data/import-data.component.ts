@@ -58,12 +58,15 @@ export class ImportDataComponent implements OnDestroy {
     public maxAllowedErrors = 100000;
     public optionCollection: WidgetOptionCollection;
     public isFileSelected: boolean;
-    public importStatus: ImportStatus = ImportStatus.NOT_STARTED;;
+    public importStatus: ImportStatus = ImportStatus.NOT_STARTED;
+    public isNew: boolean;
+    public newDb: string;
+    public newTable: string;
     public processedRecordsCount: number = 0;
     public processedChunksCount: number = 0;
     public parseErrors: any[] = [];
     public dbErrors: any[] = [];
-    public warningMessage: string;
+    public alertMessage: string;
 
     constructor(
         dashboardService: DashboardService,
@@ -86,24 +89,23 @@ export class ImportDataComponent implements OnDestroy {
         this.processedRecordsCount = 0;
         this.dbErrors = [];
         this.parseErrors = [];
+        this.alertMessage = null;
     }
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
-        if (this.inProgress) {
+        if (this.importStatus === ImportStatus.IN_PROGRESS) {
             this.importStatus = ImportStatus.ABORTED;
         }
     }
 
     public onDatastoreChanged() {
         this.optionCollection.updateDatabases(this.dataset);
-        this.warningMessage = null;
         this.reset();
     }
 
     public onDatabaseChanged() {
         this.optionCollection.updateTables(this.dataset);
-        this.warningMessage = null;
         this.reset();
     }
 
@@ -147,8 +149,14 @@ export class ImportDataComponent implements OnDestroy {
             complete: this.importEnd.bind(this) });
     }
 
-    public get inProgress(): boolean {
-        return this.importStatus === ImportStatus.IN_PROGRESS;
+    public get showParseErrorBtn(): boolean {
+        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED)  &&
+                this.parseErrors.length > 0;
+    }
+
+    public get showDBErrorBtn(): boolean {
+        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED)  &&
+                this.dbErrors.length > 0;
     }
 
     public get progressIndicator(): any {
@@ -171,7 +179,7 @@ export class ImportDataComponent implements OnDestroy {
             case ImportStatus.COMPLETED:
                 return {
                     cssClass: 'success',
-                    message: this.warningMessage ?
+                    message: this.alertMessage ?
                         '' : `Import completed. ${this.processedRecordsCount} records processed. ${errorCount} record(s) failed.`
                 };
             default:
@@ -180,7 +188,8 @@ export class ImportDataComponent implements OnDestroy {
     }
 
     private importChunk(result: any, parser: any) {
-        if (!this.inProgress) { // Indicates import is aborted outside of this event handler (eg. by closing the import UI). abort papaparse
+        if (this.importStatus !== ImportStatus.IN_PROGRESS) { 
+            // Indicates import is aborted outside of this event handler (eg. by closing the import UI). abort papaparse
             parser.abort();
             return;
         } else if (result.errors.length > 0) {
@@ -198,21 +207,22 @@ export class ImportDataComponent implements OnDestroy {
         let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
             this.dashboardState.datastores[0].host);
 
-        let destinationColumns: string[] = this.optionCollection.fields.map((field: FieldConfig) => field.columnName);
-        if (!this.warningMessage && destinationColumns) {
-            // Check if source and destination columns match, and if not show warning to user
-            let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinationColumns.indexOf(sourceColumn) === -1);
-            if (newSourceColumns.length > 0) {
-                this.warningMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
-                                        do not exist in destination table. They will be added as new columns. 
-                                        Click on 'Import' again to proceed?`;
-                parser.abort();
-                this.parseErrors = [];
-                return;
-            }
+        if (!this.isNew && this.processedChunksCount == 0)
+        {
+            let destinationColumns: string[] = this.optionCollection.fields.map((field: FieldConfig) => field.columnName);
+            if (!this.alertMessage && destinationColumns) {
+                // Check if source and destination columns match, and if not show warning to user
+                let newSourceColumns = sourceColumns.filter((sourceColumn: string) => destinationColumns.indexOf(sourceColumn) === -1);
+                if (newSourceColumns.length > 0) {
+                    this.alertMessage = `The columns <b>${newSourceColumns.join(', ')}</b> in the CSV file
+                                            do not exist in destination table. They will be added as new columns. 
+                                            Click on 'Import' again to proceed?`;
+                    parser.abort();
+                    this.parseErrors = [];
+                    return;
+                }
+            }    
         }
-
-        this.warningMessage = null;
 
         // Exclude rows with errors from the data to be imported
         let errorRows = result.errors.map((error) => error.row);
@@ -221,21 +231,30 @@ export class ImportDataComponent implements OnDestroy {
         let importQuery = {
             hostName: this.optionCollection.datastore.host,
             dataStoreType: this.optionCollection.datastore.type,
-            database: this.optionCollection.database.name,
-            table: this.optionCollection.table.name,
-            source: source.map((row) => JSON.stringify(row))
+            database: this.isNew ? this.newDb : this.optionCollection.database.name,
+            table: this.isNew ? this.newTable : this.optionCollection.table.name,
+            source: source.map((row) => JSON.stringify(row)),
+            isNew: this.isNew && this.processedChunksCount === 0
         };
 
         connection.runImportQuery(importQuery,
             ((importResponse: any) => {
-                this.dbErrors = this.dbErrors.concat(importResponse.recordErrors ? importResponse.recordErrors : []);
-                parser.resume();
+                if (importResponse.error == null)
+                {
+                    this.dbErrors = this.dbErrors.concat(importResponse.recordErrors ? importResponse.recordErrors : []);
+                    parser.resume();    
+                }
+                else
+                {
+                    this.importStatus = ImportStatus.NOT_STARTED;
+                    this.alertMessage = importResponse.error;
+                }
             }),
 
             ((response: any) => {
                 parser.abort();
                 this.importStatus = ImportStatus.ABORTED;
-                this.warningMessage = `Batch ${this.processedChunksCount + 1} failed. 
+                this.alertMessage = `Batch ${this.processedChunksCount + 1} failed. 
                                        Check server logs for detail. response status is ${response.statusText}`;
             }));
 
