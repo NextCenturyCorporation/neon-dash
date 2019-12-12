@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImportDataComponent } from './import-data.component';
-import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule, MatButtonModule } from '@angular/material';
+import { MatDividerModule, MatRadioModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatCheckboxModule, MatInputModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 import { CSVService } from '../../services/csv.service';
@@ -29,6 +29,8 @@ import { CSVService } from '../../services/csv.service';
         MatRadioModule,
         MatButtonModule,
         MatSelectModule,
+        MatCheckboxModule,
+        MatInputModule,
         MatFormFieldModule,
         FormsModule,
         CommonModule
