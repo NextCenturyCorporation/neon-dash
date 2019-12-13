@@ -321,17 +321,42 @@ Minimally, we recommend that you define the datastores you want to show in the N
 
 ```yaml
 datastores:
-    es:
-        host: <ip_address>
+    mysql_datastore_id:
+        host: <datastore_ip_address>
+        type: mysql
+        databases:
+            <mysql_database_name>:
+                tables:
+                    <mysql_table_name>:
+                        fields:
+    postgresql_datastore_id:
+        host: <datastore_ip_address>/<postgresql_database_name>
+        type: postgresql
+        databases:
+            <postgresql_schema_name>:
+                tables:
+                    <postgresql_table_name>:
+                        fields:
+    elasticsearch_datastore_id:
+        host: <datastore_ip_address>
         type: elasticsearchrest
         databases:
             <elasticsearch_index_name>:
                 tables:
                     <elasticsearch_index_type>:
                         fields:
+
+dashboards:
+    choices:
+        <dashboard_id>:
+            name: <human_readable_dashboard_name>
+            layout: custom
+
+layouts:
+    custom:
 ```
 
-Replace `<ip_address>`, `<elasticsearch_index_name>`, and `<elasticsearch_index_type>` with the appropriate values.
+Remove sections under `datastores` for any unneeded datastores, or add sections for additional datastores.  Replace the values within the braces (`< >`) as needed.
 
 You don't need to list each field in your datastore because Neon will automatically find them all and make them available to you in the UI.  However, if your data contains many (hundreds of) fields, we recommend that you add all the fields you want to show in the UI to the datastore configuration under `fields:`.  For example:
 
@@ -391,7 +416,7 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 
 ### Data Tasks
 
-* Additional datastore support:  SQL, SPARQL, Cypher
+* Additional datastore support:  Gremlin/TinkerPop
 * Edit or annotate live data in your datastores
 * "Join" on data across tables/databases/datastores if data denormalization isn't possible
 * Make scripts to help users ingest their data
@@ -399,13 +424,11 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 ### UI Tasks
 
 * Create a custom dataset and dashboard configuration wizard
-* Export data to CSV, PDF, etc.
 * Show GeoJSON regions in the Map
 * Design tabbed dashboard widgets
 * Expand Selenium test suites
 * Set data access restrictions
-* Plan new data visualizations
-* Move visualizations into the Next Century Component Library
+* Move visualizations into NUCLEUS
 
 ## Example Data
 
