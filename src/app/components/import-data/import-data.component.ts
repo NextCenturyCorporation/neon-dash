@@ -150,12 +150,12 @@ export class ImportDataComponent implements OnDestroy {
     }
 
     public get showParseErrorBtn(): boolean {
-        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED)  &&
+        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED) &&
                 this.parseErrors.length > 0;
     }
 
     public get showDBErrorBtn(): boolean {
-        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED)  &&
+        return (this.importStatus === ImportStatus.COMPLETED || this.importStatus === ImportStatus.ABORTED) &&
                 this.dbErrors.length > 0;
     }
 
@@ -188,7 +188,7 @@ export class ImportDataComponent implements OnDestroy {
     }
 
     private importChunk(result: any, parser: any) {
-        if (this.importStatus !== ImportStatus.IN_PROGRESS) { 
+        if (this.importStatus !== ImportStatus.IN_PROGRESS) {
             // Indicates import is aborted outside of this event handler (eg. by closing the import UI). abort papaparse
             parser.abort();
             return;
@@ -207,8 +207,7 @@ export class ImportDataComponent implements OnDestroy {
         let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
             this.dashboardState.datastores[0].host);
 
-        if (!this.isNew && this.processedChunksCount == 0)
-        {
+        if (!this.isNew && this.processedChunksCount === 0) {
             let destinationColumns: string[] = this.optionCollection.fields.map((field: FieldConfig) => field.columnName);
             if (!this.alertMessage && destinationColumns) {
                 // Check if source and destination columns match, and if not show warning to user
@@ -221,7 +220,7 @@ export class ImportDataComponent implements OnDestroy {
                     this.parseErrors = [];
                     return;
                 }
-            }    
+            }
         }
 
         // Exclude rows with errors from the data to be imported
@@ -239,13 +238,10 @@ export class ImportDataComponent implements OnDestroy {
 
         connection.runImportQuery(importQuery,
             ((importResponse: any) => {
-                if (importResponse.error == null)
-                {
+                if (!importResponse.error) {
                     this.dbErrors = this.dbErrors.concat(importResponse.recordErrors ? importResponse.recordErrors : []);
-                    parser.resume();    
-                }
-                else
-                {
+                    parser.resume();
+                } else {
                     this.importStatus = ImportStatus.NOT_STARTED;
                     this.alertMessage = importResponse.error;
                 }

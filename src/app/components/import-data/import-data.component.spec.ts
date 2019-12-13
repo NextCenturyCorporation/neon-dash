@@ -113,7 +113,7 @@ describe('Component: Import-Data', () => {
 
         expect(mockConnectionService.connect).toHaveBeenCalledWith('testDatastore', 'testHostname');
 
-        expect(component.warningMessage.length).toBeGreaterThan(0);
+        expect(component.alertMessage.length).toBeGreaterThan(0);
         expect(mockCSVService.abort).toHaveBeenCalledWith();
     }));
 
@@ -135,6 +135,7 @@ describe('Component: Import-Data', () => {
             { columnName: 'col2', prettyName: 'col2', type: 'text', hide: false }
         ];
 
+        component.isNew = false;
         component.onImportClick();
 
         expect(mockConnectionService.connect).toHaveBeenCalledWith('testDatastore', 'testHostname');
@@ -144,7 +145,8 @@ describe('Component: Import-Data', () => {
             dataStoreType: component.optionCollection.datastore.type,
             database: component.optionCollection.database.name,
             table: component.optionCollection.table.name,
-            source: [{ col1: 'val1', col2: 'val2' }].map((row) => JSON.stringify(row))
+            source: [{ col1: 'val1', col2: 'val2' }].map((row) => JSON.stringify(row)),
+            isNew: false
         };
         expect(mockConnection.runImportQuery).toHaveBeenCalledWith(importQuery, jasmine.any(Function), jasmine.any(Function));
         expect(mockCSVService.pause).toHaveBeenCalledWith();
