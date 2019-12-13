@@ -16,15 +16,14 @@
 //@import '../base-neon-component/base-neon.component';
 @import '../gear/gear.component';
 
-.example-container {
+.input-container {
     display: flex;
     flex-direction: column;
 }
-  
-.example-container > * {
+
+.input-container > input {
     width: 100%;
 }
-  
 
 .alert {
     width: 100%;
