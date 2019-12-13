@@ -16,7 +16,7 @@
             </mat-form-field>
 
             <section class="option-container" *ngIf="optionCollection.datastore != null">
-                <mat-checkbox class="example-margin" [(ngModel)]="isNew" name="isNew">Create new Database</mat-checkbox>
+                <mat-checkbox [(ngModel)]="isNew" name="isNew">Create new Database</mat-checkbox>
             </section>
 
             <mat-form-field class="option-container" *ngIf="optionCollection.datastore != null && !isNew">
@@ -26,7 +26,7 @@
                     <mat-option *ngFor="let database of optionCollection.databases" [value]="database">
                         {{ database.prettyName }}</mat-option>
                 </mat-select>
-            </mat-form-field>            
+            </mat-form-field>
 
             <mat-form-field class="option-container" *ngIf="optionCollection.database != null && !isNew">
                 <mat-select placeholder="Table" [(ngModel)]="optionCollection.table" required="true"
@@ -34,15 +34,15 @@
                     <mat-option *ngFor="let table of optionCollection.tables" [value]="table">{{ table.prettyName }}
                     </mat-option>
                 </mat-select>
-            </mat-form-field>            
+            </mat-form-field>
 
-            <mat-form-field class="example-container" *ngIf="optionCollection.datastore != null && isNew">
+            <mat-form-field class="input-container" *ngIf="optionCollection.datastore != null && isNew">
                 <input matInput placeholder="New Database" [(ngModel)]="newDb" required="true" name="newDb">
             </mat-form-field>
 
-            <mat-form-field class="example-container" *ngIf="optionCollection.database != null && isNew">
+            <mat-form-field class="input-container" *ngIf="optionCollection.database != null && isNew">
                 <input matInput placeholder="New Table" [(ngModel)]="newTable" required="true" name="newTable">
-            </mat-form-field>            
+            </mat-form-field>
         </div>
     </div>
     <div class="message alert" [innerHTML]="alertMessage"></div>
