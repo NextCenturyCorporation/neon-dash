@@ -55,7 +55,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 
-import { NucleusTextCloudAngularComponent } from 'nucleus/dist/wrappers/angular/text-cloud/text-cloud.angular-component';
+import { NucleusTextCloudAngularComponent } from 'nucleus-angular';
 
 @Component({
     selector: 'app-single-visualization-widget',
