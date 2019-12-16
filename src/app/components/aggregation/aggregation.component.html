@@ -18,15 +18,16 @@
 
 <app-data-message *ngIf="showNoData"></app-data-message>
 
-<div class="legend" *ngIf="showLegend()">
+<!-- Don't use ngIf here.  Just set the display to none so the flatpickr library can find the elements it needs. -->
+<div class="legend" [style.display]="showLegend() ? '' : 'none'">
     <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
     </app-legend>
-    <div class="date" *ngIf="canHaveDatePicker()">
-        <input id="startDate">
+    <div class="date" [style.display]="canHaveDatePicker() ? '' : 'none'">
+        <input [id]="'begin_date_' + options._id">
         <b> - </b>
-        <input id="endDate" disabled>
+        <input [id]="'end_date_' + options._id" disabled>
     </div>
-    <div class="icon" *ngIf="canHaveDatePicker()">
+    <div class="icon" [style.display]="canHaveDatePicker() ? '' : 'none'">
         <img src="./assets/icons/dashboard/calendar.png" width="18" height="18">
     </div>
 </div>
