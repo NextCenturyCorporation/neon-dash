@@ -248,33 +248,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
-        if (this.canHaveDatePicker()) {
-            this.calendarComponent = flatpickr('#startDate', {
-                enableTime: true,
-                defaultHour: 0,
-                plugins: [rangePlugin({ input: '#endDate' })],
-                dateFormat: 'M d, Y, h:i K',
-                onOpen: (__selectedDates, __dateStr, instance) => {
-                    instance.clear();
-                },
-                onClose: (selectedDates, __dateStr, instance) => {
-                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
-                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
-                        if (!DateUtil.USE_LOCAL_TIME) {
-                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
-                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
-                        }
-                        this.changedThroughPickr = true;
-                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
-                        this.savedDates = selectedDates;
-                    }
-                    if (this.savedDates) {
-                        instance.setDate(this.savedDates, true);
-                        instance.redraw();
-                    }
-                }
-            });
-        }
+        this._createDatePickerIfNeeded();
     }
 
     /**
@@ -835,6 +809,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.colorKeys = [];
         this.xList = [];
         this.yList = [];
+        this._createDatePickerIfNeeded();
     }
 
     /**
@@ -1500,5 +1475,35 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
+    }
+
+    private _createDatePickerIfNeeded(): void {
+        if (this.canHaveDatePicker()) {
+            this.calendarComponent = flatpickr('#begin_date_' + this.options._id, {
+                enableTime: true,
+                defaultHour: 0,
+                plugins: [rangePlugin({ input: '#end_date_' + this.options._id })],
+                dateFormat: 'M d, Y, h:i K',
+                onOpen: (__selectedDates, __dateStr, instance) => {
+                    instance.clear();
+                },
+                onClose: (selectedDates, __dateStr, instance) => {
+                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
+                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
+                        if (!DateUtil.USE_LOCAL_TIME) {
+                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
+                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
+                        }
+                        this.changedThroughPickr = true;
+                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
+                        this.savedDates = selectedDates;
+                    }
+                    if (this.savedDates) {
+                        instance.setDate(this.savedDates, true);
+                        instance.redraw();
+                    }
+                }
+            });
+        }
     }
 }
