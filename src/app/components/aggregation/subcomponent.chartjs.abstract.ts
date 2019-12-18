@@ -21,17 +21,18 @@ import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
-    public xToY: Map<any, any> = new Map<any, any[]>();
+    public maximumAggregation: number;
+    public xToYToSize: Map<any, Map<any, any>> = new Map<any, Map<any, any>>();
 
     constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
         xList.forEach((xValue) => {
-            this.xToY.set(xValue, []);
+            this.xToYToSize.set(xValue, new Map<any, any>());
         });
     }
 
-    public addPoint(xValue: any, yValue: any) {
+    public addPoint(xValue: any, yValue: any, aggregation: any) {
         // All X values should already exist in the Map (if not, show an error).
-        this.xToY.set(xValue, this.xToY.get(xValue).concat(yValue));
+        this.xToYToSize.get(xValue).set(yValue, aggregation);
     }
 
     public abstract finalizeData();
@@ -50,6 +51,10 @@ export abstract class AbstractChartJsDataset {
 
     public getColorHover(): string {
         return this.color.getComputedCssHoverColor(this.elementRef.nativeElement);
+    }
+
+    public getColorTransparency(): string {
+        return this.color.getComputedCssTransparencyHigh(this.elementRef.nativeElement);
     }
 
     public getLabels(): any[] {
@@ -110,15 +115,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     protected selectedLabels: any[] = [];
 
-    /**
-     * @constructor
-     * @arg {any} options
-     * @arg {AggregationSubcomponentListener} listener
-     * @arg {ElementRef} elementRef
-     * @arg {SelectMode} [selectMode=NONE]
-     */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected textColorHex: string = '#111', protected selectMode: SelectMode = SelectMode.NONE) {
+    constructor(
+        options: any,
+        listener: AggregationSubcomponentListener,
+        elementRef: ElementRef,
+        protected textColorHex: string = '#111',
+        protected selectMode: SelectMode = SelectMode.NONE,
+        protected isXY: boolean = false
+    ) {
         super(options, listener, elementRef);
     }
 
@@ -281,11 +285,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 dataset = this.createChartDataset(item.color, item.group, meta.xList);
                 groupsToDatasets.set(item.group, dataset);
             }
-            dataset.addPoint(item.x, item.y);
+            dataset.addPoint(item.x, item.y, item.aggregation);
         });
 
         let datasets = Array.from(groupsToDatasets.values());
         datasets.forEach((dataset) => {
+            dataset.maximumAggregation = meta.maximumAggregation;
             dataset.finalizeData();
         });
 
@@ -321,6 +326,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Do not use tooltipItem.yLabel because it can be incorrect for category axes.
         let item = dataset.data[tooltipItem.index];
         let text = typeof item === 'object' ? (this.isHorizontal() ? item.x : item.y) : item;
+        if (this.isXY && typeof item === 'object' && typeof item.aggregation !== 'undefined') {
+            text = '(X=' + item.x + ', Y=' + item.y + '): ' + item.aggregation;
+        }
 
         if (text === null) {
             return null;
@@ -343,12 +351,17 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private createTooltipTitle(tooltipList: any[], chartData: any): string {
+        if (this.isXY) {
+            return null;
+        }
+
         let axisType = this.findAxisTypeX();
-        let dataset = chartData.datasets[tooltipList[0].datasetIndex];
-        // Do not use tooltipList[0].xLabel because it can be incorrect for category axes.
-        let item = dataset.data[tooltipList[0].index];
+        let tooltipItem = tooltipList[0];
+        let dataset = chartData.datasets[tooltipItem.datasetIndex];
+        // Do not use tooltipItem.xLabel because it can be incorrect for category axes.
+        let item = dataset.data[tooltipItem.index];
         let text = typeof item === 'object' ? (this.isHorizontal() ? item.y : item.x) :
-            (dataset.getLabels() || chartData.labels)[tooltipList[0].index];
+            (dataset.getLabels() || chartData.labels)[tooltipItem.index];
 
         if (text === null) {
             return null;

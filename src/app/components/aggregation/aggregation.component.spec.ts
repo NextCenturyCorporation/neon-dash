@@ -402,7 +402,16 @@ describe('Component: Aggregation', () => {
                 }],
                 type: 'and'
             },
-            aggregateClauses: [],
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
             groupByClauses: [{
                 type: 'field',
                 fieldClause: {
@@ -725,7 +734,16 @@ describe('Component: Aggregation', () => {
                 }],
                 type: 'and'
             },
-            aggregateClauses: [],
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
             groupByClauses: [{
                 type: 'field',
                 fieldClause: {
@@ -957,6 +975,15 @@ describe('Component: Aggregation', () => {
                 },
                 label: '_date',
                 operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
             }],
             groupByClauses: [{
                 type: 'operation',
@@ -2382,11 +2409,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2412,11 +2441,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2434,18 +2465,22 @@ describe('Component: Aggregation', () => {
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 90,
             testCategoryField: 'a',
             testXField: 1,
             testYField: 2
         }, {
+            _aggregation: 80,
             testCategoryField: 'a',
             testXField: 3,
             testYField: 4
         }, {
+            _aggregation: 70,
             testCategoryField: 'b',
             testXField: 5,
             testYField: 6
         }, {
+            _aggregation: 60,
             testCategoryField: 'b',
             testXField: 7,
             testYField: 8
@@ -2455,21 +2490,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: 90,
             color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
+            aggregation: 80,
             color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
+            aggregation: 70,
             color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
+            aggregation: 60,
             color: COLOR_2,
             group: 'b',
             x: 7,
@@ -2506,21 +2545,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
+            aggregation: undefined,
             color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
+            aggregation: undefined,
             color: COLOR_2,
             group: 'b',
             x: 7,
@@ -2645,11 +2688,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2676,11 +2721,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2708,11 +2755,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 'a',
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 'c',
@@ -2740,11 +2789,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2779,11 +2830,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
@@ -2817,16 +2870,19 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(3);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2862,21 +2918,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
@@ -2899,18 +2959,22 @@ describe('Component: Aggregation', () => {
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 90,
             _date: '2018-01-01T00:00:00.000Z',
             testCategoryField: 'a',
             testYField: 2
         }, {
+            _aggregation: 80,
             _date: '2018-01-02T00:00:00.000Z',
             testCategoryField: 'b',
             testYField: 3
         }, {
+            _aggregation: 70,
             _date: '2018-01-03T00:00:00.000Z',
             testCategoryField: 'a',
             testYField: 4
         }, {
+            _aggregation: 60,
             _date: '2018-01-04T00:00:00.000Z',
             testCategoryField: 'b',
             testYField: 5
@@ -2920,41 +2984,49 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(8);
         expect(component.aggregationData).toEqual([{
+            aggregation: 90,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 70,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-04T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 80,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
+            aggregation: 0,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 60,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-04T00:00:00.000Z',
@@ -2993,26 +3065,31 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(5);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-05T00:00:00.000Z',
@@ -3044,11 +3121,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -3074,11 +3153,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -3289,6 +3370,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -3322,6 +3404,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3344,10 +3427,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -3376,10 +3460,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [1, 3],
@@ -3401,10 +3486,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'date',
             xList: [],
@@ -3433,10 +3519,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'date',
             xList: [1, 3],
@@ -3458,10 +3545,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'string',
             xList: [],
@@ -3490,10 +3578,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'string',
             xList: [1, 3],
@@ -3538,6 +3627,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3556,6 +3646,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3579,6 +3670,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3597,6 +3689,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3643,6 +3736,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3666,6 +3760,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3711,6 +3806,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3729,6 +3825,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
