@@ -54,5 +54,14 @@
                 padding: 4px 4px 4px 8px;
             }
         }
+
+        .remove-group-button {
+            padding: 2px;
+
+            &:hover {
+                color: var(--color-dash-item-selectable, lightgrey);
+                cursor: pointer;
+            }
+        }
     }
 }

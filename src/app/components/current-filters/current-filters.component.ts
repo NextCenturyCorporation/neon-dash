@@ -43,6 +43,8 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public dataset: Dataset;
 
+    public hideChips = false;
+
     constructor(
         public filterService: InjectableFilterService,
         public dashboardService: DashboardService
@@ -58,6 +60,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
         this.dashboardService.stateSource.subscribe((dashboardState) => {
+            this.hideChips = !!((dashboardState.getOptions() || {}).hideFilterValues);
             this.dataset = dashboardState.asDataset();
             this.updateFilters();
         });
@@ -65,17 +68,25 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.updateFilters.bind(this));
     }
 
-    remove(filter: AbstractFilter) {
+    public remove(filter: AbstractFilter) {
         this.filterService.deleteFilter('FilterList', filter.toDesign());
     }
 
-    removeAll() {
+    public removeAll() {
         this.filterService.deleteFilters('FilterList', this.groups
             .reduce((acc, group) => acc.concat(group.filters), [] as AbstractFilter[])
             .map((filter) => filter.toDesign()));
     }
 
-    updateFilters() {
+    public removeGroup(group: FilterGroup) {
+        this.filterService.deleteFilters('FilterList', group.filters.map((filter) => filter.toDesign()));
+    }
+
+    public toggleChips() {
+        this.hideChips = !this.hideChips;
+    }
+
+    public updateFilters() {
         if (!this.dataset) {
             return;
         }
