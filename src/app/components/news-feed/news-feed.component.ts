@@ -184,8 +184,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
-        this.searchService.withAllFields(query);
-
         this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.sortField.columnName ?
             this.searchService.createFilterClause({
                 datastore: options.datastore.name,

@@ -236,8 +236,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
-        this.searchService.withAllFields(query);
-
         this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.linkField.columnName ? [
             this.searchService.createFilterClause({
                 datastore: options.datastore.name,

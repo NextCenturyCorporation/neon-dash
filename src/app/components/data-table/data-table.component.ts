@@ -346,9 +346,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
-        // Override the default query fields because we want to find all fields.
-        this.searchService.withAllFields(query);
-
         this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.sortField.columnName ?
             this.searchService.createFilterClause({
                 datastore: options.datastore.name,
