@@ -32,32 +32,6 @@
     flex: 1 0;
 }
 
-.content-details {
-    font-size: 14px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    display: flex;
-    flex-direction: column;
-    padding: 0 0.4em 0.6em;
-
-    .content-footer {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        font-size: 11px;
-
-        p {
-            margin: 8px 0;
-        }
-    }
-
-    .header {
-        &.text {
-            margin: 8px 0;
-        }
-    }
-}
-
 mat-accordion {
     mat-expansion-panel {
         margin: 0;
@@ -66,7 +40,8 @@ mat-accordion {
         background-color: var(--color-background, dimgrey);
 
         mat-expansion-panel-header {
-            padding: 0 12px;
+            font-size: 14px;
+            padding: 10px;
 
             mat-panel-title {
                 display: grid;
@@ -78,18 +53,15 @@ mat-accordion {
                     grid-template-columns: 80px 1fr;
                 }
 
-                .text {
+                .single-line {
                     text-overflow: ellipsis;
                     white-space: nowrap;
-                    height: 1.1em;
-                    line-height: 1.1em;
                     overflow: hidden;
                 }
 
                 .date {
-                    font-size: 0.7em;
+                    font-size: 12px;
                     opacity: 0.8;
-                    text-align: left;
                 }
             }
 
@@ -106,7 +78,7 @@ mat-accordion {
             }
 
             div > .text {
-                margin-top: 1em;
+                margin-top: 0.5em;
             }
 
             p {
@@ -134,7 +106,7 @@ mat-accordion {
 
                 .date {
                     grid-area: date;
-                    font-size: 0.7em;
+                    font-size: 12px;
                     line-height: 30px;
                 }
             }
@@ -179,6 +151,10 @@ mat-accordion {
 
 /deep/ {
     .mat-expansion-panel {
+        .mat-expansion-panel-body {
+            padding: 0 10px 10px;
+        }
+
         .mat-expansion-indicator {
             &::after {
                 color: var(--color-text, dimgrey) !important;
@@ -203,31 +179,3 @@ mat-accordion {
     }
 }
 
-.content-ellipses {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    position: relative;
-    line-height: 1.2em;
-    /* max-height = line-height (1.2) * lines max number (3) */
-    max-height: 3.6em;
-    /* elimates space between last visible word with ellipses  */
-    text-align: justify;
-    padding-right: 1em;
-    font-size: 14px;
-
-    &::before {
-        content: '...';
-        position: absolute;
-        right: 0;
-        bottom: 0;
-    }
-
-    &::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        width: 1em;
-        height: 1em;
-        margin-top: 0.2em;
-    }
-}
