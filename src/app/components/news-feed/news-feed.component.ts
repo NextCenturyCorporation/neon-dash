@@ -147,6 +147,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
                 false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('multiLineTitle', 'Allow Titles to be Multiple Lines', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('contentLabel', 'Content Label', false, ''),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsNotFilterable.bind(this)),
@@ -252,7 +253,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             options.database.name &&
             options.table.name &&
             options.idField.columnName &&
-            options.contentField.columnName
+            (options.contentField.columnName || (options.titleContentField.columnName && options.contentFields.length))
         );
     }
 
