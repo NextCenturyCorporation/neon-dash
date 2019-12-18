@@ -334,15 +334,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     getThumbnailTitle(item): string {
         let text = [];
         if (this.options.nameField.columnName && item[this.options.nameField.columnName]) {
-            let nameText = this.options.textMap.name || '';
+            let nameText = (this.options.textMap || {}).name || '';
             text.push((nameText ? nameText + ' : ' : '') + item[this.options.nameField.columnName]);
         }
         if (this.options.predictedNameField.columnName && item[this.options.predictedNameField.columnName]) {
-            let predictionText = this.options.textMap.prediction || 'Prediction';
+            let predictionText = (this.options.textMap || {}).prediction || 'Prediction';
             text.push((predictionText ? predictionText + ' : ' : '') + item[this.options.predictedNameField.columnName]);
         }
         if (this.options.objectNameField.columnName && item[this.options.objectNameField.columnName]) {
-            let actualText = this.options.textMap.actual || 'Actual';
+            let actualText = (this.options.textMap || {}).actual || 'Actual';
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
         }
         return text.join(', ');
@@ -820,7 +820,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let link = item[this.constructedLinkField];
         let fileType = link ? link.substring(link.lastIndexOf('.') + 1).toLowerCase() : '';
 
-        return this.options.typeMap[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
+        return (this.options.typeMap || {})[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
     }
 
     /**
