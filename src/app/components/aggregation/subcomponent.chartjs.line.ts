@@ -27,33 +27,39 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
     public pointBackgroundColor: string;
     public pointBorderColor: string;
     public pointBorderWidth: number = 0;
-    public pointHitRadius: number = 3;
     public pointHoverBackgroundColor: string;
     public pointHoverBorderColor: string;
     public pointHoverBorderWidth: number = 0;
-    public pointHoverRadius: number = 6;
-    public pointRadius: number = 3;
     public pointStyle: string = 'circle';
     public showLine: boolean = true;
+
+    public pointHoverRadius: number[] = [];
+    public pointRadius: number[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
         super(elementRef, color, label, xList);
         this.backgroundColor = this.getColorBackground();
-        this.borderColor = this.getColorSelected();
-        this.pointBackgroundColor = this.getColorSelected();
-        this.pointBorderColor = this.getColorSelected();
-        this.pointHoverBackgroundColor = this.getColorSelected();
-        this.pointHoverBorderColor = this.getColorSelected();
+        this.borderColor = this.getColorTransparency();
+        this.pointBackgroundColor = this.getColorTransparency();
+        this.pointBorderColor = this.getColorTransparency();
+        this.pointHoverBackgroundColor = this.getColorTransparency();
+        this.pointHoverBorderColor = this.getColorTransparency();
     }
 
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((xValue) => {
-            let yList = this.xToY.get(xValue);
+        Array.from(this.xToYToSize.keys()).forEach((xValue) => {
+            let yList = Array.from(this.xToYToSize.get(xValue).keys());
             (yList.length ? yList : [null]).forEach((yValue) => {
+                let pointAggregation = this.xToYToSize.get(xValue).get(yValue);
                 this.data.push({
+                    aggregation: pointAggregation,
                     x: xValue,
                     y: yValue
                 });
+                let pointRadius = 2 + (!this.maximumAggregation ? 0 :
+                    ((Math.log(pointAggregation) / Math.log(this.maximumAggregation)) * 18.0));
+                this.pointRadius.push(pointRadius);
+                this.pointHoverRadius.push(pointRadius * 1.25);
             });
         });
     }
@@ -70,7 +76,7 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         textColorHex?: string, selectMode: SelectMode = SelectMode.DOMAIN) {
-        super(options, listener, elementRef, textColorHex, selectMode);
+        super(options, listener, elementRef, textColorHex, selectMode, true);
     }
 
     /**
