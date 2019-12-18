@@ -170,3 +170,11 @@ app-dashboard-selector {
         top: 5px !important;
     }
 }
+
+.filter-icon {
+    /deep/ svg {
+        height: 22px;
+        width: 22px;
+    }
+}
+
