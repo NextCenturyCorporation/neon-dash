@@ -120,6 +120,7 @@ export interface NeonDashboardOptions {
     colorMaps?: ColorMap;
     customRequests?: NeonCustomRequests[];
     customRequestsDisplayLabel?: string;
+    hideFilterValues?: boolean;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
