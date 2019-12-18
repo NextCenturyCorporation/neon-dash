@@ -130,13 +130,13 @@
 
             &.active {
                 .list-selectable {
-                    color: var(--color-data-item-selected, lightgrey);
+                    color: var(--color-data-item-selectable, lightgrey);
                 }
             }
 
             &:hover {
                 .list-selectable {
-                    color: var(--color-data-item-selectable, lightgrey);
+                    color: var(--color-data-item-selected, lightgrey);
                 }
             }
 

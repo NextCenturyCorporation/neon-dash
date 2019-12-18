@@ -182,6 +182,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public legendDisabledGroups: string[] = [];
     public legendGroups: string[] = [];
 
+    public maximumAggregation = 0;
     public xList: any[] = [];
     public yList: any[] = [];
 
@@ -401,17 +402,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             countGroup = null;
         }
 
-        if (!this.optionsTypeIsXY(options)) {
-            if (options.aggregation !== AggregationType.COUNT || countField) {
-                this.searchService.withAggregation(query, {
-                    datastore: options.datastore.name,
-                    database: options.database.name,
-                    table: options.table.name,
-                    field: (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName)
-                } as FieldKey, this.searchService.getAggregationLabel(), options.aggregation);
-            } else if (countGroup) {
-                this.searchService.withAggregationByGroupCount(query, countGroup, this.searchService.getAggregationLabel());
-            }
+        if (options.aggregation !== AggregationType.COUNT || countField) {
+            this.searchService.withAggregation(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName)
+            } as FieldKey, this.searchService.getAggregationLabel(), options.aggregation);
+        } else if (countGroup) {
+            this.searchService.withAggregationByGroupCount(query, countGroup, this.searchService.getAggregationLabel());
         }
 
         this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(visualizationFilters)));
@@ -807,6 +806,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = [];
         this.legendGroups = [];
         this.colorKeys = [];
+        this.maximumAggregation = 0;
         this.xList = [];
         this.yList = [];
         this._createDatePickerIfNeeded();
@@ -824,8 +824,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         let isXY = this.optionsTypeIsXY(options);
+
+        let maximumAggregation = 0;
         let xList = [];
         let yList = [];
+
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
             groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getThemeAccentColor());
@@ -842,13 +845,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         let createTransformationFromItem = (item: any) => {
             let group = options.groupField.columnName ? CoreUtil.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
-            return {
+            let transformation = {
+                // The aggregation value for X/Y subcomponents.
+                aggregation: isXY ? (Math.round((item[this.searchService.getAggregationLabel()] || 0) * 10000) / 10000) : undefined,
                 color: findGroupColor(group),
                 group: group,
                 x: CoreUtil.deepFind(item, options.xField.columnName),
                 y: isXY ? CoreUtil.deepFind(item, options.yField.columnName) :
                     (Math.round(item[this.searchService.getAggregationLabel()] * 10000) / 10000)
             };
+            maximumAggregation = Math.max(maximumAggregation, (isXY ? transformation.aggregation : transformation.y));
+            return transformation;
         };
 
         let queryResults = results;
@@ -916,6 +923,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     nextTransformations = nextTransformations.map((transformationArray, index) =>
                         // If timeFill is true and the date bucket is an empty array, replace it with a single item with a Y of zero.
                         transformationArray.length ? transformationArray : [{
+                            aggregation: 0,
                             color: findGroupColor(group),
                             group: group,
                             x: DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)),
@@ -959,6 +967,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // TODO Add missing X to xList of numeric histograms.
         }
 
+        this.maximumAggregation = maximumAggregation;
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
 
@@ -977,8 +986,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = this.legendGroups.filter((group) => groups.indexOf(group) >= 0 &&
             this.legendDisabledGroups.indexOf(group) < 0);
 
-        return this.options.countByAggregation ? this.aggregationData.length : this.aggregationData.reduce((count, element) =>
-            count + element.y, 0);
+        return (this.options.countByAggregation || !this.optionsAggregationIsCountOrNA(options)) ? this.aggregationData.length :
+            this.aggregationData.reduce((count, element) => count + element.y, 0);
     }
 
     /**
@@ -1223,10 +1232,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         let isXY = this.optionsTypeIsXY(this.options);
         let meta = {
-            aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
-            aggregationLabel: isXY ? undefined : this.options.aggregation,
+            aggregationField: this.options.aggregationField.prettyName,
+            aggregationLabel: this.options.aggregation,
             dataLength: this.aggregationData.length,
             groups: this.legendGroups,
+            maximumAggregation: this.maximumAggregation,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
             xList: this.xList,
