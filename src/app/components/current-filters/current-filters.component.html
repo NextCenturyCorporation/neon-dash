@@ -1,19 +1,28 @@
 <div class="buttons">
-    <button mat-icon-button mat-raised-button (click)="removeAll()" color="warn">
-        <mat-icon (click)="removeAll()">clear_all</mat-icon>
+    <button mat-icon-button mat-raised-button (click)="removeAll()" tooltip-position="below" matTooltip="Delete All Filters">
+        <mat-icon>delete_sweep</mat-icon>
+    </button>
+    <button mat-icon-button mat-raised-button (click)="toggleChips()" tooltip-position="below"
+        [matTooltip]="(hideChips ? 'Show' : 'Hide') + ' Filter Values'">
+        <mat-icon>{{ hideChips ? 'visibility_off' : 'visibility' }}</mat-icon>
     </button>
 </div>
 <div class="groupings">
     <span *ngFor="let group of groups" class="group">
         <span *ngIf="group.name != ''" class="group-name">{{group.name}}</span>
-        <mat-chip-list>
+        <mat-chip-list *ngIf="!hideChips">
             <mat-chip *ngFor="let filter of group.filters; let i = index" selected [style.display]="i < 5 ? 'inherit' : 'none'">
-                <span [title]="filter.getLabel(dataset)">
+                <span [matTooltip]="filter.getLabel(dataset)" tooltip-position="below">
                     <span>{{filter.getLabelForValue(dataset, true)}}</span>
                 </span>
-                <mat-icon matChipRemove class="neon-icon-small" (click)="remove(filter)">cancel</mat-icon>
+                <mat-icon matChipRemove class="neon-icon-small" (click)="remove(filter)" tooltip-position="below"
+                    [matTooltip]="'Delete Filter on ' + filter.getLabelForValue(dataset, true)">cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>
-        <span class="group-name" *ngIf="group.filters.length > 5">...and {{group.filters.length - 5}} more</span>
+        <span class="group-name" *ngIf="!hideChips && group.filters.length > 5">...and {{group.filters.length - 5}} more</span>
+        <mat-icon *ngIf="hideChips" class="remove-group-button" (click)="removeGroup(group)" tooltip-position="below"
+            [matTooltip]="'Delete Filters on ' + group.name">
+            cancel
+        </mat-icon>
     </span>
 </div>
