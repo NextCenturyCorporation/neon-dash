@@ -23,13 +23,14 @@
         [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
-            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'"
+            <mat-expansion-panel-header [collapsedHeight]="options.multiLineTitle ? 'auto' : '15px'"
+                [expandedHeight]="options.multiLineTitle ? 'auto' : '15px'"
                 (mousedown)="expandOrCollapse(item.field[options.idField.columnName])">
                 <mat-panel-title [class.with-date]="options.dateField.columnName != ''">
                     <span class="date" *ngIf="options.dateField.columnName != ''">
                         {{ relativeTime(item.field[options.dateField.columnName]) }}
                     </span>
-                    <span class="text">
+                    <span class="text" [class.single-line]="!options.multiLineTitle">
                         {{ item.field[options.titleContentField.columnName] || item.field[options.contentField.columnName] }}
                     </span>
                 </mat-panel-title>
@@ -65,7 +66,7 @@
                         <span class="date" *ngIf="options.dateField.columnName != ''">{{ item.field[options.dateField.columnName] }}</span>
                         <a mat-icon-button *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
                             class="neon-icon-button-contrast" (click)="filterItem(item)">
-                            <mat-icon>filter_list</mat-icon>
+                            <mat-icon class="neon-icon-small filter-icon" svgIcon="neon_filter"></mat-icon>
                         </a>
                     </div>
                     <app-media-group class=media-group *ngIf="item.media" [media]="item.media">
