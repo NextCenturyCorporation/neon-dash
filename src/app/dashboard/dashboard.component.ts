@@ -124,8 +124,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
 
-    filtersIcon: string;
-
     // Use two messengers here because a single messager doesn't receive its own messages.
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
@@ -151,21 +149,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageSender = new eventing.Messenger();
 
         this.matIconRegistry.addSvgIcon(
-            'filters',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/filters.svg')
+            'neon_filter',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/create_filter.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
-            'filters_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/filters_active.svg')
-        );
-
-        this.matIconRegistry.addSvgIcon(
-            'dashboard_selector',
+            'neon_data',
             this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/database_icon.svg')
         );
 
-        this.filtersIcon = 'filters';
         this.showFilterTray = true;
         this.showCustomConnectionButton = true;
 
