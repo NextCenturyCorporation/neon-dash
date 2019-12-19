@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npx ng serve --proxy-config proxy.conf.json  --host 0.0.0.0 --port 4200",
     "build": "./scripts/generate_environment.sh && npx ng build --aot --base-href=/$npm_config_base --deploy-url=/$npm_config_base -c custom",
-    "build-prod": "./scripts/generate_environment.sh && npx ng build --aot --base-href=/$npm_config_base --deploy-url=/$npm_config_base --prod",
+    "build-prod": "./scripts/generate_environment.sh && npx ng build --aot --base-href=/$npm_config_base --deploy-url=/$npm_config_base --prod --extract-css=false",
     "build-war": "./scripts/generate_environment.sh && ./scripts/build_dashboard.sh",
     "lint": "./scripts/lint.sh",
     "test": "npx ng test && npm run lint",
