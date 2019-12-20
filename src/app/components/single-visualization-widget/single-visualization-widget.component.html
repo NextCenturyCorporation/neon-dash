@@ -1,0 +1,43 @@
+<mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
+        </span>
+        <span *ngIf="!errorMessage" [matTooltip]="infoButtonText" tooltip-position="below">{{ infoButtonText }}</span>
+    </span>
+</mat-toolbar>
+
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
+
+<app-data-message *ngIf="showNoData"></app-data-message>
+
+<div class="body-container" *ngIf="!showNoData">
+    <app-nucleus-angular-text-cloud #visualization *ngIf="visualizationType == VISUALIZATION_TYPE.TEXT_CLOUD" [attr.id]="visElementId"
+        [dataset]="dataset" [filterService]="filterService" [id]="visElementId" [options]="componentLibraryOptions"
+        [searchService]="searchService">
+    </app-nucleus-angular-text-cloud>
+</div>
+
+<div class="footer" *ngIf="showPagination()">
+    <div class="footer-button-container">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
+            Previous
+        </button>
+        <span class="pagination-button-spacer"></span>
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
+            Next
+        </button>
+    </div>
+</div>
+
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ retrieveContributionAbbreviations() }}
+        </a>
+    </div>
+</div>

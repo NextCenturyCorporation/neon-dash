@@ -16,19 +16,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { NetworkGraphModule } from './network-graph.module';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: NetworkGraph', () => {
     let component: NetworkGraphComponent;
@@ -105,23 +106,51 @@ describe('Component: NetworkGraph', () => {
             FieldConfig.get({ columnName: 'testFilter2' })
         ];
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testNodeField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }],
-                type: 'or'
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testNodeColorField',
+            whereClause: {
+                type: 'or',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testNodeField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testNodeColorField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 

@@ -19,7 +19,7 @@ import { } from 'jasmine-core';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { AddVisualizationModule } from './add-visualization.module';
 
-import { AbstractColorThemeService } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from 'nucleus/dist/core/services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';

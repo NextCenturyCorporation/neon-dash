@@ -14,20 +14,21 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from 'component-library/dist/core/models/filters';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { FilterCollection } from 'nucleus/dist/core/models/filters';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DocumentViewerModule } from './document-viewer.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
@@ -85,12 +86,31 @@ describe('Component: DocumentViewer', () => {
         component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testTextField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testTextField'
+                },
                 operator: '!=',
-                value: null
-            }
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -101,16 +121,40 @@ describe('Component: DocumentViewer', () => {
         component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testTextField',
-                operator: '!=',
-                value: null
+
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testTextField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -126,13 +170,39 @@ describe('Component: DocumentViewer', () => {
             field: 'b'
         }];
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['a', 'b'],
-            filter: {
-                field: 'testTextField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'a'
+                }, {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'b'
+                }]
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testTextField'
+                },
                 operator: '!=',
-                value: null
-            }
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -153,13 +223,47 @@ describe('Component: DocumentViewer', () => {
             field: 'd'
         }];
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['a', 'b', 'c', 'd'],
-            filter: {
-                field: 'testTextField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'a'
+                }, {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'b'
+                }, {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'c'
+                }, {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'd'
+                }]
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testTextField'
+                },
                 operator: '!=',
-                value: null
-            }
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 

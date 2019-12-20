@@ -17,7 +17,7 @@
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
@@ -52,8 +52,8 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
 
 class TestChartJsDataset extends AbstractChartJsDataset {
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((xValue) => {
-            let yList = this.xToY.get(xValue);
+        Array.from(this.xToYToSize.keys()).forEach((xValue) => {
+            let yList = Array.from(this.xToYToSize.get(xValue).keys());
             (yList.length ? yList : [null]).forEach((yValue) => {
                 this.data.push({
                     x: xValue,
