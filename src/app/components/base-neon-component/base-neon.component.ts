@@ -17,18 +17,18 @@ import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@ang
 import {
     AbstractSearchService,
     FilterClause,
-    QueryPayload
-} from 'component-library/dist/core/services/abstract.search.service';
+    SearchObject
+} from 'nucleus/dist/core/services/abstract.search.service';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
+import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { Dataset, DatasetUtil, FieldKey } from 'nucleus/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
-    AggregationType,
     ConfigOption,
     OptionType
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -39,15 +39,16 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from 'component-library/dist/core/services/connection.service';
+import { RequestWrapper } from 'nucleus/dist/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+import { VisualizationWidget } from '../../models/visualization-widget';
 
 /**
  * @class BaseNeonComponent
  *
  * Superclass widget for all Neon visualizations with common behavior for the Neon Dashboard and Neon Services.
  */
-export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDestroy {
+export abstract class BaseNeonComponent extends VisualizationWidget implements AfterViewInit, OnInit, OnDestroy {
     private SETTINGS_BUTTON_WIDTH: number = 30;
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
@@ -94,6 +95,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
+        super();
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
         this.dataset = this.dashboardState.asDataset();
@@ -210,12 +212,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public createExportData(): { name: string, data: any }[] {
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
-            let query: QueryPayload = this.createCompleteVisualizationQuery(options);
+            let query: SearchObject = this.createCompleteVisualizationQuery(options);
             let title = options.title.split(':').join(' ') + '-' + options._id;
             let hostName = this.options.datastore.host;
             let dataStoreType = this.options.datastore.type;
             return query ?
-                this.searchService.transformQueryPayloadToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
+                this.searchService.transformSearchToExport(hostName, dataStoreType, this.getExportFields(options), query, title) :
                 null;
         }).filter((exportObject) => !!exportObject);
     }
@@ -369,13 +371,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         if (!this.initializing && this.validateVisualizationQuery(queryOptions)) {
             this.changeDetection.detectChanges();
 
-            let query: QueryPayload = this.createCompleteVisualizationQuery(queryOptions);
+            let query: SearchObject = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
-                this.searchService.updateLimit(query, this.options.limit);
+                this.searchService.withLimit(query, this.options.limit);
 
                 if (this.visualizationQueryPaginates) {
-                    this.searchService.updateOffset(query, (this.page - 1) * this.options.limit);
+                    this.searchService.withOffset(query, (this.page - 1) * this.options.limit);
                 }
 
                 this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
@@ -398,17 +400,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public abstract finalizeVisualizationQuery(
         options: WidgetOptionCollection,
-        queryPayload: QueryPayload,
-        sharedFilters: FilterClause[]
-    ): QueryPayload;
+        query: SearchObject,
+        filters: FilterClause[]
+    ): SearchObject;
 
     /**
      * Creates and returns the visualization query with the database, table, and fields, but not the limit or offset.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @return {QueryPayload}
+     * @return {SearchObject}
      */
-    public createCompleteVisualizationQuery(options: WidgetOptionCollection): QueryPayload {
+    public createCompleteVisualizationQuery(options: WidgetOptionCollection): SearchObject {
         let fields: string[] = options.list().reduce((list: string[], option: ConfigOption) => {
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
                 list.push(option.valueCurrent.columnName);
@@ -446,7 +448,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             });
         }
 
-        let query: QueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
+        let query: SearchObject = this.searchService.createSearch(options.database.name, options.table.name, fields);
         return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
     }
 
@@ -462,9 +464,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
             if (filter && filter.lhs && filter.operator && filter.rhs) {
-                filterClauses = filterClauses.concat(this.searchService.buildFilterClause(
-                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection), filter.operator, filter.rhs
-                ));
+                filterClauses = filterClauses.concat(this.searchService.createFilterClause({
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeyCollection)
+                } as FieldKey, filter.operator, filter.rhs));
             }
         });
 
@@ -492,10 +497,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulTotalCountQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length ||
-            response.data[0][this.searchService.getAggregationName('count')] === undefined) {
+            response.data[0][this.searchService.getAggregationLabel('count')] === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
-            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationName('count')]);
+            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationLabel('count')]);
         }
         this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
@@ -546,12 +551,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.errorMessage = '';
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-                let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
+                let countQuery: SearchObject = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
-                        this.searchService.getAggregationName('count'), '*');
+                    this.searchService.withAggregationByTotalCount(countQuery, this.searchService.getAggregationLabel('count'));
+
+                    // FIXME The following block is a hack
+                    if ((countQuery as any).query) {
+                        (countQuery as any).query.sortClauses = [];
+                    }
+
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
@@ -620,11 +630,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Runs the given query.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} query
+     * @arg {SearchObject} query
      * @arg {string} queryId
      * @arg {(options: WidgetOptionCollection, response: any, callback: () => void) => void} callback
      */
-    private executeQuery(options: WidgetOptionCollection, query: QueryPayload, queryId: string,
+    private executeQuery(options: WidgetOptionCollection, query: SearchObject, queryId: string,
         callback: (options: WidgetOptionCollection, response: any, callback: () => void) => void) {
         this.loadingCount++;
 
@@ -655,7 +665,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
-            callback(options, this.searchService.transformQueryResultsValues(response, this.getLabelOptions(options)),
+            callback(options, this.searchService.transformSearchResultValues(response, this.getLabelOptions(options)),
                 this.finishQueryExecution.bind(this));
         });
 
@@ -782,17 +792,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the visualization query does pagination, show the pagination text.
         if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-            let begin = this.prettifyInteger((this.page - 1) * queryLimit + 1);
-            let end = this.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
+            let begin = CoreUtil.prettifyInteger((this.page - 1) * queryLimit + 1);
+            let end = CoreUtil.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
             if (elementCount <= queryLimit) {
-                return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+                return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
             }
-            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(elementCount) +
+            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + CoreUtil.prettifyInteger(elementCount) +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
 
         // Otherwise just show the element count.
-        return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+        return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
     }
 
     /**
@@ -846,7 +856,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
     }
 
-    getOptions(): ConfigurableWidget {
+    public getWidgetOptionMenuCallbacks(): ConfigurableWidget {
         return {
             changeOptions: this.handleChangeOptions.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -887,26 +897,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns whether the given item is a number.
-     *
-     * @arg {any} item
-     * @return {boolean}
-     */
-    public isNumber(item: any): boolean {
-        return !isNaN(parseFloat(item)) && isFinite(item);
-    }
-
-    /**
-     * Returns the prettified string of the given integer (with commas).
-     *
-     * @arg {number} item
-     * @return {string}
-     */
-    public prettifyInteger(item: number): string {
-        return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-
-    /**
      * Returns the labelOptions from the config for the database and table in the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -915,15 +905,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let matchingDatabase = options.datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
-    }
-
-    /**
-     * Creates and returns a new empty field object.
-     *
-     * @return {FieldConfig}
-     */
-    public createEmptyField(): FieldConfig {
-        return FieldConfig.get();
     }
 
     /**

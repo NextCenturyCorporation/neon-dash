@@ -14,22 +14,23 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
 
 import { } from 'jasmine-core';
 
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { FilterCollection } from 'component-library/dist/core/models/filters';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { FilterCollection } from 'nucleus/dist/core/models/filters';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -75,50 +76,93 @@ describe('Component: MediaViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testIdField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testIdField'
+                    },
                     operator: '=',
-                    value: 'testId'
-                }],
-                type: 'and'
-            }
+                    rhs: 'testId'
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 
     it('finalizeVisualizationQuery with no ID field does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testLinkField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testLinkField'
+                },
                 operator: '!=',
-                value: null
-            }
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 
     it('finalizeVisualizationQuery with sort field does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
@@ -126,23 +170,51 @@ describe('Component: MediaViewer', () => {
         component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testIdField',
-                    operator: '=',
-                    value: 'testId'
-                }],
-                type: 'and'
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testIdField'
+                    },
+                    operator: '=',
+                    rhs: 'testId'
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 

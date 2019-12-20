@@ -29,6 +29,8 @@ import { InjectableConnectionService } from '../../services/injectable.connectio
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { CSVService } from '../../services/csv.service';
 
+/* eslint-disable jasmine/no-unsafe-spy */
+
 describe('Component: Import-Data', () => {
     let component: ImportDataComponent;
     let fixture: ComponentFixture<ImportDataComponent>;

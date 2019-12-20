@@ -14,18 +14,21 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TextCloudComponent } from './text-cloud.component';
+import { SingleVisualizationWidgetComponent } from './single-visualization-widget.component';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
+import { NucleusTextCloudAngularModule } from 'nucleus-angular';
+
 @NgModule({
-    declarations: [TextCloudComponent],
-    exports: [TextCloudComponent],
-    entryComponents: [TextCloudComponent],
+    declarations: [SingleVisualizationWidgetComponent],
+    exports: [SingleVisualizationWidgetComponent],
+    entryComponents: [SingleVisualizationWidgetComponent],
     imports: [
+        CommonModule,
         CommonWidgetModule,
         DataMessageModule,
-        CommonModule
+        NucleusTextCloudAngularModule
     ]
 })
-export class TextCloudModule { }
+export class SingleVisualizationWidgetModule { }

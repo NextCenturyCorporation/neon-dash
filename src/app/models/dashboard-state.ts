@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, DatasetUtil, FieldKey, DatastoreConfig, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { Dataset, DatasetUtil, FieldKey, DatastoreConfig, FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { NeonDashboardLeafConfig } from './types';
 
 export class DashboardState {

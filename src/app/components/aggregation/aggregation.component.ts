@@ -24,14 +24,9 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 
-import {
-    AbstractSearchService,
-    FilterClause,
-    QueryGroup,
-    QueryPayload
-} from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -46,9 +41,9 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from 'component-library/dist/core/models/filters';
-import { DatasetUtil } from 'component-library/dist/core/models/dataset';
-import { DateUtil } from 'component-library/dist/core/date.util';
+} from 'nucleus/dist/core/models/filters';
+import { DatasetUtil, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { DateUtil } from 'nucleus/dist/core/date.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -74,7 +69,7 @@ import {
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -82,7 +77,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import * as moment from 'moment';
@@ -187,6 +182,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public legendDisabledGroups: string[] = [];
     public legendGroups: string[] = [];
 
+    public maximumAggregation = 0;
     public xList: any[] = [];
     public yList: any[] = [];
 
@@ -253,33 +249,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
-        if (this.canHaveDatePicker()) {
-            this.calendarComponent = flatpickr('#startDate', {
-                enableTime: true,
-                defaultHour: 0,
-                plugins: [rangePlugin({ input: '#endDate' })],
-                dateFormat: 'M d, Y, h:i K',
-                onOpen: (__selectedDates, __dateStr, instance) => {
-                    instance.clear();
-                },
-                onClose: (selectedDates, __dateStr, instance) => {
-                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
-                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
-                        if (!DateUtil.USE_LOCAL_TIME) {
-                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
-                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
-                        }
-                        this.changedThroughPickr = true;
-                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
-                        this.savedDates = selectedDates;
-                    }
-                    if (this.savedDates) {
-                        instance.setDate(this.savedDates, true);
-                        instance.redraw();
-                    }
-                }
-            });
-        }
+        this._createDatePickerIfNeeded();
     }
 
     /**
@@ -312,62 +282,138 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let groups: QueryGroup[] = [];
-        let filters: FilterClause[] = [this.searchService.buildFilterClause(options.xField.columnName, '!=', null)];
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let visualizationFilters: FilterClause[] = [this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: options.xField.columnName
+        } as FieldKey, '!=', null)];
         let countField = options.xField.columnName;
+        let countGroup = null;
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
+                case TimeInterval.SECOND:
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.SECOND, '_' + TimeInterval.SECOND);
+                // Falls through
                 case TimeInterval.MINUTE:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.MINUTE, '_' + TimeInterval.MINUTE);
                 // Falls through
                 case TimeInterval.HOUR:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.HOUR, '_' + TimeInterval.HOUR);
                 // Falls through
                 case TimeInterval.DAY_OF_MONTH:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.DAY_OF_MONTH, '_' + TimeInterval.DAY_OF_MONTH);
                 // Falls through
                 case TimeInterval.MONTH:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.MONTH, '_' + TimeInterval.MONTH);
                 // Falls through
                 case TimeInterval.YEAR:
-                    groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
+                    this.searchService.withGroupByDate(query, {
+                        datastore: options.datastore.name,
+                        database: options.database.name,
+                        table: options.table.name,
+                        field: options.xField.columnName
+                    } as FieldKey, TimeInterval.YEAR, '_' + TimeInterval.YEAR);
                 // Falls through
             }
-            this.searchService.updateAggregation(query, AggregationType.MIN, this.searchService.getAggregationName('date'),
-                options.xField.columnName).updateSort(query, this.searchService.getAggregationName('date'));
-            countField = '_' + options.granularity;
-        } else if (!options.sortByAggregation) {
-            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
-            this.searchService.updateSort(query, options.xField.columnName);
+            this.searchService.withAggregation(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.xField.columnName
+            } as FieldKey, this.searchService.getAggregationLabel('date'), AggregationType.MIN);
+            this.searchService.withOrderByOperation(query, this.searchService.getAggregationLabel('date'));
+            countField = null;
+            countGroup = '_' + options.granularity;
         } else {
-            groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
-            this.searchService.updateSort(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
+            this.searchService.withGroup(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.xField.columnName
+            } as FieldKey);
+            if (!options.sortByAggregation) {
+                this.searchService.withOrder(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field: options.xField.columnName
+                } as FieldKey);
+            } else {
+                this.searchService.withOrderByOperation(query, this.searchService.getAggregationLabel(), SortOrder.DESCENDING);
+            }
         }
 
         if (this.optionsTypeIsXY(options)) {
-            groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
-            filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
+            this.searchService.withGroup(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.yField.columnName
+            } as FieldKey);
+            visualizationFilters.push(this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.yField.columnName
+            } as FieldKey, '!=', null));
         }
 
         if (options.groupField.columnName) {
-            groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
+            this.searchService.withGroup(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.groupField.columnName
+            } as FieldKey);
             countField = options.groupField.columnName;
+            countGroup = null;
         }
 
-        if (!this.optionsTypeIsXY(options)) {
-            this.searchService.updateAggregation(query, options.aggregation, this.searchService.getAggregationName(),
-                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
+        if (options.aggregation !== AggregationType.COUNT || countField) {
+            this.searchService.withAggregation(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName)
+            } as FieldKey, this.searchService.getAggregationLabel(), options.aggregation);
+        } else if (countGroup) {
+            this.searchService.withAggregationByGroupCount(query, countGroup, this.searchService.getAggregationLabel());
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateGroups(query, groups);
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(visualizationFilters)));
 
         return query;
     }
@@ -405,17 +451,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected createOptions(): ConfigOption[] {
         return [
-            new ConfigOptionField('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
+            new ConfigOptionField('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsCountOrNA.bind(this)),
             new ConfigOptionField('groupField', 'Group Field', false),
             new ConfigOptionField('xField', 'X Field', true),
-            new ConfigOptionField('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
+            new ConfigOptionField('yField', 'Y Field', true, this.optionsTypeIsNotXY.bind(this)),
             new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
-                this.optionsTypeIsNotXY.bind(this)),
+                this.optionsTypeIsXY.bind(this)),
             new ConfigOptionSelect('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsXFieldIsDate.bind(this)),
+                this.optionsXFieldIsNotDate.bind(this)),
             new ConfigOptionSelect('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
-                this.optionsXFieldIsDate.bind(this)),
+                this.optionsXFieldIsNotDate.bind(this)),
             new ConfigOptionSelect('dualView', 'Dual View', false, '', [{
                 prettyName: 'Always Off',
                 variable: ''
@@ -425,16 +471,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: 'Only On Filter',
                 variable: 'filter'
-            }], this.optionsTypeIsDualViewCompatible.bind(this)),
+            }], this.optionsTypeIsNotDualViewCompatible.bind(this)),
             new ConfigOptionSelect('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
             new ConfigOptionSelect('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
             new ConfigOptionSelect('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
-                this.optionsTypeUsesGrid.bind(this)),
+                this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
-                this.optionsTypeUsesGrid.bind(this)),
-            new ConfigOptionFreeText('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
-            new ConfigOptionFreeText('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+                this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionFreeText('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionFreeText('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
@@ -462,20 +508,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: '0.9',
                 variable: 0.9
-            }], this.optionsTypeIsLine.bind(this)),
+            }], this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsTypeIsLine.bind(this)),
+                this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsTypeUsesGrid.bind(this)),
+                this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsTypeUsesGrid.bind(this)),
+                this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
-            new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new ConfigOptionNumber('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
-            new ConfigOptionNumber('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionNumber('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionNumber('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
-                this.optionsTypeIsList.bind(this)),
+                this.optionsTypeIsNotList.bind(this)),
             new ConfigOptionSelect('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('sortByAggregation', 'Sort By', false, false, [{
                 prettyName: 'Label',
@@ -530,7 +576,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: '0.5',
                 variable: 0.5
-            }], this.optionsTypeUsesGrid.bind(this))
+            }], this.optionsTypeIsNotGrid.bind(this))
         ];
     }
 
@@ -659,7 +705,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     handleChangeSubcomponentType() {
-        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+        if (this.optionsTypeIsNotDualViewCompatible(this.options)) {
             this.options.dualView = '';
         }
         if (this.optionsTypeIsContinuous(this.options)) {
@@ -693,7 +739,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     initializeProperties() {
         // Check for the boolean value true (not just any truthy value) and fix it.
         this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
-        if (!this.optionsTypeIsDualViewCompatible(this.options)) {
+        if (this.optionsTypeIsNotDualViewCompatible(this.options)) {
             this.options.dualView = '';
         }
     }
@@ -760,8 +806,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = [];
         this.legendGroups = [];
         this.colorKeys = [];
+        this.maximumAggregation = 0;
         this.xList = [];
         this.yList = [];
+        this._createDatePickerIfNeeded();
     }
 
     /**
@@ -776,8 +824,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         let isXY = this.optionsTypeIsXY(options);
+
+        let maximumAggregation = 0;
         let xList = [];
         let yList = [];
+
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
             groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getThemeAccentColor());
@@ -794,20 +845,24 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         let createTransformationFromItem = (item: any) => {
             let group = options.groupField.columnName ? CoreUtil.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
-            return {
+            let transformation = {
+                // The aggregation value for X/Y subcomponents.
+                aggregation: isXY ? (Math.round((item[this.searchService.getAggregationLabel()] || 0) * 10000) / 10000) : undefined,
                 color: findGroupColor(group),
                 group: group,
                 x: CoreUtil.deepFind(item, options.xField.columnName),
                 y: isXY ? CoreUtil.deepFind(item, options.yField.columnName) :
-                    (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
+                    (Math.round(item[this.searchService.getAggregationLabel()] * 10000) / 10000)
             };
+            maximumAggregation = Math.max(maximumAggregation, (isXY ? transformation.aggregation : transformation.y));
+            return transformation;
         };
 
         let queryResults = results;
         let shownResults = [];
 
         if (!isXY) {
-            queryResults = queryResults.filter((item) => item[this.searchService.getAggregationName()] !== 'NaN');
+            queryResults = queryResults.filter((item) => item[this.searchService.getAggregationLabel()] !== 'NaN');
         }
 
         if (options.xField.type === 'date' && queryResults.length) {
@@ -830,9 +885,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }
 
             let beginDate = options.savePrevious && this.xList.length ? this.xList[0] :
-                queryResults[0][this.searchService.getAggregationName('date')];
+                queryResults[0][this.searchService.getAggregationLabel('date')];
             let endDate = options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
-                queryResults[queryResults.length - 1][this.searchService.getAggregationName('date')];
+                queryResults[queryResults.length - 1][this.searchService.getAggregationLabel('date')];
             this.dateBucketizer.setStartDate(new Date(beginDate));
             this.dateBucketizer.setEndDate(new Date(endDate));
 
@@ -853,7 +908,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     transformations = new Array(xDomainLength).fill(undefined).map(() => []);
                     groupToTransformations.set(transformation.group, transformations);
                 }
-                let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationName('date')]));
+                let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationLabel('date')]));
                 // Fix the X so it is a readable date string.
                 transformation.x = DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index));
                 transformations[index].push(transformation);
@@ -868,6 +923,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     nextTransformations = nextTransformations.map((transformationArray, index) =>
                         // If timeFill is true and the date bucket is an empty array, replace it with a single item with a Y of zero.
                         transformationArray.length ? transformationArray : [{
+                            aggregation: 0,
                             color: findGroupColor(group),
                             group: group,
                             x: DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)),
@@ -911,6 +967,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // TODO Add missing X to xList of numeric histograms.
         }
 
+        this.maximumAggregation = maximumAggregation;
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
 
@@ -929,18 +986,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = this.legendGroups.filter((group) => groups.indexOf(group) >= 0 &&
             this.legendDisabledGroups.indexOf(group) < 0);
 
-        return this.options.countByAggregation ? this.aggregationData.length : this.aggregationData.reduce((count, element) =>
-            count + element.y, 0);
+        return (this.options.countByAggregation || !this.optionsAggregationIsCountOrNA(options)) ? this.aggregationData.length :
+            this.aggregationData.reduce((count, element) => count + element.y, 0);
     }
 
     /**
-     * Returns whether the subcomponent type shows aggregations and the aggregation type is not count.
+     * Returns whether the subcomponent type doesn't show aggregations or the aggregation type is count.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsAggregationIsNotCount(options: any): boolean {
-        return this.optionsTypeIsNotXY(options) && options.aggregation !== AggregationType.COUNT;
+    optionsAggregationIsCountOrNA(options: any): boolean {
+        return this.optionsTypeIsXY(options) || options.aggregation === AggregationType.COUNT;
     }
 
     /**
@@ -968,17 +1025,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the subcomponent type is compatible with dual view.
+     * Returns whether the subcomponent type is not compatible with dual view.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsTypeIsDualViewCompatible(options: any): boolean {
+    optionsTypeIsNotDualViewCompatible(options: any): boolean {
         switch (options.type) {
             case 'histogram':
             case 'line':
             case 'line-xy':
-                return true;
+                return false;
             case 'bar-h':
             case 'bar-v':
             case 'doughnut':
@@ -987,28 +1044,52 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'scatter':
             case 'scatter-xy':
             default:
-                return false;
+                return true;
         }
     }
 
     /**
-     * Returns whether the subcomponent type is line.
+     * Returns whether the subcomponent type is not line.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsTypeIsLine(options: any): boolean {
-        return options.type === 'line' || options.type === 'line-xy';
+    optionsTypeIsNotLine(options: any): boolean {
+        return options.type !== 'line' && options.type !== 'line-xy';
     }
 
     /**
-     * Returns whether the subcomponent type is list.
+     * Returns whether the subcomponent type is not list.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsTypeIsList(options: any): boolean {
-        return options.type === 'list';
+    optionsTypeIsNotList(options: any): boolean {
+        return options.type !== 'list';
+    }
+
+    /**
+     * Returns whether the subcomponent type does not use the grid and axes.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsTypeIsNotGrid(options: any): boolean {
+        switch (options.type) {
+            case 'bar-h':
+            case 'bar-v':
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+            case 'scatter':
+            case 'scatter-xy':
+                return false;
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            default:
+                return true;
+        }
     }
 
     /**
@@ -1022,30 +1103,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the subcomponent type uses the grid and axes.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
-     */
-    optionsTypeUsesGrid(options: any): boolean {
-        switch (options.type) {
-            case 'bar-h':
-            case 'bar-v':
-            case 'histogram':
-            case 'line':
-            case 'line-xy':
-            case 'scatter':
-            case 'scatter-xy':
-                return true;
-            case 'doughnut':
-            case 'list':
-            case 'pie':
-            default:
-                return false;
-        }
-    }
-
-    /**
      * Returns whether the subcomponent type requires both X and Y fields.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -1056,13 +1113,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether the X field data type is date.
+     * Returns whether the X field data type is not date.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsXFieldIsDate(options: any): boolean {
-        return options.xField.type === 'date';
+    optionsXFieldIsNotDate(options: any): boolean {
+        return options.xField.type !== 'date';
     }
 
     /**
@@ -1171,21 +1228,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let findAxisType = (type) => {
-            // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
-            if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||
-                type === 'half_float' || type === 'scaled_float') {
-                return 'number';
-            }
-            return type === 'date' ? 'date' : 'string';
-        };
+        let findAxisType = (type) => ((type === 'decimal' || type === 'integer') ? 'number' : (type === 'date' ? 'date' : 'string'));
 
         let isXY = this.optionsTypeIsXY(this.options);
         let meta = {
-            aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
-            aggregationLabel: isXY ? undefined : this.options.aggregation,
+            aggregationField: this.options.aggregationField.prettyName,
+            aggregationLabel: this.options.aggregation,
             dataLength: this.aggregationData.length,
             groups: this.legendGroups,
+            maximumAggregation: this.maximumAggregation,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
             xList: this.xList,
@@ -1214,7 +1265,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     canHaveDatePicker(): boolean {
-        return this.options.type === 'histogram' && this.optionsXFieldIsDate(this.options);
+        return this.options.type === 'histogram' && !this.optionsXFieldIsNotDate(this.options);
     }
 
     /**
@@ -1434,5 +1485,35 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
+    }
+
+    private _createDatePickerIfNeeded(): void {
+        if (this.canHaveDatePicker()) {
+            this.calendarComponent = flatpickr('#begin_date_' + this.options._id, {
+                enableTime: true,
+                defaultHour: 0,
+                plugins: [rangePlugin({ input: '#end_date_' + this.options._id })],
+                dateFormat: 'M d, Y, h:i K',
+                onOpen: (__selectedDates, __dateStr, instance) => {
+                    instance.clear();
+                },
+                onClose: (selectedDates, __dateStr, instance) => {
+                    if (selectedDates[0] !== undefined && selectedDates[1] !== undefined) {
+                        let deepCopyDates: Date[] = [new Date(selectedDates[0].getTime()), new Date(selectedDates[1].getTime())];
+                        if (!DateUtil.USE_LOCAL_TIME) {
+                            deepCopyDates[0].setUTCHours(selectedDates[0].getHours());
+                            deepCopyDates[1].setUTCHours(selectedDates[1].getHours());
+                        }
+                        this.changedThroughPickr = true;
+                        this.exchangeFilters([this.createFilterDesignOnDomain(deepCopyDates[0], deepCopyDates[1])]);
+                        this.savedDates = selectedDates;
+                    }
+                    if (this.savedDates) {
+                        instance.setDate(this.savedDates, true);
+                        instance.redraw();
+                    }
+                }
+            });
+        }
     }
 }

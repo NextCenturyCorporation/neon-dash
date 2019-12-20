@@ -14,9 +14,9 @@
  */
 import { Injectable } from '@angular/core';
 
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig } from 'nucleus/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -34,7 +34,7 @@ import {
     DomainFilter,
     ListFilter,
     PairFilter
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from './injectable.filter.service';
 
 /**

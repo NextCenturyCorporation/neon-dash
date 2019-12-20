@@ -22,8 +22,8 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -33,19 +33,20 @@ import {
     FilterCollection,
     ListFilterDesign,
     PairFilterDesign
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 @Component({
     selector: 'app-map',
@@ -780,36 +781,84 @@ describe('Component: Map', () => {
 
         component.options.limit = 5678;
 
-        expect(component.finalizeVisualizationQuery(component.options.layers[0], {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testYField',
+        let searchObject = new CoreSearch(component.options.layers[0].database.name, component.options.layers[0].table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options.layers[0], searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
 
         updateMapLayer2(component);
 
-        expect(component.finalizeVisualizationQuery(component.options.layers[1], {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testYField',
+        searchObject = new CoreSearch(component.options.layers[1].database.name, component.options.layers[1].table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options.layers[1], searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase2',
+                        table: 'testTable2',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase2',
+                        table: 'testTable2',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
