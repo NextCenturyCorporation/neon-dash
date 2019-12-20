@@ -25,7 +25,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { Dataset, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { Dataset, FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
@@ -201,7 +201,7 @@ export class ImportDataComponent implements OnDestroy {
             }
         }
 
-        let sourceColumns = result.meta.fields.map((field) => field.trim());
+        let sourceColumns = result.meta.fields.map((field) => field.trim()).filter((field) => field !== '');
 
         // TODO THOR-1062 Iterate over, connect, and call runExportQuery on each datastore.
         let connection = this.connectionService.connect(this.dashboardState.datastores[0].type,
@@ -232,7 +232,11 @@ export class ImportDataComponent implements OnDestroy {
             dataStoreType: this.optionCollection.datastore.type,
             database: this.isNew ? this.newDb : this.optionCollection.database.name,
             table: this.isNew ? this.newTable : this.optionCollection.table.name,
-            source: source.map((row) => JSON.stringify(row)),
+            source: source.map((row) => {
+                // Delete cells in which the column name is an empty string because they will not load correctly into most datastores.
+                delete row[''];
+                return JSON.stringify(row);
+            }),
             isNew: this.isNew && this.processedChunksCount === 0
         };
 

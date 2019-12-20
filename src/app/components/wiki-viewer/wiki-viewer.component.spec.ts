@@ -14,22 +14,23 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { WikiViewerModule } from './wiki-viewer.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
@@ -65,25 +66,49 @@ describe('Component: WikiViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = DatabaseConfig.get({ name: 'testDatabase' });
-        component.options.table = TableConfig.get({ name: 'testTable' });
+        component.options.database = DatabaseConfig.get({ name: 'testDatabase1' });
+        component.options.table = TableConfig.get({ name: 'testTable1' });
         component.options.id = 'testId';
         component.options.idField = FieldConfig.get({ columnName: 'testIdField' });
         component.options.linkField = FieldConfig.get({ columnName: 'testLinkField' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testIdField',
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testIdField'
+                    },
                     operator: '=',
-                    value: 'testId'
+                    rhs: 'testId'
                 }, {
-                    field: 'testLinkField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
                     operator: '!=',
-                    value: null
-                }],
-                type: 'and'
-            }
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 
@@ -352,12 +377,8 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.linkField).toEqual(
-            FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
-        );
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
         expect(component.options.id).toEqual('testId');
     });
 

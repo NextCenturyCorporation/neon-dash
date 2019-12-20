@@ -16,20 +16,21 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
-import { FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseConfig, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -196,16 +197,39 @@ describe('Component: TaxonomyViewer', () => {
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                field: 'testIdField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testCategoryField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testIdField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     }));
 
