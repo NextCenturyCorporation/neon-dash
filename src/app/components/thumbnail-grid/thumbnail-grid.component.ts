@@ -25,15 +25,15 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 import { MediaTypes } from '../../models/types';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -45,7 +45,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -164,9 +164,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('border', 'Border', false, ''),
             new ConfigOptionFreeText('borderCompareValue', 'Border Comparison Field Equals', false, '',
-                this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
+                this.optionsBorderIsNotPercentCompareOrValueCompare.bind(this)),
             new ConfigOptionNumber('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
-                this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
+                this.optionsBorderIsNotPercentCompareOrPercentField.bind(this)),
             new ConfigOptionSelect('cropAndScale', 'Crop or Scale', false, '', [{
                 prettyName: 'None',
                 variable: ''
@@ -230,29 +230,34 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters = sharedFilters;
-
-        if (this.options.linkField && this.options.linkField.columnName && this.options.sortField.columnName) {
-            filters = [
-                ...filters,
-                this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.linkField.columnName, '!=', '')
-            ];
-        }
-
-        this.searchService.updateFieldsToMatchAll(query);
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.linkField.columnName ? [
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.linkField.columnName
+            } as FieldKey, '!=', null),
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.linkField.columnName
+            } as FieldKey, '!=', '')
+        ] : [])));
 
         if (options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName,
-                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+            this.searchService.withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
         }
 
         return query;
@@ -327,15 +332,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     getThumbnailTitle(item): string {
         let text = [];
         if (this.options.nameField.columnName && item[this.options.nameField.columnName]) {
-            let nameText = this.options.textMap.name || '';
+            let nameText = (this.options.textMap || {}).name || '';
             text.push((nameText ? nameText + ' : ' : '') + item[this.options.nameField.columnName]);
         }
         if (this.options.predictedNameField.columnName && item[this.options.predictedNameField.columnName]) {
-            let predictionText = this.options.textMap.prediction || 'Prediction';
+            let predictionText = (this.options.textMap || {}).prediction || 'Prediction';
             text.push((predictionText ? predictionText + ' : ' : '') + item[this.options.predictedNameField.columnName]);
         }
         if (this.options.objectNameField.columnName && item[this.options.objectNameField.columnName]) {
-            let actualText = this.options.textMap.actual || 'Actual';
+            let actualText = (this.options.textMap || {}).actual || 'Actual';
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
         }
         return text.join(', ');
@@ -474,8 +479,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsBorderIsPercentCompareOrPercentField(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'percentField';
+    optionsBorderIsNotPercentCompareOrPercentField(options: any): boolean {
+        return options.border !== 'percentCompare' && options.border !== 'percentField';
     }
 
     /**
@@ -484,8 +489,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsBorderIsPercentCompareOrValueCompare(options: any): boolean {
-        return options.border === 'percentCompare' || options.border === 'valueCompare';
+    optionsBorderIsNotPercentCompareOrValueCompare(options: any): boolean {
+        return options.border !== 'percentCompare' && options.border !== 'valueCompare';
     }
 
     /**
@@ -813,7 +818,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let link = item[this.constructedLinkField];
         let fileType = link ? link.substring(link.lastIndexOf('.') + 1).toLowerCase() : '';
 
-        return this.options.typeMap[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
+        return (this.options.typeMap || {})[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
     }
 
     /**
