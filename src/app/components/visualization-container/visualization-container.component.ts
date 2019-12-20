@@ -14,7 +14,7 @@
  */
 import { Component, Input, OnInit, ViewChild, HostBinding } from '@angular/core';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { neonEvents } from '../../models/neon-namespaces';

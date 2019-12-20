@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { HttpClient } from '@angular/common/http';
-import * as neon from 'component-library/node_modules/neon-framework/dist/neon';
+import * as neon from 'neon-framework';
 import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';

@@ -19,10 +19,11 @@ import {
     FilterClause,
     QueryPayload
 } from 'component-library/dist/core/services/abstract.search.service';
+import { CoreUtil } from 'component-library/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
+import { Dataset, DatasetUtil } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
@@ -36,18 +37,19 @@ import {
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from 'component-library/dist/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+import { VisualizationWidget } from '../../models/visualization-widget';
 
 /**
  * @class BaseNeonComponent
  *
  * Superclass widget for all Neon visualizations with common behavior for the Neon Dashboard and Neon Services.
  */
-export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDestroy {
+export abstract class BaseNeonComponent extends VisualizationWidget implements AfterViewInit, OnInit, OnDestroy {
     private SETTINGS_BUTTON_WIDTH: number = 30;
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
@@ -94,6 +96,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
+        super();
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
         this.dataset = this.dashboardState.asDataset();
@@ -782,17 +785,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the visualization query does pagination, show the pagination text.
         if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-            let begin = this.prettifyInteger((this.page - 1) * queryLimit + 1);
-            let end = this.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
+            let begin = CoreUtil.prettifyInteger((this.page - 1) * queryLimit + 1);
+            let end = CoreUtil.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
             if (elementCount <= queryLimit) {
-                return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+                return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
             }
-            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + this.prettifyInteger(elementCount) +
+            return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + CoreUtil.prettifyInteger(elementCount) +
                 (elementLabel ? (' ' + elementLabel) : '');
         }
 
         // Otherwise just show the element count.
-        return this.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
+        return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
     }
 
     /**
@@ -846,7 +849,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
     }
 
-    getOptions(): ConfigurableWidget {
+    public getWidgetOptionMenuCallbacks(): ConfigurableWidget {
         return {
             changeOptions: this.handleChangeOptions.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -887,26 +890,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns whether the given item is a number.
-     *
-     * @arg {any} item
-     * @return {boolean}
-     */
-    public isNumber(item: any): boolean {
-        return !isNaN(parseFloat(item)) && isFinite(item);
-    }
-
-    /**
-     * Returns the prettified string of the given integer (with commas).
-     *
-     * @arg {number} item
-     * @return {string}
-     */
-    public prettifyInteger(item: number): string {
-        return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-
-    /**
      * Returns the labelOptions from the config for the database and table in the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
@@ -915,15 +898,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let matchingDatabase = options.datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
-    }
-
-    /**
-     * Creates and returns a new empty field object.
-     *
-     * @return {FieldConfig}
-     */
-    public createEmptyField(): FieldConfig {
-        return FieldConfig.get();
     }
 
     /**

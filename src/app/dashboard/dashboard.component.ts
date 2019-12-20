@@ -24,10 +24,10 @@ import {
     ElementRef
 } from '@angular/core';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
-import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
+import { VisualizationWidget } from '../models/visualization-widget';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { InjectableFilterService } from '../services/injectable.filter.service';
@@ -98,7 +98,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     pendingInitialRegistrations = 0;
 
-    widgets: Map<string, BaseNeonComponent> = new Map();
+    widgets: Map<string, VisualizationWidget> = new Map();
 
     movingWidgets = false;
     globalMoveWidgets = false;
@@ -558,7 +558,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Registers the given widget with the given ID.
      */
     @DashboardModified()
-    private registerWidget(event: { id: string, widget: BaseNeonComponent }) {
+    private registerWidget(event: { id: string, widget: VisualizationWidget }) {
         if (!this.widgets.has(event.id)) {
             if (this.pendingInitialRegistrations > 0) {
                 this.pendingInitialRegistrations -= 1;
@@ -581,12 +581,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     showVizSettings(cmp: NeonGridItem) {
-        this.configurableComponent = this.widgets.get(cmp.id).getOptions();
+        this.configurableComponent = this.widgets.get(cmp.id).getWidgetOptionMenuCallbacks();
         this.setPanel('gear', 'Widget Settings');
     }
 
     refreshViz(item: NeonGridItem) {
-        const cmp = this.widgets.get(item.id).getOptions();
+        const cmp = this.widgets.get(item.id).getWidgetOptionMenuCallbacks();
         cmp.changeOptions(undefined, false);
     }
 

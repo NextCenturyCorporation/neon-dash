@@ -17,14 +17,14 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 
 import { MatDialog } from '@angular/material';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { VisualizationWidget } from '../../models/visualization-widget';
 import { Dataset, FieldConfig, TableConfig } from 'component-library/dist/core/models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { eventing } from 'component-library/node_modules/neon-framework/dist/neon';
+import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -34,7 +34,7 @@ import { DashboardState } from '../../models/dashboard-state';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
+    @Input() public widgets: Map<string, VisualizationWidget> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'
@@ -67,7 +67,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.dashboardState.setSimpleFilterFieldName(this.searchField);
     }
 
-    getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
+    getExportCallbacks(widgets: Map<string, VisualizationWidget>): (() => { name: string, data: any }[])[] {
         return Array.from(widgets.values()).map((widget) => widget.createExportData.bind(widget));
     }
 
@@ -141,9 +141,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private updateSimpleSearchFilter() {
         let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
-        if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
+        if (this.dashboardState.datastores.length && simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
             const dataset: Dataset = this.dashboardState.asDataset();
-            const datastoreName = this.dashboardState.datastore.name;
+            // TODO THOR-1062 Properly handle multiple datastores.
+            const datastoreName = this.dashboardState.datastores[0].name;
             const table: TableConfig = dataset.retrieveTable(datastoreName, simpleFilter.databaseName, simpleFilter.tableName);
             const field: FieldConfig = dataset.retrieveField(datastoreName, simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);

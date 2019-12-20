@@ -16,7 +16,7 @@ import { Injectable } from '@angular/core';
 
 import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig, DatabaseConfig } from 'component-library/dist/core/models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig } from 'component-library/dist/core/models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -308,6 +308,9 @@ export class DashboardService {
     private readonly stateSubject = new Subject<DashboardState>();
     public readonly stateSource: Observable<DashboardState>;
 
+    // A collection that maps datastore name to database name to table names.
+    private _finishedUpdates: Record<string, Record<string, string[]>> = {};
+
     constructor(
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
@@ -330,15 +333,23 @@ export class DashboardService {
         const promises = datastores.map((datastore: DatastoreConfig) => {
             const connection = this.connectionService.connect(datastore.type, datastore.host);
             if (connection) {
-                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: DatabaseConfig[]) => {
-                    failedDatabases.forEach((database) => {
-                        console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
-                        this._deleteInvalidDashboards(config.dashboards, database.name);
+                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, this._finishedUpdates[datastore.name] || {},
+                    (failedTableKeys: string[]) => {
+                        failedTableKeys.forEach((failedTableKey) => {
+                            this._deleteInvalidTable(config.datastores, failedTableKey);
+                            this._deleteInvalidDashboards(config.dashboards, failedTableKey);
+                        });
                     });
-                });
             }
             return undefined;
         }).filter((promise) => !!promise);
+
+        datastores.forEach((datastore) => {
+            this._finishedUpdates[datastore.name] = {};
+            Object.values(datastore.databases).forEach((database) => {
+                this._finishedUpdates[datastore.name][database.name] = Object.keys(database.tables);
+            });
+        });
 
         return from(promises.length ? Promise.all(promises) : Promise.resolve(null))
             .pipe(
@@ -384,31 +395,24 @@ export class DashboardService {
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
 
-        // Assign first datastore
-        const firstName = Object.keys(this.config.datastores || {}).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
-        this.setActiveDatastore(this.config.datastores[firstName]);
+        this.setActiveDatastores(Object.keys(this.config.datastores).map((id) => this.config.datastores[id]));
 
-        // Load filters
         this.filterService.setFilters(this._translateFilters(dashboard.filters) || []);
         this.stateSubject.next(this.state);
     }
 
     /**
-     * Sets the active dataset to the given dataset.
-     * @param {Object} The dataset containing {String} name, {String} layout, {String} datastore, {String} hostname,
-     * and {Array} databases.  Each database is an Object containing {String} name and {Array} tables.
-     * Each table is an Object containing {String} name, {Array} fields, and {Object} labelOptions.  Each
-     * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
-     * identifier used by the visualizations and each value is a field name.
+     * Sets the datastores for the dashboard.
      */
-    // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
-    // to connect to multiple datasets
-    public setActiveDatastore(datastore: DatastoreConfig): void {
-        const validated: DatastoreConfig = DatasetUtil.validateDatastore(datastore);
-        if (validated) {
-            this.config.datastores[validated.name] = validated;
-            this.state.datastore = validated;
-        }
+    public setActiveDatastores(datastores: DatastoreConfig[]): void {
+        this.state.datastores = datastores.map((datastore) => {
+            const validated: DatastoreConfig = DatasetUtil.validateDatastore(datastore);
+            if (validated) {
+                this.config.datastores[validated.name] = validated;
+                return validated;
+            }
+            return null;
+        }).filter((datastore) => !!datastore);
     }
 
     /**
@@ -529,20 +533,18 @@ export class DashboardService {
     }
 
     /**
-     * Delete dashboards associated with the given database so users cannot select them.
+     * Deletes all dashboards containing the given table key so users cannot select them.
      */
-    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, invalidDatabaseName: string): any {
+    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, failedTableKey: string): void {
         ConfigUtil.visitDashboards(dashboard, {
             leaf: (leaf, path) => {
-                let tableKeys = Object.keys(leaf.tables);
                 const parent = path[path.length - 2];
-
-                for (const tableKey of tableKeys) {
-                    const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
-
-                    if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
+                for (const tableKey of Object.values(leaf.tables || {})) {
+                    if (tableKey === failedTableKey) {
                         Object.keys(parent ? parent.choices : {}).forEach((choiceId) => {
                             if (parent.choices[choiceId].name === leaf.name) {
+                                console.warn('Deleting dashboard "' + leaf.fullTitle.slice(1).join(' / ') +
+                                    '" because of deleting table "' + failedTableKey + '"');
                                 delete parent.choices[choiceId];
                             }
                         });
@@ -551,8 +553,22 @@ export class DashboardService {
                 }
             }
         });
+    }
 
-        return null;
+    /**
+     * Deletes the table with the given table key so users cannot select it.
+     */
+    private _deleteInvalidTable(datastores: Record<string, DatastoreConfig>, failedTableKey: string): void {
+        const tableKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(failedTableKey);
+        if (tableKeyObject.datastore && datastores[tableKeyObject.datastore]) {
+            if (tableKeyObject.database && datastores[tableKeyObject.datastore].databases[tableKeyObject.database]) {
+                if (tableKeyObject.table &&
+                    datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table]) {
+                    console.warn('Deleting table "' + failedTableKey + '" because its update failed (maybe it doesn\'t exist?)');
+                    delete datastores[tableKeyObject.datastore].databases[tableKeyObject.database].tables[tableKeyObject.table];
+                }
+            }
+        }
     }
 }
 
