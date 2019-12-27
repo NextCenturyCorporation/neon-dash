@@ -1,0 +1,35 @@
+<div class="container">
+  <nav>
+    <span>Neon Tools</span>
+    <span>Program Information</span>
+    <span>Data Sources</span>
+    <span>Dashboards</span>
+    <span>Permissions</span>
+    <span>Help</span>
+    <span>User</span>
+  </nav>
+  <section class="program-info">
+    <span>Program Name:</span>
+    <span>Program Sponsor:</span>
+    <span>Program Manager:</span>
+    <span>PI:</span>
+  </section>
+  <section class="contributors">
+    <header>
+      <h5>Contributers</h5>
+      <p>This dashboard illustrates the hard work by serveral fine contributors, as part of the DARPA LORELEI program.</p>
+    </header>
+    <main *ngIf="contributors">
+      <a *ngFor="let contributor of contributors" class="contributor-detail" [href]="contributor.url">
+        <img width="80" height="80" [src]="contributor.imgSrc"/>
+        <div>
+            <span><b>{{contributor.name}}</b></span>
+            <span>{{contributor.contact.name}}</span>
+            <span><i>{{contributor.contact.phone}}</i></span>
+            <span><i>{{contributor.contact.email}}</i></span>
+        </div>
+      </a>
+    </main>
+  </section>
+</div>
+
