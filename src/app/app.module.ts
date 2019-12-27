@@ -36,13 +36,15 @@ import { AppLazyModule } from './app-lazy.module';
 import { AppRoutingModule } from './app-routing.module';
 import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
 import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
+import { RouteNeontoolsComponent } from './route-neontools.component';
+import { NeonToolsModule } from './components/neon-tools/neon-tools.module';
 
 export function getBaseHref(platformLocation: PlatformLocation): string {
     return platformLocation.getBaseHrefFromDOM();
 }
 
 @NgModule({
-    declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent],
+    declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent, RouteNeontoolsComponent],
     entryComponents: [AppComponent, DynamicDialogComponent],
     imports: [
         BrowserModule,
@@ -51,6 +53,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         CommonModule,
         CustomRequestsModule,
         DashboardModule,
+        NeonToolsModule,
         DynamicDialogModule,
         AppLazyModule,
         AppRoutingModule
