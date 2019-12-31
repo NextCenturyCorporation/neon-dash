@@ -26,7 +26,7 @@ const routes: Routes = [
             path: '**',
             component: RouteRequestComponent
         }]
-    }, 
+    },
     {
         path: 'neon-tools',
         component: RouteNeontoolsComponent
@@ -34,7 +34,8 @@ const routes: Routes = [
     {
         path: '**',
         component: RouteDashboardComponent
-    }];
+    }
+];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],

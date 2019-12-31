@@ -518,6 +518,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFiltersComponent = false;
     }
 
+    openNeonTools() {
+        window.open('./neon-tools', '_blank');
+    }
+
     /**
      * Refreshes all of the visualizations in the dashboard.
      */

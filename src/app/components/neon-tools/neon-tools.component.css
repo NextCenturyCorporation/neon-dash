@@ -21,10 +21,6 @@ nav span:first-child
     border-right: 1px solid white;
 }
 
-nav span:last-child {
-    margin-left: auto;
-}
-
 .program-info, .contributors {
     background-color: #FFF;
     border: 1px solid rgba(204, 204, 204, 1);
@@ -40,7 +36,7 @@ nav span:last-child {
 }
 
 .contributors {
-    padding: 0 20px 20px;
+    padding: 20px;
 }
 
 .contributors main {
@@ -50,15 +46,22 @@ nav span:last-child {
 
 .contributor-detail
 {
+    color: inherit;
+    text-decoration: none;
     display: flex;
-    flex: 0 0 300px;
     padding: 20px;
+    flex: 0 0 300px;
+    align-items: center;
 }
 
-.contributor-detail img {
-    width: 80px;
-    height: 80px;
+.contributor-detail > span:first-child {
     margin-right: 10px;
+    border: 1px solid;
+    height: 80px;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .contributor-detail span {
