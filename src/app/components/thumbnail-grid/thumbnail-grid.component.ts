@@ -853,4 +853,5 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
+
 }

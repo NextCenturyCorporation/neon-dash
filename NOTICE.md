@@ -40,7 +40,8 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | node-sass@4.13.0 | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
 | npx@10.2.0 | [ISC](https://github.com/zkat/npx/raw/master/LICENSE.md) |
-| nucleus@0.2.0 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
+| nucleus-angular@0.0.1 | [UNKNOWN](undefined) |
+| nucleus@0.2.2 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | papaparse@5.1.0 | [MIT](https://github.com/mholt/PapaParse/raw/master/LICENSE) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | rxjs@6.5.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |

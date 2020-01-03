@@ -39,6 +39,12 @@ export const neonVisualizations: any[] = [{
     bindings: {},
     config: {}
 }, {
+    name: 'Annotation',
+    type: 'annotation',
+    icon: 'bar-chart',
+    bindings: {},
+    config: {}
+}, {
     name: 'Bar Chart',
     type: 'aggregation',
     icon: 'bar-chart',

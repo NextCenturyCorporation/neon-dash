@@ -14,21 +14,24 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SingleVisualizationWidgetComponent } from './single-visualization-widget.component';
-import { DataMessageModule } from '../data-message/data-message.module';
-import { CommonWidgetModule } from '../../common-widget.module';
-
-import { NucleusTextCloudAngularModule } from 'nucleus-angular';
+import { MatDialogModule, MatButtonModule, MatDividerModule } from '@angular/material';
+import { AnnotationComponent } from './annotation.component';
 
 @NgModule({
-    declarations: [SingleVisualizationWidgetComponent],
-    exports: [SingleVisualizationWidgetComponent],
-    entryComponents: [SingleVisualizationWidgetComponent],
+    declarations: [
+        AnnotationComponent
+    ],
+    entryComponents: [
+        AnnotationComponent
+    ],
+    exports: [
+        AnnotationComponent
+    ],
     imports: [
-        CommonModule,
-        CommonWidgetModule,
-        DataMessageModule,
-        NucleusTextCloudAngularModule
+        MatDialogModule,
+        MatDividerModule,
+        MatButtonModule,
+        CommonModule
     ]
 })
-export class SingleVisualizationWidgetModule { }
+export class AnnotationModule { }
