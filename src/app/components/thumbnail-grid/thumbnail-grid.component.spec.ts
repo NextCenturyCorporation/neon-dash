@@ -14,22 +14,23 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from 'component-library/dist/core/models/filters';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FilterCollection } from 'nucleus/dist/core/models/filters';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 
 import { } from 'jasmine-core';
 
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'component-library/dist/core/models/config-option';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -306,53 +307,139 @@ describe('Component: ThumbnailGrid', () => {
         component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
         component.options.sortField = FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field' });
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+        let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
 
         component.options.sortDescending = true;
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: {
-                filters: [{
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testLinkField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            sort: {
-                field: 'testSortField',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSortField'
+                },
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
 
-        delete component.options.sortField.columnName;
+        component.options.sortField = new FieldConfig();
+        searchObject = new CoreSearch(component.options.database.name, component.options.table.name);
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            fields: ['*'],
-            filter: null
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testLinkField'
+                    },
+                    operator: '!=',
+                    rhs: ''
+                }]
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -836,45 +923,19 @@ describe('Component: ThumbnailGrid with config', () => {
             mov: 'vid'
         });
 
-        expect(component.options.categoryField).toEqual(
-            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
-        );
-        expect(component.options.compareField).toEqual(
-            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
-        );
-        expect(component.options.dateField).toEqual(
-            FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' })
-        );
-        expect(component.options.filterFields).toEqual(
-            [FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' })]
-        );
-        expect(component.options.idField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.linkField).toEqual(
-            FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
-        );
-        expect(component.options.nameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.objectIdField).toEqual(
-            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
-        );
-        expect(component.options.objectNameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.percentField).toEqual(
-            FieldConfig.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' })
-        );
-        expect(component.options.predictedNameField).toEqual(
-            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
-        );
-        expect(component.options.sortField).toEqual(
-            FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' })
-        );
-        expect(component.options.typeField).toEqual(
-            FieldConfig.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' })
-        );
+        expect(component.options.categoryField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.compareField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.dateField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(component.options.filterFields).toEqual([DashboardServiceMock.FIELD_MAP.FILTER]);
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
+        expect(component.options.nameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.objectIdField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.objectNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.percentField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(component.options.predictedNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.sortField).toEqual(DashboardServiceMock.FIELD_MAP.SORT);
+        expect(component.options.typeField).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
     });
 
     it('does show header in toolbar with visualization title from config', () => {

@@ -22,9 +22,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType, TimeInterval } from 'component-library/dist/core/models/config-option';
+import { AggregationType, CompoundFilterType, TimeInterval } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     BoundsFilterDesign,
@@ -32,14 +32,15 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from 'component-library/dist/core/models/filters';
+} from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -246,22 +247,55 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testXField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                field: 'testXField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testXField'],
-            sort: {
-                field: 'testXField',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -275,22 +309,58 @@ describe('Component: Aggregation', () => {
         component.options.sortByAggregation = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testXField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: '_aggregation',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'operation',
+                operation: '_aggregation',
                 order: -1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -302,24 +372,81 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testXField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testYField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testYField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -329,41 +456,101 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            aggregation: [{
-                field: 'testCategoryField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -375,41 +562,101 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            aggregation: [{
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -421,40 +668,117 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [{
-            field: 'testConfigFilterField',
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testConfigFilterField'
+            },
             operator: '=',
-            value: 'testConfigFilterValue'
+            rhs: 'testConfigFilterValue'
         }, {
-            field: 'testFilterField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testFilterField'
+            },
             operator: '=',
-            value: 'testFilterValue'
-        }])).toEqual({
-            filter: {
-                filters: [{
-                    field: 'testConfigFilterField',
+            rhs: 'testFilterValue'
+        }])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testConfigFilterField'
+                    },
                     operator: '=',
-                    value: 'testConfigFilterValue'
+                    rhs: 'testConfigFilterValue'
                 }, {
-                    field: 'testFilterField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testFilterField'
+                    },
                     operator: '=',
-                    value: 'testFilterValue'
+                    rhs: 'testFilterValue'
                 }, {
-                    field: 'testXField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testXField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }, {
-                    field: 'testYField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
                     operator: '!=',
-                    value: null
+                    rhs: null
                 }],
                 type: 'and'
             },
-            groups: ['testXField', 'testYField', 'testCategoryField'],
-            sort: {
-                field: 'testXField',
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testXField'
+                },
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -464,30 +788,69 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testCategoryField',
-                name: '_aggregation',
-                type: 'count'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'operation',
+                operation: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -499,30 +862,69 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'operation',
+                operation: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -534,33 +936,88 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }],
-            filter: {
-                filters: [{
-                    field: 'testDateField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testYField',
-                    operator: '!=',
-                    value: null
-                }],
-                type: 'and'
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testYField', 'testCategoryField'],
-            sort: {
-                field: '_date',
+            whereClause: {
+                type: 'and',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testDateField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }, {
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testYField'
+                    },
+                    operator: '!=',
+                    rhs: null
+                }]
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                },
+                label: '_aggregation',
+                operation: 'count'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testYField'
+                }
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'operation',
+                operation: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -569,50 +1026,118 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
-        component.options.granularity = TimeInterval.MINUTE;
+        component.options.granularity = TimeInterval.SECOND;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
-            aggregation: [{
-                field: 'testDateField',
-                name: '_date',
-                type: 'min'
-            }, {
-                field: 'testSizeField',
-                name: '_aggregation',
-                type: 'sum'
-            }],
-            filter: {
-                field: 'testDateField',
-                operator: '!=',
-                value: null
+        let searchObject = new CoreSearch('testDatabase1', 'testTable1');
+
+        expect(JSON.parse(JSON.stringify(component.finalizeVisualizationQuery(component.options, searchObject, [])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
             },
-            groups: [{
-                field: 'testDateField',
-                name: '_minute',
-                type: 'minute'
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                operator: '!=',
+                rhs: null
+            },
+            aggregateClauses: [{
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_date',
+                operation: 'min'
             }, {
-                field: 'testDateField',
-                name: '_hour',
-                type: 'hour'
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testSizeField'
+                },
+                label: '_aggregation',
+                operation: 'sum'
+            }],
+            groupByClauses: [{
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_second',
+                operation: 'second'
             }, {
-                field: 'testDateField',
-                name: '_dayOfMonth',
-                type: 'dayOfMonth'
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_minute',
+                operation: 'minute'
             }, {
-                field: 'testDateField',
-                name: '_month',
-                type: 'month'
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_hour',
+                operation: 'hour'
             }, {
-                field: 'testDateField',
-                name: '_year',
-                type: 'year'
-            }, 'testCategoryField'],
-            sort: {
-                field: '_date',
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_dayOfMonth',
+                operation: 'dayOfMonth'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_month',
+                operation: 'month'
+            }, {
+                type: 'operation',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testDateField'
+                },
+                label: '_year',
+                operation: 'year'
+            }, {
+                type: 'field',
+                fieldClause: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testCategoryField'
+                }
+            }],
+            orderByClauses: [{
+                type: 'operation',
+                operation: '_date',
                 order: 1
-            }
+            }],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -1884,11 +2409,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -1914,11 +2441,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -1936,18 +2465,22 @@ describe('Component: Aggregation', () => {
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 90,
             testCategoryField: 'a',
             testXField: 1,
             testYField: 2
         }, {
+            _aggregation: 80,
             testCategoryField: 'a',
             testXField: 3,
             testYField: 4
         }, {
+            _aggregation: 70,
             testCategoryField: 'b',
             testXField: 5,
             testYField: 6
         }, {
+            _aggregation: 60,
             testCategoryField: 'b',
             testXField: 7,
             testYField: 8
@@ -1957,21 +2490,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: 90,
             color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
+            aggregation: 80,
             color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
+            aggregation: 70,
             color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
+            aggregation: 60,
             color: COLOR_2,
             group: 'b',
             x: 7,
@@ -2008,21 +2545,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: COLOR_1,
             group: 'a',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: COLOR_1,
             group: 'a',
             x: 3,
             y: 4
         }, {
+            aggregation: undefined,
             color: COLOR_2,
             group: 'b',
             x: 5,
             y: 6
         }, {
+            aggregation: undefined,
             color: COLOR_2,
             group: 'b',
             x: 7,
@@ -2147,11 +2688,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2178,11 +2721,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2210,11 +2755,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 'a',
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 'c',
@@ -2242,11 +2789,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2281,11 +2830,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
@@ -2319,16 +2870,19 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(3);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
@@ -2364,21 +2918,25 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
@@ -2401,18 +2959,22 @@ describe('Component: Aggregation', () => {
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 90,
             _date: '2018-01-01T00:00:00.000Z',
             testCategoryField: 'a',
             testYField: 2
         }, {
+            _aggregation: 80,
             _date: '2018-01-02T00:00:00.000Z',
             testCategoryField: 'b',
             testYField: 3
         }, {
+            _aggregation: 70,
             _date: '2018-01-03T00:00:00.000Z',
             testCategoryField: 'a',
             testYField: 4
         }, {
+            _aggregation: 60,
             _date: '2018-01-04T00:00:00.000Z',
             testCategoryField: 'b',
             testYField: 5
@@ -2422,41 +2984,49 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['a', 'b']);
         expect(actual).toEqual(8);
         expect(component.aggregationData).toEqual([{
+            aggregation: 90,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 70,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: COLOR_1,
             group: 'a',
             x: '2018-01-04T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 80,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
+            aggregation: 0,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 60,
             color: COLOR_2,
             group: 'b',
             x: '2018-01-04T00:00:00.000Z',
@@ -2495,26 +3065,31 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(5);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 4
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-05T00:00:00.000Z',
@@ -2546,11 +3121,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: 0,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2576,11 +3153,13 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
+            aggregation: undefined,
             color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
@@ -2603,30 +3182,30 @@ describe('Component: Aggregation', () => {
         expect(component.yList).toEqual([]);
     });
 
-    it('optionsAggregationIsNotCount does return expected boolean', () => {
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-h' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'bar-v' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'doughnut' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'histogram' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'pie' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'table' })).toEqual(false);
+    it('optionsAggregationIsCountOrNA does return expected boolean', () => {
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'bar-h' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'bar-v' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'doughnut' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'histogram' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'pie' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'line' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'scatter' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'table' })).toEqual(true);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.COUNT, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'line-xy' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.COUNT, type: 'scatter-xy' })).toEqual(true);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-h' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'bar-v' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'doughnut' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'histogram' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'pie' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter' })).toEqual(true);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'table' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'bar-h' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'bar-v' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'doughnut' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'histogram' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'pie' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'line' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'scatter' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'table' })).toEqual(false);
 
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'line-xy' })).toEqual(false);
-        expect(component.optionsAggregationIsNotCount({ aggregation: AggregationType.SUM, type: 'scatter-xy' })).toEqual(false);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'line-xy' })).toEqual(true);
+        expect(component.optionsAggregationIsCountOrNA({ aggregation: AggregationType.SUM, type: 'scatter-xy' })).toEqual(true);
     });
 
     it('optionsTypeIsContinuous does return expected boolean', () => {
@@ -2643,47 +3222,61 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsContinuous({ type: 'table' })).toEqual(false);
     });
 
-    it('optionsTypeIsDualViewCompatible does return expected boolean', () => {
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'histogram' })).toEqual(true);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'line-xy' })).toEqual(true);
+    it('optionsTypeIsNotDualViewCompatible does return expected boolean', () => {
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'line-xy' })).toEqual(false);
 
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsDualViewCompatible({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotDualViewCompatible({ type: 'table' })).toEqual(true);
     });
 
-    it('optionsTypeIsLine does return expected boolean', () => {
-        expect(component.optionsTypeIsLine({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeIsLine({ type: 'line-xy' })).toEqual(true);
+    it('optionsTypeIsNotLine does return expected boolean', () => {
+        expect(component.optionsTypeIsNotLine({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotLine({ type: 'line-xy' })).toEqual(false);
 
-        expect(component.optionsTypeIsLine({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'histogram' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsLine({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotLine({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotLine({ type: 'table' })).toEqual(true);
     });
 
-    it('optionsTypeIsList does return expected boolean', () => {
-        expect(component.optionsTypeIsList({ type: 'list' })).toEqual(true);
+    it('optionsTypeIsNotList does return expected boolean', () => {
+        expect(component.optionsTypeIsNotList({ type: 'list' })).toEqual(false);
 
-        expect(component.optionsTypeIsList({ type: 'bar-h' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'bar-v' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'histogram' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'line' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'line-xy' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'scatter' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'scatter-xy' })).toEqual(false);
-        expect(component.optionsTypeIsList({ type: 'table' })).toEqual(false);
+        expect(component.optionsTypeIsNotList({ type: 'bar-h' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'bar-v' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'histogram' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'line' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'line-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'scatter' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'scatter-xy' })).toEqual(true);
+        expect(component.optionsTypeIsNotList({ type: 'table' })).toEqual(true);
+    });
+
+    it('optionsTypeIsNotGrid does return expected boolean', () => {
+        expect(component.optionsTypeIsNotGrid({ type: 'bar-h' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'bar-v' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'histogram' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'line' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'line-xy' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'scatter' })).toEqual(false);
+        expect(component.optionsTypeIsNotGrid({ type: 'scatter-xy' })).toEqual(false);
+
+        expect(component.optionsTypeIsNotGrid({ type: 'doughnut' })).toEqual(true);
+        expect(component.optionsTypeIsNotGrid({ type: 'pie' })).toEqual(true);
+        expect(component.optionsTypeIsNotGrid({ type: 'table' })).toEqual(true);
     });
 
     it('optionsTypeIsNotXY does return expected boolean', () => {
@@ -2700,20 +3293,6 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsNotXY({ type: 'scatter-xy' })).toEqual(false);
     });
 
-    it('optionsTypeUsesGrid does return expected boolean', () => {
-        expect(component.optionsTypeUsesGrid({ type: 'bar-h' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'bar-v' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'histogram' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'line' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'line-xy' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'scatter' })).toEqual(true);
-        expect(component.optionsTypeUsesGrid({ type: 'scatter-xy' })).toEqual(true);
-
-        expect(component.optionsTypeUsesGrid({ type: 'doughnut' })).toEqual(false);
-        expect(component.optionsTypeUsesGrid({ type: 'pie' })).toEqual(false);
-        expect(component.optionsTypeUsesGrid({ type: 'table' })).toEqual(false);
-    });
-
     it('optionsTypeIsXY does return expected boolean', () => {
         expect(component.optionsTypeIsXY({ type: 'bar-h' })).toEqual(false);
         expect(component.optionsTypeIsXY({ type: 'bar-v' })).toEqual(false);
@@ -2728,18 +3307,18 @@ describe('Component: Aggregation', () => {
         expect(component.optionsTypeIsXY({ type: 'scatter-xy' })).toEqual(true);
     });
 
-    it('optionsXFieldIsDate does return expected boolean', () => {
-        expect(component.optionsXFieldIsDate({ xField: { type: 'date' } })).toEqual(true);
+    it('optionsXFieldIsNotDate does return expected boolean', () => {
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'date' } })).toEqual(false);
 
-        expect(component.optionsXFieldIsDate({ xField: { type: 'boolean' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'float' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'keyword' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'int' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'long' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'number' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'object' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'string' } })).toEqual(false);
-        expect(component.optionsXFieldIsDate({ xField: { type: 'text' } })).toEqual(false);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'boolean' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'float' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'keyword' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'int' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'long' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'number' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'object' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'string' } })).toEqual(true);
+        expect(component.optionsXFieldIsNotDate({ xField: { type: 'text' } })).toEqual(true);
     });
 
     it('redrawSubcomponents does recreate main subcomponent and call expected functions', () => {
@@ -2791,6 +3370,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -2824,6 +3404,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -2846,10 +3427,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -2878,10 +3460,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'number',
             xList: [1, 3],
@@ -2903,10 +3486,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'date',
             xList: [],
@@ -2935,10 +3519,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'date',
             xList: [1, 3],
@@ -2960,10 +3545,11 @@ describe('Component: Aggregation', () => {
         component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 0,
             groups: [],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'string',
             xList: [],
@@ -2992,10 +3578,11 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: '',
+            aggregationLabel: 'count',
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'x',
             xAxis: 'string',
             xList: [1, 3],
@@ -3040,6 +3627,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3058,6 +3646,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3081,6 +3670,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3099,6 +3689,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3145,6 +3736,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3168,6 +3760,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3213,6 +3806,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3231,6 +3825,7 @@ describe('Component: Aggregation', () => {
             aggregationLabel: AggregationType.SUM,
             dataLength: 2,
             groups: ['a', 'b'],
+            maximumAggregation: 0,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3718,80 +4313,6 @@ describe('Component: Aggregation', () => {
 
         let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
-    }));
-
-    it('does show filter-container and legend on initialization because showLegend is true', async(() => {
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).not.toBeNull();
-
-        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
-        expect(legend).not.toBeNull();
-    }));
-
-    it('does show filter-container and legend if type is line', async(() => {
-        component.options.showLegend = false;
-        component.options.type = 'line-xy';
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).not.toBeNull();
-
-        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
-        expect(legend).not.toBeNull();
-    }));
-
-    it('does show filter-container and legend if type is scatter', async(() => {
-        component.options.showLegend = false;
-        component.options.type = 'scatter-xy';
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).not.toBeNull();
-
-        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
-        expect(legend).not.toBeNull();
-    }));
-
-    it('does not show filter-container with no filters or legend if type is not line or scatter', async(() => {
-        component.options.showLegend = false;
-        component.options.type = 'bar-h';
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).toBeNull();
-    }));
-
-    it('does not show filter-container if legendGroups is single-element array', async(() => {
-        component.options.showLegend = false;
-        component.options.type = 'bar-h';
-        component.legendGroups = ['a'];
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).toBeNull();
-    }));
-
-    it('does show filter-container and legend if legendGroups is multiple-element array', async(() => {
-        component.options.showLegend = true;
-        component.options.type = 'bar-h';
-        component.legendGroups = ['a', 'b'];
-
-        // Force the component to update all its elements.
-        component.changeDetection.detectChanges();
-
-        let filterContainer = fixture.debugElement.query(By.css('.legend'));
-        expect(filterContainer).not.toBeNull();
-
-        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
-        expect(legend).not.toBeNull();
     }));
 
     it('does show subcomponent-container and subcomponent-element', () => {

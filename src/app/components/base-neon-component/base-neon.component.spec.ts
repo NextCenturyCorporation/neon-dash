@@ -26,16 +26,15 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilter } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { FieldConfig } from 'nucleus/dist/core/models/dataset';
 import {
-    AggregationType,
     CompoundFilterType,
     ConfigOption,
     ConfigOptionFieldArray,
@@ -45,10 +44,10 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     OptionChoices
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'component-library/dist/core/services/mock.search.service';
+import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
@@ -110,7 +109,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     finalizeVisualizationQuery(__options, query, filters) {
         if (filters.length) {
-            this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+            this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters));
         }
         return query;
     }
@@ -285,10 +284,20 @@ describe('BaseNeonComponent', () => {
     });
 
     it('createCompleteVisualizationQuery does return expected query object', () => {
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*']
+        expect(JSON.parse(JSON.stringify(component.createCompleteVisualizationQuery(component.options)))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -329,26 +338,69 @@ describe('BaseNeonComponent', () => {
             }]
         }];
 
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
-            database: 'testDatabase2',
-            table: 'testTable2',
-            fields: [
-                'testCategoryField',
-                'testXField',
-                'testYField',
-                'testIdField',
-                'testDateField',
-                'testLinkField',
-                'testNameField',
-                'testSizeField',
-                'testTextField',
-                'testTypeField'
-            ],
-            filter: {
-                field: 'testIdField',
+        expect(JSON.parse(JSON.stringify(component.createCompleteVisualizationQuery(component.options)))).toEqual({
+            selectClause: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                fieldClauses: [{
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testCategoryField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testXField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testYField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testIdField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testDateField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testLinkField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testNameField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testSizeField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testTextField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testTypeField'
+                }]
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testIdField'
+                },
                 operator: '!=',
-                value: 'testIdValue'
-            }
+                rhs: 'testIdValue'
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -362,22 +414,41 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testType'
         }];
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            filter: {
+        expect(JSON.parse(JSON.stringify(component.createCompleteVisualizationQuery(component.options)))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
                 type: 'and',
-                filters: [{
-                    field: 'testNameField',
+                whereClauses: [{
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testNameField'
+                    },
                     operator: '!=',
-                    value: 'testName'
+                    rhs: 'testName'
                 }, {
-                    field: 'testTypeField',
+                    type: 'where',
+                    lhs: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        field: 'testTypeField'
+                    },
                     operator: '!=',
-                    value: 'testType'
+                    rhs: 'testType'
                 }]
-            }
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -387,15 +458,29 @@ describe('BaseNeonComponent', () => {
             operator: '=',
             rhs: 'testValue'
         }];
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            filter: {
-                field: 'testFieldKeyField',
+        expect(JSON.parse(JSON.stringify(component.createCompleteVisualizationQuery(component.options)))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testFieldKeyField'
+                },
                 operator: '=',
-                value: 'testValue'
-            }
+                rhs: 'testValue'
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
@@ -407,9 +492,9 @@ describe('BaseNeonComponent', () => {
             columnName: 'export_2',
             prettyName: 'Export 2'
         }]);
-        expect(component.createExportData()).toEqual([{
+        expect(JSON.parse(JSON.stringify(component.createExportData()))).toEqual([{
             data: {
-                queryFieldNameMap: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
@@ -418,9 +503,19 @@ describe('BaseNeonComponent', () => {
                 }],
                 fileName: 'Mock Superclass-' + component.options._id,
                 query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
+                    selectClause: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        fieldClauses: []
+                    },
+                    whereClause: null,
+                    aggregateClauses: [],
+                    groupByClauses: [],
+                    orderByClauses: [],
+                    limitClause: null,
+                    offsetClause: null,
+                    joinClauses: [],
+                    isDistinct: false
                 },
                 hostName: 'testHostname',
                 dataStoreType: 'testDatastore'
@@ -462,9 +557,9 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        expect(component.createExportData()).toEqual([{
+        expect(JSON.parse(JSON.stringify(component.createExportData()))).toEqual([{
             data: {
-                queryFieldNameMap: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'export_1',
                     pretty: 'Export 1'
                 }, {
@@ -473,16 +568,26 @@ describe('BaseNeonComponent', () => {
                 }],
                 fileName: 'Layer 1-' + component.options.layers[0]._id,
                 query: {
-                    database: 'testDatabase1',
-                    table: 'testTable1',
-                    fields: ['*']
+                    selectClause: {
+                        database: 'testDatabase1',
+                        table: 'testTable1',
+                        fieldClauses: []
+                    },
+                    whereClause: null,
+                    aggregateClauses: [],
+                    groupByClauses: [],
+                    orderByClauses: [],
+                    limitClause: null,
+                    offsetClause: null,
+                    joinClauses: [],
+                    isDistinct: false
                 },
                 hostName: 'testHostname',
                 dataStoreType: 'testDatastore'
             }
         }, {
             data: {
-                queryFieldNameMap: [{
+                fieldNamePrettyNamePairs: [{
                     query: 'export_3',
                     pretty: 'Export 3'
                 }, {
@@ -491,9 +596,19 @@ describe('BaseNeonComponent', () => {
                 }],
                 fileName: 'Layer 2-' + component.options.layers[1]._id,
                 query: {
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    fields: ['*']
+                    selectClause: {
+                        database: 'testDatabase2',
+                        table: 'testTable2',
+                        fieldClauses: []
+                    },
+                    whereClause: null,
+                    aggregateClauses: [],
+                    groupByClauses: [],
+                    orderByClauses: [],
+                    limitClause: null,
+                    offsetClause: null,
+                    joinClauses: [],
+                    isDistinct: false
                 },
                 hostName: 'testHostname',
                 dataStoreType: 'testDatastore'
@@ -532,7 +647,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('createSharedFilters does return expected array', () => {
-        expect(component.createSharedFilters(component.options)).toEqual([]);
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([]);
 
         component.options.filter = {
             lhs: 'testField1',
@@ -540,10 +655,15 @@ describe('BaseNeonComponent', () => {
             rhs: 'testValue1'
         };
 
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testField1',
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testField1'
+            },
             operator: '=',
-            value: 'testValue1'
+            rhs: 'testValue1'
         }]);
 
         spyOn((component as any), 'retrieveApplicableFilters').and.returnValue([
@@ -555,18 +675,33 @@ describe('BaseNeonComponent', () => {
                 DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'not contains', ['testValue2'])
         ]);
 
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testTextField',
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'contains',
-            value: 'testValue1'
+            rhs: 'testValue1'
         }, {
-            field: 'testTextField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'not contains',
-            value: 'testValue2'
+            rhs: 'testValue2'
         }, {
-            field: 'testField1',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testField1'
+            },
             operator: '=',
-            value: 'testValue1'
+            rhs: 'testValue1'
         }]);
 
         component.options.filter = {
@@ -575,18 +710,33 @@ describe('BaseNeonComponent', () => {
             rhs: 'testValue2'
         };
 
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testTextField',
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'contains',
-            value: 'testValue1'
+            rhs: 'testValue1'
         }, {
-            field: 'testTextField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'not contains',
-            value: 'testValue2'
+            rhs: 'testValue2'
         }, {
-            field: 'testField2',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testField2'
+            },
             operator: '!=',
-            value: 'testValue2'
+            rhs: 'testValue2'
         }]);
 
         component.options.filter = [{
@@ -599,22 +749,42 @@ describe('BaseNeonComponent', () => {
             rhs: 'testValue3'
         }];
 
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testTextField',
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'contains',
-            value: 'testValue1'
+            rhs: 'testValue1'
         }, {
-            field: 'testTextField',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testTextField'
+            },
             operator: 'not contains',
-            value: 'testValue2'
+            rhs: 'testValue2'
         }, {
-            field: 'testField2',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testField2'
+            },
             operator: '!=',
-            value: 'testValue2'
+            rhs: 'testValue2'
         }, {
-            field: 'testField3',
+            type: 'where',
+            lhs: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                field: 'testField3'
+            },
             operator: '=',
-            value: 'testValue3'
+            rhs: 'testValue3'
         }]);
     });
 
@@ -683,11 +853,22 @@ describe('BaseNeonComponent', () => {
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            limit: 1000
+        expect(JSON.parse(JSON.stringify(spy.calls.argsFor(0)[1]))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: {
+                limit: 1000
+            },
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
@@ -716,12 +897,24 @@ describe('BaseNeonComponent', () => {
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            limit: 1000,
-            offset: 0
+        expect(JSON.parse(JSON.stringify(spy.calls.argsFor(0)[1]))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: {
+                limit: 1000
+            },
+            offsetClause: {
+                offset: 0
+            },
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
@@ -730,12 +923,24 @@ describe('BaseNeonComponent', () => {
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(1)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            limit: 1000,
-            offset: 1000
+        expect(JSON.parse(JSON.stringify(spy.calls.argsFor(1)[1]))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: {
+                limit: 1000
+            },
+            offsetClause: {
+                offset: 1000
+            },
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spy.calls.argsFor(1)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(1)[3]).toBeDefined();
@@ -784,27 +989,71 @@ describe('BaseNeonComponent', () => {
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spy.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase2',
-            table: 'testTable2',
-            fields: [
-                'testCategoryField',
-                'testXField',
-                'testYField',
-                'testIdField',
-                'testDateField',
-                'testLinkField',
-                'testNameField',
-                'testSizeField',
-                'testTextField',
-                'testTypeField'
-            ],
-            filter: {
-                field: 'testIdField',
-                operator: '!=',
-                value: 'testIdValue'
+        expect(JSON.parse(JSON.stringify(spy.calls.argsFor(0)[1]))).toEqual({
+            selectClause: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                fieldClauses: [{
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testCategoryField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testXField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testYField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testIdField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testDateField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testLinkField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testNameField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testSizeField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testTextField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testTypeField'
+                }]
             },
-            limit: 1000
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testIdField'
+                },
+                operator: '!=',
+                rhs: 'testIdValue'
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: {
+                limit: 1000
+            },
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spy.calls.argsFor(0)[2]).toEqual('default visualization query');
         expect(spy.calls.argsFor(0)[3]).toBeDefined();
@@ -1158,15 +1407,23 @@ describe('BaseNeonComponent', () => {
         expect(component['layerIdToElementCount'].has(component.options._id)).toEqual(false);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            aggregation: [{
-                name: '_count',
-                type: AggregationType.COUNT,
-                field: '*'
-            }]
+        expect(JSON.parse(JSON.stringify((spyExecuteQuery.calls.argsFor(0)[1])))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [{
+                type: 'total',
+                label: '_count'
+            }],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
@@ -1198,15 +1455,23 @@ describe('BaseNeonComponent', () => {
         expect(component['errorMessage']).toEqual('');
         expect(spyExecuteQuery.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.argsFor(0)[0]).toEqual(component.options);
-        expect(spyExecuteQuery.calls.argsFor(0)[1]).toEqual({
-            database: 'testDatabase1',
-            table: 'testTable1',
-            fields: ['*'],
-            aggregation: [{
-                name: '_count',
-                type: AggregationType.COUNT,
-                field: '*'
-            }]
+        expect(JSON.parse(JSON.stringify(spyExecuteQuery.calls.argsFor(0)[1]))).toEqual({
+            selectClause: {
+                database: 'testDatabase1',
+                table: 'testTable1',
+                fieldClauses: []
+            },
+            whereClause: null,
+            aggregateClauses: [{
+                type: 'total',
+                label: '_count'
+            }],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
         expect(spyExecuteQuery.calls.argsFor(0)[2]).toEqual('total count query');
         expect(spyExecuteQuery.calls.argsFor(0)[3]).toBeDefined();
@@ -1304,22 +1569,6 @@ describe('BaseNeonComponent', () => {
         component['handleTransformVisualizationQueryResults'](expectedOptions, expectedResults, successCallback, failureCallback);
     });
 
-    it('isNumber does return expected boolean', () => {
-        expect(component.isNumber(true)).toEqual(false);
-        expect(component.isNumber('a')).toEqual(false);
-        expect(component.isNumber([1, 2])).toEqual(false);
-        expect(component.isNumber({
-            value: 1
-        })).toEqual(false);
-
-        expect(component.isNumber(1)).toEqual(true);
-        expect(component.isNumber(12.34)).toEqual(true);
-        expect(component.isNumber(-12.34)).toEqual(true);
-        expect(component.isNumber('1')).toEqual(true);
-        expect(component.isNumber('12.34')).toEqual(true);
-        expect(component.isNumber('-12.34')).toEqual(true);
-    });
-
     it('onResizeStop works as expected', () => {
         let spyUpdateHeader = spyOn(component, 'updateHeaderTextStyles');
         let spyUpdateSubclass = spyOn(component, 'updateOnResize');
@@ -1342,15 +1591,6 @@ describe('BaseNeonComponent', () => {
             expect(spyRefreshVisualization.calls.count()).toEqual(1);
             done();
         }, 500);
-    });
-
-    it('prettifyInteger does return expected string', () => {
-        expect(component.prettifyInteger(0)).toEqual('0');
-        expect(component.prettifyInteger(1)).toEqual('1');
-        expect(component.prettifyInteger(12)).toEqual('12');
-        expect(component.prettifyInteger(123)).toEqual('123');
-        expect(component.prettifyInteger(1234)).toEqual('1,234');
-        expect(component.prettifyInteger(1234567890)).toEqual('1,234,567,890');
     });
 
     it('shouldFilterSelf does return expected boolean', () => {
@@ -1706,31 +1946,70 @@ describe('Advanced BaseNeonComponent with config', () => {
     });
 
     it('createCompleteVisualizationQuery on widget with advanced config does return expected query object', () => {
-        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
-            database: 'testDatabase2',
-            table: 'testTable2',
-            fields: [
-                'testSizeField',
-                'testNameField',
-                'testXField',
-                'testYField',
-                'testConfigField',
-                'testPublishColumnName',
-                'testReceiveColumnName'
-            ],
-            filter: {
-                field: 'testConfigField',
+        expect(JSON.parse(JSON.stringify(component.createCompleteVisualizationQuery(component.options)))).toEqual({
+            selectClause: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                fieldClauses: [{
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testSizeField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testNameField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testXField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testYField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testConfigField'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testPublishColumnName'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testReceiveColumnName'
+                }]
+            },
+            whereClause: {
+                type: 'where',
+                lhs: {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testConfigField'
+                },
                 operator: '!=',
-                value: 'testConfigValue'
-            }
+                rhs: 'testConfigValue'
+            },
+            aggregateClauses: [],
+            groupByClauses: [],
+            orderByClauses: [],
+            limitClause: null,
+            offsetClause: null,
+            joinClauses: [],
+            isDistinct: false
         });
     });
 
     it('createSharedFilters on widget with advanced config does return expected array', () => {
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testConfigField',
+        expect(JSON.parse(JSON.stringify(component.createSharedFilters(component.options)))).toEqual([{
+            type: 'where',
+            lhs: {
+                database: 'testDatabase2',
+                table: 'testTable2',
+                field: 'testConfigField'
+            },
             operator: '!=',
-            value: 'testConfigValue'
+            rhs: 'testConfigValue'
         }]);
     });
 

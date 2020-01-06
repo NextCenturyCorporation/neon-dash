@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, ViewEncapsulation, Component, Input } from '@angular/core';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 
 @Component({
     selector: 'app-text-with-url',

@@ -14,7 +14,7 @@
  */
 import { Component, OnInit } from '@angular/core';
 
-import { AbstractColorThemeService } from 'component-library/dist/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from 'nucleus/dist/core/services/abstract.color-theme.service';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../models/neon-namespaces';
 

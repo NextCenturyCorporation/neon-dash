@@ -24,15 +24,15 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig } from 'component-library/dist/core/models/dataset';
-import { CoreUtil } from 'component-library/dist/core/core.util';
-import { DateUtil, DateFormat } from 'component-library/dist/core/date.util';
+import { DatasetUtil, FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { DateUtil, DateFormat } from 'nucleus/dist/core/date.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -44,7 +44,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -146,7 +146,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new ConfigOptionFieldArray('showFields', 'Show Field(s)', true),
             new ConfigOptionSelect('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
-                this.optionsFilterable.bind(this)),
+                this.optionsNotFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
             new ConfigOptionSelect('arrayFilterOperator', 'Filter Operator', false, 'and', [{
                 prettyName: 'OR',
@@ -154,10 +154,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }, {
                 prettyName: 'AND',
                 variable: 'and'
-            }], this.optionsFilterable.bind(this)),
+            }], this.optionsNotFilterable.bind(this)),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
-                this.optionsFilterable.bind(this)),
-            new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+                this.optionsNotFilterable.bind(this)),
+            new ConfigOptionNumber('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsNotHeatmap.bind(this)),
             new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
             new ConfigOptionSelect('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
@@ -235,23 +235,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns whether the widget is filterable.
+     * Returns whether the widget is not filterable.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsFilterable(options: any): boolean {
-        return options.filterable;
+    optionsNotFilterable(options: any): boolean {
+        return !options.filterable;
     }
 
     /**
-     * Returns whether the widget is a heatmap table.
+     * Returns whether the widget is not a heatmap table.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @return {boolean}
      */
-    optionsHeatmapTable(options: any): boolean {
-        return options.heatmapField && options.heatmapField.columnName;
+    optionsNotHeatmap(options: any): boolean {
+        return !options.heatmapField || !options.heatmapField.columnName;
     }
 
     getVisualizationWidth(): number {
@@ -340,28 +340,27 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters = sharedFilters;
-        if (this.options.sortField.columnName) {
-            filters = [
-                ...filters,
-                this.searchService.buildFilterClause(options.sortField.columnName, '!=', null)
-            ];
-        }
-
-        // Override the default query fields because we want to find all fields.
-        this.searchService.updateFieldsToMatchAll(query);
-
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(options.sortField.columnName ?
+            this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, '!=', null) : [])));
 
         if (options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName,
-                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+            this.searchService.withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
         }
 
         return query;
