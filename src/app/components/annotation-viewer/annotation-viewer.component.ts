@@ -23,15 +23,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'component-library/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
-import { CoreUtil } from 'component-library/dist/core/core.util';
+import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -39,7 +39,7 @@ import {
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {
@@ -504,23 +504,33 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(this.displayField, '!=', null);
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let filter: FilterClause = this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: this.displayField
+        } as FieldKey, '!=', null);
 
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
         if (options.respondMode && options.idField && this.selectedDataId) {
-            filter = this.searchService.buildFilterClause(options.idField.columnName, '=', options.id);
+            filter = this.searchService.createFilterClause({
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.idField.columnName
+            } as FieldKey, '=', options.id);
         }
 
         // Override the default query fields because we want to find all fields.
-        this.searchService.updateFieldsToMatchAll(query)
-            .updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)));
+        this.searchService.withAllFields(query)
+            .withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)));
 
         return query;
     }

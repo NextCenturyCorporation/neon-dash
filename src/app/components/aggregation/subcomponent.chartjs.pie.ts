@@ -15,7 +15,7 @@
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from 'component-library/dist/core/models/color';
+import { Color } from 'nucleus/dist/core/models/color';
 
 // http://www.chartjs.org/docs/latest/charts/doughnut.html#dataset-properties
 export class ChartJsPieDataset extends AbstractChartJsDataset {
@@ -28,8 +28,8 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     }
 
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((xValue) => {
-            let yList = this.xToY.get(xValue);
+        Array.from(this.xToYToSize.keys()).forEach((xValue) => {
+            let yList = Array.from(this.xToYToSize.get(xValue).keys());
             (yList.length ? yList : [null]).forEach((yValue) => {
                 this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
                     this.xSelected.indexOf(xValue) < 0 ? this.getColorSelected() : this.getColorHover());

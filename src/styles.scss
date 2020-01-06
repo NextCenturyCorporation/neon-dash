@@ -325,10 +325,12 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: var(--color-dash-item-selectable, lightgrey) !important;
+            &:not(.mat-raised-button) {
+                color: var(--color-dash-item-selectable, lightgrey) !important;
 
-            &.neon-icon-button-contrast {
-                color: var(--color-data-item-selectable-contrast, lightgrey) !important;
+                &.neon-icon-button-contrast {
+                    color: var(--color-data-item-selectable-contrast, lightgrey) !important;
+                }
             }
         }
     }

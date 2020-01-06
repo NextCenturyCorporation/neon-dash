@@ -24,16 +24,16 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload } from 'component-library/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from 'component-library/dist/core/date.util';
-import { AbstractFilterDesign, FilterCollection } from 'component-library/dist/core/models/filters';
+import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
+import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { CoreUtil } from 'component-library/dist/core/core.util';
-import { FieldConfig } from 'component-library/dist/core/models/dataset';
+import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 import {
     OptionChoices,
     SortOrder,
@@ -42,7 +42,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -145,28 +145,40 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
+     * @arg {SearchObject} SearchObject
+     * @arg {FilterClause[]} filters
+     * @return {SearchObject}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
+    finalizeVisualizationQuery(options: any, query: SearchObject, filters: FilterClause[]): SearchObject {
+        let filter: FilterClause = this.searchService.createFilterClause({
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: this.options.dataField.columnName
+        } as FieldKey, '!=', null);
 
         // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldConfig objects.
-        let fields = CoreUtil.flatten(options.metadataFields).map((item) => item.field)
-            .concat(CoreUtil.flatten(options.popoutFields).map((item) => item.field));
-
-        if (fields.length) {
-            this.searchService.updateFields(query, fields);
-        }
+        CoreUtil.flatten(options.metadataFields).map((item) => item.field)
+            .concat(CoreUtil.flatten(options.popoutFields).map((item) => item.field)).forEach((field) => {
+                this.searchService.withField(query, {
+                    datastore: options.datastore.name,
+                    database: options.database.name,
+                    table: options.table.name,
+                    field
+                } as FieldKey);
+            });
 
         if (options.sortField.columnName) {
-            this.searchService.updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING :
-                SortOrder.ASCENDING);
+            this.searchService.withOrder(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.sortField.columnName
+            } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)));
+        this.searchService.withFilter(query, this.searchService.createCompoundFilterClause(filters.concat(filter)));
 
         return query;
     }

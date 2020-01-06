@@ -19,7 +19,7 @@ import {
     DatastoreConfig,
     FieldConfig,
     TableConfig
-} from 'component-library/dist/core/models/dataset';
+} from 'nucleus/dist/core/models/dataset';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -33,7 +33,7 @@ import {
     isFieldOption,
     OptionChoices,
     OptionType
-} from 'component-library/dist/core/models/config-option';
+} from 'nucleus/dist/core/models/config-option';
 
 export class OptionConfig {
     constructor(protected config: any = {}) { }
