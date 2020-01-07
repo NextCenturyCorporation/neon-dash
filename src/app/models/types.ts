@@ -213,6 +213,7 @@ export interface NeonConfig {
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
+    neonTools?: any;
     errors?: any[];
     fileName?: string;
     lastModified?: number;
@@ -227,6 +228,7 @@ export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
             about: '',
+            neonTools: {},
             errors: [],
             layouts: {},
             neonServerUrl: '',

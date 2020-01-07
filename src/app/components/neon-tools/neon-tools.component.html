@@ -1,0 +1,36 @@
+<div class="container">
+    <nav>
+        <span>Neon Tools</span>
+        <span>Program Information</span>
+        <span>Data Sources</span>
+        <span>Dashboards</span>
+        <span>Permissions</span>
+        <span>Help</span>
+    </nav>
+    <section class="program-info" *ngIf="programName || programSponsor || programManager || principalInvestigator">
+        <span *ngIf="programName">Program Name: {{ programName }}</span>
+        <span *ngIf="programSponsor">Program Sponsor: {{ programSponsor }}</span>
+        <span *ngIf="programManager">Program Manager: {{ programManager }}</span>
+        <span *ngIf="principalInvestigator">PI: {{ principalInvestigator }}</span>
+    </section>
+    <section class="contributors" *ngIf="contributors && contributors.length">
+        <header>
+            <span>Contributors</span>
+            <p>{{ 'This dashboard illustrates the hard work by serveral fine contributors, as part of the ' + programSponsor + ' ' +
+                programName + ' program.' }}</p>
+        </header>
+        <main>
+            <a *ngFor="let contributor of contributors" class="contributor-detail" [href]="contributor.url" target="_blank">
+                <span>
+                    <img [src]="'./assets/custom/' + contributor.img.src" />
+                </span>
+                <span>
+                    <span>{{contributor.name}}</span>
+                    <span>{{contributor.contact.name}}</span>
+                    <span><i>{{contributor.contact.phone}}</i></span>
+                    <span><i>{{contributor.contact.email}}</i></span>
+                </span>
+            </a>
+        </main>
+    </section>
+</div>

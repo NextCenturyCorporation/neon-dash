@@ -16,18 +16,26 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { RouteDashboardComponent } from './route-dashboard.component';
 import { RouteRequestComponent } from './route-request.component';
+import { RouteNeontoolsComponent } from './route-neontools.component';
 
-const routes: Routes = [{
-    path: 'submit',
-    component: RouteRequestComponent,
-    children: [{
+const routes: Routes = [
+    {
+        path: 'submit',
+        component: RouteRequestComponent,
+        children: [{
+            path: '**',
+            component: RouteRequestComponent
+        }]
+    },
+    {
+        path: 'neon-tools',
+        component: RouteNeontoolsComponent
+    },
+    {
         path: '**',
-        component: RouteRequestComponent
-    }]
-}, {
-    path: '**',
-    component: RouteDashboardComponent
-}];
+        component: RouteDashboardComponent
+    }
+];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],
