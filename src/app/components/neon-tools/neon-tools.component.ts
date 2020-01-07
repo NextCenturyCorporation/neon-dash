@@ -22,6 +22,10 @@ import { NeonConfig } from '../../models/types';
     styleUrls: ['./neon-tools.component.css']
 })
 export class NeonToolsComponent implements OnInit {
+    programName: string;
+    programSponsor: string;
+    programManager: string;
+    principalInvestigator: string;
     contributors: any[];
 
     constructor(private configService: ConfigService) { }
@@ -29,6 +33,10 @@ export class NeonToolsComponent implements OnInit {
     ngOnInit() {
         this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
             if (typeof neonConfig.neonTools === 'object') {
+                this.programName = neonConfig.neonTools.programName;
+                this.programSponsor = neonConfig.neonTools.programSponsor;
+                this.programManager = neonConfig.neonTools.programManager;
+                this.principalInvestigator = neonConfig.neonTools.principalInvestigator;
                 this.contributors = neonConfig.neonTools.contributors;
             }
         });

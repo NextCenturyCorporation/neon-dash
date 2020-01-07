@@ -7,21 +7,22 @@
         <span>Permissions</span>
         <span>Help</span>
     </nav>
-    <section class="program-info">
-        <span>Program Name: LORELEI</span>
-        <span>Program Sponsor: DARPA</span>
-        <span>Program Manager: Boyan Onyshkevych</span>
-        <span>PI: Jill Crisman</span>
+    <section class="program-info" *ngIf="programName || programSponsor || programManager || principalInvestigator">
+        <span *ngIf="programName">Program Name: {{ programName }}</span>
+        <span *ngIf="programSponsor">Program Sponsor: {{ programSponsor }}</span>
+        <span *ngIf="programManager">Program Manager: {{ programManager }}</span>
+        <span *ngIf="principalInvestigator">PI: {{ principalInvestigator }}</span>
     </section>
-    <section class="contributors">
+    <section class="contributors" *ngIf="contributors && contributors.length">
         <header>
-            <span>Contributers</span>
-            <p>This dashboard illustrates the hard work by serveral fine contributors, as part of the DARPA LORELEI program.</p>
+            <span>Contributors</span>
+            <p>{{ 'This dashboard illustrates the hard work by serveral fine contributors, as part of the ' + programSponsor + ' ' +
+                programName + ' program.' }}</p>
         </header>
-        <main *ngIf="contributors">
+        <main>
             <a *ngFor="let contributor of contributors" class="contributor-detail" [href]="contributor.url" target="_blank">
                 <span>
-                    <img [width]="contributor.img.width" [height]="contributor.img.height" [src]="contributor.img.src" />
+                    <img [src]="'./assets/custom/' + contributor.img.src" />
                 </span>
                 <span>
                     <span>{{contributor.name}}</span>
