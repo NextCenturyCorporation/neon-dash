@@ -4,7 +4,6 @@
             <mat-toolbar class="title">
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>
-
             <div class="right-panel-container" [ngSwitch]="currentPanel">
                 <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}">
                 </wt-lazy>
@@ -83,15 +82,12 @@
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
                 </button>
+                <button mat-menu-item (click)="openNeonTools()">
+                    <mat-icon>grid_on</mat-icon>Neon Tools
+                </button>
                 <button mat-menu-item (click)="setPanel('aboutNeon', 'About');">
                     <mat-icon>info</mat-icon>About This Neon Dashboard
                 </button>
-
-                <!-- TODO THOR-1056
-                <button mat-menu-item (click)="setPanel('customConnection', 'Add Custom Data Source')" *ngIf="showCustomConnectionButton">
-                    <mat-icon>storage</mat-icon>Add Custom Data Source
-                </button>
-                -->
             </mat-menu>
         </mat-toolbar>
 
