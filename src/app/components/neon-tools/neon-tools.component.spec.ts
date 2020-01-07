@@ -22,12 +22,9 @@ describe('Component: NeonToolsComponent', () => {
     let component: NeonToolsComponent;
     let fixture: ComponentFixture<NeonToolsComponent>;
 
-    let configData =
-  {
-      neonTools:
-    {
-        contributors: [
-            {
+    let configData = {
+        neonTools: {
+            contributors: [{
                 name: 'CMU',
                 img: {
                     height: 10,
@@ -40,8 +37,7 @@ describe('Component: NeonToolsComponent', () => {
                     phone: '911',
                     email: 'test@cmu.edu'
                 }
-            },
-            {
+            }, {
                 name: 'MIT',
                 img: {
                     height: 10,
@@ -54,11 +50,11 @@ describe('Component: NeonToolsComponent', () => {
                     phone: '411',
                     email: 'test@mit.edu'
                 }
-            }
-        ]
-    }
-  };
+            }]
+        }
+    };
 
+    /* eslint-disable-next-line jasmine/no-unsafe-spy */
     let mockConfigService = jasmine.createSpyObj('configService', ['getActive']);
     mockConfigService.getActive.and.returnValue(of(configData));
 
@@ -81,7 +77,7 @@ describe('Component: NeonToolsComponent', () => {
     });
 
     it('should use configService to get neon tools config data', () => {
-        expect(mockConfigService.getActive).toHaveBeenCalled();
+        expect(mockConfigService.getActive).toHaveBeenCalledWith();
         expect(component.contributors).toEqual(configData.neonTools.contributors);
     });
 });
