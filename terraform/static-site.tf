@@ -122,7 +122,7 @@ resource "aws_cloudfront_distribution" "site" {
     }
     custom_header {
       name = "Authorization"
-      value = "Basic ***REMOVED***"
+      value = "Basic BASE64_USERNAME_PASSWORD"
     }
   }
 

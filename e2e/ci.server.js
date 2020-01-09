@@ -7,7 +7,7 @@ app.use(express.static('dist'));
 app.use('/', proxy('neon-server.nc-demo.com', {
   filter: (req) => req.path.includes('/neon/'),
   proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
-    proxyReqOpts.headers['Authorization'] = 'Basic ***REMOVED***';
+    proxyReqOpts.headers['Authorization'] = 'Basic BASE64_USERNAME_PASSWORD';
     return proxyReqOpts;
   }
 }));
