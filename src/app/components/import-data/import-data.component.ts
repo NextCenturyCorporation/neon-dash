@@ -266,4 +266,8 @@ export class ImportDataComponent implements OnDestroy {
     private importEnd() {
         this.importStatus = ImportStatus.COMPLETED;
     }
+
+    public inProgress(status: ImportStatus): boolean {
+        return status === ImportStatus.IN_PROGRESS;
+    }
 }

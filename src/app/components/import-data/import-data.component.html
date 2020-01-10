@@ -55,8 +55,8 @@
         <button mat-raised-button matTooltipPosition="below" matTooltip="Cancel import of file content" (click)="onCancel()">
             Cancel
         </button>
-        <button [disabled]="inProgress || importForm.invalid" mat-raised-button matTooltipPosition="below" matTooltip="Import file content"
-            (click)="onImportClick()">
+        <button [disabled]="inProgress(importStatus) || importForm.invalid" mat-raised-button matTooltipPosition="below"
+            matTooltip="Import file content" (click)="onImportClick()">
             Import
         </button>
     </div>
