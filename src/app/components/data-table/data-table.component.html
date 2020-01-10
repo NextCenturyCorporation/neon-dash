@@ -32,7 +32,8 @@
                 [selected]="selected"
                 [selectionType]="'multi'"
                 (resize)="onTableResize($event)"
-                (select)="onSelect($event)">
+                (select)="onSelect($event)"
+                (sort)="onSort($event)">
 
                 <ngx-datatable-column *ngFor="let header of activeHeaders" [name]="header.name" [prop]="header.prop"
                     [width]="header.widthUser || header.widthAuto">

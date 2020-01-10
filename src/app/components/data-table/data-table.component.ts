@@ -490,6 +490,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
+    public onSort(event: any): void {
+        this.options.sortField = this.options.findField(event.column.prop);
+        this.options.sortDescending = (event.newValue === 'desc');
+        this.handleChangeOptions();
+    }
+
     public onTableResize(event: any): void {
         this.headers.forEach((header) => {
             if (header.prop === event.column.prop) {
