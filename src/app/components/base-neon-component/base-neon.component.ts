@@ -1073,7 +1073,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
     public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
-            (this.options.contributionKeys === null &&
+            (!this.options.contributionKeys &&
                 this.dashboardState.dashboard &&
                 this.dashboardState.dashboard.contributors &&
                 Object.keys(this.dashboardState.dashboard.contributors).length));

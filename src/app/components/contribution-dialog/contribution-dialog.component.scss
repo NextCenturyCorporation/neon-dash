@@ -41,7 +41,7 @@
 .contributor {
     display: flex;
     flex-direction: row;
-    margin: 2px;
+    margin: 5px;
 
     .contributor-logo {
         max-width: 100px;
@@ -57,7 +57,7 @@
     .details {
         margin: 5px;
         flex-direction: column;
-        max-width: 250px;
+        max-width: 360px;
     }
 }
 

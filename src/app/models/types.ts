@@ -125,12 +125,13 @@ export interface NeonDashboardOptions {
 }
 
 export interface NeonContributor {
-    orgName: string;
     abbreviation: string;
-    contactName: string;
-    contactEmail: string;
-    website: string;
-    logo: string;
+    orgName?: string;
+    contactName?: string;
+    contactEmail?: string;
+    website?: string;
+    logo?: string;
+    description?: string;
 }
 
 export interface NeonDashboardBaseConfig {
