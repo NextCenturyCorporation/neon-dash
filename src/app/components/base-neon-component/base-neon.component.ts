@@ -374,6 +374,10 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             let query: SearchObject = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
+                if (this.options.datastore.type === 'elasticsearch' || this.options.datastore.type === 'elasticsearchrest') {
+                    this.options.limit = Math.min(this.options.limit, 10000);
+                }
+
                 this.searchService.withLimit(query, this.options.limit);
 
                 if (this.visualizationQueryPaginates) {
