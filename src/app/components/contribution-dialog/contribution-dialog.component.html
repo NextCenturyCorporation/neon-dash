@@ -1,19 +1,18 @@
 <div class="contribution-header">
-    <div class="contribution-title">Contributors</div>
+    <div>Contributors</div>
     <button mat-icon-button aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="dialogRef.close('close')">
         <mat-icon>close</mat-icon>
     </button>
 </div>
 <div class="contribution-body">
-    <div>The following organizations contributed to this display:</div>
     <div *ngFor="let item of data" class="contributor">
         <div class="contributor-logo" *ngIf="item.logo">
             <img src="./assets/custom/{{item.logo}}">
         </div>
 
         <div class="details">
-            <div *ngIf="item.orgName">{{ item.orgName }}</div>
-            <div *ngIf="item.contactName">{{ item.contactName }}</div>
+            <div *ngIf="item.orgName"><b>{{ item.orgName }}</b></div>
+            <div *ngIf="item.contactName"><i>{{ item.contactName }}</i></div>
             <div *ngIf="item.contactEmail"><a [href]="getEmailLink(item.contactEmail)">{{ item.contactEmail }}</a></div>
             <div *ngIf="item.website"><a [href]="item.website" target="_blank">{{ item.website }}</a></div>
             <div *ngIf="item.description">{{ item.description }}</div>
