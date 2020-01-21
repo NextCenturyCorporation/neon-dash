@@ -206,7 +206,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         const showFieldNames: string[] = (this.options.showFields || []).filter((fieldObject) => !!fieldObject.columnName)
             .map((fieldObject) => fieldObject.columnName);
 
-        this.headers = this.options.fields.map((fieldObject) => ({
+        let createHeaderObject = (fieldObject) => ({
             cellClass: this.getCellClassFunction(),
             prop: fieldObject.columnName,
             name: fieldObject.prettyName,
@@ -215,7 +215,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             style: {},
             widthAuto: this.retrieveConfiguredColumnWidth(fieldObject.columnName) || this.MINIMUM_COLUMN_WIDTH,
             widthUser: null
-        }));
+        });
+
+        // Keep the headers in the order of showFields.
+        this.headers = this.options.showFields.map(createHeaderObject).concat(this.options.fields.filter((fieldObject) =>
+            showFieldNames.indexOf(fieldObject.columnName) < 0).map(createHeaderObject));
 
         this.recalculateActiveHeaders();
     }
