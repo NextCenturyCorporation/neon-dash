@@ -374,7 +374,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             let query: SearchObject = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
-                if (this.options.datastore.type === 'elasticsearch' || this.options.datastore.type === 'elasticsearchrest') {
+                if (queryOptions.datastore && (queryOptions.datastore.type === 'elasticsearch' ||
+                    queryOptions.datastore.type === 'elasticsearchrest')) {
                     this.options.limit = Math.min(this.options.limit, 10000);
                 }
 
@@ -484,11 +485,15 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
 
         return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
-            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toDesign()));
+            this.shouldFilterSelf() ? [] : this.retrieveCompatibleFiltersToIgnore(compatibleFilters));
     }
 
     private retrieveCompatibleFilters(): FilterCollection {
         return this.filterService.retrieveCompatibleFilterCollection(this.designEachFilterWithNoValues());
+    }
+
+    protected retrieveCompatibleFiltersToIgnore(compatibleFilters: AbstractFilter[]): AbstractFilterDesign[] {
+        return compatibleFilters.map((filter) => filter.toDesign());
     }
 
     /**
