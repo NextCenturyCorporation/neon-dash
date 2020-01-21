@@ -973,9 +973,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.aggregationData = shownResults;
 
-        // Set the legend groups with the original groups.
+        // Set legendGroups to groups.  Only update legendGroups if groups is bigger (filters were removed).
         let groups = Array.from(groupsToColors.keys()).sort();
-        if (!this.legendGroups.length) {
+        if (this.legendGroups.length < groups.length) {
             this.legendGroups = groups;
         }
 
@@ -1262,6 +1262,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.colorKeys = [this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
+    }
+
+    /**
+     * @override
+     */
+    protected retrieveCompatibleFiltersToIgnore(compatibleFilters: AbstractFilter[]): AbstractFilterDesign[] {
+        // Never ignore legend filters.
+        let groupFieldKey = this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' +
+            this.options.groupField.columnName;
+        return compatibleFilters.map((filter) => filter.toDesign()).filter((filterDesign) =>
+            !(filterDesign instanceof ListFilterDesign && filterDesign.fieldKey === groupFieldKey && filterDesign.operator === '!='));
     }
 
     canHaveDatePicker(): boolean {

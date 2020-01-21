@@ -4345,6 +4345,41 @@ describe('Component: Aggregation', () => {
         let selection = fixture.debugElement.query(By.css('.body-container .subcomponent-container .subcomponent-selection'));
         expect(selection).not.toBeNull();
     }));
+
+    it('retrieveCompatibleFiltersToIgnore does return non-legend filters', () => {
+        component.options.groupField = FieldConfig.get();
+        expect(component['retrieveCompatibleFiltersToIgnore']([
+            new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testName'], 'testId1'),
+            new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testType'], 'testId2')
+        ])).toEqual([
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testName'], 'testId1'),
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testType'], 'testId2')
+        ]);
+    });
+
+    it('retrieveCompatibleFiltersToIgnore does ignore legend filters', () => {
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.TYPE;
+        expect(component['retrieveCompatibleFiltersToIgnore']([
+            new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testName'], 'testId1'),
+            new ListFilter(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', ['testType'], 'testId2')
+        ])).toEqual([
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.NAME.columnName, '!=', ['testName'], 'testId1')
+        ]);
+    });
 });
 
 describe('Component: Aggregation with config', () => {
