@@ -384,6 +384,7 @@ export class DashboardService {
                 }
                 return datastores;
             }, this.config.datastores || {}),
+            hideImport: config.hideImport,
             layouts: _.cloneDeep(config.layouts || {}),
             lastModified: config.lastModified,
             projectTitle: config.projectTitle,

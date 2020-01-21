@@ -214,12 +214,13 @@ export interface NeonConfig {
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
-    neonTools?: any;
     errors?: any[];
     fileName?: string;
+    hideImport?: boolean;
     lastModified?: number;
     modified?: boolean;
     neonServerUrl?: string;
+    neonTools?: any;
     projectIcon?: string;
     projectTitle?: string;
     version?: string;
@@ -229,10 +230,11 @@ export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
             about: '',
-            neonTools: {},
             errors: [],
+            hideImport: false,
             layouts: {},
             neonServerUrl: '',
+            neonTools: {},
             projectIcon: '',
             projectTitle: '',
             version: '',

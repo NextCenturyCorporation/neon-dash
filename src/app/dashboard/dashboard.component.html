@@ -68,7 +68,7 @@
                     <mat-icon>add_circle</mat-icon>Add Visualizations
                 </button>
                 <button mat-menu-item (click)="setPanel('savedState', 'Create or Save Dashboard');">
-                    <mat-icon>save</mat-icon>Dashboard States
+                    <mat-icon>save</mat-icon>Saved Dashboards
                 </button>
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
@@ -76,14 +76,14 @@
                 <button mat-menu-item *ngIf="showCustomRequestsMenuItem()" (click)="setPanel('customRequests', '');">
                     <mat-icon>save_alt</mat-icon>{{ retrieveCustomRequestsDisplayLabel() }}
                 </button>
-                <button mat-menu-item (click)="setPanel('importData', 'Import CSV');">
+                <button mat-menu-item *ngIf="showImport" (click)="setPanel('importData', 'Import CSV');">
                     <mat-icon>cloud_upload</mat-icon>Import CSV
                 </button>
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
                 </button>
                 <button mat-menu-item (click)="openNeonTools()">
-                    <mat-icon>grid_on</mat-icon>Neon Tools
+                    <mat-icon>build</mat-icon>Neon Tools
                 </button>
                 <button mat-menu-item (click)="setPanel('aboutNeon', 'About');">
                     <mat-icon>info</mat-icon>About This Neon Dashboard

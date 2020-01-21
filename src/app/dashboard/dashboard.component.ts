@@ -84,13 +84,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     configurableComponent: ConfigurableWidget;
 
     currentPanel: string;
+
     showCustomConnectionButton: boolean = false;
+    showDashboardSelector: boolean = false;
     showFiltersComponent: boolean = false;
     showFilterTray: boolean = false;
-
-    // Toolbar
+    showImport: boolean = false;
     showVisualizationsShortcut: boolean = true;
-    showDashboardSelector: boolean = false;
 
     rightPanelTitle: string;
 
@@ -168,6 +168,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.dashboardService.configSource
             .pipe(distinctUntilKeyChanged('fileName'))
             .subscribe((config) => {
+                this.showImport = !config.hideImport;
                 this.setTitleAndIcon(
                     config.projectTitle || 'Neon',
                     config.projectIcon || 'assets/favicon.blue.ico?v=1'
