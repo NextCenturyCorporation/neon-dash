@@ -1,179 +1,146 @@
 {
-    "dashboard": {
-        "translationKeys": {
-            "google": "API_KEY"
-        }
-    },
-
-    "datasets": [{
-        "name": "Earthquakes",
-        "datastore": "elasticsearch",
-        "hostname": "localhost",
-        "connectOnLoad": true,
-        "databases": [{
-            "name": "earthquakes",
-            "prettyName": "Earthquake Data",
-            "tables": [{
-                "name": "quakedata",
-                "prettyName": "Earthquakes",
-                "fields": [ {
-                    "columnName": "id",
-                    "prettyName": "ID"
-                },{
-                    "columnName": "time",
-                    "prettyName": "Time"
-                }, {
-                    "columnName": "latitude",
-                    "prettyName": "Latitude"
-                }, {
-                    "columnName": "longitude",
-                    "prettyName": "Longitude"
-                }, {
-                    "columnName": "depth",
-                    "prettyName": "Depth"
-                }, {
-                    "columnName": "mag",
-                    "prettyName": "Magnitude"
-                }, {
-                    "columnName": "magType",
-                    "prettyName": "Magnitude Type"
-                },{
-                    "columnName": "net",
-                    "prettyName": "Net"
-                }, {
-                    "columnName": "type",
-                    "prettyName": "Type"
-                }],
-                "mappings": {
-                    "date": "time",
-                    "latitude": "latitude",
-                    "longitude": "longitude",
-                    "id": "id"
+  "datastores": {
+    "es1": {
+      "host": "localhost",
+      "type": "elasticsearch",
+      "databases": {
+        "earthquakes": {
+          "prettyName": "Earthquakes",
+          "tables": {
+            "quakedata": {
+              "prettyName": "Earthquake Data",
+              "fields": [
+                {
+                  "columnName": "id",
+                  "prettyName": "ID"
+                },
+                {
+                  "columnName": "depth",
+                  "prettyName": "Depth"
+                },
+                {
+                  "columnName": "latitude",
+                  "prettyName": "Latitude"
+                },
+                {
+                  "columnName": "longitude",
+                  "prettyName": "Longitude"
+                },
+                {
+                  "columnName": "mag",
+                  "prettyName": "Magnitude"
+                },
+                {
+                  "columnName": "magType",
+                  "prettyName": "Magnitude Type"
+                },
+                {
+                  "columnName": "net",
+                  "prettyName": "Net"
+                },
+                {
+                  "columnName": "time",
+                  "prettyName": "Time"
+                },
+                {
+                  "columnName": "type",
+                  "prettyName": "Type"
+                },
+                {
+                  "columnName": "_id",
+                  "prettyName": "ES ID"
                 }
-            }]
-        }]
-    }],
-
-    "layouts": {
-        "default": [
-          {
-                "sizex": 10,
-                "sizey": 3,
-                "row": 1,
-                "col": 1,
-                "type": "filterBuilder",
-                "bindings": {
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "title": "Earthquake Filter Builder"
-                }
-            },
-            {
-                "sizex": 5,
-                "sizey": 5,
-                "row": 4,
-                "col": 1,
-                "type": "timeline",
-                "bindings": {
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "dateField": "time",
-                    "title": "Earthquake Activity"
-                }
-            },
-            {
-                "sizex": 5,
-                "sizey": 5,
-                "row": 4,
-                "col": 5,
-                "type": "scatterPlot",
-                "bindings": {
-                    "title" : "Mangitude vs Depth",
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "xField": "depth",
-                    "yField": "mag"
-                }
-            },
-            {
-                "sizex": 10,
-                "sizey": 6,
-                "type": "map",
-                "row":10,
-                "col": 1,
-                "bindings": {
-                    "title":"Earthquake Locations ",
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "latitudeField": "latitude",
-                    "longitudeField": "longitude",
-                    "dateField": "time",
-                    "colorField": "type",
-                    "limit": 5000
-
-                }
-            },
-            {
-                "sizex":3,
-                "sizey": 6,
-                "row": 16,
-                "col":1,
-                "type": "barChart",
-                "bindings": {
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "dataField": "type",
-                    "aggregation": "count",
-                    "title":"Earthquake Type"
-                }
-            },
-            {
-                "sizex": 3,
-                "sizey": 6,
-                "row": 16,
-                "col":3,
-                "type": "lineChart",
-                "bindings": {
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "dateField": "time",
-                    "groupField": "type",
-                    "aggregation": "count",
-                    "title":"Earthquake Type over Time"
-                }
-            },    {
-                "sizex": 2,
-                "sizey": 6,
-                "row":16,
-                "col":13,
-                "type": "textCloud",
-                "bindings": {
-                    "title":"Magnitude Type",
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "dataField": "magType"
-                }
-            },
-            {
-                "sizex": 12,
-                "sizey": 6,
-                "type": "dataTable",
-                "bindings": {
-                "title":"Earthquake Data",
-                    "database": "earthquakes",
-                    "table": "quakeData",
-                    "sortField": "time",
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "id",
-                        "time",
-                        "latitude",
-                        "longitude",
-                        "mag",
-                        "depth"
-                    ]
-                }
+              ]
             }
-        ]
+          }
+        }
+      }
     }
+  },
+  "dashboards": {
+    "name": "Earthquakes Dashboard",
+    "layout": "earthquakes_layout",
+    "options": {
+      "connectOnLoad": true
+    }
+  },
+  "layouts": {
+    "earthquakes_layout": [
+      {
+        "type": "dataTable",
+        "col": 1,
+        "row": 1,
+        "sizex": 4,
+        "sizey": 6,
+        "bindings": {
+          "title": "Data",
+          "tableKey": "es1.earthquakes.quakedata",
+          "sortField": "es1.eqarthquakes.quakedata.time",
+          "showFields": [
+            "es1.eqarthquakes.quakedata.time",
+            "es1.eqarthquakes.quakedata.net",
+            "es1.eqarthquakes.quakedata.latitude",
+            "es1.eqarthquakes.quakedata.longitude",
+            "es1.eqarthquakes.quakedata.type",
+            "es1.eqarthquakes.quakedata.depth",
+            "es1.eqarthquakes.quakedata.mag",
+            "es1.eqarthquakes.quakedata.magType"
+          ]
+        }
+      },
+      {
+        "type": "aggregation",
+        "col": 1,
+        "row": 7,
+        "sizex": 4,
+        "sizey": 6,
+        "bindings": {
+          "title": "Networks",
+          "type": "bar-h",
+          "tableKey": "es1.earthquakes.quakedata",
+          "xField": "es1.eqarthquakes.quakedata.net",
+          "groupField": "es1.eqarthquakes.quakedata.net",
+          "sortByAggregation": true,
+          "ignoreSelf": true
+        }
+      },
+      {
+        "type": "map",
+        "col": 5,
+        "row": 1,
+        "sizex": 4,
+        "sizey": 12,
+        "bindings": {
+          "title": "Locations",
+          "tableKey": "es1.earthquakes.quakedata",
+          "limit": 5000,
+          "layers": [
+            {
+              "title": "Earthquakes Layer",
+              "tableKey": "es1.earthquakes.quakedata",
+              "latitudeField": "es1.eqarthquakes.quakedata.latitude",
+              "longitudeField": "es1.eqarthquakes.quakedata.longitude",
+              "colorField": "es1.eqarthquakes.quakedata.net"
+            }
+          ]
+        }
+      },
+      {
+        "type": "aggregation",
+        "icon": "bar_chart",
+        "col": 9,
+        "row": 1,
+        "sizex": 4,
+        "sizey": 6,
+        "bindings": {
+          "title": "Timeline",
+          "type": "histogram",
+          "tableKey": "es1.earthquakes.quakedata",
+          "xField": "es1.eqarthquakes.quakedata.time",
+          "groupField": "es1.eqarthquakes.quakedata.net",
+          "granularity": "dayOfMonth"
+        }
+      }
+    ]
+  }
 }

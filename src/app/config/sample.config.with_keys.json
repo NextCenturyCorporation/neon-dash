@@ -33,6 +33,19 @@ datastores:
 dashboards:
     name: Earthquakes Dashboard
     layout: earthquakes_layout
+    tables:
+        table_key_1: es1.earthquakes.quakedata
+    fields:
+        id_key: es1.eqarthquakes.quakedata.id
+        depth_key: es1.eqarthquakes.quakedata.depth
+        latitude_key: es1.eqarthquakes.quakedata.latitude
+        longitude_key: es1.eqarthquakes.quakedata.longitude
+        mag_key: es1.eqarthquakes.quakedata.mag
+        mag_type_key: es1.eqarthquakes.quakedata.magType
+        net_key: es1.eqarthquakes.quakedata.net
+        time_key: es1.eqarthquakes.quakedata.time
+        type_key: es1.eqarthquakes.quakedata.type
+        _id_key: es1.eqarthquakes.quakedata._id
     options:
         connectOnLoad: true
 
@@ -45,17 +58,17 @@ layouts:
           sizey: 6
           bindings:
               title: Data
-              tableKey: es1.earthquakes.quakedata
-              sortField: es1.eqarthquakes.quakedata.time
+              tableKey: table_key_1
+              sortField: time_key
               showFields:
-                  - es1.eqarthquakes.quakedata.time
-                  - es1.eqarthquakes.quakedata.net
-                  - es1.eqarthquakes.quakedata.latitude
-                  - es1.eqarthquakes.quakedata.longitude
-                  - es1.eqarthquakes.quakedata.type
-                  - es1.eqarthquakes.quakedata.depth
-                  - es1.eqarthquakes.quakedata.mag
-                  - es1.eqarthquakes.quakedata.magType
+                  - time_key
+                  - net_key
+                  - latitude_key
+                  - longitude_key
+                  - type_key
+                  - depth_key
+                  - mag_key
+                  - mag_type_key
         - type: aggregation
           col: 1
           row: 7
@@ -64,9 +77,9 @@ layouts:
           bindings:
               title: Networks
               type: bar-h
-              tableKey: es1.earthquakes.quakedata
-              xField: es1.eqarthquakes.quakedata.net
-              groupField: es1.eqarthquakes.quakedata.net
+              tableKey: table_key_1
+              xField: net_key
+              groupField: net_key
               sortByAggregation: true
               ignoreSelf: true
         - type: map
@@ -76,14 +89,14 @@ layouts:
           sizey: 12
           bindings:
               title: Locations
-              tableKey: es1.earthquakes.quakedata
+              tableKey: table_key_1
               limit: 5000
               layers:
                   - title: Earthquakes Layer
-                    tableKey: es1.earthquakes.quakedata
-                    latitudeField: es1.eqarthquakes.quakedata.latitude
-                    longitudeField: es1.eqarthquakes.quakedata.longitude
-                    colorField: es1.eqarthquakes.quakedata.net
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    colorField: net_key
         - type: aggregation
           icon: bar_chart
           col: 9
@@ -93,8 +106,8 @@ layouts:
           bindings:
               title: Timeline
               type: histogram
-              tableKey: es1.earthquakes.quakedata
-              xField: es1.eqarthquakes.quakedata.time
-              groupField: es1.eqarthquakes.quakedata.net
+              tableKey: table_key_1
+              xField: time_key
+              groupField: net_key
               granularity: dayOfMonth
 
