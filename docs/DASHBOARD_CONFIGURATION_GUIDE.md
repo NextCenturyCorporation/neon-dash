@@ -3,6 +3,7 @@
 ## **Table of Contents**
 * [**The Configuration File**](#the-configuration-file)
   * [**Note on Elasticsearch**](#note-on-elasticsearch)
+  * [**Note on PostgreSQL**](#note-on-postgresql)
   * [**Datastores Object**](#datastores-object)
     * [**Datastores Overview**](#datastores-overview)
     * [**Datastores Example**](#datastores-example)
@@ -19,9 +20,15 @@
     * [**Table and Field Paths**](#table-and-field-paths)
     * [**Dashboard Options Object**](#dashboard-options-object)
     * [**Dashboard Options Object Example**](#dashboard-options-object-example)
-    * [**Relations Object**](#relations-object)
+    * [**Color Maps Object**](#color-maps-object)
+    * [**Color Maps Object Example**](#color-maps-object-example)
+    * [**Contributor Objects**](#contributor-objects)
+    * [**Custom Request Objects**](#custom-request-objects)
+    * [**Custom Requests Object Example**](#custom-requests-object-example)
+    * [**Filter Objects**](#filter-objects)
+    * [**Filters Object Examples**](#filters-object-example)
+    * [**Relation Objects**](#relation-objects)
     * [**Relations Object Example**](#relations-object-example)
-    * [**Contributors Object**](#contributors-object)
   * [**Layouts Example**](#layouts-example)
   * [**Visualization Object**](#visualization-object)
   * [**Visualization Bindings**](#visualization-bindings)
@@ -43,7 +50,7 @@
     * [**Map Layer Object Options**](#map-layer-object-options)
   * [**Other Properties**](#other-properties)
 
-To load a preconfigured Neon Dashboard, create a Neon Dashboard configuration file at [**app/config/config.json**] or [**app/config/config.yaml**].  If **config.json** is present, **config.yaml** will be ignored.
+To load a preconfigured Neon Dashboard, create a Neon Dashboard configuration file at **app/config/config.json** or **app/config/config.yaml**.  If **config.json** is present, **config.yaml** will be ignored.
 
 Sample configuration files are available in the git repository at [**app/config/sample.config.json**](./src/app/config/sample.config.json) and [**app/config/sample.config.yaml**](./src/app/config/sample.config.yaml).
 
@@ -51,31 +58,35 @@ Sample configuration files are available in the git repository at [**app/config/
 
 The configuration file contains the following required properties:
 * **"datastores"** - (Object, Required) Configures the datastores that are available in the Neon Dashboard.  Please see [**Datastores Object**](#datastores-object) for details.
-* **"dashboards"** - (Object, Required) Configures the dashboards that are available in the Neon Dashboard.  Please see [**Dashboards Object**](#dashboards-object) for details.
-* **"layouts"** - (Object, Required) Configures the visualization layouts that are available in the Neon Dashboard.  The **"layouts"** property is a JSON object that maps unique layout names to arrays of visualization objects.  Please see [**Visualization Object**](#visualization-object) for details.
+* **"dashboards"** - (Object, Optional) Configures the dashboards that are available in the Neon Dashboard.  Please see [**Dashboards Object**](#dashboards-object) for details.
+* **"layouts"** - (Object, Optional) Configures the visualization layouts that are available in the Neon Dashboard.  The **"layouts"** property is a JSON object that maps unique layout names to arrays of visualization objects.  Please see [**Visualization Object**](#visualization-object) for details.
 
 Please see [**Other Properties**](#other-properties) for details about other optional configuration file properties.
 
 ### **Note on Elasticsearch**
 
-ES datastores do not have **databases** or **tables** but do have **indexes** and **types**.  In Neon, and its configuration file, **database** properties refer to ES **indexes** and **table** properties refer to ES **types**.
+Elasticsearch does not have **databases** or **tables**; instead, it has **indexes** and **mapping types**. In Neon, we consider **indexes** to be the equivalent of **databases** and **mapping types** to be the equivalent of **tables**.
+
+### **Note on PostgreSQL**
+
+PostgreSQL connections are always database-specific, so any `postgresql` datastore in your config file must have a `host` property that ends with a slash and the database name, like `host:port/database`. In Neon, we consider PostgreSQL **schemas** to be the equivalent of **databases**.
 
 ### **Datastores Object**
 
 #### **Datastores Overview**
 * The **"datastores"** property is a JSON object that maps unique datastore IDs to **datastore** JSON objects.
-* The **datastore** object contains the **"host"**, **"type"**, and **"databases"** properties.
+* Each **datastore** object contains the **"host"**, **"type"**, and **"databases"** properties.
 * The **"databases"** property is a JSON object that maps unique database names to **database** JSON objects.
-* The **database** object contains the **"tables"** property.
+* Each **database** object contains the **"tables"** property.
 * The **"tables"** property is a JSON object that maps unique table names to **table** JSON objects.
-* The **table** object contains optional properties.
+* Each **table** object contains optional properties.
 
 #### **Datastores Example**
 ```yaml
 datastores:
     datastore_id_1:
         host: localhost
-        type: elasticsearchrest
+        type: elasticsearch
         databases:
             database_name_1:
                 prettyName: Database 1
@@ -84,7 +95,7 @@ datastores:
                         prettyName: Table 1
     datastore_id_2:
         host: http://1.2.3.4:9200
-        type: elasticsearchrest
+        type: elasticsearch
         databases:
             database_name_2:
                 prettyName: Database 2
@@ -103,7 +114,7 @@ datastores:
 #### **Datastore Properties**
 * **"databases"** - (Object, Required) The databases for the datastore.  Please see [**Databases Properties**](#databases-properties).
 * **"host"** - (String, Required) The hostname and port of the datastore server.
-* **"type"** - (String, Required) The type of datastore:  elasticsearchrest.
+* **"type"** - (String, Required) The type of datastore, like "elasticsearch" or "mysql".
 
 #### **Database Properties**
 * **"prettyName"** - (String, Optional) The pretty name for the database show in the UI.
@@ -119,7 +130,7 @@ The **"fields"** property is an array of JSON objects with the following propert
 * **"columnName"** - (String, Required) The field name.
 * **"hide"** - (Boolean, Optional) Whether to hide the field in the UI.  Default:  false
 * **"prettyName"** - (String, Optional) The pretty name for the field to show in the UI.
-* **"type"** - (String, Optional) The field type in datastore terminology.  If not included, Neon will determine the field type automatically.
+* **"type"** - (String, Optional) The field type in datastore terminology.  If not included, Neon will determine the field type automatically.  Please see [**Field Types**](https://github.com/NextCenturyCorporation/nucleus-data-server/blob/master/README.md#field-types) for the full list.
 
 #### **Fields Example**
 ```yaml
@@ -153,9 +164,9 @@ labelOptions:
 
 #### **Dashboards Overview**
 * The **"dashboards"** property is a JSON object that corresponds to either a **dashboard selector** or a **dashboard** itself.
-* The **dashboard selector** object contains **"choices"** and **"name"** properties.
+* Each **dashboard selector** object contains **"choices"** and **"name"** properties.
 * The **"choices"** property is a JSON object that maps unique choice IDs to choices for the selector which are either **dashboard selector** objects or **dashboard** objects.
-* The **dashboard** object contains **"name"**, **"layout"**, **"tables"**, and **"fields"** properties, as well as other optional properties.
+* Each **dashboard** object contains **"name"**, **"layout"**, and other optional properties.
 
 #### **Dashboards Example**
 ```yaml
@@ -184,13 +195,14 @@ dashboards:
 * **"name"** - (String, Required) The name of this choice.  The top-level **dashboard selector** object does not need a **"name"**.
 
 #### **Dashboard Properties**
-* **"contributors"** - (Object, Optional) A JSON object that contains dashboard contributors.  Please see [**Contributors Object**](#contributors-object).
+* **"contributors"** - (Object, Optional) A JSON object that maps contributor keys to contributor objects.  Neon will show contributors at the bottom of each widget unless that widget configures its own **"contributorKeys"** (see [**Visualization Bindings**](#visualization-bindings)).  Please see [**Contributor Objects**](#contributor-objects).
 * **"fields"** - (String, Optional) A JSON object that maps the unique field keys to field paths for the fields that are used in this dashboard.  Please see [**Table and Field Paths**](#table-and-field-paths).
+* **"filters"** - (String, Optional) A JSON array that contains dashboard filters that are added to the dashboard on load.  Please see [**Filter Object**](#filter-object).
 * **"layout"** - (String, Required) The layout for the dashboard.
 * **"name"** - (String, Required) The name of this choice.  The dashboard name (shown in the navbar) will be composed from this **"name"** and the **"name"** of each parent choice.
 * **"options"** - (Object, Optional) A JSON object that contains dashboard options.  Please see [**Dashboard Options Object**](#dashboard-options-object).
 * **"relations"** - (Object, Optional) A JSON object that contains dashboard relations.  Please see [**Relations Object**](#relations-object).
-* **"tables"** - (String, Required) A JSON object that maps the unique table keys to table paths for all of the tables that are used in this dashboard.  Please see [**Table and Field Paths**](#table-and-field-paths).
+* **"tables"** - (String, Optional) A JSON object that maps the unique table keys to table paths for all of the tables that are used in this dashboard.  Please see [**Table and Field Paths**](#table-and-field-paths).
 * **"visualizationTitles"** - (Object, Optional) A JSON object that maps unique title keys to strings.
 
 #### **Table and Field Paths**
@@ -199,8 +211,12 @@ dashboards:
 
 #### **Dashboard Options Object**
 The dashboard's **"options"** property is a JSON object that can have the following properties:
-* **"connectOnLoad"** - (Boolean, Optional) Whether this dataset is automatically displayed when the dashboard is first loaded.  If multiple dashboards have this value set to true, only the first one with this field will be loaded. Default: false.
-* **"simpleFilter"** - (Object, Optional) Whether to show the **simple filter** in the navbar and the field on which to filter.  Contains properties **"tableKey"**, **"fieldKey"**, and optionally **"placeholder"**.  The **"tableKey"** must match a key from the dashboard's **"tables"** and the **"fieldKey"** must match a key from the dashboard's **"fields"**.  If **"simpleFilter"** is not defined, the **simple filter** is not shown.
+* **"colorMaps"** - (Object, Optional) A JSON object that contains the specific colors used on specific fields and values.  Please see [**Color Maps Object**](#color-maps-object).
+* **"connectOnLoad"** - (Boolean, Optional) Whether this dataset is automatically displayed when the dashboard is first loaded.  If multiple dashboards have this value set to true, only the first one with this field will be loaded.  If no dashboards have this value set to true, the first one will be loaded.  Default: false.
+* **"customRequests"** - (Object, Optional) A JSON object that contains the data for the REST endpoints that can be accessed within the UI.  Please see [**Custom Request Objects**](#custom-request-objects).
+* **"customRequestsDisplayLabel"** - (String, Optional) The display label for the navbar menu item to access the configured **"customRequests"**.  Default:  "Custom Requests"
+* **"hideFilterValues"** - (Boolean, Optional) Whether to hide the filtered values within the navbar filter chip elements.  This option can be toggled within the UI.  Default:  false
+* **"simpleFilter"** - (Object, Optional) Whether to show the **simple filter** (search box) in the navbar and the field on which to filter.  Contains properties **"tableKey"**, **"fieldKey"**, and optionally **"placeholder"**.  The **"tableKey"** must match a key from the dashboard's **"tables"** and the **"fieldKey"** must match a key from the dashboard's **"fields"**.  If **"simpleFilter"** is not defined, the **simple filter** is not shown.
 
 #### **Dashboard Options Object Example**
 ```yaml
@@ -212,7 +228,82 @@ options:
         placeholder: "Search..."
 ```
 
-#### **Relations Object**
+#### **Color Maps Object**
+The **"colorMaps"** property is a JSON object that maps database names to table names to field names to values and colors.  Whenever a dashboard is configured to show a color for one of the listed values, the configured color is used.  Colors can be either hex or RGB strings.
+
+#### **Color Maps Object Example**
+```yaml
+colorMaps:
+  database_1:
+    table_1:
+      field_1:
+        value_1: '#FF0000'
+        value_2: '#00FF00'
+        value_3: '#0000FF'
+```
+
+#### **Contributor Objects**
+
+Each **contributor** object can have the following properties:
+
+* **"abbreviation"** - (String, Required) The contributor's abbreviation to show in the widgets.
+* **"contactEmail"** - (String, Optional) The contributor's contact email address.
+* **"contactName"** - (String, Optional) The contributor's contact name.
+* **"description"** - (String, Optional) The contributor's description.
+* **"logo"** - (String, Optional) The contributor's logo.  This file path must be located within the Neon Dashboard's `src/app/assets/custom/` folder.
+* **"orgName"** - (String, Optional) The contributor's organization name.
+* **"website"** - (String, Optional) The contributor's website.
+
+#### **Custom Request Objects**
+
+Each **custom request** object can have the following properties:
+
+* **"date"** - (String, Optional) If set, Neon will automatically append the current timestamp to the request's body as a property named by this string.  Default:  none
+* **"endpoint"** - (String, Required) The REST endpoint for the request.
+* **"id"** - (String, Optional) If set, Neon will automatically generate a unique ID for the request and append it to the request body as a property named by this string.  Default:  none
+* **"notes"** - (String, Optional) Notes for the request to show the user.  Default:  none
+* **"pretty"** - (String, Required) The pretty name for the request to show the user.
+* **"properties"** - (String, Optional) An array of JSON objects for the request body.  Neon will show a dropdown or text input box for each object.  Each object can have:
+  * **"choices"** - (Array, Optional) An array of JSON objects that Neon will show as choices in a dropdown; if not defined, Neon will show a text input box.  Each object must have a **"pretty"** property containing the pretty name to show in the dropdown and a **"value"** property containing the actual value to send in the request body.
+  * **"name"** - (String, Required) The actual name for the property in the request body.
+  * **"pretty"** - (String, Required) The pretty name for the property to show the user.
+  * **"value"** - (String, Optional) The default value to show in the text input box.  Default:  none
+* **"type"** - (String, Optional) The request type (GET, POST, PUT, or DELETE).  Default:  "POST" if **"properties"** exist, otherwise "GET"
+* **"showResponse"** - (Boolean, Optional) Whether to show the request's response.  Default:  false
+
+#### **Custom Requests Object Example**
+
+```yaml
+customRequests:
+    - endpoint: http://localhost:1234/add
+      type: post
+      date: creationDate
+      id: employeeId
+      pretty: Add New Employee
+      properties:
+          - name: name
+            pretty: Employee Name
+          - name: type
+            pretty: Employee Category
+            choices:
+              - value: eng
+                pretty: Engineering
+              - value: admin
+                pretty: Administration
+    - endpoint: http://localhost:5678/restart
+      type: get
+      pretty: Restart Analytic Module
+```
+
+#### **Filter Objects**
+
+TODO
+
+#### **Filters Object Example**
+
+TODO
+
+#### **Relation Objects**
 **Relations** are a way of defining fields that, whenever filtered, cause the Neon Dashboard to automatically generate additional filters on corresponding fields in other datastores/databases/tables.
 
 The **"relations"** property is an array of **relation** objects.  Each **relation** object contains two or more field paths (or arrays of field paths) that correspond to one another.  If a **relation** object contains an array of field paths, the filter must contain each field within the array.  Additionally, a **relation** object containing arrays of field paths must ensure each array is the same size.
@@ -228,10 +319,6 @@ relations:
       - - datastore_1.database_1.table_2.latitude
         - datastore_1.database_1.table_2.longitude
 ```
-
-#### **Contributors Object**
-
-TODO
 
 ### **Layouts Example**
 ```yaml
@@ -336,13 +423,11 @@ Required:
 * **tableKey** - A table key defined in the **"tables"** from the **"dashboards"** config.  Overrides `database` and `table`.
 
 Optional:
-* **contributionKeys**
-* **filter** - An object with `lhs`, `operator`, and `rhs` string properties that sets a hidden background filter on the visualization.
+* **contributionKeys** - An array of contributor keys from [the dashboard's **"contributors"** property](#dashboard-properties).  If not defined, this widget will show all of the configured contributors.  This can be an empty array.
+* **filter** - An object, or an array of objects, that each have `lhs`, `operator`, and `rhs` string properties; each configured object generates a hidden filter for the visualization.
 * **hideUnfiltered** - Whether to hide all the visualization data if it is unfiltered.  Default:  `false`
 * **limit** - The query results limit.  Default:  varies
 * **title** - The visualization title shown in the UI.  If the string equals a title key in the **"visualizationTitles"** from the **"dashboards"** config then the visualization uses the title defined there.  Default:  the visualization name
-* **unsharedFilterField** - The unshared filter field name.
-* **unsharedFilterValue** - The unshared filter value.
 
 #### **Aggregation Bindings**
 
@@ -615,10 +700,12 @@ Optional:
 ### **Other Properties**
 
 Optional configuration file properties:
-* **about** - A string or object containing data for the About panel.  Please see the [**About Property Examples**](#about-property-examples) for examples.
-* **neonServerUrl** - The URL for the Neon Server.  Default: `"../neon"`
-* **projectIcon** - The icon for the application tab in the web browser.  Default: `"src/assets/favicon.blue.ico"`
-* **projectTitle** - The text for the application tab in the web browser.  Default: `"Neon"`
+* **"about"** - A string or object containing data for the About panel.  Please see the [**About Property Examples**](#about-property-examples).
+* **"hideImport"** - Whether to hide the import navbar menu item.  Default:  false
+* **"neonServerUrl"** - The URL for the Neon Server.  Default: `"../neon"`
+* **"neonTools"** - An object containing data for the Tools panel.  Please see the [**Neon Tools Property Examples**](#neon-tools-property-examples).
+* **"projectIcon"** - The icon for the application tab in the web browser.  Default: `"src/assets/favicon.blue.ico"`
+* **"projectTitle"** - The text for the application tab in the web browser.  Default: `"Neon"`
 
 #### **About Property Examples**
 
@@ -658,4 +745,33 @@ about:
           header: "Section X"
         - data: "Description for Section Y"
           header: "Section Y"
+```
+
+#### **Neon Tools Property Examples**
+
+Note:  All of the image file paths referenced under `neonTools->contributors->img->src` must be located within the Neon Dashboard's `src/app/assets/custom/` folder.
+
+```yaml
+neonTools:
+    programName: My Program
+    programSponsor: My Company
+    programManager: My Manager
+    principalInvestigator: My PI
+    contributors:
+        - name: 'Contributor 1'
+          img:
+              src: 'contributor_1.jpg'
+          contact:
+              firstName: 'Contact First Name 1'
+              lastName: 'Contact Last Name 1'
+              phone: 'Contact Phone Number 1'
+              email: 'contact_1@contributor_1.com'
+        - name: 'Contributor 2'
+          img:
+              src: 'contributor_2.png'
+          contact:
+              firstName: 'Contact First Name 2'
+              lastName: 'Contact Last Name 2'
+              phone: 'Contact Phone Number 2'
+              email: 'contact_2@contributor_2.edu'
 ```
