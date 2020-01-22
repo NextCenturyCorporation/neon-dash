@@ -1,6 +1,8 @@
 #!/bin/sh
 HOST="http://neon-es:9200"
 
+npm i -g elasticdump
+
 until curl -s ${HOST} > /dev/null
 do
   sleep .5
