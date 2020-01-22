@@ -51,6 +51,70 @@ describe('Config Util Tests', () => {
         expect(ConfigUtil.findAutoShowDashboard(parentDashboard)).toEqual(showDashboard);
     });
 
+    it('setAutoShowDashboard should set connectOnLoad in the given dashboard', () => {
+        let dashboardD = NeonDashboardLeafConfig.get();
+        let dashboardC = NeonDashboardLeafConfig.get();
+        let dashboardB = NeonDashboardLeafConfig.get();
+        let dashboardA = NeonDashboardChoiceConfig.get({
+            choices: {
+                b: dashboardB,
+                c: dashboardC
+            }
+        });
+        let dashboards = NeonDashboardChoiceConfig.get({
+            choices: {
+                a: dashboardA,
+                d: dashboardD
+            }
+        });
+
+        ConfigUtil.setAutoShowDashboard(dashboards, (dashboards.choices.a as NeonDashboardChoiceConfig).choices.b as
+            NeonDashboardLeafConfig);
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.b as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            true
+        );
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.c as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            false
+        );
+        expect((dashboards.choices.d as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(false);
+
+        ConfigUtil.setAutoShowDashboard(dashboards, dashboards.choices.d as NeonDashboardLeafConfig);
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.b as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            false
+        );
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.c as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            false
+        );
+        expect((dashboards.choices.d as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(true);
+    });
+
+    it('setAutoShowDashboard should set connectOnLoad on every dashboard if none given', () => {
+        let dashboardD = NeonDashboardLeafConfig.get();
+        let dashboardC = NeonDashboardLeafConfig.get();
+        let dashboardB = NeonDashboardLeafConfig.get();
+        let dashboardA = NeonDashboardChoiceConfig.get({
+            choices: {
+                b: dashboardB,
+                c: dashboardC
+            }
+        });
+        let dashboards = NeonDashboardChoiceConfig.get({
+            choices: {
+                a: dashboardA,
+                d: dashboardD
+            }
+        });
+
+        ConfigUtil.setAutoShowDashboard(dashboards);
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.b as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            true
+        );
+        expect(((dashboards.choices.a as NeonDashboardChoiceConfig).choices.c as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(
+            true
+        );
+        expect((dashboards.choices.d as NeonDashboardLeafConfig).options.connectOnLoad).toEqual(true);
+    });
+
     it('validateName should be strip out invalid file name chars', () => {
         expect(ConfigUtil.validateName('abc#$@#@$@#$-de.%%yml')).toEqual('abc-de.yml');
     });

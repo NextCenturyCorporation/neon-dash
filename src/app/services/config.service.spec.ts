@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonConfig, NeonDashboardChoiceConfig, NeonDashboardLeafConfig } from '../models/types';
 import { ConfigService } from './config.service';
 import { getConfigService } from '../../testUtils/initializeTestBed';
 import { Observable, of } from 'rxjs';
@@ -118,6 +118,62 @@ describe('Service: ConfigService', () => {
             });
         configService.setActive(NeonConfig.get({ fileName: 'test' }));
     });
+
+    it('finalizeConfig does create new dashboard if none exist', () => {
+        let config = NeonConfig.get({
+            datastores: {
+                datastore1: {}
+            }
+        });
+        config.dashboards = null;
+
+        const output = configService['finalizeConfig'](config, '', []);
+        expect(output.dashboards).toEqual(NeonDashboardLeafConfig.get({
+            fullTitle: ['New Dashboard'],
+            name: 'New Dashboard',
+            layout: 'custom',
+            options: {
+                connectOnLoad: true
+            }
+        }));
+        expect(output.layouts).toEqual({
+            custom: []
+        });
+    });
+
+    it('finalizeConfig does set auto-show dashboard if none are set', () => {
+        let config = NeonConfig.get({
+            dashboards: {
+                choices: {
+                    dash1: {},
+                    dash2: {
+                        options: {
+                            connectOnLoad: true
+                        }
+                    }
+                }
+            },
+            datastores: {
+                datastore1: {}
+            }
+        });
+
+        const output = configService['finalizeConfig'](config, '', []);
+        expect(output.dashboards).toEqual(NeonDashboardChoiceConfig.get({
+            choices: {
+                dash1: {
+                    fullTitle: ['dash1']
+                },
+                dash2: {
+                    fullTitle: ['dash2'],
+                    options: {
+                        connectOnLoad: true
+                    }
+                }
+            }
+        }));
+        expect(output.layouts).toEqual({});
+    });
 });
 
 describe('Service: ConfigService Initialization', () => {
@@ -217,11 +273,11 @@ describe('Service: ConfigService Initialization', () => {
                 const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
 
                 expect(dash2).toBeTruthy();
-                expect(dash2.options.connectOnLoad).toBeFalsy();
+                expect(dash2.options.connectOnLoad).toEqual(true);
                 expect(dash2.filters).toBeTruthy();
                 expect(dash2.filters).toEqual(query);
 
-                expect(dash1.options.connectOnLoad).toBeFalsy();
+                expect(dash1.options.connectOnLoad).toEqual(true);
                 expect(dash2.filters).toBeTruthy();
                 expect(dash2.filters).toEqual(query);
                 done();
@@ -241,11 +297,11 @@ describe('Service: ConfigService Initialization', () => {
                 const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
 
                 expect(dash2).toBeTruthy();
-                expect(dash2.options.connectOnLoad).toBeFalsy();
+                expect(dash2.options.connectOnLoad).toEqual(true);
                 // Original filters should be preserved
                 expect(dash2.filters).toEqual('SAVED_FILTERS');
 
-                expect(dash1.options.connectOnLoad).toBeFalsy();
+                expect(dash1.options.connectOnLoad).toEqual(true);
                 expect(dash1.filters).toEqual([]);
                 done();
             });

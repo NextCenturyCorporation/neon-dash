@@ -455,23 +455,18 @@ export class DashboardService {
      * Creates and returns a new config object with the existing datastores and an empty dashboard object.
      */
     public createEmptyDashboardConfig(name: string): NeonConfig {
-        let choices = {};
-        choices[name] = {
-            layout: 'empty',
-            options: {
-                connectOnLoad: true
-            }
-        };
-
         return NeonConfig.get({
-            dashboards: NeonDashboardChoiceConfig.get({
-                choices
+            dashboards: NeonDashboardLeafConfig.get({
+                name,
+                layout: 'custom',
+                options: {
+                    connectOnLoad: true
+                }
             }),
             datastores: this.config.datastores,
             layouts: {
-                empty: []
-            },
-            projectTitle: name
+                custom: []
+            }
         });
     }
 

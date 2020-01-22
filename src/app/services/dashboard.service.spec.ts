@@ -15,7 +15,7 @@
 import { inject } from '@angular/core/testing';
 
 import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
-import { FilterConfig, NeonConfig, NeonDashboardChoiceConfig, NeonDashboardLeafConfig } from '../models/types';
+import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -442,23 +442,19 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('createEmptyDashboardConfig does return expected object', () => {
         expect(dashboardService.createEmptyDashboardConfig('testDashboardName')).toEqual(NeonConfig.get({
-            dashboards: NeonDashboardChoiceConfig.get({
-                choices: {
-                    testDashboardName: {
-                        layout: 'empty',
-                        options: {
-                            connectOnLoad: true
-                        }
-                    }
+            dashboards: NeonDashboardLeafConfig.get({
+                name: 'testDashboardName',
+                layout: 'custom',
+                options: {
+                    connectOnLoad: true
                 }
             }),
             datastores: {
                 datastore1: DATASTORE
             },
             layouts: {
-                empty: []
-            },
-            projectTitle: 'testDashboardName'
+                custom: []
+            }
         }));
     });
 });

@@ -95,6 +95,19 @@ export class ConfigService {
 
     private finalizeConfig(configInput: NeonConfig, filters: string, paths: string[]) {
         let config: NeonConfig = configInput;
+        config.dashboards = config.dashboards || {};
+        config.layouts = config.layouts || {};
+
+        if (!Object.keys(config.dashboards).length) {
+            config.dashboards = NeonDashboardLeafConfig.get({
+                name: 'New Dashboard',
+                layout: 'custom',
+                options: {
+                    connectOnLoad: true
+                }
+            });
+            config.layouts.custom = config.layouts.custom || [];
+        }
 
         if (!config || !config.datastores || !Object.keys(config.datastores).length) {
             console.error('Config does not have any datastores!');
@@ -133,6 +146,11 @@ export class ConfigService {
 
         if (!dash && filters) {
             ConfigUtil.filterDashboards(config.dashboards, filters);
+        }
+
+        // If no dashboards are set to auto-show, then set all of them to auto-show, and Neon will load the first one in the config.
+        if (!ConfigUtil.findAutoShowDashboard(config.dashboards)) {
+            ConfigUtil.setAutoShowDashboard(config.dashboards);
         }
 
         return config;

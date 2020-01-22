@@ -210,8 +210,8 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 
 export interface NeonConfig {
     datastores: Record<string, DatastoreConfig>;
-    dashboards: NeonDashboardConfig;
-    layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
+    dashboards?: NeonDashboardConfig;
+    layouts?: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
     errors?: any[];

@@ -108,11 +108,11 @@ export class ConfigUtil {
         return undefined;
     }
 
-    static setAutoShowDashboard(dashboard: NeonDashboardConfig, auto: NeonDashboardLeafConfig) {
+    static setAutoShowDashboard(dashboard: NeonDashboardConfig, auto?: NeonDashboardLeafConfig) {
         this.visitDashboards(dashboard, {
             leaf: (dash) => {
                 dash.options = dash.options || {};
-                dash.options.connectOnLoad = dash === auto;
+                dash.options.connectOnLoad = (!auto || auto === dash);
             }
         });
     }
