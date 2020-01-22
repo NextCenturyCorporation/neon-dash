@@ -415,15 +415,15 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public createExportData(): { name: string, data: any }[] {
         // TODO THOR-1425 Add multi-layer support.
-        const exportFields = SingleVisualizationWidgetComponent.retrieveExportFields(this.options);
-        const filename = this.options.title.split(':').join(' ') + '-' + this.options._id;
+        // const exportFields = SingleVisualizationWidgetComponent.retrieveExportFields(this.options);
+        // const filename = this.options.title.split(':').join(' ') + '-' + this.options._id;
         const visArray = this.visualizations.toArray();
 
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
                     return [];
-                    //return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
+                    // return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
             }
         }
 
@@ -575,7 +575,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    //(visArray[0] as NucleusTextCloudAngularComponent).redraw();
+                    // (visArray[0] as NucleusTextCloudAngularComponent).redraw();
             }
         }
     }
