@@ -1187,7 +1187,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.subcomponentMain.select([]);
             this.selectedArea = null;
-            if (this.canHaveDatePicker()) {
+            if (this.canHaveDatePicker() && this.calendarComponent) {
                 this.calendarComponent.clear();
                 this.savedDates = null;
             }
