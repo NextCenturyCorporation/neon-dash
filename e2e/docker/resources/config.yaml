@@ -1,135 +1,113 @@
 datastores:
     es1:
         host: neon-es
-        type: elasticsearchrest
+        type: elasticsearch
         databases:
             earthquakes:
-                prettyName: 'Earthquakes'
+                prettyName: Earthquakes
                 tables:
                     quakedata:
                         prettyName: Earthquake Data
                         fields:
-                            - columnName: mag
-                              prettyName: Magnitude
+                            - columnName: id
+                              prettyName: ID
                             - columnName: depth
                               prettyName: Depth
                             - columnName: latitude
                               prettyName: Latitude
                             - columnName: longitude
                               prettyName: Longitude
-                            - columnName: time
-                              prettyName: Time
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: magType
+                              prettyName: Magnitude
                             - columnName: net
                               prettyName: Net
+                            - columnName: time
+                              prettyName: Time
                             - columnName: type
                               prettyName: Type
                             - columnName: _id
                               prettyName: ES ID
-                            - columnName: id
-                              prettyName: Earthquake ID
 
 dashboards:
-    category: 'Select a task...'
-    choices:
-        situation_discovery:
-            name: 'Situation Discovery'
-            category: 'Select a layout...' # Right now layout selection doesn't technically happen here, but ideally we want that in the future.
-            choices:
-                earthquakes:
-                    name: 'Earthquakes'
-                    category: 'Select a datastore...'
-                    choices:
-                        quakedata:
-                            name: Earthquake data
-                            layout: quakedata
-                            tables:
-                                table_key_1: es1.earthquakes.quakedata
-                            fields:
-                                mag_key: es1.eqarthquakes.quakedata.mag
-                                depth_key: es1.eqarthquakes.quakedata.depth
-                                latitude_key: es1.eqarthquakes.quakedata.latitude
-                                longitude_key: es1.eqarthquakes.quakedata.longitude
-                                time_key: es1.eqarthquakes.quakedata.time
-                                net_key: es1.eqarthquakes.quakedata.net
-                                type_key: es1.eqarthquakes.quakedata.type
-                                _id_key: es1.eqarthquakes.quakedata._id
-                                id_key: es1.eqarthquakes.quakedata.id
-                            options:
-                                connectOnLoad: true
+    name: Earthquakes Dashboard
+    layout: earthquakes_layout
+    tables:
+        table_key_1: es1.earthquakes.quakedata
+    fields:
+        id_key: es1.eqarthquakes.quakedata.id
+        depth_key: es1.eqarthquakes.quakedata.depth
+        latitude_key: es1.eqarthquakes.quakedata.latitude
+        longitude_key: es1.eqarthquakes.quakedata.longitude
+        mag_key: es1.eqarthquakes.quakedata.mag
+        mag_type_key: es1.eqarthquakes.quakedata.magType
+        net_key: es1.eqarthquakes.quakedata.net
+        time_key: es1.eqarthquakes.quakedata.time
+        type_key: es1.eqarthquakes.quakedata.type
+        _id_key: es1.eqarthquakes.quakedata._id
+    options:
+        connectOnLoad: true
 
 layouts:
-    quakedata:
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
+    earthquakes_layout:
+        - type: dataTable
           col: 1
           row: 1
-          sizex: 3
-          sizey: 15
-          bindings:
-              title: Magnitudes
-              tableKey: table_key_1
-              idField: _id_key
-              sortField: time_key
-              limit: 100
-              showFields:
-                  - time_key
-                  - mag_key
-              ignoreSelf: false           
-        - name: Map
-          type: map
-          icon: Map64
-          col: 4
-          row: 1
-          sizex: 6
-          sizey: 9
-          bindings:
-              title: Situation Locations
-              tableKey: table_key_1
-              filterable: true
-              name: EVENTS
-              show: true
-              type: cluster
-              limit: 5000
-              layers:
-                  - title: Map
-                    tableKey: table_key_1
-                    latitudeField: latitude_key
-                    longitudeField: longitude_key
-                    dateField: time_key
-                    colorField: net_key
-              mapType: leaflet
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
-          col: 10
-          row: 1
-          sizex: 3
-          sizey: 15
-          bindings:
-              title: Depths
-              tableKey: table_key_1
-              idField: _id_key
-              sortField: time_key
-              limit: 100
-              showFields:
-                  - time_key
-                  - depth_key
-              ignoreSelf: false              
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 4
-          row: 10
-          sizex: 6
+          sizex: 4
           sizey: 6
           bindings:
-              title: Contributing Networks
+              title: Data
+              tableKey: table_key_1
+              sortField: time_key
+              showFields:
+                  - time_key
+                  - net_key
+                  - latitude_key
+                  - longitude_key
+                  - type_key
+                  - depth_key
+                  - mag_key
+                  - mag_type_key
+        - type: aggregation
+          col: 1
+          row: 7
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Networks
               type: bar-h
               tableKey: table_key_1
               xField: net_key
-              limit: 11
               groupField: net_key
               sortByAggregation: true
               ignoreSelf: true
-        
+        - type: map
+          col: 5
+          row: 1
+          sizex: 4
+          sizey: 12
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              limit: 5000
+              layers:
+                  - title: Earthquakes Layer
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    colorField: net_key
+        - type: aggregation
+          icon: bar_chart
+          col: 9
+          row: 1
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Timeline
+              type: histogram
+              tableKey: table_key_1
+              xField: time_key
+              groupField: net_key
+              granularity: dayOfMonth
+
