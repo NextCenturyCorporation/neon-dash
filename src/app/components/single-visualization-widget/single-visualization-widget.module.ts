@@ -18,7 +18,7 @@ import { SingleVisualizationWidgetComponent } from './single-visualization-widge
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
-import { NucleusTextCloudAngularModule } from 'nucleus-angular';
+// import { NucleusTextCloudAngularModule } from 'nucleus-angular';
 
 @NgModule({
     declarations: [SingleVisualizationWidgetComponent],
@@ -27,8 +27,8 @@ import { NucleusTextCloudAngularModule } from 'nucleus-angular';
     imports: [
         CommonModule,
         CommonWidgetModule,
-        DataMessageModule,
-        NucleusTextCloudAngularModule
+        // NucleusTextCloudAngularModule,
+        DataMessageModule
     ]
 })
 export class SingleVisualizationWidgetModule { }

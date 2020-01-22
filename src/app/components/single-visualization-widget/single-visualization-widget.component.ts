@@ -55,7 +55,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 
-import { NucleusTextCloudAngularComponent } from 'nucleus-angular';
+// import { NucleusTextCloudAngularComponent } from 'nucleus-angular';
 
 @Component({
     selector: 'app-single-visualization-widget',
@@ -422,7 +422,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
+                    return [];
+                    //return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
             }
         }
 
@@ -574,7 +575,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    (visArray[0] as NucleusTextCloudAngularComponent).redraw();
+                    //(visArray[0] as NucleusTextCloudAngularComponent).redraw();
             }
         }
     }
