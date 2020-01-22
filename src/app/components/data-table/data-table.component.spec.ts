@@ -113,6 +113,7 @@ describe('Component: DataTable', () => {
             FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
             FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
         ];
+        component.options.showFields = [];
 
         component['initializeProperties']();
 
@@ -206,6 +207,7 @@ describe('Component: DataTable', () => {
             FieldConfig.get({ columnName: 'field2', prettyName: 'Field 2' }),
             FieldConfig.get({ columnName: 'date', prettyName: 'Date' })
         ];
+        component.options.showFields = [];
         component.options.customColumnWidths = [
             ['category', 123],
             ['date', 456]

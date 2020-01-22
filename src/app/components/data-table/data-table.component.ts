@@ -203,6 +203,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     protected initializeProperties() {
+        this.options.showFields = this.options.showFields.length ? this.options.showFields : this.options.fields;
+
         const showFieldNames: string[] = (this.options.showFields || []).filter((fieldObject) => !!fieldObject.columnName)
             .map((fieldObject) => fieldObject.columnName);
 
@@ -607,6 +609,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.initializeProperties();
         } else {
             this.selected = [];
+
+            this.options.showFields = this.options.showFields.length ? this.options.showFields : this.options.fields;
 
             const showFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) =>
                 fieldObject.columnName);
