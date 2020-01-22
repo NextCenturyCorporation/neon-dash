@@ -20,7 +20,7 @@ datastores:
                             - columnName: mag
                               prettyName: Magnitude
                             - columnName: magType
-                              prettyName: Magnitude
+                              prettyName: Magnitude Type
                             - columnName: net
                               prettyName: Net
                             - columnName: time
