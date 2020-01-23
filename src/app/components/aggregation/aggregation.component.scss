@@ -36,6 +36,86 @@
             display: inline-block;
         }
     }
+
+    ::ng-deep {
+        .list-subcomponent {
+            .list-item {
+                cursor: pointer;
+                padding: 2px 10px;
+
+                .list-text {
+                    font-size: 14px;
+                    line-height: 16px;
+                    height: 16px;
+                    /* TODO Make configurable! */
+                    max-width: 250px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    word-break: break-all;
+
+                    &.list-selectable {
+                        &.heat-1 {
+                            color: #01579B; // light-blue-900
+                        }
+
+                        &.heat-2 {
+                            color: #1A237E; // indigo-900
+                        }
+
+                        &.heat-3 {
+                            color: #4A148C; // purple-900
+                        }
+
+                        &.heat-4 {
+                            color: #B71C1C; // red-900
+                        }
+
+                        &.heat-5 {
+                            color: #E65100; // orange-900
+                        }
+                    }
+                }
+
+                &.active {
+                    .list-selectable {
+                        color: var(--color-data-item-selectable, lightgrey);
+                    }
+                }
+
+                &:hover {
+                    .list-selectable {
+                        color: var(--color-data-item-selected, lightgrey);
+                    }
+                }
+
+                &.active,
+                &:hover {
+                    .list-selectable {
+                        &.heat-1 {
+                            color: #29B6F6; // light-blue-400
+                        }
+
+                        &.heat-2 {
+                            color: #5C6BC0; // indigo-400
+                        }
+
+                        &.heat-3 {
+                            color: #AB47BC; // purple-400
+                        }
+
+                        &.heat-4 {
+                            color: #EF5350; // red-400
+                        }
+
+                        &.heat-5 {
+                            color: #FFA726; // orange-400
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 .icon {
@@ -86,86 +166,6 @@
     position: absolute;
     white-space: nowrap;
     width: auto;
-}
-
-:host /deep/ {
-    .list-subcomponent {
-        .list-item {
-            cursor: pointer;
-            padding: 2px 10px;
-
-            .list-text {
-                font-size: 14px;
-                line-height: 16px;
-                height: 16px;
-                /* TODO Make configurable! */
-                max-width: 250px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                word-break: break-all;
-
-                &.list-selectable {
-                    &.heat-1 {
-                        color: #01579B; // light-blue-900
-                    }
-
-                    &.heat-2 {
-                        color: #1A237E; // indigo-900
-                    }
-
-                    &.heat-3 {
-                        color: #4A148C; // purple-900
-                    }
-
-                    &.heat-4 {
-                        color: #B71C1C; // red-900
-                    }
-
-                    &.heat-5 {
-                        color: #E65100; // orange-900
-                    }
-                }
-            }
-
-            &.active {
-                .list-selectable {
-                    color: var(--color-data-item-selectable, lightgrey);
-                }
-            }
-
-            &:hover {
-                .list-selectable {
-                    color: var(--color-data-item-selected, lightgrey);
-                }
-            }
-
-            &.active,
-            &:hover {
-                .list-selectable {
-                    &.heat-1 {
-                        color: #29B6F6; // light-blue-400
-                    }
-
-                    &.heat-2 {
-                        color: #5C6BC0; // indigo-400
-                    }
-
-                    &.heat-3 {
-                        color: #AB47BC; // purple-400
-                    }
-
-                    &.heat-4 {
-                        color: #EF5350; // red-400
-                    }
-
-                    &.heat-5 {
-                        color: #FFA726; // orange-400
-                    }
-                }
-            }
-        }
-    }
 }
 
 input {

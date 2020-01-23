@@ -16,17 +16,40 @@
 
 @import '../base-neon-component/base-neon.component';
 
-/deep/ {
-    @import '../../../../node_modules/angular-tree-component/dist/angular-tree-component.css';
+:host {
+    ::ng-deep {
+        @import '../../../../node_modules/angular-tree-component/dist/angular-tree-component.css';
+
+        .mat-drawer-content {
+            overflow: unset;
+        }
+
+        tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div {
+            background-color: #F8F8F8;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-left: 4px;
+            width: 92%;
+            margin: auto;
+        }
+
+        .node-content-wrapper {
+            &.node-content-wrapper-active {
+                background: var(--color-data-item-selected, lightgrey) !important;
+                color: var(--color-data-item-selected-text, dimgrey) !important;
+            }
+
+            &:hover {
+                background: var(--color-data-item-selectable, lightgrey) !important;
+                color: var(--color-data-item-selectable-text, dimgrey) !important;
+            }
+        }
+    }
 }
 
 .full-height,
 .mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});
-}
-
-/deep/ .mat-drawer-content {
-    overflow: unset;
 }
 
 .taxonomy-viewer-container {
@@ -35,26 +58,5 @@
     padding-left: 11px;
     position: relative;
     font-size: 14px;
-}
-
-/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div {
-    background-color: #F8F8F8;
-    max-height: 200px;
-    overflow-y: auto;
-    padding-left: 4px;
-    width: 92%;
-    margin: auto;
-}
-
-/deep/ .node-content-wrapper {
-    &.node-content-wrapper-active {
-        background: var(--color-data-item-selected, lightgrey) !important;
-        color: var(--color-data-item-selected-text, dimgrey) !important;
-    }
-
-    &:hover {
-        background: var(--color-data-item-selectable, lightgrey) !important;
-        color: var(--color-data-item-selectable-text, dimgrey) !important;
-    }
 }
 

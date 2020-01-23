@@ -51,140 +51,142 @@ h3 {
     min-height: 150px;
     grid-area: chart;
 
-    /deep/ svg {
-        font-size: 10px;
-        width: 100%;
-        display: block;
+    ::ng-deep {
+        svg {
+            font-size: 10px;
+            width: 100%;
+            display: block;
 
-        .invalid-record-count {
-            &:hover {
-                color: goldenrod;
-                cursor: pointer;
-
-                .count {
+            .invalid-record-count {
+                &:hover {
                     color: goldenrod;
                     cursor: pointer;
+
+                    .count {
+                        color: goldenrod;
+                        cursor: pointer;
+                    }
                 }
             }
-        }
 
-        .animation-controls {
-            margin: 0 10px;
-        }
+            .animation-controls {
+                margin: 0 10px;
+            }
 
-        .y {
-            &.axis {
-                text {
-                    text-shadow: 1px 1px 0 $text-shadow-color,
-                    1px 0 0 $text-shadow-color,
-                    1px -1px 0 $text-shadow-color,
-                    -1px 1px 0 $text-shadow-color,
-                    -1px 0 0 $text-shadow-color,
-                    -1px -1px 0 $text-shadow-color,
-                    0 2px 0 $text-shadow-color,
-                    0 -2px 0 $text-shadow-color;
-                    font-weight: bold;
+            .y {
+                &.axis {
+                    text {
+                        text-shadow: 1px 1px 0 $text-shadow-color,
+                        1px 0 0 $text-shadow-color,
+                        1px -1px 0 $text-shadow-color,
+                        -1px 1px 0 $text-shadow-color,
+                        -1px 0 0 $text-shadow-color,
+                        -1px -1px 0 $text-shadow-color,
+                        0 2px 0 $text-shadow-color,
+                        0 -2px 0 $text-shadow-color;
+                        font-weight: bold;
+                    }
+
+                    path {
+                        display: none;
+                    }
+
+                    .tick {
+                        line {
+                            display: none;
+                        }
+                    }
+                }
+            }
+
+            .highlight {
+                background-color: var(--color-data-item-selectable-contrast, dimgrey);
+                fill: var(--color-data-item-selectable-contrast, dimgrey);
+            }
+
+            .multi-highlight {
+                fill: var(--color-data-item-selectable-contrast, dimgrey);
+                fill-opacity: 0.65;
+            }
+
+            .brush {
+                .extent {
+                    fill-opacity: 0;
+                    shape-rendering: crispEdges;
                 }
 
+                .mask {
+                    fill: $main-background;
+                    fill-opacity: 0.65;
+                }
+
+                .resize {
+                    path {
+                        fill: $light-chart-axis-color;
+                        stroke: $chart-text-color;
+                        stroke-opacity: 0.5;
+                    }
+                }
+
+                .resize-divider {
+                    fill: $chart-text-color;
+                    fill-opacity: 0.3;
+                }
+
+                .background {
+                    cursor: pointer !important;
+                }
+            }
+
+            .area {
+                fill: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
+                stroke: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
+                stroke-width: 1px;
+                clip-path: url('#clip');
+            }
+
+            .axis {
                 path {
                     display: none;
                 }
 
-                .tick {
-                    line {
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        .highlight {
-            background-color: var(--color-data-item-selectable-contrast, dimgrey);
-            fill: var(--color-data-item-selectable-contrast, dimgrey);
-        }
-
-        .multi-highlight {
-            fill: var(--color-data-item-selectable-contrast, dimgrey);
-            fill-opacity: 0.65;
-        }
-
-        .brush {
-            .extent {
-                fill-opacity: 0;
-                shape-rendering: crispEdges;
-            }
-
-            .mask {
-                fill: $main-background;
-                fill-opacity: 0.65;
-            }
-
-            .resize {
-                path {
-                    fill: $light-chart-axis-color;
+                line {
+                    fill: none;
                     stroke: $chart-text-color;
-                    stroke-opacity: 0.5;
+                    shape-rendering: crispEdges;
                 }
             }
 
-            .resize-divider {
-                fill: $chart-text-color;
-                fill-opacity: 0.3;
+            .bar {
+                fill: var(--color-data-item-selectable, lightgrey);
+                stroke: var(--color-data-item-selectable, lightgrey);
+                stroke-width: 1px;
             }
 
-            .background {
-                cursor: pointer !important;
-            }
-        }
-
-        .area {
-            fill: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
-            stroke: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
-            stroke-width: 1px;
-            clip-path: url('#clip');
-        }
-
-        .axis {
-            path {
-                display: none;
-            }
-
-            line {
+            .mini-axis {
                 fill: none;
-                stroke: $chart-text-color;
                 shape-rendering: crispEdges;
+                stroke: $shadow;
+                stroke-width: 1px;
             }
-        }
 
-        .bar {
-            fill: var(--color-data-item-selectable, lightgrey);
-            stroke: var(--color-data-item-selectable, lightgrey);
-            stroke-width: 1px;
-        }
+            .series-title {
+                text-shadow: 1px 1px 0 $text-shadow-color,
+                1px 0 0 $text-shadow-color,
+                1px -1px 0 $text-shadow-color,
+                -1px 1px 0 $text-shadow-color,
+                -1px 0 0 $text-shadow-color,
+                -1px -1px 0 $text-shadow-color,
+                0 2px 0 $text-shadow-color,
+                0 -2px 0 $text-shadow-color;
+                font-weight: bold;
+                font-size: 13px;
+            }
 
-        .mini-axis {
-            fill: none;
-            shape-rendering: crispEdges;
-            stroke: $shadow;
-            stroke-width: 1px;
-        }
-
-        .series-title {
-            text-shadow: 1px 1px 0 $text-shadow-color,
-            1px 0 0 $text-shadow-color,
-            1px -1px 0 $text-shadow-color,
-            -1px 1px 0 $text-shadow-color,
-            -1px 0 0 $text-shadow-color,
-            -1px -1px 0 $text-shadow-color,
-            0 2px 0 $text-shadow-color,
-            0 -2px 0 $text-shadow-color;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .tick {
-            text {
-                fill: $chart-text-color;
+            .tick {
+                text {
+                    fill: $chart-text-color;
+                }
             }
         }
     }
@@ -208,83 +210,86 @@ h3 {
     padding: 5px;
 }
 
-/deep/ {
-    #tl-tooltip-container {
-        display: none;
-        position: absolute;
-        padding: 12px 15px;
-        color: $main-text-color;
-        font-size: 12px;
-        background-color: $tooltip-background;
-        border: 1px solid $shadow;
-        border-radius: 4px /* @border-radius */;
-        pointer-events: none;
-        z-index: 10000;
-
-        span {
-            font-weight: bold;
-            color: $timeline-accent-bright;
-            display: block;
-            text-shadow: 0 2px 0 $text-shadow-color;
-        }
-
-        .tooltip-date {
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 5px;
+:host {
+    ::ng-deep {
+        #tl-tooltip-container {
+            display: none;
+            position: absolute;
+            padding: 12px 15px;
+            color: $main-text-color;
             font-size: 12px;
-            color: $mid-text-color;
-        }
+            background-color: $tooltip-background;
+            border: 1px solid $shadow;
+            border-radius: 4px /* @border-radius */;
+            pointer-events: none;
+            z-index: 10000;
 
-        &::before {
-            content: '';
-            display: block;
-            width: 0;
-            height: 0;
-            position: absolute;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            top: 50%;
-            transform: translateY(-50%);
-        }
+            span {
+                font-weight: bold;
+                color: $timeline-accent-bright;
+                display: block;
+                text-shadow: 0 2px 0 $text-shadow-color;
+            }
 
-        &::after {
-            content: '';
-            display: block;
-            width: 0;
-            height: 0;
-            position: absolute;
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-            top: 49%;
-            transform: translateY(-49%);
-        }
-
-        &.east {
+            .tooltip-date {
+                font-weight: bold;
+                text-transform: uppercase;
+                margin-bottom: 5px;
+                font-size: 12px;
+                color: $mid-text-color;
+            }
 
             &::before {
-                border-right: 8px solid $shadow;
-                left: -8px;
-                opacity: 0.5;
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                position: absolute;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                top: 50%;
+                transform: translateY(-50%);
             }
 
             &::after {
-                border-right: 7px solid $tooltip-background;
-                left: -6px;
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                position: absolute;
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                top: 49%;
+                transform: translateY(-49%);
             }
-        }
 
-        &.west {
+            &.east {
 
-            &::before {
-                border-left: 8px solid $shadow;
-                left: 100%;
+                &::before {
+                    border-right: 8px solid $shadow;
+                    left: -8px;
+                    opacity: 0.5;
+                }
+
+                &::after {
+                    border-right: 7px solid $tooltip-background;
+                    left: -6px;
+                }
             }
 
-            &::after {
-                border-left: 7px solid $tooltip-background;
-                left: 100%;
+            &.west {
+
+                &::before {
+                    border-left: 8px solid $shadow;
+                    left: 100%;
+                }
+
+                &::after {
+                    border-left: 7px solid $tooltip-background;
+                    left: 100%;
+                }
             }
         }
     }
 }
+

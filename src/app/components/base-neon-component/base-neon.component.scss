@@ -62,20 +62,23 @@
     }
 
     .body-container,
-    .footer,
-    /deep/ mat-toolbar {
+    .footer {
         background: var(--color-background, white);
     }
 
-    /deep/ mat-toolbar {
-        .header {
-            &.text {
-                font-weight: normal;
-            }
-        }
+    ::ng-deep {
+        mat-toolbar {
+            background: var(--color-background, white);
 
-        [mat-icon-button] {
-            color: var(--color-text, gray);
+            .header {
+                &.text {
+                    font-weight: normal;
+                }
+            }
+
+            [mat-icon-button] {
+                color: var(--color-text, gray);
+            }
         }
     }
 

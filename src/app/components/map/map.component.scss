@@ -54,33 +54,37 @@
     z-index: 1;
 }
 
-/deep/ #mapElement { // sass-lint:disable-line id-name-format
-    .leaflet-control-container {
-        .leaflet-control-zoom,
-        .leaflet-control-layers {
-            border-width: 1px;
+:host {
+    ::ng-deep {
+        #mapElement { // sass-lint:disable-line id-name-format
+            .leaflet-control-container {
+                .leaflet-control-zoom,
+                .leaflet-control-layers {
+                    border-width: 1px;
+                }
+            }
         }
-    }
-}
 
-/deep/ .neon-cluster {
-    background-color: var(--color-data-item-selectable, lightgrey);
-    border: 1px solid var(--color-data-item-selectable-text, dimgrey);
-    color: var(--color-data-item-selectable-text, dimgrey);
-    margin-left: -14px !important;
-    margin-top: -14px !important;
-    height: 28px !important;
-    width: 28px !important;
+        .neon-cluster {
+            background-color: var(--color-data-item-selectable, lightgrey);
+            border: 1px solid var(--color-data-item-selectable-text, dimgrey);
+            color: var(--color-data-item-selectable-text, dimgrey);
+            margin-left: -14px !important;
+            margin-top: -14px !important;
+            height: 28px !important;
+            width: 28px !important;
 
-    div {
-        border: 0;
-        margin: 0;
-        height: 28px;
-        width: 28px;
-    }
+            div {
+                border: 0;
+                margin: 0;
+                height: 28px;
+                width: 28px;
+            }
 
-    span {
-        font-weight: bold;
+            span {
+                font-weight: bold;
+            }
+        }
     }
 }
 

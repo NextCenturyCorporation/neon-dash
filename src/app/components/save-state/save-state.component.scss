@@ -60,11 +60,13 @@ form {
         font-size: 1.2em;
         grid-area: name;
 
-        /deep/ .mat-badge-active {
-            color: transparent !important;
-            width: 10px;
-            height: 10px;
-            top: 3px !important;
+        ::ng-deep {
+            .mat-badge-active {
+                color: transparent !important;
+                width: 10px;
+                height: 10px;
+                top: 3px !important;
+            }
         }
     }
 }

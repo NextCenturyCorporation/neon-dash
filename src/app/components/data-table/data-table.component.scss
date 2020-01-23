@@ -37,230 +37,236 @@
     position: fixed;
 }
 
-/deep/ .datatable-row-odd {
-    background-color: var(--color-background, white);
-}
+:host {
+    ::ng-deep {
+        .datatable-row-odd {
+            background-color: var(--color-background, white);
+        }
 
-/deep/ .datatable-row-even {
-    background-color: var(--color-background-contrast, lightgrey);
-}
+        .datatable-row-even {
+            background-color: var(--color-background-contrast, lightgrey);
+        }
 
-/deep/ .datatable-header-inner {
-    border-right: 1px solid var(--color-text, lightgrey);
-}
+        .datatable-header-inner {
+            border-right: 1px solid var(--color-text, lightgrey);
+        }
 
-/deep/ .datatable-header-cell {
-    opacity: 1;
-    background: var(--color-background, white);
-    border-bottom: 1px solid var(--color-text, lightgrey);
-    border-right: 1px solid var(--color-text, lightgrey);
-    line-height: 20px !important;
-    height: 25px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 2px 5px;
+        .datatable-header-cell {
+            opacity: 1;
+            background: var(--color-background, white);
+            border-bottom: 1px solid var(--color-text, lightgrey);
+            border-right: 1px solid var(--color-text, lightgrey);
+            line-height: 20px !important;
+            height: 25px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 2px 5px;
 
-    /* This is only needed if the table is reorderable. */
-    &.longpress {
-        background: linear-gradient(#DDDDDD, #B3B3B3);
-        border: 1px dashed var(--color-background, dimgrey);
-        z-index: 100;
-    }
-}
+            /* This is only needed if the table is reorderable. */
+            &.longpress {
+                background: linear-gradient(#DDDDDD, #B3B3B3);
+                border: 1px dashed var(--color-background, dimgrey);
+                z-index: 100;
+            }
+        }
 
-/deep/ .datatable-header-cell > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-}
+        .datatable-header-cell > div {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            width: 100%;
+        }
 
-/deep/ .datatable-header-cell-wrapper {
-    padding: 2px 5px;
-    width: 100%;
-}
+        .datatable-header-cell-wrapper {
+            padding: 2px 5px;
+            width: 100%;
+        }
 
-/deep/ .sort-active {
-    .datatable-header-cell-wrapper {
-        width: calc(100% - 20px);
-    }
-}
+        .sort-active {
+            .datatable-header-cell-wrapper {
+                width: calc(100% - 20px);
+            }
+        }
 
-/deep/ .datatable-header-cell-label,
-/deep/ .datatable-body-cell-label > span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none; // sass-lint:disable-line no-misspelled-properties
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently supported by Chrome and Opera */
-}
+        .datatable-header-cell-label,
+        .datatable-body-cell-label > span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none; // sass-lint:disable-line no-misspelled-properties
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome and Opera */
+        }
 
-/deep/ .datatable-icon-up,
-/deep/ .datatable-icon-down {
-    display: inline-flex;
-    height: 20px;
-    margin-right: 0;
-    padding: 2px 7px;
-}
+        .datatable-icon-up,
+        .datatable-icon-down {
+            display: inline-flex;
+            height: 20px;
+            margin-right: 0;
+            padding: 2px 7px;
+        }
 
-/deep/ .datatable-icon-up {
-    &::before {
-        font-family: 'Material Icons';
-        font-size: 16px;
-        content: 'keyboard_arrow_up';
-    }
-}
+        .datatable-icon-up {
+            &::before {
+                font-family: 'Material Icons';
+                font-size: 16px;
+                content: 'keyboard_arrow_up';
+            }
+        }
 
-/deep/ .datatable-icon-down {
-    &::before {
-        font-family: 'Material Icons';
-        font-size: 16px;
-        content: 'keyboard_arrow_down';
-    }
-}
+        .datatable-icon-down {
+            &::before {
+                font-family: 'Material Icons';
+                font-size: 16px;
+                content: 'keyboard_arrow_down';
+            }
+        }
 
-/deep/ .datatable-body-cell {
-    border-bottom: 1px solid var(--color-background, dimgrey);
-    border-right: 1px solid var(--color-background, dimgrey);
-    line-height: 20px !important;
-    padding: 2px 5px;
-}
+        .datatable-body-cell {
+            border-bottom: 1px solid var(--color-background, dimgrey);
+            border-right: 1px solid var(--color-background, dimgrey);
+            line-height: 20px !important;
+            padding: 2px 5px;
+        }
 
-/deep/ .datatable-body-row {
-    &.heat-1 {
-        .datatable-row-group {
-            color: #01579B; // light-blue-900
+        .datatable-body-row {
+            &.heat-1 {
+                .datatable-row-group {
+                    color: #01579B; // light-blue-900
+                }
+            }
+
+            &.heat-2 {
+                .datatable-row-group {
+                    color: #1A237E; // indigo-900
+                }
+            }
+
+            &.heat-3 {
+                .datatable-row-group {
+                    color: #4A148C; // purple-900
+                }
+            }
+
+            &.heat-4 {
+                .datatable-row-group {
+                    color: #B71C1C; // red-900
+                }
+            }
+
+            &.heat-5 {
+                .datatable-row-group {
+                    color: #E65100; // orange-900
+                }
+            }
+
+            &.active {
+                .datatable-row-group {
+                    /* Invert colors */
+                    background-color: var(--color-data-item-selected, dimgrey);
+                    color: var(--color-data-item-selected-text, white);
+                }
+
+                &.heat-1 {
+                    .datatable-row-group {
+                        background-color: #29B6F6; // light-blue-400
+                    }
+                }
+
+                &.heat-2 {
+                    .datatable-row-group {
+                        background-color: #5C6BC0; // indigo-400
+                    }
+                }
+
+                &.heat-3 {
+                    .datatable-row-group {
+                        background-color: #AB47BC; // purple-400
+                    }
+                }
+
+                &.heat-4 {
+                    .datatable-row-group {
+                        background-color: #EF5350; // red-400
+                    }
+                }
+
+                &.heat-5 {
+                    .datatable-row-group {
+                        background-color: #FFA726; // orange-400
+                    }
+                }
+            }
+        }
+
+        .datatable-body {
+            height: 100%;
+            font-size: 14px;
+        }
+
+        .mat-drawer-content {
+            height: 100%;
+        }
+
+        .color-field {
+            &::before {
+                border: 2px solid black;
+                border-radius: 16px;
+                content: '';
+                display: inline-block;
+                height: 16px;
+                width: 16px;
+            }
         }
     }
 
-    &.heat-2 {
-        .datatable-row-group {
-            color: #1A237E; // indigo-900
-        }
-    }
+    .selectable {
+        // sass-lint:disable-block force-element-nesting, force-pseudo-nesting
 
-    &.heat-3 {
-        .datatable-row-group {
-            color: #4A148C; // purple-900
-        }
-    }
+        ::ng-deep {
+            .datatable-body-row:hover .datatable-row-group,
+            .datatable-body-row.active:hover .datatable-row-group {
+                background-color: var(--color-data-item-selectable, lightgrey);
+                color: var(--color-data-item-selectable-text, dimgrey);
+                cursor: pointer;
+            }
 
-    &.heat-4 {
-        .datatable-row-group {
-            color: #B71C1C; // red-900
-        }
-    }
-
-    &.heat-5 {
-        .datatable-row-group {
-            color: #E65100; // orange-900
-        }
-    }
-
-    &.active {
-        .datatable-row-group {
-            /* Invert colors */
-            background-color: var(--color-data-item-selected, dimgrey);
-            color: var(--color-data-item-selected-text, white);
-        }
-
-        &.heat-1 {
-            .datatable-row-group {
+            .datatable-body-row.heat-1:hover .datatable-row-group,
+            .datatable-body-row.active.heat-1:hover .datatable-row-group {
                 background-color: #29B6F6; // light-blue-400
             }
-        }
 
-        &.heat-2 {
-            .datatable-row-group {
+            .datatable-body-row.heat-2:hover .datatable-row-group,
+            .datatable-body-row.active.heat-2:hover .datatable-row-group {
                 background-color: #5C6BC0; // indigo-400
             }
-        }
 
-        &.heat-3 {
-            .datatable-row-group {
+            .datatable-body-row.heat-3:hover .datatable-row-group,
+            .datatable-body-row.active.heat-3:hover .datatable-row-group {
                 background-color: #AB47BC; // purple-400
             }
-        }
 
-        &.heat-4 {
-            .datatable-row-group {
+            .datatable-body-row.heat-4:hover .datatable-row-group,
+            .datatable-body-row.active.heat-4:hover .datatable-row-group {
                 background-color: #EF5350; // red-400
             }
-        }
 
-        &.heat-5 {
-            .datatable-row-group {
+            .datatable-body-row.heat-5:hover .datatable-row-group,
+            .datatable-body-row.active.heat-5:hover .datatable-row-group {
                 background-color: #FFA726; // orange-400
             }
         }
-    }
-}
-
-/deep/ .datatable-body {
-    height: 100%;
-    font-size: 14px;
-}
-
-/deep/ .mat-drawer-content {
-    height: 100%;
-}
-
-/deep/ .color-field {
-    &::before {
-        border: 2px solid black;
-        border-radius: 16px;
-        content: '';
-        display: inline-block;
-        height: 16px;
-        width: 16px;
-    }
-}
-
-.selectable {
-    // sass-lint:disable-block force-element-nesting, force-pseudo-nesting
-
-    /deep/ .datatable-body-row:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active:hover .datatable-row-group {
-        background-color: var(--color-data-item-selectable, lightgrey);
-        color: var(--color-data-item-selectable-text, dimgrey);
-        cursor: pointer;
-    }
-
-    /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group {
-        background-color: #29B6F6; // light-blue-400
-    }
-
-    /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group {
-        background-color: #5C6BC0; // indigo-400
-    }
-
-    /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group {
-        background-color: #AB47BC; // purple-400
-    }
-
-    /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group {
-        background-color: #EF5350; // red-400
-    }
-
-    /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
-    /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group {
-        background-color: #FFA726; // orange-400
     }
 }
 

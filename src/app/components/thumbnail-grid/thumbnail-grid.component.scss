@@ -15,8 +15,12 @@
 */
 @import '../base-neon-component/base-neon.component';
 
-/deep/ .mat-drawer-content {
-    overflow: unset;
+:host {
+    ::ng-deep {
+        .mat-drawer-content {
+            overflow: unset;
+        }
+    }
 }
 
 .thumbnail-grid-container {

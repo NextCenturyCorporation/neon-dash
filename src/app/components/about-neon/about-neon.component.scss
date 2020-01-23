@@ -19,15 +19,19 @@
     font-size: 14px;
 }
 
-/deep/ .about-subheader {
-    font-size: 16px;
-    font-weight: 500;
-}
+:host {
+    ::ng-deep {
+        .about-subheader {
+            font-size: 16px;
+            font-weight: 500;
+        }
 
-/deep/ .center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+    }
 }
 

@@ -15,10 +15,6 @@
  */
 @import '../base-neon-component/base-neon.component';
 
-/deep/ .mat-drawer-content {
-    overflow: unset;
-}
-
 .news-feed-container {
     display: flex;
     flex-direction: column;
@@ -149,30 +145,36 @@ mat-accordion {
     }
 }
 
-/deep/ {
-    .mat-expansion-panel {
-        .mat-expansion-panel-body {
-            padding: 0 10px 10px;
+:host {
+    ::ng-deep {
+        .mat-drawer-content {
+            overflow: unset;
         }
 
-        .mat-expansion-indicator {
-            &::after {
-                color: var(--color-text, dimgrey) !important;
+        .mat-expansion-panel {
+            .mat-expansion-panel-body {
+                padding: 0 10px 10px;
             }
-        }
 
-        &.selected {
             .mat-expansion-indicator {
                 &::after {
-                    color: var(--color-data-item-selected-text, white) !important;
+                    color: var(--color-text, dimgrey) !important;
                 }
             }
-        }
 
-        &.selectedable {
-            .mat-expansion-indicator {
-                &::after {
-                    color: var(--color-data-item-selectable-text, white) !important;
+            &.selected {
+                .mat-expansion-indicator {
+                    &::after {
+                        color: var(--color-data-item-selected-text, white) !important;
+                    }
+                }
+            }
+
+            &.selectedable {
+                .mat-expansion-indicator {
+                    &::after {
+                        color: var(--color-data-item-selectable-text, white) !important;
+                    }
                 }
             }
         }
