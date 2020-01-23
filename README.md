@@ -403,6 +403,17 @@ datastores:
                 tables:
 ```
 
+### Custom Assets
+
+Please put all custom assets in the `src/app/assets/custom` folder.
+
+### Custom Requests
+
+Neon's "custom requests" are a way to integrate the Neon Dashboard with your data processing modules, machine learning analytics, or other external software via [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints.
+
+Custom requests are accessible from the navbar menu.  Users can set or select values for one or more configurable properties to send in a request body to one or more specific endpoints.
+
+To configure custom requests in your dashboard, please see our documentation on [dashboard object options configuration](./docs/DASHBOARD_CONFIGURATION_GUIDE.md#dashboard-options-object).
 
 ## Technical Stack
 
