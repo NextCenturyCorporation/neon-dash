@@ -628,8 +628,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Finishes the execution of any query by decreasing the loadingCount and updating Angular.
      */
     private finishQueryExecution(): void {
-        this.loadingCount--;
         this.refreshVisualization();
+        this.loadingCount--;
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyles();
         this.noDataCheck();
@@ -646,6 +646,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
     private executeQuery(options: WidgetOptionCollection, query: SearchObject, queryId: string,
         callback: (options: WidgetOptionCollection, response: any, callback: () => void) => void) {
         this.loadingCount++;
+        // Call Angular change detection here to show our loading spinner.
+        this.changeDetection.detectChanges();
 
         if (this.cannotExecuteQuery(options) || !this.layerIdToQueryIdToQueryObject.has(options._id)) {
             if (this.layerIdToQueryIdToQueryObject.has(options._id) && this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
