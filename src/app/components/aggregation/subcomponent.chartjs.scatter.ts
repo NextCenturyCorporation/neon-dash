@@ -22,6 +22,11 @@ import { Color } from 'nucleus/dist/core/models/color';
 class ChartJsScatterDataset extends ChartJsLineDataset {
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
         super(elementRef, color, label, xList);
+        this.borderColor = this.getColorTransparency();
+        this.pointBackgroundColor = this.getColorTransparency();
+        this.pointBorderColor = this.getColorTransparency();
+        this.pointHoverBackgroundColor = this.getColorTransparency();
+        this.pointHoverBorderColor = this.getColorTransparency();
         this.fill = false;
         this.showLine = false;
     }

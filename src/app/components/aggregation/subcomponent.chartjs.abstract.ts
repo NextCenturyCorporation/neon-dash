@@ -188,7 +188,38 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 onHover: this.onHoverEvent.bind(this)
             },
             legend: {
-                display: false
+                display: !!meta.legend,
+                position: 'bottom',
+                labels: !meta.legend ? {} : {
+                    boxWidth: 10,
+                    fontColor: this.textColorHex,
+                    generateLabels: (chart) => {
+                        // Made from original function: https://github.com/chartjs/Chart.js/blob/master/src/plugins/plugin.legend.js
+                        const datasets = chart.data.datasets;
+                        return chart._getSortedDatasetMetas()
+                            .filter((datasetMeta) => meta.groups.indexOf(datasets[datasetMeta.index].label) >= 0)
+                            .map((datasetMeta) => {
+                                const style = datasetMeta.controller.getStyle();
+                                const group = datasets[datasetMeta.index].label;
+                                const label = meta.legend.groupsToLabels && meta.legend.groupsToLabels.has(group) ?
+                                    meta.legend.groupsToLabels.get(group) : group;
+                                return {
+                                    text: label,
+                                    fillStyle: style.backgroundColor,
+                                    hidden: false,
+                                    lineCap: style.borderCapStyle,
+                                    lineDash: style.borderDash,
+                                    lineDashOffset: style.borderDashOffset,
+                                    lineJoin: style.borderJoinStyle,
+                                    lineWidth: style.borderWidth,
+                                    strokeStyle: style.borderColor,
+                                    pointStyle: style.pointStyle,
+                                    rotation: style.rotation,
+                                    datasetIndex: datasetMeta.index
+                                };
+                            });
+                    }
+                }
             },
             maintainAspectRatio: false,
             onClick: this.onClickEvent.bind(this),
@@ -203,6 +234,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     position: 'bottom',
                     scaleLabel: {
                         display: true,
+                        fontColor: this.textColorHex,
                         labelString: this.options.axisLabelX,
                         padding: 0
                     },
@@ -225,6 +257,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     position: 'left',
                     scaleLabel: {
                         display: true,
+                        fontColor: this.textColorHex,
                         labelString: this.options.axisLabelY,
                         padding: -10 // Set a negative padding because ChartJS adds too much y-axis label padding by default.
                     },

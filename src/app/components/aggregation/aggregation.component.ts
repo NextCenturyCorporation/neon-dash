@@ -78,6 +78,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { StatisticsUtil } from '../../util/statistics.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import * as moment from 'moment';
@@ -195,6 +196,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
     private _filteredLegendValues: any[] = [];
     private _filteredSingleValues: any[] = [];
+
+    private _rocCurveAUCs = new Map<string, number>();
 
     constructor(
         dashboardService: DashboardService,
@@ -482,6 +485,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new ConfigOptionFreeText('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionFreeText('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
+                prettyName: '0',
+                variable: 0
+            }, {
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -515,6 +521,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionSelect('rocCurve', 'ROC Curve', false, false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeIsNotGrid.bind(this)),
@@ -787,7 +795,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (subcomponentObject) {
-            if (cannotSelect) {
+            if (cannotSelect || this.options.rocCurve) {
                 subcomponentObject.ignoreSelectEvents();
             }
             // Do not call initialize inside the constructor due to how angular handles subclass property initialization.
@@ -979,6 +987,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.legendGroups = groups;
         }
 
+        if (options.rocCurve && options.type === 'line-xy') {
+            this._createRocCurve(options, groups, groupsToColors);
+        }
+
         // Redraw the latest filters in the visualization element.
         this.redrawFilters(filters);
 
@@ -986,8 +998,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = this.legendGroups.filter((group) => groups.indexOf(group) >= 0 &&
             this.legendDisabledGroups.indexOf(group) < 0);
 
-        return (this.options.countByAggregation || !this.optionsAggregationIsCountOrNA(options)) ? this.aggregationData.length :
-            this.aggregationData.reduce((count, element) => count + element.y, 0);
+        return this._retrieveElementCount(options, groups);
     }
 
     /**
@@ -1236,6 +1247,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             aggregationLabel: this.options.aggregation,
             dataLength: this.aggregationData.length,
             groups: this.legendGroups,
+            legend: this.options.rocCurve ? {
+                groupsToLabels: this.legendGroups.reduce((map, group) => {
+                    map.set(group, group + ' AUC=' + (this._rocCurveAUCs.has(group) ? this._rocCurveAUCs.get(group) : '?'));
+                    return map;
+                }, new Map<string, string>())
+            } : null,
             maximumAggregation: this.maximumAggregation,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
@@ -1426,16 +1443,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentRequestsSelect(xValue: number, yValue: number, width: number, height: number) {
-        this.selectedAreaOffset = {
-            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
-            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0', 10)
-        };
-        this.selectedArea = {
-            height: height,
-            width: width,
-            x: xValue,
-            y: yValue
-        };
+        if (!this.options.notFilterable) {
+            this.selectedAreaOffset = {
+                x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
+                y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0', 10)
+            };
+            this.selectedArea = {
+                height: height,
+                width: width,
+                x: xValue,
+                y: yValue
+            };
+        }
     }
 
     /**
@@ -1526,5 +1545,60 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }
             });
         }
+    }
+
+    private _createRocCurve(options: any, groups: string[], groupsToColors: Map<string, Color>): void {
+        options.lineCurveTension = 0;
+        options.notFilterable = true;
+
+        const rocCurveCallback = (category: string, xValue: number, yValue: number): any => ({
+            aggregation: 1,
+            color: category ? groupsToColors.get(category) : Color.fromHexString('#888'),
+            group: category || 'Random',
+            x: xValue,
+            y: yValue
+        });
+
+        const rocCurveData = StatisticsUtil.rocCurve(groups.reduce((rocCurveInputArray, group) =>
+            rocCurveInputArray.concat({
+                category: group,
+                data: this.aggregationData.filter((item) => item.group === group).reduce((categoryData, item) => {
+                    for (let aggregationIndex = 0; aggregationIndex < item.aggregation; ++aggregationIndex) {
+                        categoryData.push({
+                            label: item.y,
+                            score: item.x
+                        });
+                    }
+                    return categoryData;
+                }, [])
+            }), []), rocCurveCallback);
+
+        this.aggregationData = rocCurveData.points;
+        this.xList = rocCurveData.xArray;
+        this.yList = rocCurveData.yArray;
+        this._rocCurveAUCs = rocCurveData.aucs;
+    }
+
+    private _retrieveElementCount(options: any, groups: string[]) {
+        if (options.countByAggregation || !this.optionsAggregationIsCountOrNA(options)) {
+            switch (options.type) {
+                case 'line':
+                case 'line-xy':
+                    return groups.length;
+                case 'bar-h':
+                case 'bar-v':
+                case 'doughnut':
+                case 'histogram':
+                case 'list':
+                case 'pie':
+                    return this.xList.length;
+                case 'scatter':
+                case 'scatter-xy':
+                default:
+                    return this.aggregationData.length;
+            }
+        }
+
+        return this.aggregationData.reduce((count, element) => count + element.y, 0);
     }
 }

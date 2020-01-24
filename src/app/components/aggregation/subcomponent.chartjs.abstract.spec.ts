@@ -304,6 +304,42 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.data.labels).toEqual([2, 4, 6, 8]);
     });
 
+    it('createChartDataAndOptions does have legend if legend is configured', () => {
+        let dataAndOptions = subcomponent.getChartDataAndOptions([{
+            color: Color.fromRgb(1, 2, 3),
+            group: 'a',
+            x: 1,
+            y: 2
+        }, {
+            color: Color.fromRgb(1, 2, 3),
+            group: 'a',
+            x: 3,
+            y: 4
+        }, {
+            color: Color.fromRgb(4, 5, 6),
+            group: 'b',
+            x: 5,
+            y: 6
+        }, {
+            color: Color.fromRgb(4, 5, 6),
+            group: 'b',
+            x: 7,
+            y: 8
+        }], {
+            legend: {},
+            xAxis: 'number',
+            xList: [1, 3, 5, 7],
+            yAxis: 'number',
+            yList: [2, 4, 6, 8]
+        });
+
+        expect(dataAndOptions.options.legend.display).toEqual(true);
+        expect(dataAndOptions.options.legend.position).toEqual('bottom');
+        expect(dataAndOptions.options.legend.labels.boxWidth).toEqual(10);
+        expect(dataAndOptions.options.legend.labels.fontColor).toBeDefined();
+        expect(dataAndOptions.options.legend.labels.generateLabels).toBeDefined();
+    });
+
     it('selectBounds with button down does select area', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
