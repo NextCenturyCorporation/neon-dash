@@ -517,6 +517,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }], this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotLine.bind(this)),
+            new ConfigOptionSelect('listWrap', 'List Wrap', false, false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeIsNotList.bind(this)),
             new ConfigOptionSelect('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,

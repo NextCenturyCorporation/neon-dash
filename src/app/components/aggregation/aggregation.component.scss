@@ -41,7 +41,7 @@
         .list-subcomponent {
             .list-item {
                 cursor: pointer;
-                padding: 2px 10px;
+                padding: 2px 10px 2px 0;
 
                 .list-text {
                     font-size: 14px;
@@ -77,21 +77,11 @@
                     }
                 }
 
-                &.active {
-                    .list-selectable {
-                        color: var(--color-data-item-selectable, lightgrey);
-                    }
-                }
-
-                &:hover {
-                    .list-selectable {
-                        color: var(--color-data-item-selected, lightgrey);
-                    }
-                }
-
                 &.active,
                 &:hover {
                     .list-selectable {
+                        color: var(--color-data-item-selectable, lightgrey);
+
                         &.heat-1 {
                             color: #29B6F6; // light-blue-400
                         }
@@ -113,6 +103,15 @@
                         }
                     }
                 }
+
+                &.active {
+                    &:hover {
+                        .list-selectable {
+                            color: var(--color-text, dimgrey);
+                        }
+                    }
+                }
+
             }
         }
     }
