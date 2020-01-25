@@ -389,6 +389,7 @@ export class DashboardService {
             lastModified: config.lastModified,
             projectTitle: config.projectTitle,
             projectIcon: config.projectIcon,
+            theme: config.theme,
             fileName: config.fileName
         });
     }

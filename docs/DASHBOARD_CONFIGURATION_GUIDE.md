@@ -706,6 +706,7 @@ Optional configuration file properties:
 * **"neonTools"** - An object containing data for the Tools panel.  Please see the [**Neon Tools Property Examples**](#neon-tools-property-examples).
 * **"projectIcon"** - The icon for the application tab in the web browser.  Default: `"src/assets/favicon.blue.ico"`
 * **"projectTitle"** - The text for the application tab in the web browser.  Default: `"Neon"`
+* **"theme"** - The default theme name.  Options:  `"teal"`, `"dark"`.  Default:  `"teal"`
 
 #### **About Property Examples**
 

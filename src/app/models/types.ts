@@ -223,6 +223,7 @@ export interface NeonConfig {
     neonTools?: any;
     projectIcon?: string;
     projectTitle?: string;
+    theme?: string;
     version?: string;
 }
 
@@ -237,6 +238,7 @@ export class NeonConfig {
             neonTools: {},
             projectIcon: '',
             projectTitle: '',
+            theme: '',
             version: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
