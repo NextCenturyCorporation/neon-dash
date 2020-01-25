@@ -173,6 +173,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                     config.projectTitle || 'Neon',
                     config.projectIcon || 'assets/favicon.blue.ico?v=1'
                 );
+                if (config.theme) {
+                    const themeIds = this.colorThemeService.getThemes().filter((theme) =>
+                        theme.name.toLowerCase() === config.theme.toLowerCase()).map((theme) => theme.id);
+                    if (themeIds.length) {
+                        this.colorThemeService.setTheme(themeIds[0]);
+                        this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
+                    }
+                }
             });
     }
 
