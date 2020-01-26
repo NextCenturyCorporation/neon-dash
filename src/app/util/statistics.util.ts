@@ -40,8 +40,8 @@ export class StatisticsUtil {
     ): { aucs: Map<string, number>, points: any[], xArray: number[], yArray: number[] } {
         let categoriesToAUCs = new Map<string, number>();
         let categoriesToPoints = new Map<string, any[]>();
-        let xArray: number[] = [];
-        let yArray: number[] = [];
+        let xArray: number[] = [0, 1];
+        let yArray: number[] = [0, 1];
 
         dataByCategory.filter((item) => item.data.length).forEach((categoryItem) => {
             // Copy the data so we can sort it in place
