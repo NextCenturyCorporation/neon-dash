@@ -78,27 +78,36 @@ export class StatisticsUtil {
             });
             let truePositiveMax = distinctTruePositives[distinctTruePositives.length - 1];
             let falsePositiveMax = distinctFalsePositives[distinctFalsePositives.length - 1];
-            let xToIndex = new Map<number, number>();
-            let categoryPoints: any[] = [callback(categoryItem.category, 0, 0)];
-            // Divide each true and false positive by its max to find the true and false positive rates for the curve
-            for (let index = 0; index < distinctIndexes.length; ++index) {
-                // Round to nearest hundredth
-                let xValue = Math.round((distinctFalsePositives[index] / falsePositiveMax) * 100) / 100;
-                let yValue = Math.round((distinctTruePositives[index] / truePositiveMax) * 100) / 100;
-                // Note: Using a Map here seems to be faster than _.findIndex
-                if (!xToIndex.has(xValue)) {
-                    // If a point with this X does not already exist, create it
-                    categoryPoints.push(callback(categoryItem.category, xValue, yValue));
-                    xToIndex.set(xValue, categoryPoints.length - 1);
-                } else {
-                    // Else recreate the point using its new (bigger) Y value
-                    categoryPoints[xToIndex.get(xValue)] = callback(categoryItem.category, xValue, yValue);
-                }
-                if (xArray.indexOf(xValue) < 0) {
-                    xArray.push(xValue);
-                }
-                if (yArray.indexOf(yValue) < 0) {
-                    yArray.push(yValue);
+            let categoryPoints: any[] = [];
+
+            if (!truePositiveMax) {
+                categoryPoints = [callback(categoryItem.category, 0, 0), callback(categoryItem.category, 1, 0)];
+            } else if (!falsePositiveMax) {
+                categoryPoints = [callback(categoryItem.category, 0, 1), callback(categoryItem.category, 1, 1)];
+            } else {
+                let xToIndex = new Map<number, number>();
+                categoryPoints = [callback(categoryItem.category, 0, 0)];
+
+                // Divide each true and false positive by its max to find the true and false positive rates for the curve
+                for (let index = 0; index < distinctIndexes.length; ++index) {
+                    // Round to nearest hundredth
+                    let xValue = Math.round((distinctFalsePositives[index] / falsePositiveMax) * 100) / 100;
+                    let yValue = Math.round((distinctTruePositives[index] / truePositiveMax) * 100) / 100;
+                    // Note: Using a Map here seems to be faster than _.findIndex
+                    if (!xToIndex.has(xValue)) {
+                        // If a point with this X does not already exist, create it
+                        categoryPoints.push(callback(categoryItem.category, xValue, yValue));
+                        xToIndex.set(xValue, categoryPoints.length - 1);
+                    } else {
+                        // Else recreate the point using its new (bigger) Y value
+                        categoryPoints[xToIndex.get(xValue)] = callback(categoryItem.category, xValue, yValue);
+                    }
+                    if (xArray.indexOf(xValue) < 0) {
+                        xArray.push(xValue);
+                    }
+                    if (yArray.indexOf(yValue) < 0) {
+                        yArray.push(yValue);
+                    }
                 }
             }
             categoriesToPoints.set(categoryItem.category, categoryPoints);
