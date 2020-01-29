@@ -15,7 +15,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/platform-server@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/router@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @caci-critical-insight-solutions/nucleus-core@0.0.7 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
-| @caci-critical-insight-solutions/nucleus-wrappers-angular@0.0.3 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
+| @caci-critical-insight-solutions/nucleus-wrappers-angular@0.0.4 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | @swimlane/ngx-datatable@16.0.2 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @wishtack/reactive-component-loader@1.1.0 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
 | @wishtack/rx-scavenger@2.0.0 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
