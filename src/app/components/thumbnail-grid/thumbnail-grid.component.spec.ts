@@ -14,23 +14,25 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
-import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    FieldConfig,
+    FilterCollection,
+    SearchServiceMock
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 import { } from 'jasmine-core';
 
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
-import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;

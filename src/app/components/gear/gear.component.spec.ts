@@ -18,20 +18,23 @@ import { } from 'jasmine-core';
 
 import { GearComponent } from '../gear/gear.component';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    AbstractSearchService,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
+    FieldConfig,
+    SearchServiceMock
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-
-import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
-import { ConfigOptionField, ConfigOptionFreeText, ConfigOptionNonPrimitive } from '@caci-critical-insight-solutions/nucleus-core';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {

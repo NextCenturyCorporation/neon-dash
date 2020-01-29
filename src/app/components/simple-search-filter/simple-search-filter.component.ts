@@ -13,11 +13,16 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
-import { Dataset, DatabaseConfig, FieldConfig, TableConfig } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    CompoundFilterType,
+    DatabaseConfig,
+    Dataset,
+    FieldConfig,
+    ListFilterDesign,
+    TableConfig
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';

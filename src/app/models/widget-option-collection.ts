@@ -13,16 +13,6 @@
  * limitations under the License.
  */
 import {
-    Dataset,
-    DatasetUtil,
-    DatabaseConfig,
-    DatastoreConfig,
-    FieldConfig,
-    TableConfig
-} from '@caci-critical-insight-solutions/nucleus-core';
-import * as _ from 'lodash';
-import * as uuidv4 from 'uuid/v4';
-import {
     ConfigOption,
     ConfigOptionDatabase,
     ConfigOptionDatastore,
@@ -30,10 +20,18 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     ConfigOptionTable,
+    Dataset,
+    DatasetUtil,
+    DatabaseConfig,
+    DatastoreConfig,
+    FieldConfig,
     isFieldOption,
     OptionChoices,
-    OptionType
+    OptionType,
+    TableConfig
 } from '@caci-critical-insight-solutions/nucleus-core';
+import * as _ from 'lodash';
+import * as uuidv4 from 'uuid/v4';
 
 export class OptionConfig {
     constructor(protected config: any = {}) { }

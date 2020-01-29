@@ -16,21 +16,26 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
-import { FilterCollection, ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    DatabaseConfig,
+    FieldConfig,
+    FilterCollection,
+    ListFilterDesign,
+    SearchServiceMock,
+    TableConfig
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseConfig, FieldConfig, TableConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
-import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;

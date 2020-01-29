@@ -24,40 +24,37 @@ import {
 } from '@angular/core';
 
 import {
-    AbstractSearchService,
-    FilterClause,
-    SearchObject
-} from '@caci-critical-insight-solutions/nucleus-core';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { DashboardService } from '../../services/dashboard.service';
-import {
     AbstractFilter,
     AbstractFilterDesign,
+    AbstractSearchService,
+    AggregationType,
+    CompoundFilterType,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOption,
+    ConfigOptionSelect,
+    CoreUtil,
     DomainFilter,
     DomainFilterDesign,
     DomainValues,
+    FieldConfig,
+    FieldKey,
+    FilterClause,
     FilterCollection,
-    ListFilterDesign
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    TimeInterval
 } from '@caci-critical-insight-solutions/nucleus-core';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
-import {
-    AggregationType,
-    CompoundFilterType,
-    OptionChoices,
-    TimeInterval,
-    ConfigOptionField,
-    ConfigOptionFreeText,
-    ConfigOption,
-    ConfigOptionSelect
-} from '@caci-critical-insight-solutions/nucleus-core';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';

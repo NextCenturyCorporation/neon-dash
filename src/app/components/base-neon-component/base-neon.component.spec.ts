@@ -26,15 +26,9 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter } from '@caci-critical-insight-solutions/nucleus-core';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NeonConfig } from '../../models/types';
-import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
     ConfigOption,
     ConfigOptionFieldArray,
@@ -43,11 +37,19 @@ import {
     ConfigOptionMultipleSelect,
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
-    OptionChoices
+    FieldConfig,
+    FilterCollection,
+    ListFilter,
+    OptionChoices,
+    SearchServiceMock
 } from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NeonConfig } from '../../models/types';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';

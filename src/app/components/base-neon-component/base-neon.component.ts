@@ -15,20 +15,23 @@
 import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
+    AbstractFilter,
+    AbstractFilterDesign,
     AbstractSearchService,
+    ConfigOption,
+    CoreUtil,
+    Dataset,
+    DatasetUtil,
+    FieldKey,
     FilterClause,
+    FilterCollection,
+    OptionType,
+    RequestWrapper,
     SearchObject
 } from '@caci-critical-insight-solutions/nucleus-core';
-import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilter, AbstractFilterDesign, FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 import { neonEvents } from '../../models/neon-namespaces';
-import {
-    ConfigOption,
-    OptionType
-} from '@caci-critical-insight-solutions/nucleus-core';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -39,7 +42,6 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardState } from '../../models/dashboard-state';
 import { VisualizationWidget } from '../../models/visualization-widget';
 

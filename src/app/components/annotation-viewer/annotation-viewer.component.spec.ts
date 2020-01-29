@@ -17,14 +17,16 @@ import { } from 'jasmine-core';
 
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import {
+    AbstractSearchService,
+    FieldConfig,
+    SearchServiceMock
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
-import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';

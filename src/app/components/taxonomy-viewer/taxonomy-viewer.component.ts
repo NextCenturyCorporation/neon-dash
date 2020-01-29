@@ -23,24 +23,29 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
-import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
-    OptionChoices,
-    SortOrder,
     ConfigOptionField,
     ConfigOptionFieldArray,
     ConfigOptionFreeText,
     ConfigOption,
-    ConfigOptionSelect
+    ConfigOptionSelect,
+    CoreUtil,
+    FieldConfig,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    SortOrder
 } from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;

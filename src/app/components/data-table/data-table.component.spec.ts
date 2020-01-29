@@ -18,18 +18,23 @@ import { } from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 
-import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    DatabaseConfig,
+    FieldConfig,
+    FilterCollection,
+    ListFilterDesign,
+    SearchServiceMock,
+    TableConfig
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { DatabaseConfig, FieldConfig, TableConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
-import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 // TODO Change toHaveBeenCalled to toHaveBeenCalledWith
 /* eslint-disable jasmine/prefer-toHaveBeenCalledWith */

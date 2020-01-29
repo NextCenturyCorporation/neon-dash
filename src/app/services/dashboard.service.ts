@@ -14,9 +14,19 @@
  */
 import { Injectable } from '@angular/core';
 
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
+import {
+    AbstractFilter,
+    BoundsFilter,
+    CompoundFilter,
+    CompoundFilterType,
+    DatasetUtil,
+    DatastoreConfig,
+    DomainFilter,
+    FieldKey,
+    ListFilter,
+    PairFilter
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -27,14 +37,6 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import {
-    AbstractFilter,
-    BoundsFilter,
-    CompoundFilter,
-    DomainFilter,
-    ListFilter,
-    PairFilter
-} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from './injectable.filter.service';
 
 /**

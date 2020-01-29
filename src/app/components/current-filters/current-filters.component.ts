@@ -15,9 +15,7 @@
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { AbstractFilter } from '@caci-critical-insight-solutions/nucleus-core';
-import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
-import { Dataset } from '@caci-critical-insight-solutions/nucleus-core';
+import { AbstractFilter, CompoundFilterType, Dataset } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { eventing } from 'neon-framework';

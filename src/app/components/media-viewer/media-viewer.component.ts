@@ -25,28 +25,31 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../models/types';
-import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
-    OptionChoices,
-    SortOrder,
+    AbstractFilterDesign,
+    AbstractSearchService,
     ConfigOptionFieldArray,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNumber,
     ConfigOptionNonPrimitive,
     ConfigOption,
-    ConfigOptionSelect
+    ConfigOptionSelect,
+    CoreUtil,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    OptionChoices,
+    SearchObject,
+    SortOrder
 } from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { MediaTypes } from '../../models/types';
 import { MatDialog } from '@angular/material';
 import { MediaMetaData } from '../media-group/media-group.component';
-import { FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
