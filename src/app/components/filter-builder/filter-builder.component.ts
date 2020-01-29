@@ -18,12 +18,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import { AbstractFilterDesign, CompoundFilterDesign, ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
+import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from 'nucleus/dist/core/models/dataset';
+import { Dataset, FieldConfig, TableConfig, DatabaseConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({

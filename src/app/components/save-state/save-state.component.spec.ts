@@ -18,14 +18,14 @@ import { ViewContainerRef, NgModuleFactoryLoader } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { ConfirmationDialogModule } from '../../components/confirmation-dialog/confirmation-dialog.module';

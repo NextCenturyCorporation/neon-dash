@@ -18,7 +18,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { ConfigOption } from 'nucleus/dist/core/models/config-option';
+import { ConfigOption } from '@caci-critical-insight-solutions/nucleus-core';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 @Component({

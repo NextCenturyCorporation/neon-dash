@@ -14,21 +14,21 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FilterCollection } from 'nucleus/dist/core/models/filters';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
+import { FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
+import { DatabaseConfig, FieldConfig, TableConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DocumentViewerModule } from './document-viewer.module';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
+import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;

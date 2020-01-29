@@ -58,7 +58,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             labelElement.innerHTML = item.x;
 
             let valueElement = document.createElement('td');
-            valueElement.innerHTML = item.y;
+            valueElement.innerHTML = '(' + item.y + ')';
 
             if (this.options.showHeat) {
                 let heatIndex = Math.floor((sort === 'y' ? item.y : index) / divisor);
@@ -70,7 +70,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
             let rowClass = 'list-item';
             let rowTitle = item.x + ' (' + item.y + ')';
-            let rowElement = document.createElement('tr');
+            let rowElement = this.options.listWrap ? document.createElement('span') : document.createElement('tr');
 
             let selectedIndex = _.findIndex(this.selectedData, (selectedItem) =>
                 (selectedItem.group ? selectedItem.group === item.group : true) && selectedItem.value === item.x);

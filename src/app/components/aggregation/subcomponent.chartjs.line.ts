@@ -15,7 +15,7 @@
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from 'nucleus/dist/core/models/color';
+import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 export class ChartJsLineDataset extends AbstractChartJsDataset {

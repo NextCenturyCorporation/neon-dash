@@ -25,15 +25,15 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 import { MediaTypes } from '../../models/types';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -45,7 +45,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {

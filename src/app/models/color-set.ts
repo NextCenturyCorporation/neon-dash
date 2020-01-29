@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Color, ColorSet } from 'nucleus/dist/core/models/color';
+import { Color, ColorSet } from '@caci-critical-insight-solutions/nucleus-core';
 
 export class NeonDashboardColorSet extends ColorSet {
     private neonDashboardColors: Color[] = [

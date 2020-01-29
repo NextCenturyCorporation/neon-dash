@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -38,7 +38,7 @@ import {
     ListFilterDesign,
     PairFilter,
     PairFilterDesign
-} from 'nucleus/dist/core/models/filters';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -51,9 +51,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { DatasetUtil, FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -63,7 +63,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 

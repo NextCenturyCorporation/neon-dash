@@ -29,7 +29,7 @@ import {
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { MatDialog } from '@angular/material';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     AggregationType,
     ConfigOption,
@@ -37,17 +37,17 @@ import {
     ConfigOptionSelect,
     OptionChoices,
     OptionType
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import {
     ConfigurableWidget,
     OptionConfig,
     RootWidgetOptionCollection,
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { Dataset } from 'nucleus/dist/core/models/dataset';
+import { Dataset } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';

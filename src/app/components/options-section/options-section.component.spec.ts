@@ -17,10 +17,10 @@ import { OptionsSectionComponent } from '../options-section/options-section.comp
 import { OptionsSectionModule } from '../options-section/options-section.module';
 
 import { Injector } from '@angular/core';
-import { AbstractColorThemeService } from 'nucleus/dist/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from '@caci-critical-insight-solutions/nucleus-core';
 import { ColorThemeService } from '../../services/color-theme.service';
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -29,7 +29,7 @@ import {
     ConfigOptionFreeText,
     ConfigOptionSelect,
     OptionChoices
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 describe('Component: Options-Section', () => {

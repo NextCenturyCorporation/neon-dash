@@ -19,7 +19,7 @@ import {
     DatastoreConfig,
     FieldConfig,
     TableConfig
-} from 'nucleus/dist/core/models/dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -33,7 +33,7 @@ import {
     isFieldOption,
     OptionChoices,
     OptionType
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 export class OptionConfig {
     constructor(protected config: any = {}) { }

@@ -27,7 +27,7 @@ import {
     AbstractSearchService,
     FilterClause,
     SearchObject
-} from 'nucleus/dist/core/services/abstract.search.service';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -38,13 +38,13 @@ import {
     DomainValues,
     FilterCollection,
     ListFilterDesign
-} from 'nucleus/dist/core/models/filters';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     AggregationType,
     CompoundFilterType,
@@ -54,10 +54,10 @@ import {
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';

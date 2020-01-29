@@ -18,9 +18,9 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { ConfigOption } from 'nucleus/dist/core/models/config-option';
+import { ConfigOption } from '@caci-critical-insight-solutions/nucleus-core';
 
 @Component({
     selector: 'app-options-list',

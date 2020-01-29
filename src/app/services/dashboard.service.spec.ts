@@ -14,7 +14,7 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
 import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 
@@ -32,8 +32,8 @@ import {
     ListFilter,
     ListFilterDesign,
     PairFilter
-} from 'nucleus/dist/core/models/filters';
-import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from 'nucleus/dist/core/models/mock.dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;

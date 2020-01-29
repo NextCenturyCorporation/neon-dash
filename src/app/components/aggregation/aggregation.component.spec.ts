@@ -22,9 +22,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType, CompoundFilterType, TimeInterval } from 'nucleus/dist/core/models/config-option';
+import { AggregationType, CompoundFilterType, TimeInterval } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     BoundsFilterDesign,
@@ -32,15 +32,15 @@ import {
     FilterCollection,
     ListFilter,
     ListFilterDesign
-} from 'nucleus/dist/core/models/filters';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { Color } from 'nucleus/dist/core/models/color';
+import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
+import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
+import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;

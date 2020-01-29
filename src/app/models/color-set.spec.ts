@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Color } from 'nucleus/dist/core/models/color';
+import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 import { NeonDashboardColorSet } from './color-set';
 
 describe('NeonDashboardColorSet', () => {

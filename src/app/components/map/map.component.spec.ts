@@ -22,8 +22,8 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import { AbstractSearchService } from '@caci-critical-insight-solutions/nucleus-core';
+import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -33,20 +33,20 @@ import {
     FilterCollection,
     ListFilterDesign,
     PairFilterDesign
-} from 'nucleus/dist/core/models/filters';
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
+import { CoreSearch } from '@caci-critical-insight-solutions/nucleus-core';
 
 @Component({
     selector: 'app-map',

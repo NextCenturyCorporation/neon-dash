@@ -26,22 +26,22 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
+import { AbstractFilterDesign, FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     OptionChoices,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { MatDialog } from '@angular/material';
-import { FieldKey } from 'nucleus/dist/core/models/dataset';
+import { FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 
 export class WikiData {
     constructor(public name: string, public text: SafeHtml) { }

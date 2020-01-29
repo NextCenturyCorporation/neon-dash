@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DatabaseConfig } from 'nucleus/dist/core/models/dataset';
+import { DatabaseConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 export class CustomConnectionData {
     public datasetName: string = '';

@@ -14,9 +14,9 @@
  */
 import { Injectable } from '@angular/core';
 
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import { CompoundFilterType } from '@caci-critical-insight-solutions/nucleus-core';
 import { FilterConfig, NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, FieldKey, DatastoreConfig } from 'nucleus/dist/core/models/dataset';
+import { DatasetUtil, FieldKey, DatastoreConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -34,7 +34,7 @@ import {
     DomainFilter,
     ListFilter,
     PairFilter
-} from 'nucleus/dist/core/models/filters';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from './injectable.filter.service';
 
 /**

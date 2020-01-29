@@ -22,15 +22,15 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
     OptionChoices
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { NeonConfig } from '../../models/types';
 import { RootWidgetOptionCollection, WidgetOptionCollection } from '../../models/widget-option-collection';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
+import { SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { SingleVisualizationWidgetComponent } from './single-visualization-widget.component';
 import { VisualizationType } from '../../models/visualization-widget';
 
@@ -46,7 +46,7 @@ import {
     FIELDS,
     TABLES,
     TABLES_LIST
-} from 'nucleus/dist/core/models/mock.dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 describe('SingleVisualizationWidgetComponent static function', () => {
     it('createInfoButtonText does return expected string', () => {

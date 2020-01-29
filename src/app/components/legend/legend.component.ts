@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSet } from 'nucleus/dist/core/models/color';
+import { ColorSet } from '@caci-critical-insight-solutions/nucleus-core';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 

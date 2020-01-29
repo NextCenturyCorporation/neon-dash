@@ -24,16 +24,16 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, FilterClause, SearchObject } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
-import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
+import { DateFormat, DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
+import { AbstractFilterDesign, FilterCollection } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
+import { FieldConfig, FieldKey } from '@caci-critical-insight-solutions/nucleus-core';
 import {
     OptionChoices,
     SortOrder,
@@ -42,7 +42,7 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOption,
     ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';

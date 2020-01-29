@@ -17,8 +17,8 @@ import { Component } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
-import { DatabaseConfig, TableConfig, FieldConfig } from 'nucleus/dist/core/models/dataset';
-import { Connection } from 'nucleus/dist/core/services/connection.service';
+import { DatabaseConfig, TableConfig, FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
+import { Connection } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
