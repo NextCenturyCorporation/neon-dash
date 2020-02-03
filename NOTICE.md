@@ -8,13 +8,13 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/compiler@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/core@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/forms@8.2.14 | [MIT](https://github.com/angular/angular) |
-| @angular/http@7.2.15 | [MIT](https://github.com/angular/angular) |
+| @angular/http@7.2.16 | [MIT](https://github.com/angular/angular) |
 | @angular/material@8.2.3 | [MIT](https://github.com/angular/components/raw/master/LICENSE) |
 | @angular/platform-browser-dynamic@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/platform-browser@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/platform-server@8.2.14 | [MIT](https://github.com/angular/angular) |
 | @angular/router@8.2.14 | [MIT](https://github.com/angular/angular) |
-| @swimlane/ngx-datatable@16.0.2 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
+| @swimlane/ngx-datatable@16.0.3 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | @wishtack/reactive-component-loader@1.1.1 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
 | @wishtack/rx-scavenger@2.0.1 | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
 | angular-tree-component@8.5.2 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
@@ -22,7 +22,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | chart.js@2.9.3 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
-| core-js@3.6.0 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
+| core-js@3.6.2 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-shape@1.3.7 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.3.2 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | d3@3.5.17 | [BSD-3-Clause](https://github.com/mbostock/d3/raw/master/LICENSE) |
@@ -43,7 +43,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | nucleus@0.2.2 | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | papaparse@5.1.1 | [MIT](https://github.com/mholt/PapaParse/raw/master/LICENSE) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
-| rxjs@6.5.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.5.4 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.3 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
