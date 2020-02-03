@@ -213,6 +213,7 @@ export interface NeonConfig {
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
+    dataLabels?: any[];
     neonTools?: any;
     errors?: any[];
     fileName?: string;

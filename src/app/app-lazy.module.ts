@@ -26,6 +26,10 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
             loadChildren: './components/aggregation/aggregation.module#AggregationModule'
         }),
         ReactiveComponentLoaderModule.withModule({
+            moduleId: 'annotation',
+            loadChildren: './components/annotation/annotation.module#AnnotationModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
             moduleId: 'annotation-viewer',
             loadChildren: './components/annotation-viewer/annotation-viewer.module#AnnotationViewerModule'
         }),

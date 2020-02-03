@@ -298,6 +298,11 @@ body {
         padding: 0 5px;
         width: calc(20% - 10px) !important;
     }
+
+    &.neon-form-field-flex-full {
+        padding: 0 5px;
+        width: calc(100% - 50px) !important;
+    }
 }
 
 .mat-icon-button {
