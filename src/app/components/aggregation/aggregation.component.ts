@@ -525,6 +525,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('rocCurve', 'ROC Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotLine.bind(this)),
+            new ConfigOptionSelect('rocCurvePrecision', 'ROC Curve Precision', false, 100, [{
+                prettyName: 'Hundredth (Faster, Less Precise)',
+                variable: 100
+            }, {
+                prettyName: 'Thousandth (Slower, More Precise)',
+                variable: 1000
+            }], this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionNumber('scaleMinX', 'Scale Min X', false, null, this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionNumber('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeIsNotGrid.bind(this)),
@@ -1573,7 +1580,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     }
                     return categoryData;
                 }, [])
-            }), []), rocCurveCallback);
+            }), []), rocCurveCallback, options.rocCurvePrecision);
 
         this.aggregationData = rocCurveData.points;
         this.xList = rocCurveData.xArray;

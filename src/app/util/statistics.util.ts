@@ -36,7 +36,8 @@ export class StatisticsUtil {
      */
     public static rocCurve(
         dataByCategory: { category: string, data: { label: number, score: number }[] }[],
-        callback: (category: string, x: number, y: number) => any = StatisticsUtil.createCategoryXY.bind(this)
+        callback: (category: string, x: number, y: number) => any = StatisticsUtil.createCategoryXY.bind(this),
+        divideBy: number = 100
     ): { aucs: Map<string, number>, points: any[], xArray: number[], yArray: number[] } {
         let categoriesToAUCs = new Map<string, number>();
         let categoriesToPoints = new Map<string, any[]>();
@@ -91,8 +92,8 @@ export class StatisticsUtil {
                 // Divide each true and false positive by its max to find the true and false positive rates for the curve
                 for (let index = 0; index < distinctIndexes.length; ++index) {
                     // Round to nearest hundredth
-                    let xValue = Math.round((distinctFalsePositives[index] / falsePositiveMax) * 100) / 100;
-                    let yValue = Math.round((distinctTruePositives[index] / truePositiveMax) * 100) / 100;
+                    let xValue = Math.round((distinctFalsePositives[index] / falsePositiveMax) * divideBy) / divideBy;
+                    let yValue = Math.round((distinctTruePositives[index] / truePositiveMax) * divideBy) / divideBy;
                     // Note: Using a Map here seems to be faster than _.findIndex
                     if (!xToIndex.has(xValue)) {
                         // If a point with this X does not already exist, create it
@@ -111,7 +112,7 @@ export class StatisticsUtil {
                 }
             }
             categoriesToPoints.set(categoryItem.category, categoryPoints);
-            categoriesToAUCs.set(categoryItem.category, StatisticsUtil.auc(categoryPoints, 0, 1));
+            categoriesToAUCs.set(categoryItem.category, StatisticsUtil.auc(categoryPoints, 0, 1, (1 / divideBy)));
         });
 
         let points = Array.from(categoriesToPoints.values()).reduce((outputPoints, categoryPoints) =>
