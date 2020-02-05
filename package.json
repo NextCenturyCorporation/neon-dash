@@ -12,7 +12,7 @@
     "e2e": "npx ng e2e",
     "docs": "npx typedoc --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "generate-attribution": "node scripts/generate_attributions.js",
-    "postinstall": "npm run generate-attribution 1> /dev/null",
+    "postinstall": "npm run generate-attribution",
     "ensure-attribution": "./scripts/ensure_attributions_file.sh"
   },
   "pre-commit": [
