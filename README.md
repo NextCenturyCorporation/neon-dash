@@ -11,7 +11,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#custom-dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#technical-stack)
 * [Planned Efforts](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#planned-efforts)
-* [Example Data](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#example-data)
+* [Example Dataset](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#example-dataset)
 * [License](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#references)
 * [Contact Us](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#contact-us)
@@ -56,9 +56,9 @@ Copy `sample.proxy.conf.json` to `./proxy.conf.json` and, if your NUCLEUS Data S
 
 The Neon Dashboard configuration file contains the datastores and dashboards that will be loaded in the UI.
 
-If you were given a sample data bundle, copy the `config.yaml` file from the sample data bundle into `<neon-dash>/src/app/config/config.yaml`.
+If you were given a data bundle for one of our programs, copy the `config.yaml` file from the unzipped data bundle into `<neon-dash>/src/app/config/config.yaml`.
 
-If you were not given a sample data bundle and/or do not have a configuration file, please see the [dashboard configuration](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#datastore-configuration) for more information.
+If you were not given a data bundle and/or do not have a configuration file, please either use the [example dataset and configuration file](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#example-dataset) available in this repository or see the [dashboard configuration](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#datastore-configuration) for more information.
 
 ## Local Development Instructions
 
@@ -437,9 +437,9 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 * Set data access restrictions
 * Move visualizations into NUCLEUS
 
-## Example Data
+## Example Dataset
 
-Access geospatial/temporal earthquake data [here](./e2e/docker/data) (source?)
+Access an example geospatial/temporal earthquake dataset and its Neon Dashboard configuration file [here](./e2e/docker/data) (source needed).
 
 ## Apache 2 Open Source License
 
