@@ -3,20 +3,18 @@
 </h2>
 <mat-divider></mat-divider>
 <mat-dialog-content>
-  <form [formGroup]="labels">
-    <mat-form-field class="neon-form-field-flex-full">
-      <mat-select placeholder="Label" formControlName="defaultLabel">
-        <!-- [(ngModel)]="optionCollection.database" required="true"
+  <mat-form-field class="neon-form-field-flex-full">
+    <mat-select placeholder="Label" [(ngModel)]="selectedLabel">
+      <!-- [(ngModel)]="optionCollection.database" required="true"
       [name]="optionCollection._id + '_database'" (ngModelChange)="handleChangeDatabase()"
       [disabled]="optionCollection.databases.length < 2" -->
-        <mat-option *ngFor="let label of _labels" [value]="label">
-          {{ label }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </form>
+      <mat-option *ngFor="let label of _labels" [value]="label">
+        {{ label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-raised-button class="neon-button-large" (click)="dialogRef.close(true)">{{ confirmText }}</button>
-  <button mat-raised-button class="neon-button-large" (click)="dialogRef.close(false)">{{ cancelText }}</button>
+  <button mat-raised-button class="neon-button-large" (click)="onChangeName()">{{ confirmText }}</button>
+  <button mat-raised-button class="neon-button-large" (click)="dialogRef.close()">{{ cancelText }}</button>
 </mat-dialog-actions>

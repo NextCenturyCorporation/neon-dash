@@ -70,6 +70,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('thumbnailGrid', { static: true }) thumbnailGrid: ElementRef;
 
     public gridArray: any[] = [];
+    public updatedLabels: Map<string, string> = new Map<string, string>();
 
     public mediaTypes: any = MediaTypes;
     public view: any = ViewType;
@@ -160,6 +161,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new ConfigOptionField('predictedNameField', 'Predicted Name Field', false),
             new ConfigOptionField('sortField', 'Sort Field', false),
             new ConfigOptionField('typeField', 'Type Field', false),
+            new ConfigOptionField('updateLabelField', 'Update Label Field', false),
             new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
             new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('border', 'Border', false, ''),
@@ -250,7 +252,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 field: options.linkField.columnName
             } as FieldKey, '!=', '')
         ] : [])));
-
+        this.searchService.withField(query,{
+            datastore: options.datastore.name,
+            database: options.database.name,
+            table: options.table.name,
+            field: '_id'
+        });//asfieldkey
         if (options.sortField.columnName) {
             this.searchService.withOrder(query, {
                 datastore: options.datastore.name,
@@ -395,7 +402,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
 
         results.forEach((result) => {
-            let item: any = {};
+            let item: any = {
+                _id: result._id
+            };
             options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
                 item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
             });
@@ -850,5 +859,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
+    getUpdatedLabelFromSubcomponent(id, newLabel){
+        this.updatedLabels.set(id, newLabel);
+        console.log(this.updatedLabels);
     }
 }
