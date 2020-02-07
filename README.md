@@ -1,29 +1,29 @@
 # Neon Dashboard
 
-The Neon Dashboard is a big data exploration and visualization user interface that is used with [NUCLEUS](https://github.com/NextCenturyCorporation/nucleus) and the [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/neon-server)
+The Neon Dashboard is a big data exploration and visualization user interface that is used with [NUCLEUS](https://github.com/NextCenturyCorporation/nucleus) and the [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/nucleus-data-server)
 
 ## Table of Content
 
-* [Why Use the Neon Dashboard?](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#why-use-the-neon-dashboard)
-* [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions)
-* [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#local-development-instructions)
-* [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
-* [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#custom-dashboard-configuration)
-* [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
-* [Planned Efforts](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#planned-efforts)
-* [Example Data](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#example-data)
-* [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
-* [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
-* [Contact Us](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#contact-us)
+* [Why Use the Neon Dashboard?](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#why-use-the-neon-dashboard)
+* [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#initial-setup-instructions)
+* [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#local-development-instructions)
+* [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#production-deployment-instructions)
+* [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#custom-dashboard-configuration)
+* [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#technical-stack)
+* [Planned Efforts](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#planned-efforts)
+* [Example Data](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#example-data)
+* [License](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#apache-2-open-source-license)
+* [References](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#references)
+* [Contact Us](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#contact-us)
 
 ## Why Use the Neon Dashboard
 
 The Neon Dashboard offers multiple benefits over other big data exploration and visualization applications:
 
 * The Neon Dashboard is free and open-source
-* The Neon Dashboard supports different types of datastores (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
+* The Neon Dashboard supports different types of datastores (see the full list [here](https://github.com/NextCenturyCorporation/nucleus-data-server#datastore-support))
 * The Neon Dashboard allows you to **view and filter on data from separate datastores at the same time**
-* The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
+* The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/nucleus-data-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
 ## Quick Install
 * For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](https://portal.nextcentury.com/owncloud/index.php/s/z2UbU5ZATGXaTBh/download) package to a folder and follow the instruction in the README file.
@@ -32,13 +32,13 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 
 ### Install Dependencies
 
-* [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/neon-server)
+* [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/nucleus-data-server) (previously called "Neon Server")
 * [Node and NPM](https://nodejs.org/en/)
 * (Optional) [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
 
 ### Download Source Code
 
-`git clone https://github.com/NextCenturyCorporation/neon-dash-internal.git; cd neon-dash-internal`
+`git clone https://github.com/NextCenturyCorporation/neon-dash.git; cd neon-dash`
 
 ### Download NPM Packages
 
@@ -46,7 +46,7 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 
 ### Load Data
 
-Please see the NUCLEUS Data Server's Initial Setup Instructions for more information on [loading data](https://github.com/NextCenturyCorporation/neon-server#load-data) into your datastore.
+Please see the NUCLEUS Data Server's Initial Setup Instructions for more information on [loading data](https://github.com/NextCenturyCorporation/nucleus-data-server#load-data) into your datastore.
 
 ### Other Setup
 
@@ -56,9 +56,9 @@ Copy `sample.proxy.conf.json` to `./proxy.conf.json` and, if your NUCLEUS Data S
 
 The Neon Dashboard configuration file contains the datastores and dashboards that will be loaded in the UI.
 
-If you were given a sample data bundle, copy the `config.yaml` file from the sample data bundle into `<neon-dash-internal>/src/app/config/config.yaml`.
+If you were given a sample data bundle, copy the `config.yaml` file from the sample data bundle into `<neon-dash>/src/app/config/config.yaml`.
 
-If you were not given a sample data bundle and/or do not have a configuration file, please see the [dashboard configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#datastore-configuration) for more information.
+If you were not given a sample data bundle and/or do not have a configuration file, please see the [dashboard configuration](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#datastore-configuration) for more information.
 
 ## Local Development Instructions
 
@@ -104,40 +104,40 @@ Please see the documentation on [End-to-End Testing in the Neon Dashboard](./doc
 
 The Neon Dashboard can be deployed as either:
 
-- A [single Docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-single-docker-container).  This is useful if you want to separately deploy both the NUCLEUS Data Server and a datastore.
-- A [Docker container with the NUCLEUS Data Server, but not a datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server).  This is useful if you already have a datastore that you want to link to the Neon system.
-- A [Docker container with the NUCLEUS Data Server and an Elasticsearch datastore](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server-and-elasticsearch).  This is useful if you want to deploy the entire Neon system on a clean machine (like a new AWS EC2 instance).
-- A [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-the-dashboard-as-a-war-file-in-apache-tomcat).  This is useful if you want to deploy the Neon Dashboard alongside other applications in Tomcat.
+- A [single Docker container](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#deploy-the-dashboard-as-a-single-docker-container).  This is useful if you want to separately deploy both the NUCLEUS Data Server and a datastore.
+- A [Docker container with the NUCLEUS Data Server, but not a datastore](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server).  This is useful if you already have a datastore that you want to link to the Neon system.
+- A [Docker container with the NUCLEUS Data Server and an Elasticsearch datastore](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#deploy-the-dashboard-as-a-docker-container-with-the-server-and-elasticsearch).  This is useful if you want to deploy the entire Neon system on a clean machine (like a new AWS EC2 instance).
+- A [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#deploy-the-dashboard-as-a-war-file-in-apache-tomcat).  This is useful if you want to deploy the Neon Dashboard alongside other applications in Tomcat.
 
 ### Deploy the Dashboard as a Single Docker Container
 
 #### 1. Perform All Initial Setup
 
-Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#initial-setup-instructions) above.
 
 #### 2. Build the Neon Dashboard
 
 ```
-cd <neon-dash-internal>
+cd <neon-dash>
 npm run-script build
 ```
 
-This will generate the `<neon-dash-internal>/dist` directory.
+This will generate the `<neon-dash>/dist` directory.
 
 #### 3. Build the Neon Dashboard Docker Container
 
 ```
-cd <neon-dash-internal>
+cd <neon-dash>
 docker build -t neon-dash .
 ```
 
 **Note**: By default, the Docker container runs the Neon Dashboard on port `4200`.  If you want to use a different port:
 
-- In `<neon-dash-internal>/nginx.dash-only.conf`, change the number `4200` in the line `listen 4200;` to your port.
+- In `<neon-dash>/nginx.dash-only.conf`, change the number `4200` in the line `listen 4200;` to your port.
 
 **Note**: By default, the Docker container assumes the NUCLEUS Data Server is running with the hostname and port `http://localhost:8090`.  If you want to use a different port:
 
-- In `<neon-dash-internal>/nginx.dash-only.conf`, change the hostname and port `http://localhost:8090` in the line `proxy_pass http://localhost:8090/neon` to your hostname and port.
+- In `<neon-dash>/nginx.dash-only.conf`, change the hostname and port `http://localhost:8090` in the line `proxy_pass http://localhost:8090/neon` to your hostname and port.
 
 #### 4. Run the Neon Dashboard Docker Container
 
@@ -153,7 +153,7 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 
 #### 1. Perform All Initial Setup
 
-Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#initial-setup-instructions) above.
 
 #### 2. Install [Docker Compose](https://docs.docker.com/compose/install/)
 
@@ -175,11 +175,11 @@ Note that you may need to [bind the network host in the configuration of your El
 #### 4. Build the Neon Dashboard
 
 ```
-cd <neon-dash-internal>
+cd <neon-dash>
 npm run-script build
 ```
 
-This will generate the `<neon-dash-internal>/dist` directory.
+This will generate the `<neon-dash>/dist` directory.
 
 #### 5. Run the NUCLEUS Data Server and the Neon Dashboard Docker Containers with Docker Compose
 
@@ -188,17 +188,17 @@ This deployment option uses Docker Compose to deploy the Neon Dashboard within a
 Run the following commands:
 
 ```
-cd <neon-dash-internal>
+cd <neon-dash>
 docker-compose -f docker-compose-neon-only.yml up -d
 ```
 
 **Note**: By default, docker-compose runs the Neon Dashboard on port `80`.  If you want to use a different port:
 
-- In `<neon-dash-internal>/docker-compose-neon-only.yml`, change the first `80` in the line `- 80:80` to your port.
+- In `<neon-dash>/docker-compose-neon-only.yml`, change the first `80` in the line `- 80:80` to your port.
 
 **Note**: By default, docker-compose runs the NUCLEUS Data Server on port `8090`.  If you want to use a different port:
 
-- In `<neon-dash-internal>/docker-compose-neon-only.yml`, change both of the `8090` in the line `- 8090:8090` to your port and change the `8090` in the line `SERVER_PORT: 8090` to your port.
+- In `<neon-dash>/docker-compose-neon-only.yml`, change both of the `8090` in the line `- 8090:8090` to your port and change the `8090` in the line `SERVER_PORT: 8090` to your port.
 
 #### 6. Verify Deployment
 
@@ -214,7 +214,7 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 - The NUCLEUS Data Server runs on port 8090. You don't need to worry about this unless you have another application running on port 8090.
 - Elasticsearch runs on port 9200.
 
-*Note: If you need to change any of the above ports, update the `docker-compose.yml` and `nginx.conf` files in the `neon-dash-internal` repository as needed.*
+*Note: If you need to change any of the above ports, update the `docker-compose.yml` and `nginx.conf` files in the `neon-dash` repository as needed.*
 
 #### 1. Install Dependencies
 
@@ -229,8 +229,8 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 #### 2. Build the NUCLEUS Data Server Docker Container
 
 ```
-git clone https://github.com/NextCenturyCorporation/neon-server.git
-cd neon-server
+git clone https://github.com/NextCenturyCorporation/nucleus-data-server.git
+cd nucleus-data-server
 ./gradlew clean docker
 cd -
 ```
@@ -240,12 +240,12 @@ cd -
 #### 3. Build the Neon Dashboard
 
 ```
-git clone https://github.com/NextCenturyCorporation/neon-dash-internal.git
-cd neon-dash-internal
+git clone https://github.com/NextCenturyCorporation/neon-dash.git
+cd neon-dash
 npm install
 ```
 
-Next, copy the `config.yaml` file you were given by the Neon development team (specific to your data bundle) into `src/app/config/config.yaml` in the `neon-dash-internal` repository.  Open the `src/app/config/config.yaml` file in a text editor to ensure that the `host` of each datastore in the `config.yaml` file (usually on line 3) is set to `neon-elasticsearch-container`, like so:
+Next, copy the `config.yaml` file you were given by the Neon development team (specific to your data bundle) into `src/app/config/config.yaml` in the `neon-dash` repository.  Open the `src/app/config/config.yaml` file in a text editor to ensure that the `host` of each datastore in the `config.yaml` file (usually on line 3) is set to `neon-elasticsearch-container`, like so:
 
 ```yaml
 datastores:
@@ -281,7 +281,7 @@ docker-compose up -d
 
 #### 1. Perform All Initial Setup
 
-Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#initial-setup-instructions) above.
 
 #### 2. Install [Apache Tomcat](http://tomcat.apache.org/)
 
@@ -290,24 +290,24 @@ Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporatio
 While the Neon Dashboard can run in Apache Tomcat, the NUCLEUS Data Server cannot, so you need to deploy it as a separate docker container.
 
 ```
-cd <neon-server>
+cd <nucleus-data-server>
 docker run -it --network=host --rm -d com.ncc.neon/server:latest
 ```
 
 #### 4. Build the Neon Dashboard for Apache Tomcat Deployment
 
 ```
-cd <neon-dash-internal>
+cd <neon-dash>
 npm run-script build-war neon_dashboard
 ```
 
-This will generate `<neon-dash-internal>/target/neon_dashboard.war`.
+This will generate `<neon-dash>/target/neon_dashboard.war`.
 
 **Note**: If you want, you can replace `neon_dashboard` with any other name.  Use the same name in the following steps.
 
 #### 5. Deploy the Neon Dashboard to Your Apache Tomcat
 
-Copy `<neon-dash-internal>/target/neon_dashboard.war` into your `<apache-tomcat>/webapps` directory.
+Copy `<neon-dash>/target/neon_dashboard.war` into your `<apache-tomcat>/webapps` directory.
 
 #### 6. Verify Deployment
 
@@ -317,7 +317,7 @@ Verify that the Neon Dashboard is deployed correctly by opening it in your inter
 
 If you were not given a sample data bundle and/or do not have a configuration file, you can create your own at `src/app/config/config.yaml` or `src/app/config/config.json`.
 
-Minimally, we recommend that you define the datastores you want to show in the Neon Dashboard (e.g. deployments of Elasticsearch).  For example, if you want to use a single Elasticsearch data index, you can copy the template below into a file and save it as `<neon-dash-internal>/src/app/config/config.yaml`:
+Minimally, we recommend that you define the datastores you want to show in the Neon Dashboard (e.g. deployments of Elasticsearch).  For example, if you want to use a single Elasticsearch data index, you can copy the template below into a file and save it as `<neon-dash>/src/app/config/config.yaml`:
 
 ```yaml
 datastores:
@@ -383,7 +383,7 @@ For the full, detailed instructions, please see the [Neon Dashboard Configuratio
 To add datastore authentication, you either:
 
 - Add your username (or username and password) to your datastore's `host` property like this: `username@host` or `username:password@host`.  This will allow any users to see your password, though.
-- Add authentication to your NUCLEUS Data Server as described [here](https://github.com/NextCenturyCorporation/neon-server/blob/master/README.md#datastore-authentication).  You will need to rebuild and redeploy your NUCLEUS Data Server afterward.
+- Add authentication to your NUCLEUS Data Server as described [here](https://github.com/NextCenturyCorporation/nucleus-data-server/blob/master/README.md#datastore-authentication).  You will need to rebuild and redeploy your NUCLEUS Data Server afterward.
 
 ### Elasticsearch Notes
 
