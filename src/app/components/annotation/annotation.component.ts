@@ -30,19 +30,17 @@ export class AnnotationComponent {
     public confirmDialogRef: any;
     public confirmMessage: string = '';
     public target: string;
-    public title: string;
-    public confirmText: string = 'Confirm';
+    public title: string = 'Update';
+    public confirmText: string = 'Update Label';
     public cancelText: string = 'Cancel';
-    public cancelTexts: string = 'Something';
     public _defaultLabel: string;
     public _labels: any[];
     private selectedLabel: string;
-    private selectedname;
     labels: FormGroup;
 
 
-    public onChangeName($event) {
-        console.log(this.selectedname);
+    public onChangeName() {
+        this.dialogRef.close({data:this.selectedLabel});
     }
 
     constructor(
@@ -50,33 +48,30 @@ export class AnnotationComponent {
         public dialogRef: MatDialogRef<AnnotationComponent>, private configService: ConfigService, private fb: FormBuilder
     ) {
         this.target = data.target;
-        this.title = data.title;
+        this.title = data.title || this.title;
         this.confirmText = data.confirmText || this.confirmText;
         this.cancelText = data.cancelText || this.cancelText;
-        //this.cancelTexts = data.cancelTexts || this.cancelTexts;
         this._defaultLabel = data.defaultLabel;
-        console.log(data.defaultLabel);
-
+        //console.log(data.defaultLabel);
+        this.selectedLabel = this._defaultLabel;
+        // this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
+        //     this._labels = neonConfig.dataLabels.sort(function (a, b) {
+        //         if (a > b) {
+        //             return 1;
+        //         }
+        //         if (b > a) {
+        //             return -1;
+        //         }
+        //         return 0;
+        //     });
+        // });
         this.configService.getActive().subscribe((neonConfig: NeonConfig) => {
-            this._labels = neonConfig.dataLabels.sort(function (a, b) {
-                if (a > b) {
-                    return 1;
-                }
-                if (b > a) {
-                    return -1;
-                }
-                return 0;
-            });
+            this._labels = neonConfig.dataLabels;
         });
-        //console.log(this._defaultLabel);
 
-        this.labels = this.fb.group({
-            defaultLabel: this._defaultLabel
-        });
+        // this.labels = this.fb.group({
+        //     defaultLabel: this._defaultLabel
+        // });
     }
 
-    // onChangeName($event) {
-    //     console.log(this.selectedLabel);
-
-    // }
 }
