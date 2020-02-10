@@ -13,9 +13,13 @@
  * limitations under the License.
  */
 
-import { ColorMap } from 'nucleus/dist/core/models/color';
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
-import { DeepPartial, DatastoreConfig, translateValues } from 'nucleus/dist/core/models/dataset';
+import {
+    ColorMap,
+    CompoundFilterType,
+    DatastoreConfig,
+    DeepPartial,
+    translateValues
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 export interface CommonFilterConfig {
     id?: string;

@@ -28,7 +28,7 @@ import {
     TABLE_KEYS,
     TABLES,
     TABLES_LIST
-} from 'nucleus/dist/core/models/mock.dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 export class ConnectionServiceMock extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {

@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { FilterService } from 'nucleus/dist/core/services/filter.service';
+import { FilterService } from '@caci-critical-insight-solutions/nucleus-core';
 
 @Injectable({
     providedIn: 'root'

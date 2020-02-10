@@ -26,22 +26,25 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
-    OptionChoices,
+    AbstractFilterDesign,
+    AbstractSearchService,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOption,
-    ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionSelect,
+    CoreUtil,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    OptionChoices,
+    SearchObject
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MatDialog } from '@angular/material';
-import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 export class WikiData {
     constructor(public name: string, public text: SafeHtml) { }

@@ -17,26 +17,30 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, View
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
-    OptionChoices,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
     ConfigOption,
-    ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionSelect,
+    CoreUtil,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { MatDialog } from '@angular/material';
-import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 @Component({
     selector: 'app-query-bar',

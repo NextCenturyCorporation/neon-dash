@@ -24,25 +24,31 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
-import { AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
 import {
-    OptionChoices,
-    SortOrder,
+    AbstractFilterDesign,
+    AbstractSearchService,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
     ConfigOption,
-    ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionSelect,
+    CoreUtil,
+    DateFormat,
+    DateUtil,
+    FieldConfig,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    OptionChoices,
+    SearchObject,
+    SortOrder
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
+
 import * as _ from 'lodash';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';

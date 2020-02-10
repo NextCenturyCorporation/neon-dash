@@ -14,7 +14,7 @@
  */
 import { Component, OnInit } from '@angular/core';
 
-import { AbstractColorThemeService } from 'nucleus/dist/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from '@caci-critical-insight-solutions/nucleus-core';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../models/neon-namespaces';
 

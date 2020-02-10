@@ -24,13 +24,12 @@ import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';

@@ -15,7 +15,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { CoreUtil } from 'nucleus/dist/core/core.util';
+import { CoreUtil } from '@caci-critical-insight-solutions/nucleus-core';
 
 @Component({
     selector: 'app-document-viewer-single-item',

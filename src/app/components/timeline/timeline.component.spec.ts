@@ -18,19 +18,24 @@ import { } from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    DomainFilterDesign,
+    FieldConfig,
+    FilterCollection,
+    ListFilterDesign,
+    SearchServiceMock,
+    TimeInterval
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 
 import { TimelineModule } from './timeline.module';
-import { DomainFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
-import { CompoundFilterType, TimeInterval } from 'nucleus/dist/core/models/config-option';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;

@@ -16,20 +16,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    FieldConfig,
+    FilterCollection,
+    ListFilterDesign,
+    SearchServiceMock
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { NetworkGraphModule } from './network-graph.module';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: NetworkGraph', () => {
     let component: NetworkGraphComponent;
