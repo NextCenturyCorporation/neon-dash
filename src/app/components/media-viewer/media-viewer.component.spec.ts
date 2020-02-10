@@ -14,23 +14,27 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
+import {
+    AbstractSearchService,
+    CoreSearch,
+    DatabaseConfig,
+    FieldConfig,
+    FilterCollection,
+    SearchServiceMock,
+    TableConfig
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { MediaTypes } from '../../models/types';
 
 import { } from 'jasmine-core';
 
 import { MediaViewerComponent } from './media-viewer.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
-import { FilterCollection } from 'nucleus/dist/core/models/filters';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;

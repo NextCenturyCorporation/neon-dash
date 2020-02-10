@@ -12,7 +12,7 @@
     "e2e": "npx ng e2e",
     "docs": "npx typedoc --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "generate-attribution": "node scripts/generate_attributions.js",
-    "postinstall": "npm run generate-attribution 1> /dev/null",
+    "postinstall": "npm run generate-attribution",
     "ensure-attribution": "./scripts/ensure_attributions_file.sh"
   },
   "pre-commit": [
@@ -32,6 +32,8 @@
     "@angular/platform-browser-dynamic": "~8.2.9",
     "@angular/platform-server": "~8.2.9",
     "@angular/router": "~8.2.9",
+    "@caci-critical-insight-solutions/nucleus-core": "~0.0.7",
+    "@caci-critical-insight-solutions/nucleus-wrappers-angular": "~0.0.4",
     "@swimlane/ngx-datatable": "^16.0.2",
     "@wishtack/reactive-component-loader": "^1.0.0",
     "@wishtack/rx-scavenger": "^2.0.0",
@@ -58,7 +60,6 @@
     "ngx-monaco-editor": "^7.0.0",
     "node-sass": "^4.12.0",
     "npx": "^10.2.0",
-    "nucleus": "NextCenturyCorporation/nucleus.git#0.2.2",
     "papaparse": "^5.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.5.3",

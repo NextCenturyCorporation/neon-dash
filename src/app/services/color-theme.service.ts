@@ -12,8 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractColorThemeService, Theme } from 'nucleus/dist/core/services/abstract.color-theme.service';
-import { Color, ColorMap, ColorSet } from 'nucleus/dist/core/models/color';
+import { AbstractColorThemeService, Color, ColorMap, ColorSet, Theme } from '@caci-critical-insight-solutions/nucleus-core';
 import { NeonDashboardColorSet } from '../models/color-set';
 
 export class NeonTheme implements Theme {

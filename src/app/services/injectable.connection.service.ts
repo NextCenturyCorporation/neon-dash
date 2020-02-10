@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ConnectionService } from 'nucleus/dist/core/services/connection.service';
+import { ConnectionService } from '@caci-critical-insight-solutions/nucleus-core';
 
 @Injectable({
     providedIn: 'root'

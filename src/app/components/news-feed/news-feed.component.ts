@@ -23,30 +23,36 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
-    OptionChoices,
-    SortOrder,
     ConfigOptionField,
     ConfigOptionFieldArray,
     ConfigOptionFreeText,
     ConfigOption,
     ConfigOptionSelect,
-    ConfigOptionNonPrimitive
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionNonPrimitive,
+    CoreUtil,
+    DateFormat,
+    DateUtil,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    ListFilter,
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    SortOrder
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
-import { FieldKey } from 'nucleus/dist/core/models/dataset';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.

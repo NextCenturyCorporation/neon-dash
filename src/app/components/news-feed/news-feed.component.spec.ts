@@ -13,22 +13,25 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
+import {
+    AbstractSearchService,
+    CompoundFilterType,
+    CoreSearch,
+    FieldConfig,
+    FilterCollection,
+    ListFilterDesign,
+    SearchServiceMock
+} from '@caci-critical-insight-solutions/nucleus-core';
 
 import { } from 'jasmine-core';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { NewsFeedModule } from './news-feed.module';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;

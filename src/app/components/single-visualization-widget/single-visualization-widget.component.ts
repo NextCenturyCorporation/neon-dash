@@ -29,25 +29,25 @@ import {
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { MatDialog } from '@angular/material';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import {
+    AbstractSearchService,
     AggregationType,
     ConfigOption,
     ConfigOptionField,
     ConfigOptionSelect,
+    CoreUtil,
+    Dataset,
     OptionChoices,
     OptionType
-} from 'nucleus/dist/core/models/config-option';
+} from '@caci-critical-insight-solutions/nucleus-core';
 import {
     ConfigurableWidget,
     OptionConfig,
     RootWidgetOptionCollection,
     WidgetOptionCollection
 } from '../../models/widget-option-collection';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { Dataset } from 'nucleus/dist/core/models/dataset';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { VisualizationType, VisualizationWidget } from '../../models/visualization-widget';
@@ -55,7 +55,7 @@ import { VisualizationType, VisualizationWidget } from '../../models/visualizati
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 
-// Import { NucleusTextCloudAngularComponent } from 'nucleus-angular';
+import { NucleusTextCloudAngularComponent } from '@caci-critical-insight-solutions/nucleus-wrappers-angular';
 
 @Component({
     selector: 'app-single-visualization-widget',
@@ -415,15 +415,14 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public createExportData(): { name: string, data: any }[] {
         // TODO THOR-1425 Add multi-layer support.
-        // const exportFields = SingleVisualizationWidgetComponent.retrieveExportFields(this.options);
-        // const filename = this.options.title.split(':').join(' ') + '-' + this.options._id;
+        const exportFields = SingleVisualizationWidgetComponent.retrieveExportFields(this.options);
+        const filename = this.options.title.split(':').join(' ') + '-' + this.options._id;
         const visArray = this.visualizations.toArray();
 
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    return [];
-                    // Return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
+                    return (visArray[0] as NucleusTextCloudAngularComponent).createExportData(exportFields, filename);
             }
         }
 
@@ -575,7 +574,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         if (visArray.length) {
             switch (this.visualizationType) {
                 case VisualizationType.TEXT_CLOUD:
-                    // (visArray[0] as NucleusTextCloudAngularComponent).redraw();
+                    (visArray[0] as NucleusTextCloudAngularComponent).redraw();
             }
         }
     }

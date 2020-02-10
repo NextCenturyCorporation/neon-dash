@@ -19,13 +19,12 @@ import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
+import { AbstractSearchService, SearchServiceMock } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { FiltersModule } from './filters.module';
 

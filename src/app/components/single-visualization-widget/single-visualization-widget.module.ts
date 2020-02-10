@@ -18,7 +18,7 @@ import { SingleVisualizationWidgetComponent } from './single-visualization-widge
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
-// Import { NucleusTextCloudAngularModule } from 'nucleus-angular';
+import { NucleusTextCloudAngularModule } from '@caci-critical-insight-solutions/nucleus-wrappers-angular';
 
 @NgModule({
     declarations: [SingleVisualizationWidgetComponent],
@@ -27,7 +27,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
     imports: [
         CommonModule,
         CommonWidgetModule,
-        // NucleusTextCloudAngularModule,
+        NucleusTextCloudAngularModule,
         DataMessageModule
     ]
 })

@@ -15,20 +15,23 @@
 import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
+    AbstractFilter,
+    AbstractFilterDesign,
     AbstractSearchService,
-    FilterClause,
-    SearchObject
-} from 'nucleus/dist/core/services/abstract.search.service';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilter, AbstractFilterDesign, FilterCollection } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, FieldKey } from 'nucleus/dist/core/models/dataset';
-import { neonEvents } from '../../models/neon-namespaces';
-import {
     ConfigOption,
-    OptionType
-} from 'nucleus/dist/core/models/config-option';
+    CoreUtil,
+    Dataset,
+    DatasetUtil,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    OptionType,
+    RequestWrapper,
+    SearchObject
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { neonEvents } from '../../models/neon-namespaces';
 import {
     ConfigurableWidget,
     OptionConfig,
@@ -39,7 +42,6 @@ import {
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { RequestWrapper } from 'nucleus/dist/core/services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
 import { VisualizationWidget } from '../../models/visualization-widget';
 

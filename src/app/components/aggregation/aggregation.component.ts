@@ -24,26 +24,39 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from 'nucleus/dist/core/models/color';
-
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     AbstractFilterDesign,
+    AbstractSearchService,
+    AggregationType,
     BoundsFilter,
     BoundsFilterDesign,
     BoundsValues,
+    Color,
+    CompoundFilterType,
+    ConfigOptionField,
+    ConfigOptionFreeText,
+    ConfigOptionNumber,
+    ConfigOption,
+    ConfigOptionSelect,
+    CoreUtil,
+    DatasetUtil,
+    DateUtil,
     DomainFilter,
     DomainFilterDesign,
     DomainValues,
+    FieldKey,
+    FilterClause,
     FilterCollection,
     ListFilter,
-    ListFilterDesign
-} from 'nucleus/dist/core/models/filters';
-import { DatasetUtil, FieldKey } from 'nucleus/dist/core/models/dataset';
-import { DateUtil } from 'nucleus/dist/core/date.util';
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    SortOrder,
+    TimeInterval
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -58,18 +71,6 @@ import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
-import {
-    AggregationType,
-    CompoundFilterType,
-    OptionChoices,
-    SortOrder,
-    TimeInterval,
-    ConfigOptionField,
-    ConfigOptionFreeText,
-    ConfigOptionNumber,
-    ConfigOption,
-    ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -77,7 +78,6 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import { StatisticsUtil } from '../../util/statistics.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';

@@ -24,27 +24,33 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilter, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
-    OptionChoices,
-    SortOrder,
     ConfigOptionFieldArray,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect,
-    ConfigOptionColor
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionColor,
+    CoreUtil,
+    FieldConfig,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    ListFilter,
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    SortOrder
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';

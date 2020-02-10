@@ -14,7 +14,20 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterType } from 'nucleus/dist/core/models/config-option';
+import {
+    BoundsFilter,
+    CompoundFilter,
+    CompoundFilterDesign,
+    CompoundFilterType,
+    DomainFilter,
+    ListFilter,
+    ListFilterDesign,
+    PairFilter,
+    DATABASES,
+    DATASTORE,
+    FIELD_MAP,
+    TABLES
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 
@@ -24,16 +37,6 @@ import { ConfigService } from './config.service';
 
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
-import {
-    BoundsFilter,
-    CompoundFilter,
-    CompoundFilterDesign,
-    DomainFilter,
-    ListFilter,
-    ListFilterDesign,
-    PairFilter
-} from 'nucleus/dist/core/models/filters';
-import { DATABASES, DATASTORE, FIELD_MAP, TABLES } from 'nucleus/dist/core/models/mock.dataset';
 
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;

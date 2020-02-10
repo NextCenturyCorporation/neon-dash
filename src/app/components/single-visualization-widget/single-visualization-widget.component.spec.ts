@@ -21,24 +21,9 @@ import {
     ConfigOptionMultipleSelect,
     ConfigOptionNonPrimitive,
     ConfigOptionSelect,
-    OptionChoices
-} from 'nucleus/dist/core/models/config-option';
-import { DashboardServiceMock } from '../../services/mock.dashboard-service';
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { FieldConfig } from 'nucleus/dist/core/models/dataset';
-import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { NeonConfig } from '../../models/types';
-import { RootWidgetOptionCollection, WidgetOptionCollection } from '../../models/widget-option-collection';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
-import { SingleVisualizationWidgetComponent } from './single-visualization-widget.component';
-import { VisualizationType } from '../../models/visualization-widget';
-
-import { getConfigService } from '../../../testUtils/initializeTestBed';
-
-import { neonEvents } from '../../models/neon-namespaces';
-
-import {
+    FieldConfig,
+    OptionChoices,
+    SearchServiceMock,
     DATABASES,
     DATABASES_LIST,
     DATASET,
@@ -46,7 +31,19 @@ import {
     FIELDS,
     TABLES,
     TABLES_LIST
-} from 'nucleus/dist/core/models/mock.dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardServiceMock } from '../../services/mock.dashboard-service';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { NeonConfig } from '../../models/types';
+import { RootWidgetOptionCollection, WidgetOptionCollection } from '../../models/widget-option-collection';
+import { SingleVisualizationWidgetComponent } from './single-visualization-widget.component';
+import { VisualizationType } from '../../models/visualization-widget';
+
+import { getConfigService } from '../../../testUtils/initializeTestBed';
+
+import { neonEvents } from '../../models/neon-namespaces';
 
 describe('SingleVisualizationWidgetComponent static function', () => {
     it('createInfoButtonText does return expected string', () => {

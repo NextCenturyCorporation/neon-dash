@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from '@caci-critical-insight-solutions/nucleus-core';
 
 /**
  * Component for managing the unshared filter of a visualization.

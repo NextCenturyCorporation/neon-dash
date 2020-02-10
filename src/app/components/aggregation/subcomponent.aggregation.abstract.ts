@@ -14,7 +14,7 @@
  */
 import { ElementRef } from '@angular/core';
 
-import { DateFormat, DateUtil } from 'nucleus/dist/core/date.util';
+import { DateFormat, DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 

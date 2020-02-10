@@ -25,27 +25,32 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, SearchObject } from 'nucleus/dist/core/services/abstract.search.service';
-import { DashboardService } from '../../services/dashboard.service';
-import { AbstractFilterDesign, FilterCollection, ListFilterDesign } from 'nucleus/dist/core/models/filters';
-import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldConfig, FieldKey } from 'nucleus/dist/core/models/dataset';
-import { MediaTypes } from '../../models/types';
-import { CoreUtil } from 'nucleus/dist/core/core.util';
 import {
+    AbstractFilterDesign,
+    AbstractSearchService,
     CompoundFilterType,
-    OptionChoices,
-    SortOrder,
     ConfigOptionFieldArray,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNumber,
     ConfigOptionNonPrimitive,
     ConfigOption,
-    ConfigOptionSelect
-} from 'nucleus/dist/core/models/config-option';
+    ConfigOptionSelect,
+    CoreUtil,
+    FieldConfig,
+    FieldKey,
+    FilterClause,
+    FilterCollection,
+    ListFilterDesign,
+    OptionChoices,
+    SearchObject,
+    SortOrder
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { DashboardService } from '../../services/dashboard.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { MediaTypes } from '../../models/types';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {

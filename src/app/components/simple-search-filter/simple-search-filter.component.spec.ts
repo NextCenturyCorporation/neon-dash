@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { ListFilter } from 'nucleus/dist/core/models/filters';
+import { ListFilter } from '@caci-critical-insight-solutions/nucleus-core';
 import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';

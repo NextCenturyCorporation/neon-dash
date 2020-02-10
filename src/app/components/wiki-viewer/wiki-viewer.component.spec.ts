@@ -14,23 +14,27 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
+import {
+    AbstractSearchService,
+    CoreSearch,
+    DatabaseConfig,
+    FieldConfig,
+    SearchServiceMock,
+    TableConfig
+} from '@caci-critical-insight-solutions/nucleus-core';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
-import { AbstractSearchService } from 'nucleus/dist/core/services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from 'nucleus/dist/core/services/mock.search.service';
 
 import { WikiViewerModule } from './wiki-viewer.module';
-import { CoreSearch } from 'nucleus/dist/core/services/search.service';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;

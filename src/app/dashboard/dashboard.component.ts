@@ -48,7 +48,7 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
 import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
-import { DateUtil } from 'nucleus/dist/core/date.util';
+import { DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
 
 import * as _ from 'lodash';
 

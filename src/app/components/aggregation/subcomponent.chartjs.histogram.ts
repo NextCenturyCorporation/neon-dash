@@ -16,7 +16,7 @@ import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
-import { Color } from 'nucleus/dist/core/models/color';
+import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
     /**

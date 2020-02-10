@@ -18,7 +18,7 @@ import { Observable } from 'rxjs';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { DateUtil } from 'nucleus/dist/core/date.util';
+import { DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
 import { NeonCustomRequests } from '../../models/types';
 
 import * as uuidv4 from 'uuid/v4';

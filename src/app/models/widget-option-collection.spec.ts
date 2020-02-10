@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from 'nucleus/dist/core/models/dataset';
 import {
     ConfigOptionDatabase,
     ConfigOptionDatastore,
@@ -23,11 +22,11 @@ import {
     ConfigOptionNonPrimitive,
     ConfigOptionNumber,
     ConfigOptionSelect,
-    ConfigOptionTable
-} from 'nucleus/dist/core/models/config-option';
-import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
-
-import {
+    ConfigOptionTable,
+    DatabaseConfig,
+    DatastoreConfig,
+    FieldConfig,
+    TableConfig,
     DATABASES,
     DATABASES_LIST,
     DATASET,
@@ -36,7 +35,8 @@ import {
     FIELDS,
     TABLES,
     TABLES_LIST
-} from 'nucleus/dist/core/models/mock.dataset';
+} from '@caci-critical-insight-solutions/nucleus-core';
+import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';

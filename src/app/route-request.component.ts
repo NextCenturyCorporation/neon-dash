@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { distinctUntilKeyChanged } from 'rxjs/operators';
 
-import { AbstractColorThemeService } from 'nucleus/dist/core/services/abstract.color-theme.service';
+import { AbstractColorThemeService } from '@caci-critical-insight-solutions/nucleus-core';
 import { ConfigService } from './services/config.service';
 import { DashboardService } from './services/dashboard.service';
 import { RouteWithStateComponent } from './route-with-state.component';
