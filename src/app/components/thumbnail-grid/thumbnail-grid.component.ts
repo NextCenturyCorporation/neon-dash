@@ -43,6 +43,7 @@ import {
     FilterCollection,
     ListFilterDesign,
     OptionChoices,
+    OptionType,
     SearchObject,
     SortOrder
 } from '@caci-critical-insight-solutions/nucleus-core';
@@ -151,6 +152,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return [
             new ConfigOptionField('categoryField', 'Category Field', false),
             new ConfigOptionField('compareField', 'Comparison Field', false),
+            new ConfigOptionField('datastoreIdField', 'Datastore ID Field', false),
             new ConfigOptionField('dateField', 'Date Field', false),
             new ConfigOptionField('filterField', 'Filter Field', false), // Deprecated
             new ConfigOptionField('flagLabel', 'Flag Field', false),
@@ -407,64 +409,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this._filterFieldsToFilteredValues, this.createFilterDesignOnList.bind(this));
 
         results.forEach((result) => {
-            let item: any = {
-                _id: result._id
-            };
-            options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-                item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
+            let item: any = {};
+
+            // Copy the data from each configured field into the item.
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
+            options.list().forEach((option: ConfigOption) => {
+                const fieldArray: FieldConfig[] = (option.optionType === OptionType.FIELD ? [option.valueCurrent] :
+                    (option.optionType === OptionType.FIELD_ARRAY) ? option.valueCurrent : []);
+                fieldArray.filter((fieldObject) => !!fieldObject.columnName).forEach((fieldObject) => {
+                    item[fieldObject.columnName] = CoreUtil.deepFind(result, fieldObject.columnName);
+                });
             });
+
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
                 links = this.getArrayValues(CoreUtil.deepFind(result, options.linkField.columnName) || '');
-            }
-
-            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
-            if (options.categoryField.columnName) {
-                item[options.categoryField.columnName] = CoreUtil.deepFind(result, options.categoryField.columnName);
-            }
-            if (options.compareField.columnName) {
-                item[options.compareField.columnName] = CoreUtil.deepFind(result, options.compareField.columnName);
-            }
-            if (options.idField.columnName) {
-                item[options.idField.columnName] = CoreUtil.deepFind(result, options.idField.columnName);
-            }
-            if (options.nameField.columnName) {
-                item[options.nameField.columnName] = CoreUtil.deepFind(result, options.nameField.columnName);
-            }
-            if (options.objectIdField.columnName) {
-                item[options.objectIdField.columnName] = CoreUtil.deepFind(result, options.objectIdField.columnName);
-            }
-            if (options.objectNameField.columnName) {
-                item[options.objectNameField.columnName] = CoreUtil.deepFind(result, options.objectNameField.columnName);
-            }
-            if (options.percentField.columnName) {
-                item[options.percentField.columnName] = CoreUtil.deepFind(result, options.percentField.columnName);
-            }
-            if (options.predictedNameField.columnName) {
-                item[options.predictedNameField.columnName] = CoreUtil.deepFind(result, options.predictedNameField.columnName);
-            }
-            if (options.sortField.columnName) {
-                item[options.sortField.columnName] = CoreUtil.deepFind(result, options.sortField.columnName);
-            }
-            if (options.typeField.columnName) {
-                item[options.typeField.columnName] = CoreUtil.deepFind(result, options.typeField.columnName);
-            }
-            if (options.dateField.columnName) {
-                item[options.dateField.columnName] = CoreUtil.deepFind(result, options.dateField.columnName);
-            }
-            if (options.flagLabel.columnName) {
-                item[options.flagLabel.columnName] = CoreUtil.deepFind(result, options.flagLabel.columnName);
-            }
-            if (options.flagSubLabel1.columnName) {
-                item[options.flagSubLabel1.columnName] = CoreUtil.deepFind(result, options.flagSubLabel1.columnName);
-            }
-            if (options.flagSubLabel2.columnName) {
-                item[options.flagSubLabel2.columnName] = CoreUtil.deepFind(result, options.flagSubLabel2.columnName);
-            }
-            if (options.flagSubLabel3.columnName) {
-                item[options.flagSubLabel3.columnName] = CoreUtil.deepFind(result, options.flagSubLabel3.columnName);
             }
 
             options.customEventsToPublish.forEach((config) => {

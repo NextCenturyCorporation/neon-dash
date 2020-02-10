@@ -8,7 +8,7 @@
       <!-- [(ngModel)]="optionCollection.database" required="true"
       [name]="optionCollection._id + '_database'" (ngModelChange)="handleChangeDatabase()"
       [disabled]="optionCollection.databases.length < 2" -->
-      <mat-option *ngFor="let label of _labels" [value]="label">
+      <mat-option *ngFor="let label of labels" [value]="label">
         {{ label }}
       </mat-option>
     </mat-select>

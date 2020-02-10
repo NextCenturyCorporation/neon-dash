@@ -14,7 +14,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34m@angular/platform-browser[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/platform-server[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/router[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
-| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.10[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
+| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.12[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@caci-critical-insight-solutions/nucleus-wrappers-angular[39m[2m@[22m[32m0.0.5[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@swimlane/ngx-datatable[39m[2m@[22m[32m16.0.2[39m | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | [34m@wishtack/reactive-component-loader[39m[2m@[22m[32m1.1.0[39m | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
@@ -36,7 +36,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34mleaflet[39m[2m@[22m[32m1.6.0[39m | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
 | [34mlodash[39m[2m@[22m[32m4.17.15[39m | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | [34mmoment[39m[2m@[22m[32m2.24.0[39m | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
-| [34mneon-framework[39m[2m@[22m[32m1.0.3[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
+| [34mneon-framework[39m[2m@[22m[32m1.0.4[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
 | [34mng-dynamic-component[39m[2m@[22m[32m4.0.3[39m | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
 | [34mngx-contextmenu[39m[2m@[22m[32m5.2.0[39m | [MIT](https://github.com/isaacplmann/ngx-contextmenu/raw/master/LICENSE) |
 | [34mngx-monaco-editor[39m[2m@[22m[32m7.0.0[39m | [MIT](https://github.com/atularen/ngx-monaco-editor) |

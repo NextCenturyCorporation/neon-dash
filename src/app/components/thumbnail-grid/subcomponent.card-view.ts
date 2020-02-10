@@ -39,14 +39,21 @@ export class CardThumbnailSubComponent {
     }
 
     public updateData() {
-        let id = this.item._id;
+        let id = this.item[this.options.datastoreIdField.columnName];
         let heldLabel = this.thumbnailGrid.updatedLabels.get(id); 
         if(!heldLabel){
+            // TODO Why config.config ?
             heldLabel = this.item[this.options.config.config.updateLabelField]
         }
         this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'annotation',
+                datastore: this.options.datastore,
+                database: this.options.database,
+                table: this.options.table,
+                labelField: this.options.updateLabelField,
+                idField: this.options.datastoreIdField,
+                dataId: id,
                 defaultLabel: heldLabel
             },
             height: 'auto',
