@@ -700,7 +700,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         case this.mediaTypes.audio: {
                             let image: HTMLImageElement = new Image();
                             image.src = '/assets/icons/dashboard/volume_up.svg';
-                            image.onclick = () => this.displayMediaTab(grid);
+                            image.onclick = (event) => this.displayMediaTab(event, grid);
                             image.onload = () => {
                                 thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             };
@@ -814,7 +814,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {object} item
      * @private
      */
-    displayMediaTab(item) {
+    displayMediaTab(event, item) {
+        event.stopPropagation();
         if (item[this.constructedLinkField]) {
             if (this.options.openOnMouseClick) {
                 window.open(item[this.constructedLinkField]);
@@ -825,10 +826,5 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    getUpdatedLabelFromSubcomponent(id, newLabel){
-        this.updatedLabels.set(id, newLabel);
-        console.log(this.updatedLabels);
     }
 }

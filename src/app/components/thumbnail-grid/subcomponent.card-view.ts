@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 import { Component, Input } from '@angular/core';
-import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { MatDialog } from '@angular/material';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
-
-import { filter } from 'rxjs/operators';
-import { isNullOrUndefined } from '@swimlane/ngx-datatable';
 
 @Component({
     selector: 'app-subcomponent-card-thumbnail',
@@ -33,37 +28,8 @@ export class CardThumbnailSubComponent {
 
     thumbnailGrid: ThumbnailGridComponent;
 
-
-    constructor(grid: ThumbnailGridComponent, private dialog: MatDialog) {
+    constructor(grid: ThumbnailGridComponent) {
         this.thumbnailGrid = grid;
-    }
-
-    public updateData() {
-        let id = this.item[this.options.datastoreIdField.columnName];
-        let heldLabel = this.thumbnailGrid.updatedLabels.get(id); 
-        if(!heldLabel){
-            // TODO Why config.config ?
-            heldLabel = this.item[this.options.config.config.updateLabelField]
-        }
-        this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'annotation',
-                datastore: this.options.datastore,
-                database: this.options.database,
-                table: this.options.table,
-                labelField: this.options.updateLabelField,
-                idField: this.options.datastoreIdField,
-                dataId: id,
-                defaultLabel: heldLabel
-            },
-            height: 'auto',
-            width: '500px',
-            disableClose: false
-        }).afterClosed().subscribe(result => {
-            if (typeof result !== 'undefined') {
-                this.thumbnailGrid.getUpdatedLabelFromSubcomponent(this.item._id, result.data);
-            }
-        });
     }
 }
 
