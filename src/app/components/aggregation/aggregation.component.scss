@@ -39,14 +39,18 @@
 
     ::ng-deep {
         .list-subcomponent {
+            display: grid;
+            grid-template-columns: repeat(var(--neon-list-columns, 1), auto);
+
             .list-item {
                 cursor: pointer;
-                padding: 2px 10px 2px 0;
+                padding: 2px 5px;
 
                 .list-text {
                     font-size: 14px;
                     line-height: 16px;
                     height: 16px;
+                    margin-right: 5px;
                     /* TODO Make configurable! */
                     max-width: 250px;
                     overflow: hidden;
