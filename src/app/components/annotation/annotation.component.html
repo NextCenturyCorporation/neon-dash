@@ -1,20 +1,17 @@
 <h2 mat-dialog-title>
-  {{ title }}
+    Update {{ labelField.prettyName }} of {{ dataId }}
 </h2>
 <mat-divider></mat-divider>
 <mat-dialog-content>
-  <mat-form-field class="neon-form-field-flex-full">
-    <mat-select placeholder="Label" [(ngModel)]="selectedLabel">
-      <!-- [(ngModel)]="optionCollection.database" required="true"
-      [name]="optionCollection._id + '_database'" (ngModelChange)="handleChangeDatabase()"
-      [disabled]="optionCollection.databases.length < 2" -->
-      <mat-option *ngFor="let label of labels" [value]="label">
-        {{ label }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+    <mat-form-field class="neon-form-field-flex-full">
+        <mat-select #annotationDropdown placeholder="Label" [(ngModel)]="selectedLabel">
+            <mat-option *ngFor="let label of labels" [value]="label">
+                {{ label }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-raised-button class="neon-button-large" (click)="onChangeName()">{{ confirmText }}</button>
-  <button mat-raised-button class="neon-button-large" (click)="dialogRef.close()">{{ cancelText }}</button>
+    <button mat-raised-button class="neon-button-large" (click)="saveAnnotation()">Save</button>
+    <button mat-raised-button class="neon-button-large" (click)="dialogRef.close()">Cancel</button>
 </mat-dialog-actions>
