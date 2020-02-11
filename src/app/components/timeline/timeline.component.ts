@@ -201,7 +201,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         if (typeof this.options.showOnlyFiltered !== 'undefined') {
-            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+            this.options.hideUnfiltered = '' + this.options.showOnlyFiltered;
         }
     }
 

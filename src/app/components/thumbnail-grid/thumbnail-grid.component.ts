@@ -499,7 +499,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         if (typeof this.options.showOnlyFiltered !== 'undefined') {
-            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+            this.options.hideUnfiltered = '' + this.options.showOnlyFiltered;
         }
 
         // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).

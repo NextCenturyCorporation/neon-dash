@@ -701,8 +701,24 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        return (!this.searchService.canRunSearch(options.datastore.type, options.datastore.host) ||
-            (this.options.hideUnfiltered && !this.retrieveApplicableFilters(options).length));
+        if (!this.searchService.canRunSearch(options.datastore.type, options.datastore.host)) {
+            return true;
+        }
+
+        if (!this.options.hideUnfiltered || this.options.hideUnfiltered === 'false') {
+            return false;
+        }
+
+        const filters: AbstractFilter[] = this.retrieveApplicableFilters(options);
+
+        if (this.options.hideUnfiltered === 'true') {
+            return !filters.length;
+        }
+
+        return !filters.length || !this.retrieveApplicableFilters(options).some((filter) =>
+            filter.toDesign().getDataSources().some((dataSource) => dataSource.datastore === options.datastore.name &&
+                dataSource.database === options.database.name && dataSource.table === options.table.name &&
+                dataSource.field === this.options.hideUnfiltered));
     }
 
     /**
@@ -791,7 +807,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         // If the query was not yet run, show no text unless waiting on an event.
         if (!this.layerIdToElementCount.has(options._id)) {
             // TODO Add support for 'Please Select'
-            return this.options.hideUnfiltered ? 'Please Filter' : '';
+            return this.options.hideUnfiltered !== 'false' ? 'Please Filter' : '';
         }
 
         let elementCount = this.layerIdToElementCount.get(options._id);
@@ -800,7 +816,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         // If the query was empty, show the relevant text.
         if (!elementCount) {
             let filtered = !!this.retrieveApplicableFilters(options).length;
-            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) : 'None');
+            return (this.options.hideUnfiltered !== 'false' && !filtered) ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) :
+                'None');
         }
 
         // If the visualization query does pagination, show the pagination text.
@@ -1067,7 +1084,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Checks wheather there are any filters and returns no data.
      */
     public noDataCheck() {
-        this.showNoData = !!(this.filterService.getFilters().length && !this.layerIdToElementCount.get(this.options._id));
+        this.showNoData = !this.layerIdToElementCount.get(this.options._id);
         this.changeDetection.detectChanges();
         this.toggleBodyContainer();
     }

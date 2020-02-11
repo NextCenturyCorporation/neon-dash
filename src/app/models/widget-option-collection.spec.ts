@@ -585,7 +585,7 @@ describe('RootWidgetOptionCollection', () => {
         ], 'Test Title', 100, true, new OptionConfig({
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
-            hideUnfiltered: true,
+            hideUnfiltered: 'true',
             limit: '1234',
             title: 'Test Custom Title',
             testCustomField: 'testTextField',
@@ -611,7 +611,7 @@ describe('RootWidgetOptionCollection', () => {
 
         expect(options.contributionKeys).toEqual(['next_century']);
         expect(options.filter).toEqual({ lhs: 'a', operator: '!=', rhs: 'b' });
-        expect(options.hideUnfiltered).toEqual(true);
+        expect(options.hideUnfiltered).toEqual('true');
         expect(options.limit).toEqual('1234');
         expect(options.title).toEqual('Test Custom Title');
 
@@ -719,7 +719,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
         expect(options.contributionKeys).toEqual(undefined);
         expect(options.filter).toEqual(undefined);
-        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.hideUnfiltered).toEqual('false');
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('Test Title');
 
@@ -800,12 +800,12 @@ describe('Number Fields', () => {
     it('Object initializes correctly', () => {
         const optEmpty = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(optEmpty.valueDefault).toEqual(0);
-        expect(optEmpty.intermediateValue).toEqual(0);
+        expect(optEmpty.intermediateValue).toEqual('');
         expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
 
         const optNull = new ConfigOptionNumber('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
-        expect(optNull.intermediateValue).toEqual(undefined);
+        expect(optNull.intermediateValue).toEqual('');
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
     });
 
