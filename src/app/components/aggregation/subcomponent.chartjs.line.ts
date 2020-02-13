@@ -58,7 +58,7 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
                     y: yValue
                 });
                 // Adjust the point radius based on its aggregation and the maximum aggregation.
-                let pointRadius = 2 + (!this.maximumAggregation ? 1 :
+                let pointRadius = 2 + (!this.maximumAggregation ? 2 :
                     ((Math.log(pointAggregation) / Math.log(this.maximumAggregation)) * 18.0));
                 this.pointRadius.push(pointRadius);
                 this.pointHoverRadius.push(pointRadius * 1.5);

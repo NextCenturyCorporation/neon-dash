@@ -82,6 +82,7 @@ import { StatisticsUtil } from '../../util/statistics.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import * as moment from 'moment';
+import { neonEvents } from '../../models/neon-namespaces';
 
 let styleImport: any;
 
@@ -198,6 +199,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private _filteredSingleValues: any[] = [];
 
     private _rocCurveAUCs = new Map<string, number>();
+
+    private _backgroundImageHeight: number;
+    private _backgroundImageWidth: number;
+    private _backgroundImageQuery: any;
 
     constructor(
         dashboardService: DashboardService,
@@ -522,6 +527,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionSelect('reverseY', 'Reverse Y Axis', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('rocCurve', 'ROC Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotLine.bind(this)),
             new ConfigOptionSelect('rocCurvePrecision', 'ROC Curve Precision', false, 100, [{
@@ -592,7 +598,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: '0.5',
                 variable: 0.5
-            }], this.optionsTypeIsNotGrid.bind(this))
+            }], this.optionsTypeIsNotGrid.bind(this)),
+            // Rare config options - show on bottom
+            new ConfigOptionField('backgroundImageLinkField', 'Background Image Link Field', false),
+            new ConfigOptionField('backgroundImageHeightField', 'Background Image Height Field', false),
+            new ConfigOptionField('backgroundImageWidthField', 'Background Image Width Field', false)
         ];
     }
 
@@ -829,6 +839,82 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Creates the transformed visualization data using the given options and results and then calls the given success callback function.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @arg {any[]} results
+     * @arg {(elementCount: number) => void} successCallback
+     * @arg {(err: Error) => void} successCallback
+     * @override
+     */
+    protected handleTransformVisualizationQueryResults(
+        options: any,
+        results: any[],
+        successCallback: (elementCount: number) => void,
+        failureCallback: (err: Error) => void
+    ): void {
+        if (!this.showBackgroundImageUrl(options)) {
+            super.handleTransformVisualizationQueryResults(options, results, successCallback, failureCallback);
+            return;
+        }
+
+        new Promise<void>((resolve) => {
+            this._backgroundImageHeight = undefined;
+            this._backgroundImageWidth = undefined;
+
+            document.documentElement.style.setProperty('--neon-canvas-height', '');
+            document.documentElement.style.setProperty('--neon-canvas-width', '');
+
+            let searchObject: SearchObject = this.searchService.createSearch(options.database.name, options.table.name, [
+                options.backgroundImageLinkField.columnName,
+                options.backgroundImageHeightField.columnName,
+                options.backgroundImageWidthField.columnName
+            ]);
+
+            this.searchService.withLimit(searchObject, 1)
+                .withFilter(searchObject, this.searchService.createCompoundFilterClause(this.createSharedFilters(options)))
+                .transformFilterClauseValues(searchObject, this.getLabelOptions(options));
+
+            if (this._backgroundImageQuery) {
+                this._backgroundImageQuery.abort();
+            }
+
+            this._backgroundImageQuery = this.searchService.runSearch(options.datastore.type, options.datastore.host, searchObject);
+
+            this._backgroundImageQuery.done((response) => {
+                if (response.data && response.data.length) {
+                    const link = (options.backgroundImageLinkPrefix || '') + CoreUtil.deepFind(response.data[0],
+                        options.backgroundImageLinkField.columnName);
+                    document.documentElement.style.setProperty('--neon-background-image-url', link ?  'url("' + link + '")' : 'none');
+
+                    this._backgroundImageHeight = _.toNumber(CoreUtil.deepFind(response.data[0],
+                        options.backgroundImageHeightField.columnName));
+                    this._backgroundImageWidth = _.toNumber(CoreUtil.deepFind(response.data[0],
+                        options.backgroundImageWidthField.columnName));
+
+                    this._updateBackgroundImageProperties();
+                }
+
+                this._backgroundImageQuery = null;
+                resolve();
+            });
+
+            this._backgroundImageQuery.fail((response) => {
+                if (response.statusText !== 'abort') {
+                    this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                        error: response,
+                        message: 'Failed background image query on ' + options.title
+                    });
+                }
+                this._backgroundImageQuery = undefined;
+                resolve();
+            });
+        }).then(() => {
+            super.handleTransformVisualizationQueryResults(options, results, successCallback, failureCallback);
+        });
+    }
+
+    /**
      * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
      * Returns the count of elements shown in the visualization.
      *
@@ -983,7 +1069,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // TODO Add missing X to xList of numeric histograms.
         }
 
-        this.maximumAggregation = maximumAggregation;
+        // The maximumAggregation must be greater than 1 so its log function is a positive number.
+        this.maximumAggregation = (maximumAggregation <= 1 ? 0 : maximumAggregation);
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
 
@@ -1262,6 +1349,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }, new Map<string, string>())
             } : null,
             maximumAggregation: this.maximumAggregation,
+            maxTicksX: this._backgroundImageWidth,
+            maxTicksY: this._backgroundImageHeight,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
             xList: this.xList,
@@ -1312,6 +1401,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected shouldFilterSelf(): boolean {
         return !this.options.ignoreSelf || !!this.options.dualView;
+    }
+
+    /**
+     * Returns whether to show the background image URL.
+     *
+     * @return {boolean}
+     */
+    public showBackgroundImageUrl(options: any): boolean {
+        return !!(options.backgroundImageLinkField.columnName && options.backgroundImageHeightField.columnName &&
+            options.backgroundImageWidthField.columnName);
     }
 
     /**
@@ -1490,6 +1589,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.subcomponentZoom.redraw();
         }
 
+        this._updateBackgroundImageProperties();
+
         // Update the selected area and offset AFTER redrawing the subcomponents.
         this.selectedAreaOffset = {
             x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
@@ -1608,5 +1709,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         return this.aggregationData.reduce((count, element) => count + element.y, 0);
+    }
+
+    private _updateBackgroundImageProperties(): void {
+        if (this._backgroundImageHeight && this._backgroundImageWidth) {
+            const heightRatio = (this.subcomponentMainElementRef.nativeElement.clientHeight /
+                this._backgroundImageHeight);
+            const widthRatio = (this.subcomponentMainElementRef.nativeElement.clientWidth /
+                this._backgroundImageWidth);
+
+            const canvasHeight = this._backgroundImageHeight * Math.min(heightRatio, widthRatio);
+            const canvasWidth = this._backgroundImageWidth * Math.min(heightRatio, widthRatio);
+
+            document.documentElement.style.setProperty('--neon-canvas-height', canvasHeight + 'px');
+            document.documentElement.style.setProperty('--neon-canvas-width', canvasWidth + 'px');
+        }
     }
 }

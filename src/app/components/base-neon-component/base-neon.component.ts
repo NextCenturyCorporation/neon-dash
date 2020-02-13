@@ -931,7 +931,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    private getLabelOptions(options: WidgetOptionCollection) {
+    protected getLabelOptions(options: WidgetOptionCollection) {
         let matchingDatabase = options.datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};

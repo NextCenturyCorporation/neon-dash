@@ -3427,6 +3427,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        let spy3 = spyOn(component.subcomponentMain, 'redraw');
+        let spy4 = spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
@@ -3442,6 +3446,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -3477,6 +3483,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3490,6 +3498,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization with XY subcomponent does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.type = 'line-xy';
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
@@ -3505,6 +3517,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'number',
             xList: [],
@@ -3539,6 +3553,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'number',
             xList: [1, 3],
@@ -3552,6 +3568,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does work as expected with date fields', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.type = 'line-xy';
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.DATE;
@@ -3566,6 +3586,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'date',
             xList: [],
@@ -3600,6 +3622,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'date',
             xList: [1, 3],
@@ -3613,6 +3637,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does work as expected with string fields', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.type = 'line-xy';
         component.options.xField = DashboardServiceMock.FIELD_MAP.TEXT;
         component.options.yField = DashboardServiceMock.FIELD_MAP.TEXT;
@@ -3627,6 +3655,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'string',
             xList: [],
@@ -3661,6 +3691,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'string',
             xList: [1, 3],
@@ -3674,6 +3706,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw zoom data if dualView is truthy', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
@@ -3707,6 +3743,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3727,6 +3765,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3752,6 +3792,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3772,6 +3814,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3785,6 +3829,8 @@ describe('Component: Aggregation', () => {
     It('refreshVisualization does not draw main data if isFiltered returns true unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
@@ -3820,6 +3866,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3845,6 +3893,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3859,6 +3909,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw main data if given true argument', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
@@ -3892,6 +3946,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3912,6 +3968,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
@@ -3924,6 +3982,10 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization with roc curve does have legend metadata', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.rocCurve = true;
         component.options.type = 'line-xy';
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
@@ -3968,6 +4030,8 @@ describe('Component: Aggregation', () => {
                 groupsToLabels: expectedGroupsToLabels
             },
             maximumAggregation: 0,
+            maxTicksX: undefined,
+            maxTicksY: undefined,
             sort: 'x',
             xAxis: 'number',
             xList: [1, 3],
@@ -4383,6 +4447,8 @@ describe('Component: Aggregation', () => {
 
         let spy1 = spyOn(component.subcomponentMain, 'redraw');
         let spy2 = spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
+        spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
 
         component.updateOnResize();
 
