@@ -218,7 +218,7 @@ export interface NeonConfig {
     layouts?: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
-    dataLabels?: any[];
+    annotations?: Record<string, any>;
     errors?: any[];
     fileName?: string;
     hideImport?: boolean;
@@ -236,7 +236,7 @@ export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
             about: '',
-            dataLabels: [],
+            annotations: {},
             errors: [],
             hideImport: false,
             layouts: {},

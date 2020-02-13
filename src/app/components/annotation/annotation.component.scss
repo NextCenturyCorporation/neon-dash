@@ -17,24 +17,51 @@
 
 :host {
     display: block;
+    font-size: 14px;
     overflow: hidden;
 }
 
-h2 {
-    margin-bottom: 0;
-    padding-bottom: 0.25em;
+.mat-dialog-title {
+    margin: 0 0 5px;
+}
+
+.mat-divider {
+    margin: 0 0 5px;
+}
+
+.image-container {
+    padding: 10px;
+    text-align: center;
 }
 
 .mat-dialog-content {
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-    text-align: center;
-    font-size: 1em;
+    margin: 0;
     overflow: hidden;
+    padding: 0;
+
+    .input-container {
+        background-color: var(--color-background-contrast, lightgrey);
+        padding: 10px;
+
+        .field-name {
+            font-weight: bold;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+        }
+
+        .mat-form-field {
+            margin-top: 10px;
+        }
+    }
 }
 
-mat-dialog-actions {
-    width: 100%;
+.mat-dialog-actions {
     display: block;
+    margin: 10px 0 0;
+    min-height: unset;
+    padding: 0;
     text-align: right;
+    width: 100%;
 }
+

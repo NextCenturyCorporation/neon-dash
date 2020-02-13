@@ -14,7 +14,14 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatButtonModule, MatDividerModule, MatFormFieldModule, MatSelectModule  } from '@angular/material';
+import {
+    MatButtonModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule
+} from '@angular/material';
 import { AnnotationComponent } from './annotation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -31,13 +38,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatFormFieldModule
     ],
     imports: [
+        CommonModule,
+        FormsModule,
+        MatButtonModule,
         MatDialogModule,
         MatDividerModule,
-        MatButtonModule,
         MatFormFieldModule,
-        CommonModule,
+        MatInputModule,
         MatSelectModule,
-        FormsModule,
         ReactiveFormsModule
     ]
 })

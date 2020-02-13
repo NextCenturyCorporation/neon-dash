@@ -71,17 +71,15 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
-        expect(component.options.categoryField).toEqual(FieldConfig.get());
         expect(component.options.compareField).toEqual(FieldConfig.get());
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.idField).toEqual(FieldConfig.get());
         expect(component.options.linkField).toEqual(FieldConfig.get());
         expect(component.options.nameField).toEqual(FieldConfig.get());
-        expect(component.options.objectIdField).toEqual(FieldConfig.get());
-        expect(component.options.objectNameField).toEqual(FieldConfig.get());
         expect(component.options.percentField).toEqual(FieldConfig.get());
-        expect(component.options.predictedNameField).toEqual(FieldConfig.get());
+        expect(component.options.predictedClassField).toEqual(FieldConfig.get());
         expect(component.options.sortField).toEqual(FieldConfig.get());
+        expect(component.options.truthClassField).toEqual(FieldConfig.get());
         expect(component.options.typeField).toEqual(FieldConfig.get());
 
         expect(component.headerText).toBeDefined();
@@ -177,32 +175,27 @@ describe('Component: ThumbnailGrid', () => {
         component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectIdField = FieldConfig.get({
-            columnName: 'testObjectIdField', prettyName: 'Test Object ID Field'
-        });
-        component.options.objectNameField = FieldConfig.get({
-            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
-        });
         component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = FieldConfig.get({
-            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        component.options.predictedClassField = FieldConfig.get({
+            columnName: 'testPredictedClassField', prettyName: 'Test Predicted Class Field'
+        });
+        component.options.truthClassField = FieldConfig.get({
+            columnName: 'testTruthClassField', prettyName: 'Test Truth Class Field'
         });
 
         component.gridArray = [{
             testNameField: 'name1',
-            testObjectIdField: 'objectId1',
-            testObjectNameField: 'objectName1',
             testPercentField: 0.1,
-            testPredictedNameField: 'predictedName1',
+            testPredictedClassField: 'predictedClass1',
+            testTruthClassField: 'truthClass1',
             constructedUrl: 'link1'
         }, {
             testNameField: 'name2',
-            testObjectIdField: 'objectId2',
-            testObjectNameField: 'objectName2',
             testPercentField: 0.2,
-            testPredictedNameField: 'predictedName2',
+            testPredictedClassField: 'predictedClass2',
+            testTruthClassField: 'truthClass2',
             constructedUrl: 'link2'
         }];
 
@@ -457,34 +450,34 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.getThumbnailLabel({})).toEqual('');
 
         expect(component.getThumbnailLabel({
-            testObjectNameField: 'myObjectName',
-            testPredictedNameField: 'myPredictedName'
+            testTruthClassField: 'myTruthClass',
+            testPredictedClassField: 'myPredictedClass'
         })).toEqual('');
 
-        component.options.objectNameField = FieldConfig.get({
-            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
+        component.options.truthClassField = FieldConfig.get({
+            columnName: 'testTruthClassField', prettyName: 'Test Truth Class Field'
         });
 
         expect(component.getThumbnailLabel({
-            testObjectNameField: 'myObjectName',
-            testPredictedNameField: 'myPredictedName'
-        })).toEqual('myObjectName');
+            testTruthClassField: 'myTruthClass',
+            testPredictedClassField: 'myPredictedClass'
+        })).toEqual('myTruthClass');
 
         expect(component.getThumbnailLabel({
-            testPredictedNameField: 'myPredictedName'
+            testPredictedClassField: 'myPredictedClass'
         })).toEqual('');
 
-        component.options.predictedNameField = FieldConfig.get({
-            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        component.options.predictedClassField = FieldConfig.get({
+            columnName: 'testPredictedClassField', prettyName: 'Test Predicted Class Field'
         });
 
         expect(component.getThumbnailLabel({
-            testObjectNameField: 'myObjectName',
-            testPredictedNameField: 'myPredictedName'
-        })).toEqual('myPredictedName');
+            testTruthClassField: 'myTruthClass',
+            testPredictedClassField: 'myPredictedClass'
+        })).toEqual('myPredictedClass');
 
         expect(component.getThumbnailLabel({
-            testObjectNameField: 'myObjectName'
+            testTruthClassField: 'myTruthClass'
         })).toEqual('');
     });
 
@@ -527,44 +520,44 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.getThumbnailTitle({
             testNameField: 'myName',
-            testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
-            testPredictedNameField: 'myPredictedName'
+            testPredictedClassField: 'myPredictedClass',
+            testTruthClassField: 'myTruthClass'
         })).toEqual('');
 
         component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectNameField = FieldConfig.get({
-            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
-        });
         component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = FieldConfig.get({
-            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        component.options.predictedClassField = FieldConfig.get({
+            columnName: 'testPredictedClassField', prettyName: 'Test Predicted Class Field'
+        });
+        component.options.truthClassField = FieldConfig.get({
+            columnName: 'testTruthClassField', prettyName: 'Test Truth Class Field'
         });
 
         expect(component.getThumbnailTitle({
             testNameField: 'myName',
-            testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
-            testPredictedNameField: 'myPredictedName'
-        })).toEqual('myName, Prediction : myPredictedName, Actual : myObjectName');
+            testPredictedClassField: 'myPredictedClass',
+            testTruthClassField: 'myTruthClass'
+        })).toEqual('myName, Prediction : myPredictedClass, Actual : myTruthClass');
     });
 
     it('getThumbnailTitle does use textMap', () => {
         component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectNameField = FieldConfig.get({
-            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
-        });
         component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = FieldConfig.get({
-            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        component.options.predictedClassField = FieldConfig.get({
+            columnName: 'testPredictedClassField', prettyName: 'Test Predicted Class Field'
+        });
+        component.options.truthClassField = FieldConfig.get({
+            columnName: 'testTruthClassField', prettyName: 'Test Truth Class Field'
         });
         component.options.textMap = {
             actual: 'MyActualText',
@@ -575,10 +568,10 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.getThumbnailTitle({
             testNameField: 'myName',
-            testObjectNameField: 'myObjectName',
+            testTruthClassField: 'myTruthClass',
             testPercentField: 0.1234,
-            testPredictedNameField: 'myPredictedName'
-        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
+            testPredictedClassField: 'myPredictedClass'
+        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedClass, MyActualText : myTruthClass');
     });
 
     it('designEachFilterWithNoValues does return expected object', () => {
@@ -630,10 +623,6 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.categoryField = FieldConfig.get({
-            columnName: 'testCategoryField',
-            prettyName: 'Test Category Field'
-        });
         component.options.compareField = FieldConfig.get({
             columnName: 'testCompareField',
             prettyName: 'Test Compare Field'
@@ -654,25 +643,21 @@ describe('Component: ThumbnailGrid', () => {
             columnName: 'testNameField',
             prettyName: 'Test Name Field'
         });
-        component.options.objectIdField = FieldConfig.get({
-            columnName: 'testObjectIdField',
-            prettyName: 'Test Object ID Field'
-        });
-        component.options.objectNameField = FieldConfig.get({
-            columnName: 'testObjectNameField',
-            prettyName: 'Test Object Name Field'
-        });
         component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField',
             prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = FieldConfig.get({
-            columnName: 'testPredictedNameField',
-            prettyName: 'Test Predicted Name Field'
+        component.options.predictedClassField = FieldConfig.get({
+            columnName: 'testPredictedClassField',
+            prettyName: 'Test Predicted Class Field'
         });
         component.options.sortField = FieldConfig.get({
             columnName: 'testSortField',
             prettyName: 'Test Sort Field'
+        });
+        component.options.truthClassField = FieldConfig.get({
+            columnName: 'testTruthClassField',
+            prettyName: 'Test Truth Class Field'
         });
         component.options.typeField = FieldConfig.get({
             columnName: 'testTypeField',
@@ -681,59 +666,53 @@ describe('Component: ThumbnailGrid', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
-            testCategoryField: 'category1',
             testCompareField: 'compare1',
             testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testObjectIdField: 'objectId1',
-            testObjectNameField: 'objectName1',
             testPercentField: 0.1,
-            testPredictedNameField: 'predictedName1',
+            testPredictedClassField: 'predictedClass1',
             testSortField: 'sort1',
+            testTruthClassField: 'truthClass1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
-            testCategoryField: 'category2',
             testCompareField: 'compare2',
             testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testObjectIdField: 'objectId2',
-            testObjectNameField: 'objectName2',
             testPercentField: 0.2,
-            testPredictedNameField: 'predictedName2',
+            testPredictedClassField: 'predictedClass2',
             testSortField: 'sort2',
+            testTruthClassField: 'truthClass2',
             testTypeField: 'type2'
         }], new FilterCollection());
 
         expect(component.gridArray).toEqual([{
             _filtered: false,
             _id: 'id1',
-            testCategoryField: 'category1',
             testCompareField: 'compare1',
             testFilterField: 'filter1',
+            testLinkField: 'link1',
             constructedUrl: 'link1.type1',
             testNameField: 'name1',
-            testObjectIdField: 'objectId1',
-            testObjectNameField: 'objectName1',
             testPercentField: 0.1,
-            testPredictedNameField: 'predictedName1',
+            testPredictedClassField: 'predictedClass1',
             testSortField: 'sort1',
+            testTruthClassField: 'truthClass1',
             testTypeField: 'type1'
         }, {
             _filtered: false,
             _id: 'id2',
-            testCategoryField: 'category2',
             testCompareField: 'compare2',
             testFilterField: 'filter2',
+            testLinkField: 'link2',
             constructedUrl: 'link2.type2',
             testNameField: 'name2',
-            testObjectIdField: 'objectId2',
-            testObjectNameField: 'objectName2',
             testPercentField: 0.2,
-            testPredictedNameField: 'predictedName2',
+            testPredictedClassField: 'predictedClass2',
             testSortField: 'sort2',
+            testTruthClassField: 'truthClass2',
             testTypeField: 'type2'
         }]);
         expect(actual).toEqual(2);
@@ -776,6 +755,7 @@ describe('Component: ThumbnailGrid', () => {
             _filtered: false,
             _id: 'id1',
             constructedUrl: 'prefix/link1.type1',
+            testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
@@ -783,6 +763,7 @@ describe('Component: ThumbnailGrid', () => {
             _filtered: false,
             _id: 'id2',
             constructedUrl: 'prefix/link2.type2',
+            testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
@@ -859,7 +840,6 @@ describe('Component: ThumbnailGrid with config', () => {
             border: 'percentCompare',
             borderCompareValue: 'Test Compare Value',
             borderPercentThreshold: 0.25,
-            categoryField: 'testCategoryField',
             compareField: 'testCategoryField',
             cropAndScale: 'both',
             dateField: 'testDateField',
@@ -872,16 +852,15 @@ describe('Component: ThumbnailGrid with config', () => {
             linkField: 'testLinkField',
             linkPrefix: 'prefix/',
             nameField: 'testNameField',
-            objectIdField: 'testIdField',
-            objectNameField: 'testNameField',
             openOnMouseClick: false,
             percentField: 'testSizeField',
-            predictedNameField: 'testNameField',
+            predictedClassField: 'testNameField',
             sortDescending: false,
             sortField: 'testSortField',
             tableKey: 'table_key_2',
             textMap: { actual: 'Truth', percentage: 'Score' },
             title: 'Test Title',
+            truthClassField: 'testNameField',
             typeField: 'testTypeField',
             typeMap: { jpg: 'img', mov: 'vid' }
         };
@@ -925,18 +904,16 @@ describe('Component: ThumbnailGrid with config', () => {
             mov: 'vid'
         });
 
-        expect(component.options.categoryField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(component.options.compareField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(component.options.dateField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
         expect(component.options.filterFields).toEqual([DashboardServiceMock.FIELD_MAP.FILTER]);
         expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
         expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
         expect(component.options.nameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect(component.options.objectIdField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
-        expect(component.options.objectNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component.options.percentField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
-        expect(component.options.predictedNameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.predictedClassField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component.options.sortField).toEqual(DashboardServiceMock.FIELD_MAP.SORT);
+        expect(component.options.truthClassField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component.options.typeField).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
     });
 
