@@ -15,13 +15,18 @@
 import { AfterViewInit, Component, Inject, QueryList, ViewChildren } from '@angular/core';
 import { ConfigService } from '../../services/config.service';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
+import { InjectableSearchService } from '../../services/injectable.search.service';
 import { MatDialogRef, MatSelect, MAT_DIALOG_DATA } from '@angular/material';
 import { NeonConfig } from '../../models/types';
 import {
+    AggregationType,
     BoundsFilterDesign,
+    CoreUtil,
     DatabaseConfig,
     DatastoreConfig,
     FieldConfig,
+    FieldKey,
+    SearchObject,
     TableConfig
 } from '@caci-critical-insight-solutions/nucleus-core';
 
@@ -76,7 +81,8 @@ export class AnnotationComponent implements AfterViewInit {
         @Inject(MAT_DIALOG_DATA) data: AnnotationDialogInput,
         public dialogRef: MatDialogRef<AnnotationComponent>,
         private configService: ConfigService,
-        private connectionService: InjectableConnectionService
+        private connectionService: InjectableConnectionService,
+        private searchService: InjectableSearchService
     ) {
         this._messenger = new eventing.Messenger();
 
@@ -118,6 +124,11 @@ export class AnnotationComponent implements AfterViewInit {
                         input.multiLineInput = annotationConfig.multiLineInput || false;
                         input.oneLineInput = annotationConfig.oneLineInput || false;
                         input.hidden = !(input.dropdown || input.multiLineInput || input.oneLineInput);
+                    }
+
+                    if (input.dropdown) {
+                        // TODO Should this be optional?
+                        this._retrieveAdditionalDropdownData(input);
                     }
                 });
             }
@@ -179,5 +190,41 @@ export class AnnotationComponent implements AfterViewInit {
             output[input.field.columnName] = input.newValue;
             return output;
         }, {}));
+    }
+
+    private _retrieveAdditionalDropdownData(input: AnnotationUserInput): void {
+        let searchObject: SearchObject = this.searchService.createSearch(this.database.name, this.table.name);
+
+        this.searchService.withAggregation(searchObject, {
+            datastore: this.datastore.name,
+            database: this.database.name,
+            table: this.table.name,
+            field: input.field.columnName
+        } as FieldKey, this.searchService.getAggregationLabel(), AggregationType.COUNT).withGroup(searchObject, {
+            datastore: this.datastore.name,
+            database: this.database.name,
+            table: this.table.name,
+            field: input.field.columnName
+        } as FieldKey);
+
+        const search = this.searchService.runSearch(this.datastore.type, this.datastore.host, searchObject);
+
+        search.done((response) => {
+            if (response.data && response.data.length) {
+                let dropdownData = response.data.map((item) => CoreUtil.deepFind(item, input.field.columnName));
+                // TODO Should we make the sort optional?
+                input.dropdown = dropdownData.concat((Array.isArray(input.dropdown) ? input.dropdown : []).filter((item) =>
+                    dropdownData.indexOf(item) < 0)).sort();
+            }
+        });
+
+        search.fail((response) => {
+            if (response.statusText !== 'abort') {
+                this._messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    error: response,
+                    message: 'Failed annotation component dropdown data query on ' + input.field.prettyName
+                });
+            }
+        });
     }
 }
