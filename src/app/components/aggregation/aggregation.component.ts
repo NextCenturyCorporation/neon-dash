@@ -34,6 +34,7 @@ import {
     BoundsValues,
     Color,
     CompoundFilterType,
+    ConfigOptionColor,
     ConfigOptionField,
     ConfigOptionFreeText,
     ConfigOptionNumber,
@@ -397,6 +398,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 table: options.table.name,
                 field: options.yField.columnName
             } as FieldKey, '!=', null));
+            countField = options.yField.columnName;
         }
 
         if (options.groupField.columnName) {
@@ -465,6 +467,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new ConfigOptionField('yField', 'Y Field', true, this.optionsTypeIsNotXY.bind(this)),
             new ConfigOptionSelect('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsXY.bind(this)),
+            new ConfigOptionColor('elementColor', 'Color Override for All Visualization Elements', false, null),
             new ConfigOptionSelect('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsXFieldIsNotDate.bind(this)),
@@ -933,7 +936,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getThemeAccentColor());
+            groupsToColors.set(this.DEFAULT_GROUP, options.elementColor ? Color.fromString(options.elementColor) :
+                this.colorThemeService.getThemeAccentColor());
         }
 
         let findGroupColor = (group: string): Color => {
@@ -1429,9 +1433,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     showLegend(): boolean {
+        // Always hide the legend if elementColor is set.
+        if (this.options.elementColor) {
+            return false;
+        }
         // TODO THOR-973
         // Always show the legend for histogram, line, or scatter in order to avoid a bug resizing the selected area within the chart.
-        return this.optionsTypeIsContinuous(this.options) || (this.options.showLegend && this.legendGroups.length > 1);
+        if (this.optionsTypeIsContinuous(this.options)) {
+            return true;
+        }
+        return (this.options.showLegend && this.legendGroups.length > 1);
     }
 
     /**
