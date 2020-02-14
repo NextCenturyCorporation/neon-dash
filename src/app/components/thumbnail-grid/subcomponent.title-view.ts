@@ -98,7 +98,11 @@ export class TitleThumbnailSubComponent {
         });
     }
 
-    public shouldShowAnnotationButton(options): boolean {
+    public shouldFlagAnnotationButton(options: any, item: any): boolean {
+        return options.annotationStateField.columnName && !!item[options.annotationStateField.columnName];
+    }
+
+    public shouldShowAnnotationButton(options: any): boolean {
         return !!(options.datastoreIdField.columnName && options.annotationClassField.columnName);
     }
 }

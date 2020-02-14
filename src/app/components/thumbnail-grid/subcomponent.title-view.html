@@ -2,11 +2,11 @@
     (click)="thumbnailGrid.selectGridItem(item)" [style.width.px]="options.canvasSize + 10">
 
     <div class="thumbnail-title-details" *ngIf="thumbnailGrid.getThumbnailLabel(item) != ''">
-        <button mat-icon-button *ngIf="shouldShowAnnotationButton(options)" class="neon-icon-button-small" matTooltip="Edit Annotation"
-            matTooltipPosition="below" (click)="openAnnotationDialog($event)">
+        <button mat-icon-button *ngIf="shouldShowAnnotationButton(options)" class="neon-icon-button-medium" matTooltip="Edit Annotation"
+            matTooltipPosition="below" (click)="openAnnotationDialog($event)" [class.flag]="shouldFlagAnnotationButton(options, item)">
             <mat-icon class="neon-icon-small">edit</mat-icon>
         </button>
-        <button mat-icon-button *ngIf="options.openOnMouseClick" class="neon-icon-button-small" matTooltip="Open in New Tab"
+        <button mat-icon-button *ngIf="options.openOnMouseClick" class="neon-icon-button-medium" matTooltip="Open in New Tab"
             matTooltipPosition="below" (click)="thumbnailGrid.displayMediaTab($event, item)">
             <mat-icon class="neon-icon-small">open_in_new</mat-icon>
         </button>

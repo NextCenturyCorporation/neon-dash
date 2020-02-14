@@ -56,10 +56,15 @@
         }
 
         .mat-icon-button {
+            border-radius: 10px;
             margin: 0 5px 0 0 !important;
 
             &:hover {
                 color: var(--color-data-item-selectable-contrast, white) !important;
+            }
+
+            &.flag {
+                background-color: var(--color-data-item-selected, white) !important;
             }
         }
     }

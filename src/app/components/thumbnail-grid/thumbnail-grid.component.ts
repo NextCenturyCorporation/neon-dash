@@ -151,6 +151,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     protected createOptions(): ConfigOption[] {
         return [
             new ConfigOptionField('annotationClassField', 'Annotation Class Field', false),
+            new ConfigOptionField('annotationStateField', 'Annotation State Field', false),
             new ConfigOptionField('datastoreIdField', 'Annotation Datastore UUID Field', false),
             new ConfigOptionField('dateField', 'Date Field', false),
             new ConfigOptionField('flagLabel', 'Flag Field', false),
