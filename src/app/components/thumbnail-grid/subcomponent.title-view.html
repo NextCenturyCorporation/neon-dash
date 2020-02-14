@@ -14,7 +14,7 @@
         <span class="detail-percentage">{{ thumbnailGrid.getThumbnailPercent(item) }}</span>
     </div>
 
-    <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view with-border"
-        [height]="options.canvasSize" [width]="options.canvasSize">
+    <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view with-border" [height]="options.canvasSize"
+        [width]="options.canvasSize">
     </canvas>
 </div>

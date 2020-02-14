@@ -43,7 +43,7 @@ export class TitleThumbnailSubComponent {
         let annotationFields = new Map<string, { field: FieldConfig, value: any }>();
         annotationFields.set(this.options.annotationClassField.columnName, {
             field: this.options.annotationClassField,
-            value: this.thumbnailGrid.annotatedClasses.has(id) ?  this.thumbnailGrid.annotatedClasses.get(id) :
+            value: this.thumbnailGrid.annotatedClasses.has(id) ? this.thumbnailGrid.annotatedClasses.get(id) :
                 this.item[this.options.annotationClassField.columnName]
         });
 
@@ -71,7 +71,6 @@ export class TitleThumbnailSubComponent {
                     value: ''
                 });
             }
-
         });
 
         this.dialog.open(DynamicDialogComponent, {
@@ -90,7 +89,7 @@ export class TitleThumbnailSubComponent {
             height: 'auto',
             width: '600px',
             disableClose: false
-        }).afterClosed().subscribe(result => {
+        }).afterClosed().subscribe((result) => {
             if (typeof result !== 'undefined' && result[this.options.annotationClassField.columnName]) {
                 this.thumbnailGrid.annotatedClasses.set(this.item[this.options.datastoreIdField.columnName],
                     result[this.options.annotationClassField.columnName]);

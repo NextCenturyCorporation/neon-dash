@@ -18,7 +18,6 @@ import {
     ConfigOptionDatastore,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
-    ConfigOptionSelect,
     ConfigOptionTable,
     Dataset,
     DatasetUtil,
@@ -26,7 +25,6 @@ import {
     DatastoreConfig,
     FieldConfig,
     isFieldOption,
-    OptionChoices,
     OptionType,
     TableConfig
 } from '@caci-critical-insight-solutions/nucleus-core';

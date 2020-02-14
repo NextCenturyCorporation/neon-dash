@@ -888,7 +888,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 if (response.data && response.data.length) {
                     const link = (options.backgroundImageLinkPrefix || '') + CoreUtil.deepFind(response.data[0],
                         options.backgroundImageLinkField.columnName);
-                    document.documentElement.style.setProperty('--neon-background-image-url', link ?  'url("' + link + '")' : 'none');
+                    document.documentElement.style.setProperty('--neon-background-image-url', link ? 'url("' + link + '")' : 'none');
 
                     this._backgroundImageHeight = _.toNumber(CoreUtil.deepFind(response.data[0],
                         options.backgroundImageHeightField.columnName));

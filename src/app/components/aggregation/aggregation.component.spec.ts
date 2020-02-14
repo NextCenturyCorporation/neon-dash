@@ -3427,8 +3427,8 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does draw data', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
-        let spy3 = spyOn(component.subcomponentMain, 'redraw');
-        let spy4 = spyOn(component.subcomponentZoom, 'redraw');
+        spyOn(component.subcomponentMain, 'redraw');
+        spyOn(component.subcomponentZoom, 'redraw');
         spyOn(component.subcomponentMain, 'getMinimumDimensions').and.returnValue({ height: 300, width: 400 });
         spyOn(component.subcomponentZoom, 'getMinimumDimensions').and.returnValue({ height: 100, width: 200 });
         component.options.aggregation = AggregationType.SUM;

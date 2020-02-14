@@ -25,7 +25,6 @@ import {
 import { AnnotationComponent } from './annotation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-
 @NgModule({
     declarations: [
         AnnotationComponent

@@ -20,13 +20,11 @@ import { MatDialogRef, MatSelect, MAT_DIALOG_DATA } from '@angular/material';
 import { NeonConfig } from '../../models/types';
 import {
     AggregationType,
-    BoundsFilterDesign,
     CoreUtil,
     DatabaseConfig,
     DatastoreConfig,
     FieldConfig,
     FieldKey,
-    SearchObject,
     TableConfig
 } from '@caci-critical-insight-solutions/nucleus-core';
 
@@ -77,13 +75,12 @@ export class AnnotationComponent implements AfterViewInit {
 
     private _messenger: eventing.Messenger;
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) data: AnnotationDialogInput,
+    constructor(@Inject(MAT_DIALOG_DATA) data: AnnotationDialogInput,
         public dialogRef: MatDialogRef<AnnotationComponent>,
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
-        private searchService: InjectableSearchService
-    ) {
+        private searchService: InjectableSearchService) {
+
         this._messenger = new eventing.Messenger();
 
         this.datastore = data.datastore;
@@ -113,7 +110,6 @@ export class AnnotationComponent implements AfterViewInit {
             if (neonConfig.annotations[this.datastore.name] && neonConfig.annotations[this.datastore.name][this.database.name] &&
                 neonConfig.annotations[this.datastore.name][this.database.name][this.table.name] &&
                 neonConfig.annotations[this.datastore.name][this.database.name][this.table.name].fields) {
-
                 this.inputs.forEach((input) => {
                     const annotationConfig = neonConfig.annotations[this.datastore.name][this.database.name][this.table.name]
                         .fields[input.field.columnName];
@@ -193,7 +189,7 @@ export class AnnotationComponent implements AfterViewInit {
     }
 
     private _retrieveAdditionalDropdownData(input: AnnotationUserInput): void {
-        let searchObject: SearchObject = this.searchService.createSearch(this.database.name, this.table.name);
+        let searchObject = this.searchService.createSearch(this.database.name, this.table.name);
 
         this.searchService.withAggregation(searchObject, {
             datastore: this.datastore.name,
