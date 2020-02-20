@@ -74,7 +74,7 @@
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
                 <button mat-menu-item *ngIf="showCustomRequestsMenuItem()" (click)="setPanel('customRequests', '');">
-                    <mat-icon>save_alt</mat-icon>{{ retrieveCustomRequestsDisplayLabel() }}
+                    <mat-icon>input</mat-icon>{{ retrieveCustomRequestsDisplayLabel() }}
                 </button>
                 <button mat-menu-item *ngIf="showImport" (click)="setPanel('importData', 'Import CSV');">
                     <mat-icon>cloud_upload</mat-icon>Import CSV

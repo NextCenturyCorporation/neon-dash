@@ -18,7 +18,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
 import { MatFormFieldModule, MatIconModule, MatButtonModule, MatSelectModule, MatInputModule } from '@angular/material';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { CustomRequestsComponent } from './custom-requests.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [CustomRequestsComponent],
@@ -27,6 +27,7 @@ import { FormsModule } from '@angular/forms';
     imports: [
         CommonWidgetModule,
         FormsModule,
+        ReactiveFormsModule.withConfig({ warnOnNgModelWithFormControl: 'never' }),
         MatButtonModule,
         MatFormFieldModule,
         MatIconModule,

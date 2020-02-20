@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
-import { NeonCustomRequests } from '../../models/types';
+import { CoreUtil, DateUtil } from '@caci-critical-insight-solutions/nucleus-core';
+import { NeonCustomRequests, PropertyMetaData } from '../../models/types';
 
 import * as uuidv4 from 'uuid/v4';
 import * as yaml from 'js-yaml';
@@ -66,7 +67,16 @@ export class CustomRequestsComponent implements OnInit {
         return null;
     }
 
-    deleteData(request: NeonCustomRequests): void {
+    public createLabel(property: PropertyMetaData): string {
+        return property.pretty + (property.choices ? '' : (' (' + (property.disabled ? 'Pre-Configured' : (property.optional ? 'Optional' :
+            'Required')) + ', ' + (property.json ? 'JSON' : (property.number ?  'Number' : 'Text')) + ')'));
+    }
+
+    public createPlaceholder(property: PropertyMetaData): string {
+        return 'Enter Your ' + (property.json ? 'JSON' : (property.number ? 'Number' : 'Text')) + ' Input';
+    }
+
+    public deleteData(request: NeonCustomRequests): void {
         request.status = undefined;
         request.response = undefined;
         (request.properties || []).forEach((property) => {
@@ -74,15 +84,34 @@ export class CustomRequestsComponent implements OnInit {
         });
     }
 
-    doesHaveProperties(request: NeonCustomRequests): boolean {
+    public doesHaveProperties(request: NeonCustomRequests): boolean {
         return !!(request.properties || []).length;
     }
 
-    isValidRequestBody(request: NeonCustomRequests): boolean {
-        return (request.properties || []).every((property) => !!property.value);
+    public isValidJsonValue(value: string): boolean {
+        try {
+            JSON.parse(value);
+            return true;
+        } catch(error) {
+            return false;
+        }
     }
 
-    isValidUserInput(request: NeonCustomRequests): boolean {
+    public isValidNumberValue(value: string): boolean {
+        return CoreUtil.isNumber(value);
+    }
+
+    public isValidRequestBody(request: NeonCustomRequests): boolean {
+        return (request.properties || []).every((property) => property.optional || (property.json ? this.isValidJsonValue(property.value) :
+            (property.number ? this.isValidNumberValue(property.value) : typeof property.value !== 'undefined')));
+    }
+
+    private isValidRequestObject(request: NeonCustomRequests): boolean {
+        return !!(request.endpoint && request.pretty && (!request.type || request.type.toUpperCase() === 'PUT' ||
+            request.type.toUpperCase() === 'POST' || request.type.toUpperCase() === 'GET' || request.type.toUpperCase() === 'DELETE'));
+    }
+
+    public isValidUserInput(request: NeonCustomRequests): boolean {
         return this.doesHaveProperties(request) && request.properties.some((property) => !!property.value);
     }
 
@@ -94,7 +123,18 @@ export class CustomRequestsComponent implements OnInit {
         return dashboardService.state;
     }
 
-    retrieveResponse(request: NeonCustomRequests): any {
+    public retrieveRequestValue(property: PropertyMetaData): any {
+        if (property.json) {
+            try {
+                return JSON.parse(property.value);
+            } catch(error) {
+                return null;
+            }
+        }
+        return property.number ? parseFloat(property.value) : property.value;
+    }
+
+    public retrieveResponse(request: NeonCustomRequests): any {
         return request.response ? yaml.safeDump(request.response) : '';
     }
 
@@ -106,9 +146,9 @@ export class CustomRequestsComponent implements OnInit {
         observable.subscribe(onSuccess, onFailure);
     }
 
-    submitData(request: NeonCustomRequests): void {
+    public submitData(request: NeonCustomRequests): void {
         let bodyData: Record<string, string> = (request.properties || []).reduce((data, property) => {
-            data[property.name] = property.value;
+            data[property.name] = this.retrieveRequestValue(property);
             return data;
         }, {});
 
@@ -139,14 +179,25 @@ export class CustomRequestsComponent implements OnInit {
         }
     }
 
-    toggleResponse(request: NeonCustomRequests): void {
+    public toggleResponse(request: NeonCustomRequests): void {
         request.showResponse = !request.showResponse;
     }
 
     protected updateRequests(dashboardState: DashboardState): void {
-        this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) =>
-            ((!request.type || request.type.toUpperCase() === 'PUT' || request.type.toUpperCase() === 'POST' ||
-                request.type.toUpperCase() === 'GET' || request.type.toUpperCase() === 'DELETE') && request.endpoint && request.pretty));
+        this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) => this.isValidRequestObject(request))
+            .map((request) => {
+                request.properties.forEach((property) => {
+                    const validators = [].concat(property.optional ? [] : Validators.required)
+                        .concat(property.json ? this._validateJson.bind(this) : [])
+                        .concat(property.number ? this._validateNumber.bind(this) : []);
+                    property.angularFormControl = new FormControl({
+                        disabled: property.disabled,
+                        value: ''
+                    }, validators);
+                });
+                return request;
+            });
+
         this.loading = false;
     }
 
@@ -155,5 +206,21 @@ export class CustomRequestsComponent implements OnInit {
             this.updateRequests(dashboardState);
             this.changeDetection.detectChanges();
         });
+    }
+
+    private _validateJson(angularFormControl: FormControl): any {
+        return this.isValidJsonValue(angularFormControl.value) ? null : {
+            validateJson: {
+                valid: false
+            }
+        };
+    }
+
+    private _validateNumber(angularFormControl: FormControl): any {
+        return this.isValidNumberValue(angularFormControl.value) ? null : {
+            validateNumber: {
+                valid: false
+            }
+        };
     }
 }
