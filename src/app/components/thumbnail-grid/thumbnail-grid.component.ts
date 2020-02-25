@@ -594,7 +594,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
+        // TODO The following code is incorrectly splitting single links that have commas into multiple links.  Is it really needed?
+        // return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
+        return value ? (Array.isArray(value) ? value : [value]) : [];
     }
 
     private defaultDocumentThumbnail(thumbnail) {

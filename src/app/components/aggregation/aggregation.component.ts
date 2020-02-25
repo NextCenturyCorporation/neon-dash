@@ -605,7 +605,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // Rare config options - show on bottom
             new ConfigOptionField('backgroundImageLinkField', 'Background Image Link Field', false),
             new ConfigOptionField('backgroundImageHeightField', 'Background Image Height Field', false),
-            new ConfigOptionField('backgroundImageWidthField', 'Background Image Width Field', false)
+            new ConfigOptionField('backgroundImageWidthField', 'Background Image Width Field', false),
+            new ConfigOptionFreeText('backgroundImageLinkPrefix', 'Background Image Link Prefix', false, '')
         ];
     }
 

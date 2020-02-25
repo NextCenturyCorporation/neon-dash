@@ -127,7 +127,7 @@ export interface PropertyMetaData {
     // Input value from user
     value?: string;
 
-    angularFormControl: any;
+    angularFormControl?: any;
 }
 
 export interface NeonDashboardOptions {
