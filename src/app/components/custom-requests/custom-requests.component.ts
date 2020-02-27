@@ -14,7 +14,7 @@
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { DashboardService } from '../../services/dashboard.service';
@@ -46,22 +46,26 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     protected buildRequest(type: string, endpoint: string, data: Record<string, string>): Observable<Record<string, any>> {
+        var options = {
+            headers: new HttpHeaders().set('Access-Control-Allow-Origin', '*')
+        };
+
         if (type.toUpperCase() === 'DELETE') {
-            return this.http.delete(endpoint);
+            return this.http.delete(endpoint, options);
         }
 
         // Assume GET if type is undefined and data does not contain properties.
         if (type.toUpperCase() === 'GET' || (!type && !Object.keys(data).length)) {
-            return this.http.get(endpoint);
+            return this.http.get(endpoint, options);
         }
 
         // Assume POST if type is undefined and data contains properties.
         if (type.toUpperCase() === 'POST' || (!type && Object.keys(data).length)) {
-            return this.http.post<Record<string, string>>(endpoint, data);
+            return this.http.post<Record<string, string>>(endpoint, data, options);
         }
 
         if (type.toUpperCase() === 'PUT') {
-            return this.http.put<Record<string, string>>(endpoint, data);
+            return this.http.put<Record<string, string>>(endpoint, data, options);
         }
 
         return null;
