@@ -2,6 +2,8 @@
 
 The Neon Dashboard is a big data exploration and visualization user interface that is used with [NUCLEUS](https://github.com/NextCenturyCorporation/nucleus) and the [NUCLEUS Data Server](https://github.com/NextCenturyCorporation/nucleus-data-server)
 
+![The Neon Dashboard](./Neon-Dash.jpg)
+
 ## Table of Content
 
 * [Why Use the Neon Dashboard?](https://github.com/NextCenturyCorporation/neon-dash/blob/master/README.md#why-use-the-neon-dashboard)
@@ -415,27 +417,33 @@ Custom requests are accessible from the navbar menu.  Users can set or select va
 
 To configure custom requests in your dashboard, please see our documentation on [dashboard object options configuration](./docs/DASHBOARD_CONFIGURATION_GUIDE.md#dashboard-options-object).
 
+To configure a URL proxy to your custom backend server (this can help to avoid issues with CORS), you can use [Angular's built-in proxy support](https://angular.io/guide/build#proxying-to-a-backend-server) by editing the `proxy.conf.json` file.
+
 ## Technical Stack
 
 The Neon Dashboard is an [Angular](https://angular.io/) web application.
 
 ## Planned Efforts
 
-### Data Tasks
-
-* Additional datastore support:  Gremlin/TinkerPop
-* Edit or annotate live data in your datastores
-* "Join" on data across tables/databases/datastores if data denormalization isn't possible
-* Make scripts to help users ingest their data
-
-### UI Tasks
+### Neon Tasks
 
 * Create a custom dataset and dashboard configuration wizard
 * Show GeoJSON regions in the Map
 * Design tabbed dashboard widgets
 * Expand Selenium test suites
-* Set data access restrictions
-* Move visualizations into NUCLEUS
+* Move Neon visualization components into NUCLEUS
+* Enable configuration of "JOIN" queries on SQL datastores
+
+### NUCLEUS Tasks
+
+* Build data mutation components (coming soon!)
+* Cluster query results from massive datasets into smaller, representative groups to show in client-side visualizations
+* Integrate support for popular user authentication protocols like Kerberos, LDAP, OAuth, SAML, self-signed certificates, etc.
+* Write new datastore adapters:  SPARQL, Gremlin/TinkerPop
+* Migrate data visualizations from existing projects into NUCLEUS
+* Configure and run specifically tailored datastore query strings
+* "Join" on data across tables/databases/datastores if data denormalization isn't possible
+* Make scripts to help users ingest their data
 
 ## Example Dataset
 
