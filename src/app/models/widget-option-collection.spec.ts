@@ -800,12 +800,12 @@ describe('Number Fields', () => {
     it('Object initializes correctly', () => {
         const optEmpty = new ConfigOptionNumber('test', 'Test', false, 0, true);
         expect(optEmpty.valueDefault).toEqual(0);
-        expect(optEmpty.intermediateValue).toEqual(0);
+        expect(optEmpty.intermediateValue).toEqual('');
         expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
 
         const optNull = new ConfigOptionNumber('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
-        expect(optNull.intermediateValue).toEqual(undefined);
+        expect(optNull.intermediateValue).toEqual('');
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
     });
 
