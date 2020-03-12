@@ -65,6 +65,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { CesiumNeonMap } from './map.type.cesium';
 import { LeafletNeonMap } from './map.type.leaflet';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
@@ -122,6 +123,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             dialog
         );
 
+        (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
+
         this.updateOnSelectId = true;
     }
 
@@ -165,6 +168,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
         switch (this.options.type) {
+            case MapType.Cesium:
+                this.mapObject = new CesiumNeonMap();
+                break;
             case MapType.Leaflet:
                 this.mapObject = new LeafletNeonMap();
                 break;
@@ -778,6 +784,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new ConfigOptionSelect('type', 'Map Type', true, MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
+            }, {
+                prettyName: 'Cesium',
+                variable: MapType.Cesium
             }]),
             new ConfigOptionNumber('west', 'West', false, null),
             new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
