@@ -257,3 +257,312 @@ describe('Statistics Util', () => {
         expect(StatisticsUtil.auc(data)).toEqual(0.505);
     });
 });
+
+describe('Statistics Util ROC Curve', () => {
+    // From https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/metrics/tests/test_ranking.py
+
+    /* eslint-disable max-len */
+    const yLabels = [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0];
+    const yScores = [0.45694917, 0.29426178, 0.62909544, 0.52564127, 0.43930741, 0.40326766, 0.63564666, 0.7078242, 0.43521499, 0.2973276, 0.73049925, 0.51426788, 0.5, 0.58127285, 0.2910559, 0.40226652, 0.59710459, 0.42453628, 0.60622856, 0.30087059, 0.23674613, 0.70308893, 0.38839061, 0.41488322, 0.57563921, 0.29777361, 0.7138464, 0.58414426, 0.36815957, 0.34806711, 0.39806773, 0.24045098, 0.31232754, 0.47886189, 0.55994448, 0.1957087, 0.16537287, 0.5, 0.59267271, 0.50743622, 0.45198026, 0.58069845, 0.48409389, 0.64544662, 0.32097684, 0.24951254, 0.54268176, 0.66017933, 0.49305559, 0.40135854];
+    const fprArray = [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1];
+    const tprArray = [0.08, 0.4, 0.64, 0.8, 0.84, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    /* eslint-enable max-len */
+
+    const bisectorPointArray: any[] = [{
+        category: '',
+        x: 0,
+        y: 0
+    }, {
+        category: '',
+        x: 1,
+        y: 1
+    }];
+
+    function createPointArray(fprArrayInput: number[], tprArrayInput: number[], category: string): any[] {
+        return fprArrayInput.map((fpr, index) => ({
+            category,
+            x: fpr,
+            y: tprArrayInput[index]
+        }));
+    }
+
+    beforeAll(() => {
+        /* eslint-disable-next-line no-console */
+        console.log('STARTING STATISTICS UTIL ROC CURVE TESTS...');
+    });
+
+    it('with simple, completely correct data', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = [0, 1];
+        const expectedArrayY = [0, 1];
+        const expectedPointArray = [
+            { category: 'testCategory', x: 0, y: 0 },
+            { category: 'testCategory', x: 0, y: 1 },
+            { category: 'testCategory', x: 1, y: 1 }
+        ].concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(1.0);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with simple, mostly correct data', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 0,
+                score: 0
+            }, {
+                label: 1,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = [0, 1];
+        const expectedArrayY = [0, 0.5, 1];
+        const expectedPointArray = [
+            { category: 'testCategory', x: 0, y: 0 },
+            { category: 'testCategory', x: 0, y: 0.5 },
+            { category: 'testCategory', x: 1, y: 1 }
+        ].concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(0.75);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with simple, half correct data', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 0,
+                score: 1
+            }, {
+                label: 1,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = [0, 0.5, 1];
+        const expectedArrayY = [0, 0.5, 1];
+        const expectedPointArray = [
+            { category: 'testCategory', x: 0, y: 0 },
+            { category: 'testCategory', x: 0.5, y: 0.5 },
+            { category: 'testCategory', x: 1, y: 1 }
+        ].concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(0.5);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with simple, completely incorrect data', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: [{
+                label: 0,
+                score: 1
+            }, {
+                label: 1,
+                score: 0
+            }]
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = [0, 1];
+        const expectedArrayY = [0];
+        const expectedPointArray = [
+            { category: 'testCategory', x: 0, y: 0 },
+            { category: 'testCategory', x: 1, y: 0 }
+        ].concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(0.0);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with advanced data', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: yLabels.map((yLabel, index) => ({
+                label: yLabel,
+                score: yScores[index]
+            }))
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = fprArray;
+        /* eslint-disable-next-line max-len */
+        const expectedArrayY = [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1];
+        const expectedPointArray = [{ category: 'testCategory', x: 0, y: 0 }].concat(createPointArray(fprArray, tprArray, 'testCategory'))
+            .concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(0.9192);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with multiple categories', () => {
+        const dataByCategory = [{
+            category: 'testCategory1',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }, {
+            category: 'testCategory2',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 0,
+                score: 0
+            }, {
+                label: 1,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }, {
+            category: 'testCategory3',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 0,
+                score: 1
+            }, {
+                label: 1,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }, {
+            category: 'testCategory4',
+            data: [{
+                label: 0,
+                score: 1
+            }, {
+                label: 1,
+                score: 0
+            }]
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory);
+
+        const expectedArrayX = [0, 0.5, 1];
+        const expectedArrayY = [0, 0.5, 1];
+        const expectedPointArray = [
+            { category: 'testCategory1', x: 0, y: 0 },
+            { category: 'testCategory1', x: 0, y: 1 },
+            { category: 'testCategory1', x: 1, y: 1 },
+            { category: 'testCategory2', x: 0, y: 0 },
+            { category: 'testCategory2', x: 0, y: 0.5 },
+            { category: 'testCategory2', x: 1, y: 1 },
+            { category: 'testCategory3', x: 0, y: 0 },
+            { category: 'testCategory3', x: 0.5, y: 0.5 },
+            { category: 'testCategory3', x: 1, y: 1 },
+            { category: 'testCategory4', x: 0, y: 0 },
+            { category: 'testCategory4', x: 1, y: 0 }
+        ].concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory1')).toEqual(1.0);
+        expect(actual.aucs.get('testCategory2')).toEqual(0.75);
+        expect(actual.aucs.get('testCategory3')).toEqual(0.5);
+        expect(actual.aucs.get('testCategory4')).toEqual(0.0);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with callback function', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: [{
+                label: 0,
+                score: 0
+            }, {
+                label: 1,
+                score: 1
+            }]
+        }];
+        const callback = (category: string, xValue: number, yValue: number): any => ({
+            group: category,
+            xValue,
+            yValue
+        });
+        const actual = StatisticsUtil.rocCurve(dataByCategory, callback);
+
+        const expectedArrayX = [0, 1];
+        const expectedArrayY = [0, 1];
+        const expectedPointArray = [
+            { group: 'testCategory', xValue: 0, yValue: 0 },
+            { group: 'testCategory', xValue: 0, yValue: 1 },
+            { group: 'testCategory', xValue: 1, yValue: 1 },
+            { group: '', xValue: 0, yValue: 0 },
+            { group: '', xValue: 1, yValue: 1 }
+        ];
+
+        expect(actual.aucs.get('testCategory')).toEqual(1.0);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+
+    it('with divide-by', () => {
+        const dataByCategory = [{
+            category: 'testCategory',
+            data: yLabels.map((yLabel, index) => ({
+                label: yLabel,
+                score: yScores[index]
+            }))
+        }];
+        const actual = StatisticsUtil.rocCurve(dataByCategory, StatisticsUtil.createCategoryXY.bind(StatisticsUtil), 1000);
+
+        const expectedArrayX = fprArray;
+        /* eslint-disable-next-line max-len */
+        const expectedArrayY = [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1];
+        const expectedPointArray = [{ category: 'testCategory', x: 0, y: 0 }].concat(createPointArray(fprArray, tprArray, 'testCategory'))
+            .concat(bisectorPointArray);
+
+        expect(actual.aucs.get('testCategory')).toEqual(0.9192);
+        expect(actual.points).toEqual(expectedPointArray);
+        expect(actual.xArray).toEqual(expectedArrayX);
+        expect(actual.yArray).toEqual(expectedArrayY);
+    });
+});
+

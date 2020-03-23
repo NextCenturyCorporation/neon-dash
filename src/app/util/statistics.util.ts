@@ -36,13 +36,13 @@ export class StatisticsUtil {
      */
     public static rocCurve(
         dataByCategory: { category: string, data: { label: number, score: number }[] }[],
-        callback: (category: string, x: number, y: number) => any = StatisticsUtil.createCategoryXY.bind(this),
+        callback: (category: string, x: number, y: number) => any = null,
         divideBy: number = 100
     ): { aucs: Map<string, number>, points: any[], xArray: number[], yArray: number[] } {
         let categoriesToAUCs = new Map<string, number>();
         let categoriesToPoints = new Map<string, any[]>();
-        let xArray: number[] = [0, 1];
-        let yArray: number[] = [0, 1];
+        let xArray: number[] = [0];
+        let yArray: number[] = [0];
 
         dataByCategory.filter((item) => item.data.length).forEach((categoryItem) => {
             // Copy the data so we can sort it in place
@@ -80,33 +80,38 @@ export class StatisticsUtil {
             let truePositiveMax = distinctTruePositives[distinctTruePositives.length - 1];
             let falsePositiveMax = distinctFalsePositives[distinctFalsePositives.length - 1];
             let categoryPoints: any[] = [];
-
             if (!truePositiveMax) {
-                categoryPoints = [callback(categoryItem.category, 0, 0), callback(categoryItem.category, 1, 0)];
+                categoryPoints = [StatisticsUtil.createCategoryXY(categoryItem.category, 0, 0),
+                    StatisticsUtil.createCategoryXY(categoryItem.category, 1, 0)];
             } else if (!falsePositiveMax) {
-                categoryPoints = [callback(categoryItem.category, 0, 1), callback(categoryItem.category, 1, 1)];
+                categoryPoints = [StatisticsUtil.createCategoryXY(categoryItem.category, 0, 1),
+                    StatisticsUtil.createCategoryXY(categoryItem.category, 1, 1)];
             } else {
                 let xToIndex = new Map<number, number>();
-                categoryPoints = [callback(categoryItem.category, 0, 0)];
+                categoryPoints = [StatisticsUtil.createCategoryXY(categoryItem.category, 0, 0)];
 
                 // Divide each true and false positive by its max to find the true and false positive rates for the curve
                 for (let index = 0; index < distinctIndexes.length; ++index) {
                     // Round to nearest hundredth
                     let xValue = Math.round((distinctFalsePositives[index] / falsePositiveMax) * divideBy) / divideBy;
                     let yValue = Math.round((distinctTruePositives[index] / truePositiveMax) * divideBy) / divideBy;
+                    let ignore = false;
                     // Note: Using a Map here seems to be faster than _.findIndex
                     if (!xToIndex.has(xValue)) {
                         // If a point with this X does not already exist, create it
-                        categoryPoints.push(callback(categoryItem.category, xValue, yValue));
+                        categoryPoints.push(StatisticsUtil.createCategoryXY(categoryItem.category, xValue, yValue));
                         xToIndex.set(xValue, categoryPoints.length - 1);
-                    } else {
+                    } else if (xValue !== 1.0) {
                         // Else recreate the point using its new (bigger) Y value
-                        categoryPoints[xToIndex.get(xValue)] = callback(categoryItem.category, xValue, yValue);
+                        categoryPoints[xToIndex.get(xValue)] = StatisticsUtil.createCategoryXY(categoryItem.category, xValue, yValue);
+                    } else {
+                        // Ignore subsequent Y values if X is 1
+                        ignore = true;
                     }
                     if (xArray.indexOf(xValue) < 0) {
                         xArray.push(xValue);
                     }
-                    if (yArray.indexOf(yValue) < 0) {
+                    if (yArray.indexOf(yValue) < 0 && !ignore) {
                         yArray.push(yValue);
                     }
                 }
@@ -116,12 +121,13 @@ export class StatisticsUtil {
         });
 
         let points = Array.from(categoriesToPoints.values()).reduce((outputPoints, categoryPoints) =>
-            outputPoints.concat(categoryPoints), []);
+            outputPoints.concat(!callback ? categoryPoints : categoryPoints.map((point) => callback(point.category, point.x, point.y))),
+        []);
 
         // Add the 'random' line
         if (points.length) {
-            points.push(callback('', 0, 0));
-            points.push(callback('', 1, 1));
+            points.push(callback ? callback('', 0, 0) : StatisticsUtil.createCategoryXY('', 0, 0));
+            points.push(callback ? callback('', 1, 1) : StatisticsUtil.createCategoryXY('', 1, 1));
         }
 
         xArray.sort((one, two) => one - two);
@@ -139,7 +145,7 @@ export class StatisticsUtil {
         let xToY = new Map<number, number>();
 
         // Multiply the X values in xToY to transform decimals into integers and avoid floating-point arithmetic issues with step addition.
-        const multiplier = 100000000; // (step >= 1 ? 1 : Math.pow(10, ('' + step).split('.')[1].length));
+        const multiplier = 100000000;
         const stepMultiplied = Math.round(step * multiplier);
 
         data.forEach((item, index) => {
