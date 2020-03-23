@@ -39,11 +39,11 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[]) {
         super(elementRef, color, label, xList);
         this.backgroundColor = this.getColorBackground();
-        this.borderColor = this.getColorTransparency();
-        this.pointBackgroundColor = this.getColorTransparency();
-        this.pointBorderColor = this.getColorTransparency();
-        this.pointHoverBackgroundColor = this.getColorTransparency();
-        this.pointHoverBorderColor = this.getColorTransparency();
+        this.borderColor = this.getColorBackground();
+        this.pointBackgroundColor = this.getColorBackground();
+        this.pointBorderColor = this.getColorBackground();
+        this.pointHoverBackgroundColor = this.getColorBackground();
+        this.pointHoverBorderColor = this.getColorBackground();
     }
 
     public finalizeData() {
@@ -51,17 +51,21 @@ export class ChartJsLineDataset extends AbstractChartJsDataset {
             let yList = Array.from(this.xToYToSize.get(xValue).keys());
             (yList.length ? yList : [null]).forEach((yValue) => {
                 let pointAggregation = this.xToYToSize.get(xValue).get(yValue);
+                // Add the corresponding aggregation to the point data.
                 this.data.push({
                     aggregation: pointAggregation,
                     x: xValue,
                     y: yValue
                 });
-                let pointRadius = 2 + (!this.maximumAggregation ? 0 :
+                // Adjust the point radius based on its aggregation and the maximum aggregation.
+                let pointRadius = 2 + (!this.maximumAggregation ? 1 :
                     ((Math.log(pointAggregation) / Math.log(this.maximumAggregation)) * 18.0));
                 this.pointRadius.push(pointRadius);
-                this.pointHoverRadius.push(pointRadius * 1.25);
+                this.pointHoverRadius.push(pointRadius * 1.5);
             });
         });
+        // Remove all the points with null Y values so the line connects the points.
+        this.data = this.data.filter((item) => item.y !== null);
     }
 }
 
