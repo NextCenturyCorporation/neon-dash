@@ -28,7 +28,7 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 * The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/nucleus-data-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
 ## Quick Install
-* For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](https://portal.nextcentury.com/owncloud/index.php/s/z2UbU5ZATGXaTBh/download) package to a folder and follow the instruction in the README file.
+* For a quick setup of the neon dashboard on docker, download and extract the [Neon Installer](https://portal.nextcentury.com/owncloud/index.php/s/yiSDvbHQKFyQHCH) package to a folder and follow the instruction in the README file.
 
 ## Initial Setup Instructions
 
@@ -451,7 +451,7 @@ Access an example geospatial/temporal earthquake dataset and its Neon Dashboard 
 
 ## Apache 2 Open Source License
 
-Neon is made available by [Next Century](http://www.nextcentury.com) under the [Apache 2 Open Source License](http://www.apache.org/licenses/LICENSE-2.0.txt). You may freely download, use, and modify, in whole or in part, the source code or release packages. Any restrictions or attribution requirements are spelled out in the license file. Neon attribution information can be found in the [LICENSE](./LICENSE) and [NOTICE](./NOTICE.md) files. For more information about the Apache license, please visit the [The Apache Software Foundation’s License FAQ](http://www.apache.org/foundation/license-faq.html).
+Neon is made available by [CACI](http://www.caci.com) (formerly [Next Century Corporation](http://nextcentury.com)) under the [Apache 2 Open Source License](http://www.apache.org/licenses/LICENSE-2.0.txt). You may freely download, use, and modify, in whole or in part, the source code or release packages. Any restrictions or attribution requirements are spelled out in the license file. Neon attribution information can be found in the [LICENSE](./LICENSE) and [NOTICE](./NOTICE.md) files. For more information about the Apache license, please visit the [The Apache Software Foundation’s License FAQ](http://www.apache.org/foundation/license-faq.html).
 
 ## References
 
@@ -461,9 +461,7 @@ youtube_logo.png : Brand Resources, YouTube, updated 2018, [*yt_logo_rgb_light.p
 
 ## Contact Us
 
-Email: [neon-support@nextcentury.com](mailto:neon-support@nextcentury.com)
+Email: [neon-and-nucleus-support@caci.com](mailto:neon-and-nucleus-support@caci.com)
 
-Website: http://neonframework.org
-
-Copyright 2019 Next Century Corporation
+Copyright 2020 CACI (formerly Next Century Corporation)
 
