@@ -32,8 +32,9 @@ import { FilterConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/typ
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock, ConnectionServiceMock } from '../services/mock.dashboard-service';
+import { DashboardServiceMock } from '../services/mock.dashboard-service';
 import { ConfigService } from './config.service';
+import { ConnectionServiceMock } from './mock.connection-service';
 
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';

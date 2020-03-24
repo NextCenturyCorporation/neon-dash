@@ -80,7 +80,6 @@ export class AnnotationComponent implements AfterViewInit {
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
         private searchService: InjectableSearchService) {
-
         this._messenger = new eventing.Messenger();
 
         this.datastore = data.datastore;
@@ -207,7 +206,8 @@ export class AnnotationComponent implements AfterViewInit {
 
         search.done((response) => {
             if (response.data && response.data.length) {
-                let dropdownData = response.data.map((item) => CoreUtil.deepFind(item, input.field.columnName));
+                let dropdownData = response.data.map((item) => CoreUtil.deepFind(item, input.field.columnName))
+                    .filter((item) => typeof item !== 'undefined' && item !== null);
                 // TODO Should we make the sort optional?
                 input.dropdown = dropdownData.concat((Array.isArray(input.dropdown) ? input.dropdown : []).filter((item) =>
                     dropdownData.indexOf(item) < 0)).sort();

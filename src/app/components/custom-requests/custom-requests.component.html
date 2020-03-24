@@ -9,8 +9,7 @@
         [class.disabled]="property.disabled">
         <mat-label>{{ createLabel(property) }}</mat-label>
         <textarea matInput *ngIf="property.choices == undefined" [placeholder]="createPlaceholder(property)" [(ngModel)]="property.value"
-            [name]="property.name" [required]="!property.optional" ngDefaultControl
-            [formControl]="property.angularFormControl"></textarea>
+            [name]="property.name" [required]="!property.optional" ngDefaultControl [formControl]="property.angularFormControl"></textarea>
         <mat-select *ngIf="property.choices != undefined" [placeholder]="createPlaceholder(property)" [(ngModel)]="property.value"
             [required]="!property.optional" ngDefaultControl [formControl]="property.angularFormControl">
             <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>

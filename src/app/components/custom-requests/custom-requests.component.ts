@@ -46,7 +46,7 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     protected buildRequest(type: string, endpoint: string, data: Record<string, string>): Observable<Record<string, any>> {
-        var options = {
+        let options = {
             headers: new HttpHeaders().set('Access-Control-Allow-Origin', '*')
         };
 
@@ -73,7 +73,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public createLabel(property: PropertyMetaData): string {
         return property.pretty + (property.choices ? '' : (' (' + (property.disabled ? 'Pre-Configured' : (property.optional ? 'Optional' :
-            'Required')) + ', ' + (property.json ? 'JSON' : (property.number ?  'Number' : 'Text')) + ')'));
+            'Required')) + ', ' + (property.json ? 'JSON' : (property.number ? 'Number' : 'Text')) + ')'));
     }
 
     public createPlaceholder(property: PropertyMetaData): string {
@@ -96,7 +96,7 @@ export class CustomRequestsComponent implements OnInit {
         try {
             JSON.parse(value);
             return true;
-        } catch(error) {
+        } catch (error) {
             return false;
         }
     }
@@ -110,7 +110,7 @@ export class CustomRequestsComponent implements OnInit {
             (property.number ? this.isValidNumberValue(property.value) : typeof property.value !== 'undefined')));
     }
 
-    private isValidRequestObject(request: NeonCustomRequests): boolean {
+    public isValidRequestObject(request: NeonCustomRequests): boolean {
         return !!(request.endpoint && request.pretty && (!request.type || request.type.toUpperCase() === 'PUT' ||
             request.type.toUpperCase() === 'POST' || request.type.toUpperCase() === 'GET' || request.type.toUpperCase() === 'DELETE'));
     }
@@ -131,11 +131,11 @@ export class CustomRequestsComponent implements OnInit {
         if (property.json) {
             try {
                 return JSON.parse(property.value);
-            } catch(error) {
+            } catch (error) {
                 return null;
             }
         }
-        return property.number ? parseFloat(property.value) : property.value;
+        return property.number ? (CoreUtil.isNumber(property.value) ? parseFloat(property.value) : null) : property.value;
     }
 
     public retrieveResponse(request: NeonCustomRequests): any {
@@ -190,8 +190,8 @@ export class CustomRequestsComponent implements OnInit {
     protected updateRequests(dashboardState: DashboardState): void {
         this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) => this.isValidRequestObject(request))
             .map((request) => {
-                request.properties.forEach((property) => {
-                    const validators = [].concat(property.optional ? [] : Validators.required)
+                (request.properties || []).forEach((property) => {
+                    const validators = [].concat(property.optional ? [] : Validators.required.bind(Validators))
                         .concat(property.json ? this._validateJson.bind(this) : [])
                         .concat(property.number ? this._validateNumber.bind(this) : []);
                     property.angularFormControl = new FormControl({
