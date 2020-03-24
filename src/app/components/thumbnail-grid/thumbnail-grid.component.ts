@@ -43,6 +43,7 @@ import {
     FilterCollection,
     ListFilterDesign,
     OptionChoices,
+    OptionType,
     SearchObject,
     SortOrder
 } from '@caci-critical-insight-solutions/nucleus-core';
@@ -75,6 +76,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('thumbnailGrid', { static: true }) thumbnailGrid: ElementRef;
 
     public gridArray: any[] = [];
+    public annotatedClasses: Map<string, string> = new Map<string, string>();
 
     public mediaTypes: any = MediaTypes;
     public view: any = ViewType;
@@ -148,10 +150,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     protected createOptions(): ConfigOption[] {
         return [
-            new ConfigOptionField('categoryField', 'Category Field', false),
-            new ConfigOptionField('compareField', 'Comparison Field', false),
+            new ConfigOptionField('annotationClassField', 'Annotation Class Field', false),
+            new ConfigOptionField('annotationStateField', 'Annotation State Field', false),
+            new ConfigOptionField('datastoreIdField', 'Annotation Datastore UUID Field', false),
             new ConfigOptionField('dateField', 'Date Field', false),
-            new ConfigOptionField('filterField', 'Filter Field', false), // Deprecated
             new ConfigOptionField('flagLabel', 'Flag Field', false),
             new ConfigOptionField('flagSubLabel1', 'Flag Sub-Label Field 1', false),
             new ConfigOptionField('flagSubLabel2', 'Flag Sub-Label Field 2', false),
@@ -159,13 +161,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new ConfigOptionField('idField', 'ID Field', true),
             new ConfigOptionField('linkField', 'Link Field', false),
             new ConfigOptionField('nameField', 'Name Field', false),
-            new ConfigOptionField('objectIdField', 'Object ID Field', false),
-            new ConfigOptionField('objectNameField', 'Actual Name Field', false),
-            new ConfigOptionField('percentField', 'Predicted Probability Field', false),
-            new ConfigOptionField('predictedNameField', 'Predicted Name Field', false),
+            new ConfigOptionField('compareField', 'Predicted Label Comparison Field', false),
+            new ConfigOptionField('percentField', 'Predicted Label Confidence Field', false),
+            new ConfigOptionField('predictedClassField', 'Predicted Class Field', false),
             new ConfigOptionField('sortField', 'Sort Field', false),
+            new ConfigOptionField('truthClassField', 'Truth Class Field', false),
             new ConfigOptionField('typeField', 'Type Field', false),
             new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
+
+            new ConfigOptionField('categoryField', 'Category Field', false, true), // Deprecated
+            new ConfigOptionField('filterField', 'Filter Field', false, true), // Deprecated
+            new ConfigOptionField('objectIdField', 'Object ID Field', false, true), // Deprecated
+            new ConfigOptionField('objectNameField', 'Actual Name Field', false, true), // Deprecated (please use truthClassField)
+            new ConfigOptionField('predictedNameField', 'Predicted Name Field', false, true), // Deprecated (please use predictedClassField)
+
+            // The additionalAnnotationFields can be names of existing fields, names of new fields, or FieldConfig objects.
+            new ConfigOptionNonPrimitive('additionalAnnotationFields', 'Additional Annotation Fields ', false, [],
+                this.optionsAnnotationsAreNotActive.bind(this)),
             new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('border', 'Border', false, ''),
             new ConfigOptionFreeText('borderCompareValue', 'Border Comparison Field Equals', false, '',
@@ -185,16 +197,21 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Both',
                 variable: 'both'
             }]),
-            new ConfigOptionFreeText('defaultLabel', 'Default Label', false, ''),
-            new ConfigOptionFreeText('defaultPercent', 'Default Percent', false, ''),
+            new ConfigOptionFreeText('defaultLabel', 'Default Thumbnail Label', false, ''),
+            new ConfigOptionFreeText('defaultPercent', 'Default Thumbnail Percent', false, ''),
             new ConfigOptionSelect('detailedThumbnails', 'Detailed Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
-            new ConfigOptionFreeText('id', 'ID', false, ''),
+            new ConfigOptionNumber('canvasSize', 'Image Thumbnail Size', false, this.CANVAS_SIZE),
             new ConfigOptionFreeText('linkPrefix', 'Link Prefix', false, ''),
             new ConfigOptionSelect('openOnMouseClick', 'Open Media on Mouse Click', false, true, OptionChoices.YesFalseNoTrue),
-            new ConfigOptionSelect('showLabelName', 'Label Names', false, false, OptionChoices.HideFalseShowTrue),
-            new ConfigOptionSelect('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new ConfigOptionSelect('applyPreviousFilter', 'Revert to Previous Filter',
+                false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('id', 'Selected ID', false, ''),
+            new ConfigOptionSelect('showLabelName', 'Show Thumbnail Label Names', false, false, OptionChoices.HideFalseShowTrue),
+            new ConfigOptionSelect('sortDescending', 'Sort Direction', false, false, OptionChoices.AscendingFalseDescendingTrue),
             new ConfigOptionNonPrimitive('textMap', 'Text Map', false, {}),
+            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNonPrimitive('truncateLabel', 'Truncate Labels', false, { value: false, length: 0 }),
             new ConfigOptionNonPrimitive('typeMap', 'Type Map', false, {}),
             new ConfigOptionSelect('viewType', 'View', false, ViewType.TITLE, [{
                 prettyName: 'Title',
@@ -205,12 +222,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }, {
                 prettyName: 'Card',
                 variable: ViewType.CARD
-            }]),
-            new ConfigOptionNumber('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
-            new ConfigOptionNonPrimitive('truncateLabel', 'Truncate Label', false, { value: false, length: 0 }),
-            new ConfigOptionSelect('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new ConfigOptionSelect('applyPreviousFilter', 'Apply the previous filter on remove filter action',
-                false, false, OptionChoices.NoFalseYesTrue)
+            }])
         ];
     }
 
@@ -315,12 +327,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         };
     }
 
-    getThumbnailLabel(item): string {
-        if (this.options.predictedNameField.columnName) {
-            return item[this.options.predictedNameField.columnName] || '';
+    private _findPreviouslyAnnotatedClass(item: any): string {
+        if (this.options.datastoreIdField.columnName && item[this.options.datastoreIdField.columnName] &&
+            this.annotatedClasses.has(item[this.options.datastoreIdField.columnName])) {
+            return this.annotatedClasses.get(item[this.options.datastoreIdField.columnName]);
         }
-        if (this.options.objectNameField.columnName) {
-            return item[this.options.objectNameField.columnName] || '';
+        return '';
+    }
+
+    getThumbnailLabel(item): string {
+        if (this.options.annotationClassField.columnName) {
+            return this._findPreviouslyAnnotatedClass(item) || item[this.options.annotationClassField.columnName] || '';
+        }
+        if (this.options.predictedClassField.columnName) {
+            return item[this.options.predictedClassField.columnName] || '';
+        }
+        if (this.options.truthClassField.columnName) {
+            return item[this.options.truthClassField.columnName] || '';
         }
         return this.options.defaultLabel;
     }
@@ -340,13 +363,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             let nameText = (this.options.textMap || {}).name || '';
             text.push((nameText ? nameText + ' : ' : '') + item[this.options.nameField.columnName]);
         }
-        if (this.options.predictedNameField.columnName && item[this.options.predictedNameField.columnName]) {
+        if (this.options.predictedClassField.columnName && item[this.options.predictedClassField.columnName]) {
+            let prediction = (this.options.predictedClassField.columnName === this.options.annotationClassField.columnName ?
+                this._findPreviouslyAnnotatedClass(item) : '') || item[this.options.predictedClassField.columnName];
             let predictionText = (this.options.textMap || {}).prediction || 'Prediction';
-            text.push((predictionText ? predictionText + ' : ' : '') + item[this.options.predictedNameField.columnName]);
+            text.push((predictionText ? predictionText + ' : ' : '') + prediction);
         }
-        if (this.options.objectNameField.columnName && item[this.options.objectNameField.columnName]) {
+        if (this.options.truthClassField.columnName && item[this.options.truthClassField.columnName]) {
+            let actual = (this.options.truthClassField.columnName === this.options.annotationClassField.columnName ?
+                this._findPreviouslyAnnotatedClass(item) : '') || item[this.options.truthClassField.columnName];
             let actualText = (this.options.textMap || {}).actual || 'Actual';
-            text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
+            text.push((actualText ? actualText + ' : ' : '') + actual);
         }
         return text.join(', ');
     }
@@ -401,61 +428,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         results.forEach((result) => {
             let item: any = {};
-            options.filterFields.filter((field) => !!field.columnName).forEach((field) => {
-                item[field.columnName] = CoreUtil.deepFind(result, field.columnName);
+
+            // Copy the data from each configured field into the item.
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
+            options.list().forEach((option: ConfigOption) => {
+                const fieldArray: FieldConfig[] = (option.optionType === OptionType.FIELD ? [option.valueCurrent] :
+                    (option.optionType === OptionType.FIELD_ARRAY) ? option.valueCurrent : []);
+                fieldArray.filter((fieldObject) => !!fieldObject.columnName).forEach((fieldObject) => {
+                    item[fieldObject.columnName] = CoreUtil.deepFind(result, fieldObject.columnName);
+                });
             });
+
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
                 links = this.getArrayValues(CoreUtil.deepFind(result, options.linkField.columnName) || '');
-            }
-
-            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
-            if (options.categoryField.columnName) {
-                item[options.categoryField.columnName] = CoreUtil.deepFind(result, options.categoryField.columnName);
-            }
-            if (options.compareField.columnName) {
-                item[options.compareField.columnName] = CoreUtil.deepFind(result, options.compareField.columnName);
-            }
-            if (options.idField.columnName) {
-                item[options.idField.columnName] = CoreUtil.deepFind(result, options.idField.columnName);
-            }
-            if (options.nameField.columnName) {
-                item[options.nameField.columnName] = CoreUtil.deepFind(result, options.nameField.columnName);
-            }
-            if (options.objectIdField.columnName) {
-                item[options.objectIdField.columnName] = CoreUtil.deepFind(result, options.objectIdField.columnName);
-            }
-            if (options.objectNameField.columnName) {
-                item[options.objectNameField.columnName] = CoreUtil.deepFind(result, options.objectNameField.columnName);
-            }
-            if (options.percentField.columnName) {
-                item[options.percentField.columnName] = CoreUtil.deepFind(result, options.percentField.columnName);
-            }
-            if (options.predictedNameField.columnName) {
-                item[options.predictedNameField.columnName] = CoreUtil.deepFind(result, options.predictedNameField.columnName);
-            }
-            if (options.sortField.columnName) {
-                item[options.sortField.columnName] = CoreUtil.deepFind(result, options.sortField.columnName);
-            }
-            if (options.typeField.columnName) {
-                item[options.typeField.columnName] = CoreUtil.deepFind(result, options.typeField.columnName);
-            }
-            if (options.dateField.columnName) {
-                item[options.dateField.columnName] = CoreUtil.deepFind(result, options.dateField.columnName);
-            }
-            if (options.flagLabel.columnName) {
-                item[options.flagLabel.columnName] = CoreUtil.deepFind(result, options.flagLabel.columnName);
-            }
-            if (options.flagSubLabel1.columnName) {
-                item[options.flagSubLabel1.columnName] = CoreUtil.deepFind(result, options.flagSubLabel1.columnName);
-            }
-            if (options.flagSubLabel2.columnName) {
-                item[options.flagSubLabel2.columnName] = CoreUtil.deepFind(result, options.flagSubLabel2.columnName);
-            }
-            if (options.flagSubLabel3.columnName) {
-                item[options.flagSubLabel3.columnName] = CoreUtil.deepFind(result, options.flagSubLabel3.columnName);
             }
 
             options.customEventsToPublish.forEach((config) => {
@@ -476,6 +464,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         });
 
         return this.gridArray.length;
+    }
+
+    optionsAnnotationsAreNotActive(options: any): boolean {
+        return !options.datastoreIdField.columnName || !options.annotationClassField.columnName;
     }
 
     /**
@@ -527,9 +519,19 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.options.flagLabel = this.options.idField;
         }
 
+        // Backwards compatibility
+        if (!this.options.truthClassField.columnName) {
+            this.options.truthClassField = this.options.objectNameField;
+        }
+
+        // Backwards compatibility
+        if (!this.options.predictedClassField.columnName) {
+            this.options.predictedClassField = this.options.predictedClassField;
+        }
+
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         if (typeof this.options.showOnlyFiltered !== 'undefined') {
-            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+            this.options.hideUnfiltered = '' + this.options.showOnlyFiltered;
         }
 
         // Backwards compatibility (filterField deprecated due to its redundancy with filterFields).
@@ -592,7 +594,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
+        // TODO The following code is incorrectly splitting single links that have commas into multiple links.  Is it really needed?
+        // return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
+        return value ? (Array.isArray(value) ? value : [value]) : [];
     }
 
     private defaultDocumentThumbnail(thumbnail) {
@@ -644,10 +648,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.gridArray.forEach((grid, index) => {
                 let link = grid[this.constructedLinkField];
                 let type = this.getMediaType(grid);
-                let objectId = grid[this.options.objectIdField.columnName];
+                let predictedClass = grid[this.options.predictedClassField.columnName];
+                let truthClass = grid[this.options.truthClassField.columnName];
                 let percentage = grid[this.options.percentField.columnName];
                 let comparison = grid[this.options.compareField.columnName];
-                let categoryId = grid[this.options.categoryField.columnName];
                 let thumbnail = canvases[index].getContext('2d');
 
                 thumbnail.fillStyle = '#ffffff';
@@ -730,7 +734,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         case this.mediaTypes.audio: {
                             let image: HTMLImageElement = new Image();
                             image.src = '/assets/icons/dashboard/volume_up.svg';
-                            image.onclick = () => this.displayMediaTab(grid);
+                            image.onclick = (event) => this.displayMediaTab(event, grid);
                             image.onload = () => {
                                 thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                             };
@@ -782,8 +786,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             borderColor = 'grey';
                         }
                     }
-                } else if (objectId && categoryId) {
-                    borderColor = ((objectId === categoryId) ? 'blue' : 'red');
+                } else if (truthClass && predictedClass) {
+                    borderColor = ((truthClass === predictedClass) ? 'blue' : 'red');
                 }
 
                 if (thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
@@ -844,7 +848,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @arg {object} item
      * @private
      */
-    displayMediaTab(item) {
+    displayMediaTab(event, item) {
+        event.stopPropagation();
         if (item[this.constructedLinkField]) {
             if (this.options.openOnMouseClick) {
                 window.open(item[this.constructedLinkField]);

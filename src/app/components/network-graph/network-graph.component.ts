@@ -279,10 +279,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         if (typeof this.options.showOnlyFiltered !== 'undefined') {
-            this.options.hideUnfiltered = this.options.showOnlyFiltered;
+            this.options.hideUnfiltered = '' + this.options.showOnlyFiltered;
         }
 
-        this.displayGraph = !this.options.hideUnfiltered;
+        this.displayGraph = this.options.hideUnfiltered === 'false';
     }
 
     private createFilterDesignOnLegend(values: any[] = [undefined]): ListFilterDesign {
@@ -783,7 +783,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         this.existingNodeNames = [];
         this.relationNodes = [];
-        this.displayGraph = (this.options.hideUnfiltered && !!filters.getFilters().length) || !this.options.hideUnfiltered;
+
+        this.displayGraph = this._shouldShowNetworkGraph(options, filters);
 
         this.resetGraphData();
 
@@ -1457,5 +1458,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.options.edgeColor = this.options.access('edgeColor').valueDefault;
         this.options.fontColor = this.options.access('fontColor').valueDefault;
         this.reloadGraph();
+    }
+
+    private _shouldShowNetworkGraph(options: any, filters: FilterCollection): boolean {
+        const numberOfFilters = filters.getFilters().length;
+
+        if (!this.options.hideUnfiltered || this.options.hideUnfiltered === 'false' || (this.options.hideUnfiltered === 'true' &&
+            !!numberOfFilters)) {
+            return true;
+        }
+
+        return !numberOfFilters ? false : filters.getDataSources().some((dataSourceList) => dataSourceList.some((dataSource) =>
+            dataSource.datastore === options.datastore.name && dataSource.database === options.database.name &&
+            dataSource.table === options.table.name && dataSource.field === this.options.hideUnfiltered));
     }
 }

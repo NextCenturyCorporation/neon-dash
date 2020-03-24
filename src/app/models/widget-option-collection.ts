@@ -18,7 +18,6 @@ import {
     ConfigOptionDatastore,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
-    ConfigOptionSelect,
     ConfigOptionTable,
     Dataset,
     DatasetUtil,
@@ -26,7 +25,6 @@ import {
     DatastoreConfig,
     FieldConfig,
     isFieldOption,
-    OptionChoices,
     OptionType,
     TableConfig
 } from '@caci-critical-insight-solutions/nucleus-core';
@@ -472,7 +470,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
             new ConfigOptionNonPrimitive('customEventsToPublish', 'Custom Events To Publish', false, [], true),
             new ConfigOptionNonPrimitive('customEventsToReceive', 'Custom Events To Receive', false, [], true),
             new ConfigOptionNonPrimitive('filter', 'Custom Widget Filter', false, undefined),
-            new ConfigOptionSelect('hideUnfiltered', 'Hide Widget if Unfiltered', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionFreeText('hideUnfiltered', 'Hide Data if Unfiltered (True/False or Field Name)', false, 'false'),
             new ConfigOptionNonPrimitive('contributionKeys', 'Contribution Keys', false, undefined, true),
             ...super.createOptions()
         ];

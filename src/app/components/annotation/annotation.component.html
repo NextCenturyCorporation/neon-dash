@@ -1,0 +1,40 @@
+<div mat-dialog-title>
+    {{ 'Annotate' + (dataName ? (' ' + dataName) : '') }}
+</div>
+
+<mat-divider></mat-divider>
+
+<div class="image-container">
+    <img *ngIf="dataImageUrl" [src]="dataImageUrl" [height]="dataImageHeight" [width]="dataImageWidth">
+</div>
+
+<mat-divider [style.margin]="0"></mat-divider>
+
+<mat-dialog-content>
+    <div *ngFor="let input of inputs; let i = index">
+        <div *ngIf="!input.hidden" class="input-container">
+            <div class="field-name">{{ input.field.prettyName }}</div>
+
+            <mat-form-field *ngIf="!!input.dropdown" class="neon-form-field-flex-full">
+                <mat-select placeholder="Select an Option..." [(ngModel)]="input.newValue">
+                    <mat-option *ngFor="let option of input.dropdown" [value]="option">{{ option }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="!!input.oneLineInput" class="neon-form-field-flex-full">
+                <input matInput placeholder="Type Your Annotation..." [(ngModel)]="input.newValue">
+            </mat-form-field>
+
+            <mat-form-field *ngIf="!!input.multiLineInput" class="neon-form-field-flex-full">
+                <textarea matInput placeholder="Type Your Annotation..." [(ngModel)]="input.newValue"></textarea>
+            </mat-form-field>
+        </div>
+
+        <mat-divider *ngIf="!input.hidden"></mat-divider>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-raised-button class="neon-button-large" [disabled]="isSaveDisabled(inputs)" (click)="saveAnnotation()">Save</button>
+    <button mat-raised-button class="neon-button-large" (click)="dialogRef.close()">Cancel</button>
+</mat-dialog-actions>

@@ -51,13 +51,15 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
         let heatmap = (sort === 'y' ? this.HEATS_INCREASING : this.HEATS_DECREASING);
         let divisor = (sort === 'y' ? (maxY - minY) : data.length) / heatmap.length;
 
+        document.documentElement.style.setProperty('--neon-list-columns', this.options.listColumns);
+
         data.forEach((item, index) => {
             let labelAndValueClass = 'list-text list-selectable';
 
-            let labelElement = document.createElement('td');
+            let labelElement = document.createElement('span');
             labelElement.innerHTML = item.x;
 
-            let valueElement = document.createElement('td');
+            let valueElement = document.createElement('span');
             valueElement.innerHTML = '(' + item.y + ')';
 
             if (this.options.showHeat) {
@@ -70,17 +72,17 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
             let rowClass = 'list-item';
             let rowTitle = item.x + ' (' + item.y + ')';
-            let rowElement = this.options.listWrap ? document.createElement('span') : document.createElement('tr');
+            let rowElement = document.createElement('span');
 
             let selectedIndex = _.findIndex(this.selectedData, (selectedItem) =>
-                (selectedItem.group ? selectedItem.group === item.group : true) && selectedItem.value === item.x);
+                (selectedItem.group ? selectedItem.group === item.group : true) && selectedItem.value === '' + item.x);
 
             if (selectedIndex >= 0) {
                 rowClass += ' active';
             }
 
             if (groups.length > 1) {
-                let groupElement = document.createElement('td');
+                let groupElement = document.createElement('span');
                 groupElement.setAttribute('class', 'list-text');
                 groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef.nativeElement));
                 groupElement.innerHTML = item.group;
@@ -166,7 +168,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
         let group = event.currentTarget.getAttribute('group');
         let value = event.currentTarget.getAttribute('value');
-        let index = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === group && selectedItem.value === value);
+        let index = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === group && selectedItem.value === '' + value);
 
         if (index < 0) {
             event.currentTarget.setAttribute('class', event.currentTarget.getAttribute('class') + ' active');
@@ -199,7 +201,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @override
      */
     public initialize() {
-        this.elementContainer = document.createElement('table');
+        this.elementContainer = document.createElement('div');
         this.elementContainer.setAttribute('class', 'list-subcomponent');
         this.elementRef.nativeElement.appendChild(this.elementContainer);
     }

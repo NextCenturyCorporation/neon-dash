@@ -72,7 +72,7 @@ describe('SingleVisualizationWidgetComponent static function', () => {
     it('createInfoButtonText with options.hideUnflitered does return expected string', () => {
         let layerIdToElementCount: Map<string, number> = new Map<string, number>();
         let options = new RootWidgetOptionCollection(DATASET);
-        options.hideUnfiltered = true;
+        options.hideUnfiltered = 'true';
         expect(SingleVisualizationWidgetComponent.createInfoButtonText(layerIdToElementCount, options, 1, VisualizationType.SAMPLE))
             .toEqual('Please Filter');
     });
@@ -199,7 +199,7 @@ describe('SingleVisualizationWidgetComponent static function', () => {
 
         expect(options.contributionKeys).toEqual(undefined);
         expect(options.filter).toEqual(undefined);
-        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.hideUnfiltered).toEqual('false');
         expect(options.limit).toEqual(10);
         expect(options.testArray).toEqual([]);
         expect(options.testFreeText).toEqual('');
@@ -247,7 +247,7 @@ describe('SingleVisualizationWidgetComponent static function', () => {
         const configOptions = {
             contributionKeys: ['organization1', 'organization2'],
             filter: [{ lhs: 'testFilterField', operator: '!=', rhs: 'testFilterValue' }],
-            hideUnfiltered: true,
+            hideUnfiltered: 'true',
             limit: 100,
             tableKey: 'table_key_2',
             testArray: [4, 3, 2, 1],
@@ -277,7 +277,7 @@ describe('SingleVisualizationWidgetComponent static function', () => {
             operator: '!=',
             rhs: 'testFilterValue'
         }]);
-        expect(options.hideUnfiltered).toEqual(true);
+        expect(options.hideUnfiltered).toEqual('true');
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('VisualizationTitle');
 
@@ -1153,7 +1153,7 @@ describe('SingleVisualizationWidgetComponent (TEXT_CLOUD)', () => {
         const options = new RootWidgetOptionCollection(DATASET);
         options.dataField = FIELD_MAP.TEXT;
         options.sizeField = FIELD_MAP.SIZE;
-        options.hideUnfiltered = true;
+        options.hideUnfiltered = 'true';
         options.limit = 100;
         options.aggregation = AggregationType.AVG;
         options.andFilters = true;

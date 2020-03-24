@@ -36,7 +36,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34mleaflet[39m[2m@[22m[32m1.5.1[39m | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
 | [34mlodash[39m[2m@[22m[32m4.17.15[39m | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | [34mmoment[39m[2m@[22m[32m2.24.0[39m | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
-| [34mneon-framework[39m[2m@[22m[32m1.0.3[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
+| [34mneon-framework[39m[2m@[22m[32m1.0.4[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
 | [34mng-dynamic-component[39m[2m@[22m[32m4.0.3[39m | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
 | [34mngx-contextmenu[39m[2m@[22m[32m5.2.0[39m | [MIT](https://github.com/isaacplmann/ngx-contextmenu/raw/master/LICENSE) |
 | [34mngx-monaco-editor[39m[2m@[22m[32m7.0.0[39m | [MIT](https://github.com/atularen/ngx-monaco-editor) |

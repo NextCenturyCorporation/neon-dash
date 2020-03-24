@@ -84,6 +84,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     private canvas: any;
     private chart: any;
+    private chartOptions: any = {};
     private hiddenCanvas: any;
 
     private cancelSelect: boolean = false;
@@ -232,7 +233,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     labels: (this.isHorizontal() ? meta.yList : meta.xList),
                     position: 'bottom',
                     scaleLabel: {
-                        display: true,
+                        display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
                         labelString: this.options.axisLabelX,
                         padding: 0
@@ -240,6 +241,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     ticks: {
                         display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
+                        max: meta.maxTicksX,
                         maxRotation: 0,
                         minRotation: 0,
                         callback: this.formatAndTruncateTextX.bind(this)
@@ -255,7 +257,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     labels: (this.isHorizontal() ? meta.xList : meta.yList),
                     position: 'left',
                     scaleLabel: {
-                        display: true,
+                        display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
                         labelString: this.options.axisLabelY,
                         padding: -10 // Set a negative padding because ChartJS adds too much y-axis label padding by default.
@@ -263,8 +265,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     ticks: {
                         display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
+                        max: meta.maxTicksY,
                         maxRotation: 0,
                         minRotation: 0,
+                        reverse: !!this.options.reverseY,
                         callback: this.formatAndTruncateTextY.bind(this)
                     },
                     type: 'category'
@@ -416,7 +420,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     public destroy() {
         if (this.chart) {
             this.chart.destroy();
+        }
+        if (this.elementRef.nativeElement.firstChild) {
             this.elementRef.nativeElement.removeChild(this.elementRef.nativeElement.firstChild);
+            this.canvas = null;
         }
     }
 
@@ -428,12 +435,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @override
      */
     public draw(data: any[], meta: any) {
-        if (this.chart) {
-            let dataAndOptions = this.createChartDataAndOptions(data, meta);
-            this.chart.data = dataAndOptions.data;
-            this.chart.options = dataAndOptions.options;
-            this.chart.update();
-        }
+        const dataAndOptions = this.createChartDataAndOptions(data, meta);
+        this.chartOptions = dataAndOptions.options;
+        this.recreateChartAndDrawData(dataAndOptions.data);
     }
 
     /**
@@ -443,7 +447,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected findAxisTypeX(): string {
-        let axisType = this.chart.options.scales.xAxes[0].type;
+        let axisType = (this.chart ? this.chart.options : this.chartOptions).scales.xAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
@@ -454,7 +458,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected findAxisTypeY(): string {
-        let axisType = this.chart.options.scales.yAxes[0].type;
+        let axisType = (this.chart ? this.chart.options : this.chartOptions).scales.yAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
@@ -688,16 +692,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         this.hiddenCanvas.font = '10px Roboto, sans-serif';
 
         if (!this.canvas) {
+            let canvasParent = document.createElement('div');
+            canvasParent.className = 'canvas-parent';
+            this.elementRef.nativeElement.appendChild(canvasParent);
+
             this.canvas = document.createElement('canvas');
-            this.elementRef.nativeElement.appendChild(this.canvas);
-            this.chart = new Chart(this.canvas, {
-                data: {
-                    labels: [],
-                    datasets: []
-                },
-                options: this.createChartOptions({}),
-                type: this.getChartType()
-            });
+            canvasParent.appendChild(this.canvas);
         }
     }
 
@@ -756,13 +756,25 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         return DateUtil.addOneOfIntervalToDate(endDate, this.options.granularity);
     }
 
+    private recreateChartAndDrawData(data: ChartJsData) {
+        if (this.chart) {
+            this.destroy();
+            this.initialize();
+        }
+        this.chart = new Chart(this.canvas, {
+            data,
+            options: this.chartOptions,
+            type: this.getChartType()
+        });
+    }
+
     /**
      * Redraws all the subcomponent elements.
      *
      * @override
      */
     public redraw() {
-        this.chart.update();
+        this.recreateChartAndDrawData(this.chart.data);
         this.listener.subcomponentRequestsRedraw();
     }
 
@@ -773,9 +785,25 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private resizeAxisX(xAxis: any) {
-        xAxis.paddingLeft = this.computeCurrentWidthAxisY(this.canvas.clientWidth, true);
-        xAxis.paddingRight = this.HORIZONTAL_MARGIN;
-        xAxis.width = this.canvas.clientWidth - xAxis.paddingLeft - xAxis.paddingRight;
+        if (this.options.backgroundImageLinkField.columnName && this.options.backgroundImageHeightField.columnName &&
+            this.options.backgroundImageWidthField.columnName) {
+            xAxis.margins = {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            };
+            xAxis.paddingLeft = 0;
+            xAxis.paddingRight = 0;
+            xAxis.paddingTop = 0;
+            xAxis.paddingBottom = 0;
+            xAxis.height = 0;
+            xAxis.width = this.canvas.clientWidth;
+        } else {
+            xAxis.paddingLeft = this.computeCurrentWidthAxisY(this.canvas.clientWidth, true);
+            xAxis.paddingRight = this.HORIZONTAL_MARGIN;
+            xAxis.width = this.canvas.clientWidth - xAxis.paddingLeft - xAxis.paddingRight;
+        }
     }
 
     /**
@@ -785,7 +813,23 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private resizeAxisY(yAxis: any) {
-        yAxis.width = this.computeCurrentWidthAxisY(this.canvas.clientWidth);
+        if (this.options.backgroundImageLinkField.columnName && this.options.backgroundImageHeightField.columnName &&
+            this.options.backgroundImageWidthField.columnName) {
+            yAxis.margins = {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            };
+            yAxis.paddingLeft = 0;
+            yAxis.paddingRight = 0;
+            yAxis.paddingTop = 0;
+            yAxis.paddingBottom = 0;
+            yAxis.height = this.canvas.clientHeight;
+            yAxis.width = 0;
+        } else {
+            yAxis.width = this.computeCurrentWidthAxisY(this.canvas.clientWidth);
+        }
     }
 
     /**

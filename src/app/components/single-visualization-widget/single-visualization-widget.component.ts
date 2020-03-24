@@ -126,7 +126,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
             if (typeof elementCount === 'undefined') {
                 return {
                     id: optionsWrapper.options.title,
-                    text: optionsWrapper.options.hideUnfiltered ? 'Please Filter' : ''
+                    text: (!optionsWrapper.options.hideUnfiltered || optionsWrapper.options.hideUnfiltered === 'false') ? '' :
+                        'Please Filter'
                 };
             }
 
@@ -361,7 +362,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         let componentLibraryOptions = {
             'color-accent': colorThemeService.getThemeAccentColorHex(),
             'color-text': colorThemeService.getThemeTextColorHex(),
-            'enable-hide-if-unfiltered': options.hideUnfiltered || undefined, // If false, set to undefined
+            'enable-hide-if-unfiltered': (!options.hideUnfiltered || options.hideUnfiltered === 'false') ? undefined : true,
             'enable-ignore-self-filter': options.ignoreSelf || undefined, // If false, set to undefined
             'search-limit': options.limit,
             'search-page': page

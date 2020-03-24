@@ -14,27 +14,38 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CommonWidgetModule } from '../../common-widget.module';
-import { MatFormFieldModule, MatIconModule, MatButtonModule, MatSelectModule, MatInputModule } from '@angular/material';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
-import { CustomRequestsComponent } from './custom-requests.component';
+import {
+    MatButtonModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule
+} from '@angular/material';
+import { AnnotationComponent } from './annotation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-    declarations: [CustomRequestsComponent],
-    entryComponents: [CustomRequestsComponent],
-    exports: [CustomRequestsComponent],
+    declarations: [
+        AnnotationComponent
+    ],
+    entryComponents: [
+        AnnotationComponent
+    ],
+    exports: [
+        AnnotationComponent,
+        MatFormFieldModule
+    ],
     imports: [
-        CommonWidgetModule,
+        CommonModule,
         FormsModule,
-        ReactiveFormsModule.withConfig({ warnOnNgModelWithFormControl: 'never' }),
         MatButtonModule,
+        MatDialogModule,
+        MatDividerModule,
         MatFormFieldModule,
-        MatIconModule,
         MatInputModule,
         MatSelectModule,
-        MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
-        CommonModule
+        ReactiveFormsModule
     ]
 })
-export class CustomRequestsModule { }
+export class AnnotationModule { }

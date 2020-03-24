@@ -92,34 +92,112 @@ describe('Component: Custom Requests', () => {
     });
 
     it('class properties are set to expected defaults', () => {
-        expect(component.requests).toEqual([{
+        expect(component.requests.length).toEqual(4);
+        expect(component.requests[0]).toEqual({
             type: 'delete',
             endpoint: 'http://test/delete',
             pretty: 'Test Delete'
-        }, {
+        });
+        expect(component.requests[1]).toEqual({
             type: 'get',
             endpoint: 'http://test/get',
             pretty: 'Test Get'
-        }, {
-            type: 'post',
-            endpoint: 'http://test/post',
-            pretty: 'Test Post',
-            properties: [{
-                name: 'one',
-                pretty: 'One'
-            }, {
-                name: 'two',
-                pretty: 'Two'
-            }]
-        }, {
-            type: 'put',
-            endpoint: 'http://test/put',
-            pretty: 'Test Put',
-            properties: [{
-                name: 'data',
-                pretty: 'Data'
-            }]
-        }]);
+        });
+        expect(component.requests[2].type).toEqual('post');
+        expect(component.requests[2].endpoint).toEqual('http://test/post');
+        expect(component.requests[2].pretty).toEqual('Test Post');
+        expect(component.requests[2].properties.length).toEqual(2);
+        expect(component.requests[2].properties[0].name).toEqual('one');
+        expect(component.requests[2].properties[0].pretty).toEqual('One');
+        expect(component.requests[2].properties[0].angularFormControl).toBeDefined();
+        expect(component.requests[2].properties[1].name).toEqual('two');
+        expect(component.requests[2].properties[1].pretty).toEqual('Two');
+        expect(component.requests[2].properties[1].angularFormControl).toBeDefined();
+        expect(component.requests[3].type).toEqual('put');
+        expect(component.requests[3].endpoint).toEqual('http://test/put');
+        expect(component.requests[3].pretty).toEqual('Test Put');
+        expect(component.requests[3].properties.length).toEqual(1);
+        expect(component.requests[3].properties[0].name).toEqual('data');
+        expect(component.requests[3].properties[0].pretty).toEqual('Data');
+        expect(component.requests[3].properties[0].angularFormControl).toBeDefined();
+    });
+
+    it('createLabel does return expected string', () => {
+        expect(component.createLabel({
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Whatever (Required, Text)');
+        expect(component.createLabel({
+            name: 'whatever',
+            pretty: 'Whatever',
+            disabled: true
+        })).toEqual('Whatever (Pre-Configured, Text)');
+        expect(component.createLabel({
+            name: 'whatever',
+            pretty: 'Whatever',
+            optional: true
+        })).toEqual('Whatever (Optional, Text)');
+
+        expect(component.createLabel({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Whatever (Required, JSON)');
+        expect(component.createLabel({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            disabled: true
+        })).toEqual('Whatever (Pre-Configured, JSON)');
+        expect(component.createLabel({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            optional: true
+        })).toEqual('Whatever (Optional, JSON)');
+
+        expect(component.createLabel({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Whatever (Required, Number)');
+        expect(component.createLabel({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            disabled: true
+        })).toEqual('Whatever (Pre-Configured, Number)');
+        expect(component.createLabel({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            optional: true
+        })).toEqual('Whatever (Optional, Number)');
+
+        expect(component.createLabel({
+            choices: [],
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Whatever');
+    });
+
+    it('createPlaceholder does return expected string', () => {
+        expect(component.createPlaceholder({
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Enter Your Text Input');
+
+        expect(component.createPlaceholder({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Enter Your JSON Input');
+
+        expect(component.createPlaceholder({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever'
+        })).toEqual('Enter Your Number Input');
     });
 
     it('deleteData does delete request status, response, and property array values', () => {
@@ -172,6 +250,53 @@ describe('Component: Custom Requests', () => {
             status: undefined,
             response: undefined
         });
+    });
+
+    it('doesHaveProperties does return expected boolean', () => {
+        expect(component.doesHaveProperties({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            properties: []
+        })).toEqual(false);
+
+        expect(component.doesHaveProperties({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            properties: [{
+                name: 'whatever',
+                pretty: 'Whatever'
+            }]
+        })).toEqual(true);
+    });
+
+    it('isValidJsonValue does return expected boolean', () => {
+        expect(component.isValidJsonValue('1')).toEqual(true);
+        expect(component.isValidJsonValue('"string"')).toEqual(true);
+        expect(component.isValidJsonValue('[]')).toEqual(true);
+        expect(component.isValidJsonValue('["string", 1]')).toEqual(true);
+        expect(component.isValidJsonValue('{}')).toEqual(true);
+        expect(component.isValidJsonValue('{"propertyA":"string","propertyB":1}')).toEqual(true);
+
+        expect(component.isValidJsonValue('string')).toEqual(false);
+        expect(component.isValidJsonValue('"string",1')).toEqual(false);
+        expect(component.isValidJsonValue('["string"')).toEqual(false);
+        expect(component.isValidJsonValue('{"key":"value"')).toEqual(false);
+        expect(component.isValidJsonValue('{"key"}')).toEqual(false);
+        expect(component.isValidJsonValue('{{}}')).toEqual(false);
+    });
+
+    it('isValidNumberValue does return expected boolean', () => {
+        expect(component.isValidNumberValue('0')).toEqual(true);
+        expect(component.isValidNumberValue('1')).toEqual(true);
+        expect(component.isValidNumberValue('1234')).toEqual(true);
+        expect(component.isValidNumberValue('0.1234')).toEqual(true);
+        expect(component.isValidNumberValue('12.34')).toEqual(true);
+        expect(component.isValidNumberValue('-1')).toEqual(true);
+
+        expect(component.isValidNumberValue('string')).toEqual(false);
+        expect(component.isValidNumberValue('one')).toEqual(false);
+        expect(component.isValidNumberValue('1,234')).toEqual(false);
+        expect(component.isValidNumberValue('123abc')).toEqual(false);
     });
 
     it('isValidRequestBody does return false if not all request properties have values', () => {
@@ -228,6 +353,225 @@ describe('Component: Custom Requests', () => {
         })).toEqual(true);
     });
 
+    it('isValidRequestBody does validate JSON property data', () => {
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                json: true,
+                name: 'one',
+                pretty: 'One',
+                value: '{"key":"value"' // Missing bracket
+            }]
+        })).toEqual(false);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                json: true,
+                name: 'one',
+                pretty: 'One',
+                value: '{"key":"value"}'
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                json: true,
+                name: 'one',
+                pretty: 'One',
+                value: '{"key":"value"' // Missing bracket
+            }, {
+                json: true,
+                name: 'two',
+                pretty: 'Two',
+                value: '{"key":"value"}'
+            }]
+        })).toEqual(false);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                json: true,
+                name: 'one',
+                pretty: 'One',
+                value: '{}'
+            }, {
+                json: true,
+                name: 'two',
+                pretty: 'Two',
+                value: '{"key":"value"}'
+            }]
+        })).toEqual(true);
+    });
+
+    it('isValidRequestBody does validate number property data', () => {
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                number: true,
+                name: 'one',
+                pretty: 'One',
+                value: 'string'
+            }]
+        })).toEqual(false);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                number: true,
+                name: 'one',
+                pretty: 'One',
+                value: '1234'
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                number: true,
+                name: 'one',
+                pretty: 'One',
+                value: 'string'
+            }, {
+                json: true,
+                name: 'two',
+                pretty: 'Two',
+                value: '1234'
+            }]
+        })).toEqual(false);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                number: true,
+                name: 'one',
+                pretty: 'One',
+                value: '0'
+            }, {
+                json: true,
+                name: 'two',
+                pretty: 'Two',
+                value: '1234'
+            }]
+        })).toEqual(true);
+    });
+
+    it('isValidRequestBody does ignore invalid optional properties', () => {
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                optional: true,
+                name: 'one',
+                pretty: 'One',
+                value: undefined
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                optional: true,
+                json: true,
+                name: 'one',
+                pretty: 'One',
+                value: '{'
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                optional: true,
+                number: true,
+                name: 'one',
+                pretty: 'One',
+                value: 'string'
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidRequestBody({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: undefined
+            }, {
+                optional: true,
+                name: 'two',
+                pretty: 'Two',
+                value: undefined
+            }]
+        })).toEqual(false);
+    });
+
+    it('isValidRequestBody does return boolean', () => {
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            type: 'put'
+        })).toEqual(true);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            type: 'post'
+        })).toEqual(true);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            type: 'get'
+        })).toEqual(true);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            type: 'delete'
+        })).toEqual(true);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint'
+        })).toEqual(true);
+
+        expect(component.isValidRequestObject({
+            endpoint: null,
+            pretty: 'Endpoint',
+            type: 'get'
+        })).toEqual(false);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: null,
+            type: 'get'
+        })).toEqual(false);
+        expect(component.isValidRequestObject({
+            endpoint: 'http://endpoint',
+            pretty: 'Endpoint',
+            type: 'string'
+        })).toEqual(false);
+    });
+
     it('isValidUserInput does return false if no request properties have values', () => {
         expect(component.isValidUserInput({
             type: 'post',
@@ -280,6 +624,133 @@ describe('Component: Custom Requests', () => {
             endpoint: 'http://test/get',
             pretty: 'Test Get'
         })).toEqual(false);
+    });
+
+    it('retrieveRequestValue given string data does return expected object', () => {
+        expect(component.retrieveRequestValue({
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: ''
+        })).toEqual('');
+        expect(component.retrieveRequestValue({
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: 'string'
+        })).toEqual('string');
+        expect(component.retrieveRequestValue({
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: 'one fish two fish red fish blue fish'
+        })).toEqual('one fish two fish red fish blue fish');
+        expect(component.retrieveRequestValue({
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '1'
+        })).toEqual('1');
+    });
+
+    it('retrieveRequestValue given JSON data does return expected object', () => {
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: 'string'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '"string",1'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '["string"'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '{"key":"value"'
+        })).toEqual(null);
+
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '"string"'
+        })).toEqual('string');
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '1'
+        })).toEqual(1);
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '["string",1]'
+        })).toEqual(['string', 1]);
+        expect(component.retrieveRequestValue({
+            json: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '{"propertyA":"string","propertyB":1}'
+        })).toEqual({ propertyA: 'string', propertyB: 1 });
+    });
+
+    it('retrieveRequestValue given number data does return expected object', () => {
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: 'string'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: 'one'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '1,234'
+        })).toEqual(null);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '123abc'
+        })).toEqual(null);
+
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '0'
+        })).toEqual(0);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '1'
+        })).toEqual(1);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '12.34'
+        })).toEqual(12.34);
+        expect(component.retrieveRequestValue({
+            number: true,
+            name: 'whatever',
+            pretty: 'Whatever',
+            value: '-1'
+        })).toEqual(-1);
     });
 
     it('retrieveResponse does return response as string', () => {

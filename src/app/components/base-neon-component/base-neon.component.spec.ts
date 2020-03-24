@@ -233,7 +233,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.filter).toEqual(undefined);
-        expect(component.options.hideUnfiltered).toEqual(false);
+        expect(component.options.hideUnfiltered).toEqual('false');
         expect(component.options.limit).toEqual(1000);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
@@ -1120,7 +1120,7 @@ describe('BaseNeonComponent', () => {
 
     it('noDataCheck works as intended', () => {
         component.noDataCheck();
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual(true);
     });
 
     it('getButtonText does return expected string', () => {
@@ -1889,7 +1889,7 @@ describe('Advanced BaseNeonComponent with config', () => {
                     type: 'testReceiveType'
                 }]
             }],
-            hideUnfiltered: true,
+            hideUnfiltered: 'true',
             limit: 10,
             tableKey: 'table_key_2',
             testArray: [4, 3, 2, 1],
@@ -1929,7 +1929,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             operator: '!=',
             rhs: 'testConfigValue'
         });
-        expect(component.options.hideUnfiltered).toEqual(true);
+        expect(component.options.hideUnfiltered).toEqual('true');
         expect(component.options.limit).toEqual(10);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);

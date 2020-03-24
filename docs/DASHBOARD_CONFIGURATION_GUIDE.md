@@ -261,11 +261,15 @@ Each **custom request** object can have the following properties:
 * **"date"** - (String, Optional) If set, Neon will automatically append the current timestamp to the request's body as a property named by this string.  Default:  none
 * **"endpoint"** - (String, Required) The REST endpoint for the request.
 * **"id"** - (String, Optional) If set, Neon will automatically generate a unique ID for the request and append it to the request body as a property named by this string.  Default:  none
-* **"notes"** - (String, Optional) Notes for the request to show the user.  Default:  none
+* **"notes"** - (String Array, Optional) Notes for the request to show the user.  Each element in the array will be shown on a separate line.  Default:  none
 * **"pretty"** - (String, Required) The pretty name for the request to show the user.
-* **"properties"** - (String, Optional) An array of JSON objects for the request body.  Neon will show a dropdown or text input box for each object.  Each object can have:
+* **"properties"** - (Array, Optional) An array of JSON objects for the request body.  Neon will show a dropdown or text input box for each object.  Each object can have:
   * **"choices"** - (Array, Optional) An array of JSON objects that Neon will show as choices in a dropdown; if not defined, Neon will show a text input box.  Each object must have a **"pretty"** property containing the pretty name to show in the dropdown and a **"value"** property containing the actual value to send in the request body.
+  * **"disabled"** - (Boolean, Optional) Whether to show this property as a disabled input element.  Useful if you always want to add a specific value to this request that the user cannot change.  Default:  false
+  * **"json"** - (Boolean, Optional) Whether this is a JSON value.  Needed for all arrays and objects.  Default:  false
   * **"name"** - (String, Required) The actual name for the property in the request body.
+  * **"number"** - (Boolean, Optional) Whether this is a number value.  Default:  false
+  * **"optional"** - (Boolean, Optional) Whether this is an optional property that, if left blank or invalid, is not added to this request when sent.  Default:  false
   * **"pretty"** - (String, Required) The pretty name for the property to show the user.
   * **"value"** - (String, Optional) The default value to show in the text input box.  Default:  none
 * **"type"** - (String, Optional) The request type (GET, POST, PUT, or DELETE).  Default:  "POST" if **"properties"** exist, otherwise "GET"
@@ -701,6 +705,7 @@ Optional:
 
 Optional configuration file properties:
 * **"about"** - A string or object containing data for the About panel.  Please see the [**About Property Examples**](#about-property-examples).
+* **"annotations"** - A map of datastores/databases/tables/fields to annotation properties.  Currently data annotation is only supported in the Thumbnail Grid.  Please see the [**Annotations Property Examples**](#annotations-property-examples).
 * **"hideImport"** - Whether to hide the import navbar menu item.  Default:  false
 * **"neonServerUrl"** - The URL for the Neon Server.  Default: `"../neon"`
 * **"neonTools"** - An object containing data for the Tools panel.  Please see the [**Neon Tools Property Examples**](#neon-tools-property-examples).
@@ -746,6 +751,43 @@ about:
           header: "Section X"
         - data: "Description for Section Y"
           header: "Section Y"
+```
+
+#### **Annotations Property Examples**
+
+```yaml
+annotations:
+  # Add one or more datastores/databases/tables here as needed.
+  datastore_id_1:
+    database_name_1:
+      table_name_1:
+        fields:
+          field_name_1:
+            # Show this field in the annotation window with a one-line input box.
+            oneLineInput: true
+          field_name_2:
+            # Show this field in the annotation window with a multi-line input box.
+            multiLineInput: true
+          field_name_3:
+            # Show this field in the annotation window with a dropdown box containing the listed values.
+            dropdown:
+              - a
+              - b
+              - c
+              - d
+          field_name_4:
+            oneLineInput: true
+            # Set this field's input to this default value.
+            setValue: 'default value'
+          field_name_5:
+            setValue: 'new value'
+            # Without "oneLineInput", "multiLineInput", or "dropdown", hide this field from the annotation window.
+          field_name_6:
+            # Show this field in the annotation window with both an input box and a dropdown box.
+            oneLineInput: true
+            dropdown:
+              - x
+              - y
 ```
 
 #### **Neon Tools Property Examples**

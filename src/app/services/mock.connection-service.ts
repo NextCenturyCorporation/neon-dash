@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,23 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input } from '@angular/core';
-import { ThumbnailGridComponent } from './thumbnail-grid.component';
+import { InjectableConnectionService } from './injectable.connection.service';
 
-@Component({
-    selector: 'app-subcomponent-card-thumbnail',
-    templateUrl: './subcomponent.card-view.html',
-    styleUrls: ['./subcomponent.scss']
-})
-
-export class CardThumbnailSubComponent {
-    @Input() item: any;
-    @Input() options: any;
-
-    thumbnailGrid: ThumbnailGridComponent;
-
-    constructor(grid: ThumbnailGridComponent) {
-        this.thumbnailGrid = grid;
+export class ConnectionServiceMock extends InjectableConnectionService {
+    public connect(__datastoreType: string, __datastoreHost: string) {
+        return null as any;
     }
 }
 

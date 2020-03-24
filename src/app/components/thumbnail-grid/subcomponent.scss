@@ -18,26 +18,6 @@
     margin-right: 6px;
 }
 
-.thumbnail-details {
-    height: 1.6em;
-    width: 92%;
-    background-color: var(--color-background, white);
-    word-wrap: break-word;
-    display: flex;
-    flex-direction: column;
-    font-size: 0.7em;
-
-    p {
-        margin: 0.2em;
-        display: inline-flex;
-        flex-flow: row nowrap;
-    }
-
-    span {
-        white-space: nowrap;
-    }
-}
-
 .detail-ellipses {
     flex: 1;
     white-space: pre;
@@ -49,6 +29,49 @@
 .detail-percentage {
     text-align: end;
     width: 35px;
+}
+
+.thumbnail-title {
+    padding: 5px;
+
+    .thumbnail-title-details {
+        height: 20px;
+        line-height: 20px;
+        word-wrap: break-word;
+        display: flex;
+        flex-direction: column;
+        flex-flow: row nowrap;
+        font-size: 0.8em;
+        margin: 0 5px;
+
+        .detail-ellipses {
+            width: unset;
+            white-space: nowrap;
+        }
+
+        .detail-percentage {
+            float: right;
+            width: unset;
+            white-space: nowrap;
+        }
+
+        .mat-icon-button {
+            border-radius: 10px;
+            margin: 0 5px 0 0 !important;
+
+            &:hover {
+                color: var(--color-data-item-selectable-contrast, white) !important;
+            }
+
+            &.flag {
+                background-color: var(--color-data-item-selected, white) !important;
+            }
+        }
+    }
+
+    .thumbnail-view {
+        margin: 4px 2px 0;
+    }
 }
 
 .with-border {

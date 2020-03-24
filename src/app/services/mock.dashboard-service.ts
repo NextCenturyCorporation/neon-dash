@@ -15,7 +15,7 @@
 import { NeonDashboardLeafConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 import { ConfigService } from './config.service';
-import { InjectableConnectionService } from './injectable.connection.service';
+import { ConnectionServiceMock } from './mock.connection-service';
 import { Injectable } from '@angular/core';
 import { InjectableFilterService } from './injectable.filter.service';
 import {
@@ -29,12 +29,6 @@ import {
     TABLES,
     TABLES_LIST
 } from '@caci-critical-insight-solutions/nucleus-core';
-
-export class ConnectionServiceMock extends InjectableConnectionService {
-    public connect(__datastoreType: string, __datastoreHost: string) {
-        return null as any;
-    }
-}
 
 @Injectable()
 export class DashboardServiceMock extends DashboardService {

@@ -98,12 +98,13 @@ export interface NeonCustomRequests {
     pretty: string;
     // Body properties
     properties?: PropertyMetaData[];
-    // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
-    type?: string;
-    // Response data (not in config file)
-    response?: any;
     // Show the response JSON
     showResponse?: boolean;
+    // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
+    type?: string;
+
+    // Response data (not in config file)
+    response?: any;
     // Response status (not in config file)
     status?: any;
 }
@@ -111,12 +112,22 @@ export interface NeonCustomRequests {
 export interface PropertyMetaData {
     // List of dropdown choices (if not specified, shows a text input element)
     choices?: { pretty: string, value: string }[];
+    // Should input box always be disabled
+    disabled?: boolean;
+    // Should parse input value as JSON
+    json?: boolean;
     // Property name to save in body
     name: string;
+    // Is a number property
+    number?: boolean;
+    // Is an optional property
+    optional?: boolean;
     // Pretty name to show to user
     pretty: string;
-    // Input value from user (not in config file)
+    // Input value from user
     value?: string;
+
+    angularFormControl?: any;
 }
 
 export interface NeonDashboardOptions {
@@ -218,6 +229,7 @@ export interface NeonConfig {
     layouts?: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
 
     about?: any;
+    annotations?: Record<string, any>;
     errors?: any[];
     fileName?: string;
     hideImport?: boolean;
@@ -235,6 +247,7 @@ export class NeonConfig {
     static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
             about: '',
+            annotations: {},
             errors: [],
             hideImport: false,
             layouts: {},

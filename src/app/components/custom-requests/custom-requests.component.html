@@ -5,10 +5,13 @@
     <div *ngIf="request.notes != undefined">
         <div *ngFor="let note of request.notes" class="request-description">{{ note }}</div>
     </div>
-    <mat-form-field *ngFor="let property of request.properties" appearance="outline">
-        <textarea matInput *ngIf="property.choices == undefined" [placeholder]="property.pretty" [(ngModel)]="property.value"
-            [name]="property.name" required="true"></textarea>
-        <mat-select *ngIf="property.choices != undefined" [placeholder]="property.pretty" [(ngModel)]="property.value" required="true">
+    <mat-form-field *ngFor="let property of request.properties" appearance="outline" floatLabel="always"
+        [class.disabled]="property.disabled">
+        <mat-label>{{ createLabel(property) }}</mat-label>
+        <textarea matInput *ngIf="property.choices == undefined" [placeholder]="createPlaceholder(property)" [(ngModel)]="property.value"
+            [name]="property.name" [required]="!property.optional" ngDefaultControl [formControl]="property.angularFormControl"></textarea>
+        <mat-select *ngIf="property.choices != undefined" [placeholder]="createPlaceholder(property)" [(ngModel)]="property.value"
+            [required]="!property.optional" ngDefaultControl [formControl]="property.angularFormControl">
             <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
         </mat-select>
     </mat-form-field>

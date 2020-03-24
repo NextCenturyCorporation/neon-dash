@@ -1,0 +1,67 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+@import '../base-neon-component/base-neon.component';
+
+:host {
+    display: block;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.mat-dialog-title {
+    margin: 0 0 5px;
+}
+
+.mat-divider {
+    margin: 0 0 5px;
+}
+
+.image-container {
+    padding: 10px;
+    text-align: center;
+}
+
+.mat-dialog-content {
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+
+    .input-container {
+        background-color: var(--color-background-contrast, lightgrey);
+        padding: 10px;
+
+        .field-name {
+            font-weight: bold;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+        }
+
+        .mat-form-field {
+            margin-top: 10px;
+        }
+    }
+}
+
+.mat-dialog-actions {
+    display: block;
+    margin: 10px 0 0;
+    min-height: unset;
+    padding: 0;
+    text-align: right;
+    width: 100%;
+}
+

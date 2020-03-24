@@ -13,7 +13,11 @@
  * limitations under the License.
  */
 import { Component, Input } from '@angular/core';
+import { FieldConfig } from '@caci-critical-insight-solutions/nucleus-core';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
+
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-subcomponent-title-thumbnail',
@@ -27,7 +31,77 @@ export class TitleThumbnailSubComponent {
 
     thumbnailGrid: ThumbnailGridComponent;
 
-    constructor(grid: ThumbnailGridComponent) {
+    constructor(grid: ThumbnailGridComponent, private dialog: MatDialog) {
         this.thumbnailGrid = grid;
+    }
+
+    public openAnnotationDialog(event): void {
+        event.stopPropagation();
+
+        const id = this.item[this.options.datastoreIdField.columnName];
+
+        let annotationFields = new Map<string, { field: FieldConfig, value: any }>();
+        annotationFields.set(this.options.annotationClassField.columnName, {
+            field: this.options.annotationClassField,
+            value: this.thumbnailGrid.annotatedClasses.has(id) ? this.thumbnailGrid.annotatedClasses.get(id) :
+                this.item[this.options.annotationClassField.columnName]
+        });
+
+        this.options.additionalAnnotationFields.forEach((fieldNameOrObject) => {
+            let field: FieldConfig = typeof fieldNameOrObject === 'string' ? this.options.findField(fieldNameOrObject) : {
+                columnName: fieldNameOrObject.columnName,
+                prettyName: fieldNameOrObject.prettyName,
+                hide: fieldNameOrObject.hide,
+                type: fieldNameOrObject.type
+            } as FieldConfig;
+
+            if (!field || !field.columnName) {
+                field = typeof fieldNameOrObject === 'string' ? {
+                    columnName: fieldNameOrObject,
+                    prettyName: fieldNameOrObject,
+                    hide: false,
+                    type: 'text'
+                } as FieldConfig : null;
+            }
+
+            if (field) {
+                annotationFields.set(field.columnName, {
+                    field,
+                    // TODO Default value based on field type (bool, date, number, etc.)
+                    value: ''
+                });
+            }
+        });
+
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'annotation',
+                datastore: this.options.datastore,
+                database: this.options.database,
+                table: this.options.table,
+                idField: this.options.datastoreIdField,
+                dataId: id,
+                dataImageHeight: this.options.canvasSize,
+                dataImageWidth: this.options.canvasSize,
+                dataImageUrl: this.item.constructedUrl,
+                annotationFields
+            },
+            height: 'auto',
+            width: '600px',
+            disableClose: false
+        }).afterClosed().subscribe((result) => {
+            if (typeof result !== 'undefined' && result[this.options.annotationClassField.columnName]) {
+                this.thumbnailGrid.annotatedClasses.set(this.item[this.options.datastoreIdField.columnName],
+                    result[this.options.annotationClassField.columnName]);
+            }
+        });
+    }
+
+    public shouldFlagAnnotationButton(options: any, item: any): boolean {
+        return options.annotationStateField.columnName && !!item[options.annotationStateField.columnName];
+    }
+
+    public shouldShowAnnotationButton(options: any): boolean {
+        return !!(options.datastoreIdField.columnName && options.annotationClassField.columnName);
     }
 }

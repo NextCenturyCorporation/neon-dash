@@ -37,17 +37,48 @@
     padding: 10px 0 0;
 }
 
-mat-form-field {
+.mat-form-field {
     margin-bottom: 10px;
     width: 100%;
+
+    &.mat-form-field-appearance-outline {
+        &.mat-form-field-can-float {
+            &.mat-form-field-should-float {
+                ::ng-deep {
+                    .mat-form-field-outline-gap {
+                        border-top-color: unset;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO Should this all be moved to the global styles.scss file?
+    ::ng-deep {
+        .mat-form-field-infix {
+            border-top: 20px solid transparent !important;
+        }
+
+        .mat-form-field-outline {
+            background-color: var(--color-background, white);
+        }
+    }
+
+    &.disabled {
+        ::ng-deep {
+            .mat-form-field-outline {
+                background-color: var(--color-background-contrast, lightgray);
+            }
+        }
+    }
 }
 
-mat-select {
+.mat-select {
     height: 25px;
 }
 
 textarea {
-    min-height: 35px;
+    min-height: 30px;
 }
 
 button {
