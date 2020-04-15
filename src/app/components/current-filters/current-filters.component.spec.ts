@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Next Century Corporation
+ * Copyright 2020 CACI (formerly Next Century Corporation)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,10 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-// import { CurrentFiltersComponent } from './current-filters.component';
 import { CurrentFiltersModule } from './current-filters.module';
 
 import { DashboardService } from '../../services/dashboard.service';
