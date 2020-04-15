@@ -34,7 +34,7 @@
     "@angular/router": "~8.2.9",
     "@caci-critical-insight-solutions/nucleus-core": "~0.0.13",
     "@caci-critical-insight-solutions/nucleus-wrappers-angular": "~0.0.4",
-    "@swimlane/ngx-datatable": "^16.0.2",
+    "@swimlane/ngx-datatable": "16.0.2",
     "@wishtack/reactive-component-loader": "^1.0.0",
     "@wishtack/rx-scavenger": "^2.0.0",
     "angular-tree-component": "^8.4.0",
