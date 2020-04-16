@@ -1,10 +1,10 @@
 datastores:
-    es_1:
-        host: localhost
-        type: elasticsearch
+    postgresql_1:
+        host: user:password@localhost/earthquakes
+        type: postgresql
         databases:
             earthquakes:
-                prettyName: Earthquakes Elasticsearch 6
+                prettyName: Earthquakes PostgreSQL
                 tables:
                     quakedata:
                         prettyName: Earthquake Data
@@ -27,26 +27,24 @@ datastores:
                               prettyName: Earthquake Type
                             - columnName: id
                               prettyName: Earthquake ID
-                            - columnName: _id
-                              prettyName: ES ID
 
 dashboards:
     category: 'Select a dashboard...'
     choices:
-        earthquakes_es:
-            name: Earthquakes Elasticsearch 6 Dashboard
+        earthquakes_postgresql:
+            name: Earthquakes PostgreSQL Dashboard
             layout: quakedata
             tables:
-                table_key_1: es_1.earthquakes.quakedata
+                table_key_1: postgresql_1.earthquakes.quakedata
             fields:
-                mag_key: es_1.earthquakes.quakedata.mag
-                depth_key: es_1.earthquakes.quakedata.depth
-                latitude_key: es_1.earthquakes.quakedata.latitude
-                longitude_key: es_1.earthquakes.quakedata.longitude
-                time_key: es_1.earthquakes.quakedata.time
-                net_key: es_1.earthquakes.quakedata.net
-                type_key: es_1.earthquakes.quakedata.type
-                id_key: es_1.earthquakes.quakedata.id
+                mag_key: postgresql_1.earthquakes.quakedata.mag
+                depth_key: postgresql_1.earthquakes.quakedata.depth
+                latitude_key: postgresql_1.earthquakes.quakedata.latitude
+                longitude_key: postgresql_1.earthquakes.quakedata.longitude
+                time_key: postgresql_1.earthquakes.quakedata.time
+                net_key: postgresql_1.earthquakes.quakedata.net
+                type_key: postgresql_1.earthquakes.quakedata.type
+                id_key: postgresql_1.earthquakes.quakedata.id
             options:
                 connectOnLoad: true
 

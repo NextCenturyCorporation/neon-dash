@@ -1,10 +1,10 @@
 datastores:
-    es_1:
-        host: localhost
-        type: elasticsearch
+    mysql_1:
+        host: user@localhost
+        type: mysql
         databases:
             earthquakes:
-                prettyName: Earthquakes Elasticsearch 6
+                prettyName: Earthquakes MySQL
                 tables:
                     quakedata:
                         prettyName: Earthquake Data
@@ -27,26 +27,24 @@ datastores:
                               prettyName: Earthquake Type
                             - columnName: id
                               prettyName: Earthquake ID
-                            - columnName: _id
-                              prettyName: ES ID
 
 dashboards:
     category: 'Select a dashboard...'
     choices:
-        earthquakes_es:
-            name: Earthquakes Elasticsearch 6 Dashboard
+        earthquakes_mysql:
+            name: Earthquakes MySQL Dashboard
             layout: quakedata
             tables:
-                table_key_1: es_1.earthquakes.quakedata
+                table_key_1: mysql_1.earthquakes.quakedata
             fields:
-                mag_key: es_1.earthquakes.quakedata.mag
-                depth_key: es_1.earthquakes.quakedata.depth
-                latitude_key: es_1.earthquakes.quakedata.latitude
-                longitude_key: es_1.earthquakes.quakedata.longitude
-                time_key: es_1.earthquakes.quakedata.time
-                net_key: es_1.earthquakes.quakedata.net
-                type_key: es_1.earthquakes.quakedata.type
-                id_key: es_1.earthquakes.quakedata.id
+                mag_key: mysql_1.earthquakes.quakedata.mag
+                depth_key: mysql_1.earthquakes.quakedata.depth
+                latitude_key: mysql_1.earthquakes.quakedata.latitude
+                longitude_key: mysql_1.earthquakes.quakedata.longitude
+                time_key: mysql_1.earthquakes.quakedata.time
+                net_key: mysql_1.earthquakes.quakedata.net
+                type_key: mysql_1.earthquakes.quakedata.type
+                id_key: mysql_1.earthquakes.quakedata.id
             options:
                 connectOnLoad: true
 

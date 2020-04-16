@@ -4,9 +4,9 @@ datastores:
         type: elasticsearch
         databases:
             earthquakes:
-                prettyName: Earthquakes Elasticsearch 6
+                prettyName: Earthquakes Elasticsearch 7
                 tables:
-                    quakedata:
+                    _doc:
                         prettyName: Earthquake Data
                         fields:
                             - columnName: mag
@@ -34,19 +34,19 @@ dashboards:
     category: 'Select a dashboard...'
     choices:
         earthquakes_es:
-            name: Earthquakes Elasticsearch 6 Dashboard
+            name: Earthquakes Elasticsearch 7 Dashboard
             layout: quakedata
             tables:
-                table_key_1: es_1.earthquakes.quakedata
+                table_key_1: es_1.earthquakes._doc
             fields:
-                mag_key: es_1.earthquakes.quakedata.mag
-                depth_key: es_1.earthquakes.quakedata.depth
-                latitude_key: es_1.earthquakes.quakedata.latitude
-                longitude_key: es_1.earthquakes.quakedata.longitude
-                time_key: es_1.earthquakes.quakedata.time
-                net_key: es_1.earthquakes.quakedata.net
-                type_key: es_1.earthquakes.quakedata.type
-                id_key: es_1.earthquakes.quakedata.id
+                mag_key: es_1.earthquakes._doc.mag
+                depth_key: es_1.earthquakes._doc.depth
+                latitude_key: es_1.earthquakes._doc.latitude
+                longitude_key: es_1.earthquakes._doc.longitude
+                time_key: es_1.earthquakes._doc.time
+                net_key: es_1.earthquakes._doc.net
+                type_key: es_1.earthquakes._doc.type
+                id_key: es_1.earthquakes._doc.id
             options:
                 connectOnLoad: true
 
