@@ -9,31 +9,31 @@ datastores:
                     quakedata:
                         prettyName: Earthquake Data
                         fields:
-                            - columnName: mag
-                              prettyName: Magnitude
-                            - columnName: mag_type
-                              prettyName: Magnitude Type
+                            - columnName: id
+                              prettyName: ID
                             - columnName: depth
                               prettyName: Depth
                             - columnName: latitude
                               prettyName: Latitude
                             - columnName: longitude
                               prettyName: Longitude
-                            - columnName: time
-                              prettyName: Time
+                            - columnName: mag
+                              prettyName: Magnitude
+                            - columnName: magType
+                              prettyName: Magnitude Type
                             - columnName: net
                               prettyName: Net
+                            - columnName: time
+                              prettyName: Time
                             - columnName: type
-                              prettyName: Earthquake Type
-                            - columnName: id
-                              prettyName: Earthquake ID
+                              prettyName: Type
 
 dashboards:
     category: 'Select a dashboard...'
     choices:
         earthquakes_postgresql:
             name: Earthquakes PostgreSQL Dashboard
-            layout: quakedata
+            layout: earthquakes_layout
             tables:
                 table_key_1: postgresql_1.earthquakes.quakedata
             fields:
@@ -49,7 +49,7 @@ dashboards:
                 connectOnLoad: true
 
 layouts:
-    quakedata:
+    earthquakes_layout:
         - type: aggregation
           col: 1
           row: 1

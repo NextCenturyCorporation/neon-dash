@@ -1,10 +1,10 @@
 datastores:
-    es1:
+    es_1:
         host: localhost
         type: elasticsearch
         databases:
             earthquakes:
-                prettyName: Earthquakes
+                prettyName: Earthquakes Elasticsearch 6
                 tables:
                     quakedata:
                         prettyName: Earthquake Data
@@ -31,70 +31,97 @@ datastores:
                               prettyName: ES ID
 
 dashboards:
-    name: Earthquakes Dashboard
+    name: Earthquakes Elasticsearch 6 Dashboard
     layout: earthquakes_layout
     options:
         connectOnLoad: true
 
 layouts:
     earthquakes_layout:
-        - type: dataTable
-          col: 1
-          row: 1
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Data
-              tableKey: es1.earthquakes.quakedata
-              sortField: es1.eqarthquakes.quakedata.time
-              showFields:
-                  - es1.eqarthquakes.quakedata.time
-                  - es1.eqarthquakes.quakedata.net
-                  - es1.eqarthquakes.quakedata.latitude
-                  - es1.eqarthquakes.quakedata.longitude
-                  - es1.eqarthquakes.quakedata.type
-                  - es1.eqarthquakes.quakedata.depth
-                  - es1.eqarthquakes.quakedata.mag
-                  - es1.eqarthquakes.quakedata.magType
         - type: aggregation
           col: 1
-          row: 7
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Networks
-              type: bar-h
-              tableKey: es1.earthquakes.quakedata
-              xField: es1.eqarthquakes.quakedata.net
-              groupField: es1.eqarthquakes.quakedata.net
-              sortByAggregation: true
-              ignoreSelf: true
-        - type: map
-          col: 5
           row: 1
-          sizex: 4
-          sizey: 12
-          bindings:
-              title: Locations
-              tableKey: es1.earthquakes.quakedata
-              limit: 5000
-              layers:
-                  - title: Earthquakes Layer
-                    tableKey: es1.earthquakes.quakedata
-                    latitudeField: es1.eqarthquakes.quakedata.latitude
-                    longitudeField: es1.eqarthquakes.quakedata.longitude
-                    colorField: es1.eqarthquakes.quakedata.net
-        - type: aggregation
-          icon: bar_chart
-          col: 9
-          row: 1
-          sizex: 4
-          sizey: 6
+          sizex: 6
+          sizey: 4
           bindings:
               title: Timeline
               type: histogram
-              tableKey: es1.earthquakes.quakedata
-              xField: es1.eqarthquakes.quakedata.time
-              groupField: es1.eqarthquakes.quakedata.net
+              tableKey: es_1.earthquakes.quakedata
+              xField: es_1.earthquakes.quakedata.time
               granularity: dayOfMonth
+              groupField: es_1.earthquakes.quakedata.net
+              ignoreSelf: true
+              limit: 100
+
+        - type: aggregation
+          col: 1
+          row: 5
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Networks
+              type: bar-h
+              tableKey: es_1.earthquakes.quakedata
+              xField: es_1.earthquakes.quakedata.net
+              groupField: es_1.earthquakes.quakedata.net
+              sortByAggregation: true
+              ignoreSelf: true
+              limit: 11
+
+        - type: aggregation
+          col: 1
+          row: 9
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Magnitudes
+              type: histogram
+              tableKey: es_1.earthquakes.quakedata
+              xField: es_1.earthquakes.quakedata.mag
+              groupField: es_1.earthquakes.quakedata.net
+              ignoreSelf: true
+              limit: 100
+
+        - type: aggregation
+          col: 1
+          row: 13
+          sizex: 6
+          sizey: 4
+          bindings:
+              title: Depths
+              type: histogram
+              tableKey: es_1.earthquakes.quakedata
+              xField: es_1.earthquakes.quakedata.depth
+              groupField: es_1.earthquakes.quakedata.net
+              ignoreSelf: true
+              limit: 100
+
+        - type: map
+          col: 7
+          row: 1
+          sizex: 6
+          sizey: 10
+          bindings:
+              title: Locations
+              mapType: leaflet
+              tableKey: es_1.earthquakes.quakedata
+              limit: 5000
+              layers:
+                  - title: Earthquakes
+                    tableKey: es_1.earthquakes.quakedata
+                    latitudeField: es_1.earthquakes.quakedata.latitude
+                    longitudeField: es_1.earthquakes.quakedata.longitude
+                    colorField: es_1.earthquakes.quakedata.net
+
+        - type: dataTable
+          col: 7
+          row: 11
+          sizex: 6
+          sizey: 6
+          bindings:
+              title: Raw Data
+              tableKey: es_1.earthquakes.quakedata
+              sortField: es_1.earthquakes.quakedata.time
+              ignoreSelf: false
+              limit: 100
 

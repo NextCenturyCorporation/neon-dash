@@ -1,113 +1,188 @@
-datastores:
-    es1:
-        host: localhost
-        type: elasticsearch
-        databases:
-            earthquakes:
-                prettyName: Earthquakes
-                tables:
-                    quakedata:
-                        prettyName: Earthquake Data
-                        fields:
-                            - columnName: id
-                              prettyName: ID
-                            - columnName: depth
-                              prettyName: Depth
-                            - columnName: latitude
-                              prettyName: Latitude
-                            - columnName: longitude
-                              prettyName: Longitude
-                            - columnName: mag
-                              prettyName: Magnitude
-                            - columnName: magType
-                              prettyName: Magnitude Type
-                            - columnName: net
-                              prettyName: Net
-                            - columnName: time
-                              prettyName: Time
-                            - columnName: type
-                              prettyName: Type
-                            - columnName: _id
-                              prettyName: ES ID
-
-dashboards:
-    name: Earthquakes Dashboard
-    layout: earthquakes_layout
-    tables:
-        table_key_1: es1.earthquakes.quakedata
-    fields:
-        id_key: es1.eqarthquakes.quakedata.id
-        depth_key: es1.eqarthquakes.quakedata.depth
-        latitude_key: es1.eqarthquakes.quakedata.latitude
-        longitude_key: es1.eqarthquakes.quakedata.longitude
-        mag_key: es1.eqarthquakes.quakedata.mag
-        mag_type_key: es1.eqarthquakes.quakedata.magType
-        net_key: es1.eqarthquakes.quakedata.net
-        time_key: es1.eqarthquakes.quakedata.time
-        type_key: es1.eqarthquakes.quakedata.type
-        _id_key: es1.eqarthquakes.quakedata._id
-    options:
-        connectOnLoad: true
-
-layouts:
-    earthquakes_layout:
-        - type: dataTable
-          col: 1
-          row: 1
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Data
-              tableKey: table_key_1
-              sortField: time_key
-              showFields:
-                  - time_key
-                  - net_key
-                  - latitude_key
-                  - longitude_key
-                  - type_key
-                  - depth_key
-                  - mag_key
-                  - mag_type_key
-        - type: aggregation
-          col: 1
-          row: 7
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Networks
-              type: bar-h
-              tableKey: table_key_1
-              xField: net_key
-              groupField: net_key
-              sortByAggregation: true
-              ignoreSelf: true
-        - type: map
-          col: 5
-          row: 1
-          sizex: 4
-          sizey: 12
-          bindings:
-              title: Locations
-              tableKey: table_key_1
-              limit: 5000
-              layers:
-                  - title: Earthquakes Layer
-                    tableKey: table_key_1
-                    latitudeField: latitude_key
-                    longitudeField: longitude_key
-                    colorField: net_key
-        - type: aggregation
-          icon: bar_chart
-          col: 9
-          row: 1
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Timeline
-              type: histogram
-              tableKey: table_key_1
-              xField: time_key
-              groupField: net_key
-              granularity: dayOfMonth
-
+{
+  "datastores": {
+    "es_1": {
+      "host": "localhost",
+      "type": "elasticsearch",
+      "databases": {
+        "earthquakes": {
+          "prettyName": "Earthquakes Elasticsearch 6",
+          "tables": {
+            "quakedata": {
+              "prettyName": "Earthquake Data",
+              "fields": [
+                {
+                  "columnName": "id",
+                  "prettyName": "ID"
+                },
+                {
+                  "columnName": "depth",
+                  "prettyName": "Depth"
+                },
+                {
+                  "columnName": "latitude",
+                  "prettyName": "Latitude"
+                },
+                {
+                  "columnName": "longitude",
+                  "prettyName": "Longitude"
+                },
+                {
+                  "columnName": "mag",
+                  "prettyName": "Magnitude"
+                },
+                {
+                  "columnName": "magType",
+                  "prettyName": "Magnitude Type"
+                },
+                {
+                  "columnName": "net",
+                  "prettyName": "Net"
+                },
+                {
+                  "columnName": "time",
+                  "prettyName": "Time"
+                },
+                {
+                  "columnName": "type",
+                  "prettyName": "Type"
+                },
+                {
+                  "columnName": "_id",
+                  "prettyName": "ES ID"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "dashboards": {
+    "name": "Earthquakes Elasticsearch 6 Dashboard",
+    "layout": "earthquakes_layout",
+    "tables": {
+      "table_key_1": "es_1.earthquakes.quakedata"
+    },
+    "fields": {
+      "id_key": "es_1.earthquakes.quakedata.id",
+      "depth_key": "es_1.earthquakes.quakedata.depth",
+      "latitude_key": "es_1.earthquakes.quakedata.latitude",
+      "longitude_key": "es_1.earthquakes.quakedata.longitude",
+      "mag_key": "es_1.earthquakes.quakedata.mag",
+      "mag_type_key": "es_1.earthquakes.quakedata.magType",
+      "net_key": "es_1.earthquakes.quakedata.net",
+      "time_key": "es_1.earthquakes.quakedata.time",
+      "type_key": "es_1.earthquakes.quakedata.type",
+      "_id_key": "es_1.earthquakes.quakedata._id"
+    },
+    "options": {
+      "connectOnLoad": true
+    }
+  },
+  "layouts": {
+    "earthquakes_layout": [
+      {
+        "type": "aggregation",
+        "col": 1,
+        "row": 1,
+        "sizex": 6,
+        "sizey": 4,
+        "bindings": {
+          "title": "Timeline",
+          "type": "histogram",
+          "tableKey": "table_key_1",
+          "xField": "time_key",
+          "granularity": "dayOfMonth",
+          "groupField": "net_key",
+          "ignoreSelf": true,
+          "limit": 100
+        }
+      },
+      {
+        "type": "aggregation",
+        "col": 1,
+        "row": 5,
+        "sizex": 6,
+        "sizey": 4,
+        "bindings": {
+          "title": "Networks",
+          "type": "bar-h",
+          "tableKey": "table_key_1",
+          "xField": "net_key",
+          "groupField": "net_key",
+          "sortByAggregation": true,
+          "ignoreSelf": true,
+          "limit": 11
+        }
+      },
+      {
+        "type": "aggregation",
+        "col": 1,
+        "row": 9,
+        "sizex": 6,
+        "sizey": 4,
+        "bindings": {
+          "title": "Magnitudes",
+          "type": "histogram",
+          "tableKey": "table_key_1",
+          "xField": "mag_key",
+          "groupField": "net_key",
+          "ignoreSelf": true,
+          "limit": 100
+        }
+      },
+      {
+        "type": "aggregation",
+        "col": 1,
+        "row": 13,
+        "sizex": 6,
+        "sizey": 4,
+        "bindings": {
+          "title": "Depths",
+          "type": "histogram",
+          "tableKey": "table_key_1",
+          "xField": "depth_key",
+          "groupField": "net_key",
+          "ignoreSelf": true,
+          "limit": 100
+        }
+      },
+      {
+        "type": "map",
+        "col": 7,
+        "row": 1,
+        "sizex": 6,
+        "sizey": 10,
+        "bindings": {
+          "title": "Locations",
+          "mapType": "leaflet",
+          "tableKey": "table_key_1",
+          "limit": 5000,
+          "layers": [
+            {
+              "title": "Earthquakes",
+              "tableKey": "table_key_1",
+              "latitudeField": "latitude_key",
+              "longitudeField": "longitude_key",
+              "colorField": "net_key"
+            }
+          ]
+        }
+      },
+      {
+        "type": "dataTable",
+        "col": 7,
+        "row": 11,
+        "sizex": 6,
+        "sizey": 6,
+        "bindings": {
+          "title": "Raw Data",
+          "tableKey": "table_key_1",
+          "sortField": "time_key",
+          "ignoreSelf": false,
+          "limit": 100
+        }
+      }
+    ]
+  }
+}
