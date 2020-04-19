@@ -20,29 +20,45 @@ import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 // http://www.chartjs.org/docs/latest/charts/doughnut.html#dataset-properties
 export class ChartJsPieDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
+    public borderColor: string[] = [];
+    public borderWidth: number[] = [];
     public hoverBackgroundColor: string[] = [];
+    public hoverBorderColor: string[] = [];
+    public hoverBorderWidth: number[] = [];
+
+    public aggregations: any[] = [];
     public slices: any[] = [];
+
+    private themeContrastColor: string;
+    private themeOppositeColor: string;
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[]) {
         super(elementRef, color, label, xList);
+        this.themeContrastColor = getComputedStyle(this.elementRef.nativeElement).getPropertyValue('--color-background-contrast');
+        this.themeOppositeColor = getComputedStyle(this.elementRef.nativeElement).getPropertyValue('--color-text');
     }
 
     public finalizeData() {
-        Array.from(this.xToYToSize.keys()).forEach((xValue) => {
+        Array.from(this.xToYToSize.keys()).forEach((xValue, xIndex) => {
             let yList = Array.from(this.xToYToSize.get(xValue).keys());
             (yList.length ? yList : [null]).forEach((yValue) => {
-                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(xValue) < 0 ? this.getColorSelected() : this.getColorHover());
-                this.backgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(xValue) < 0 ? this.getColorDeselected() : this.getColorSelected());
-                this.slices.push(xValue);
-                this.data.push(yValue);
+                const sliceAggregation = this.xToYToSize.get(xValue).get(yValue);
+
+                this.slices.push(yValue);
+                this.data.push(sliceAggregation); // TODO Can we use a different value to avoid showing small pie slices?
+                this.aggregations.push(sliceAggregation);
+
+                this.hoverBackgroundColor.push((this.xSelected.length > 0 && this.xSelected.indexOf(yValue) < 0) ?
+                    this.getColorSelected(xIndex) : this.getColorHover(xIndex));
+                this.backgroundColor.push((this.xSelected.length > 0 && this.xSelected.indexOf(yValue) < 0) ?
+                    this.getColorDeselected(xIndex) : this.getColorSelected(xIndex));
+
+                this.borderColor.push(this.themeContrastColor);
+                this.borderWidth.push(3);
+                this.hoverBorderColor.push(this.themeOppositeColor);
+                this.hoverBorderWidth.push(3);
             });
         });
-    }
-
-    public getLabels(): any[] {
-        return this.slices;
     }
 }
 
@@ -75,6 +91,31 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     /**
+     * Draws all the subcomponent elements with the given data and metadata.
+     *
+     * @arg {array} data
+     * @arg {any} meta
+     * @override
+     */
+    public draw(data: any[], meta: any) {
+        meta.xList = [];
+        const pieChartData = data.map((item) => {
+            const pieSlice = {
+                aggregation: item.y,
+                color: item.color,
+                group: '',
+                x: item.x + ' (' + item.group + ')',
+                y: item.x
+            };
+            if (meta.xList.indexOf(pieSlice.x) < 0) {
+                meta.xList.push(pieSlice.x);
+            }
+            return pieSlice;
+        });
+        super.draw(pieChartData, meta);
+    }
+
+    /**
      * Returns the type of the x-axis as date, number, or string.
      *
      * @return {string}
@@ -100,8 +141,8 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @return {any}
      * @override
      */
-    protected findItemInDataToSelect(items: any[], chart: any): any {
-        return chart.data.datasets[items[0]._datasetIndex].slices[items[0]._index];
+    protected findItemInDataToSelect(items: any[], chart: Chart): any {
+        return (chart.data.datasets[0] as ChartJsPieDataset).slices[items[0]._index];
     }
 
     /**
@@ -112,7 +153,7 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         // Use a category axis for date data, but save the true type.
         this.axisTypeX = meta.xAxis;
         this.axisTypeY = meta.yAxis;
@@ -143,5 +184,17 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Slice' + (count === 1 ? '' : 's');
+    }
+
+    /**
+     * Returns the value to show in the tooltip from the given dataset with the given index.
+     *
+     * @arg {any} dataset
+     * @arg {number} index
+     * @return {any}
+     * @override
+     */
+    protected retrieveTooltipValue(dataset: any, index: number): any {
+        return dataset.aggregations[index];
     }
 }

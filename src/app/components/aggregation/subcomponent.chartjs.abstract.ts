@@ -22,6 +22,7 @@ export abstract class AbstractChartJsDataset {
     public data: any[] = [];
     public maximumAggregation: number;
     public xToYToSize: Map<any, Map<any, any>> = new Map<any, Map<any, any>>();
+    public colors: Color[] = [];
 
     constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
         xList.forEach((xValue) => {
@@ -36,24 +37,24 @@ export abstract class AbstractChartJsDataset {
 
     public abstract finalizeData();
 
-    public getColorBackground(): string {
-        return this.color.getComputedCss(this.elementRef.nativeElement);
+    public getColorBackground(index: number = -1): string {
+        return (index >= 0 ? this.colors[index] : this.color).getComputedCss(this.elementRef.nativeElement);
     }
 
-    public getColorDeselected(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef.nativeElement);
+    public getColorDeselected(index: number = -1): string {
+        return (index >= 0 ? this.colors[index] : this.color).getComputedCssTransparencyHigh(this.elementRef.nativeElement);
     }
 
-    public getColorSelected(): string {
-        return this.color.getComputedCss(this.elementRef.nativeElement);
+    public getColorSelected(index: number = -1): string {
+        return (index >= 0 ? this.colors[index] : this.color).getComputedCss(this.elementRef.nativeElement);
     }
 
-    public getColorHover(): string {
-        return this.color.getComputedCssHoverColor(this.elementRef.nativeElement);
+    public getColorHover(index: number = -1): string {
+        return (index >= 0 ? this.colors[index] : this.color).getComputedCssHoverColor(this.elementRef.nativeElement);
     }
 
-    public getColorTransparency(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef.nativeElement);
+    public getColorTransparency(index: number = -1): string {
+        return (index >= 0 ? this.colors[index] : this.color).getComputedCssTransparencyHigh(this.elementRef.nativeElement);
     }
 
     public getLabels(): any[] {
@@ -82,10 +83,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private X_AXIS_HEIGHT = 20;
     private Y_AXIS_LABEL_WIDTH = 20;
 
-    private canvas: any;
-    private chart: any;
-    private chartOptions: any = {};
-    private hiddenCanvas: any;
+    private canvas: HTMLCanvasElement;
+    private chart: Chart;
+    private chartOptions: Chart.ChartOptions = {};
+    private hiddenCanvas: CanvasRenderingContext2D;
 
     private cancelSelect: boolean = false;
     private ignoreSelect: boolean = false;
@@ -133,7 +134,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @private
      */
-    private computeTextWidth(text: string) {
+    private computeTextWidth(text: string): number {
         if (!text) {
             return 0;
         }
@@ -149,7 +150,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @private
      */
-    private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false) {
+    private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false): number {
         let maxWidth = this.computeMaximumWidthAxisY(chartWidth);
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
@@ -166,7 +167,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @private
      */
-    private computeMaximumWidthAxisY(chartWidth: number, withMargins: boolean = false) {
+    private computeMaximumWidthAxisY(chartWidth: number, withMargins: boolean = false): number {
         return Math.floor(this.options.yPercentage * chartWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0);
     }
 
@@ -176,7 +177,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} meta
      * @return {any}
      */
-    private createChartOptions(meta: any): any {
+    private createChartOptions(meta: any): Chart.ChartOptions {
         let defaultOptions: any = {
             animation: {
                 duration: 0
@@ -314,13 +315,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected createChartDataAndOptions(data: any[], meta: any): { data: ChartJsData, options: any } {
-        let groupsToDatasets = new Map<string, any>();
+        let groupsToDatasets = new Map<string, AbstractChartJsDataset>();
         data.forEach((item) => {
             let dataset = groupsToDatasets.get(item.group);
             if (!dataset) {
                 dataset = this.createChartDataset(item.color, item.group, meta.xList);
                 groupsToDatasets.set(item.group, dataset);
             }
+            dataset.colors.push(item.color);
             dataset.addPoint(item.x, item.y, item.aggregation);
         });
 
@@ -331,7 +333,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         });
 
         return {
-            data: new ChartJsData(datasets, this.isHorizontal() ? meta.yList : meta.xList),
+            data: new ChartJsData(datasets, meta.labels || (this.isHorizontal() ? meta.yList : meta.xList)),
             options: this.createChartOptions(meta)
         };
     }
@@ -360,7 +362,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let axisType = this.findAxisTypeY();
         let dataset = chartData.datasets[tooltipItem.datasetIndex];
         // Do not use tooltipItem.yLabel because it can be incorrect for category axes.
-        let item = dataset.data[tooltipItem.index];
+        let item = this.retrieveTooltipValue(dataset, tooltipItem.index);
         let text = typeof item === 'object' ? (this.isHorizontal() ? item.x : item.y) : item;
         if (this.isXY && typeof item === 'object' && typeof item.aggregation !== 'undefined') {
             text = '(X=' + item.x + ', Y=' + item.y + '): ' + item.aggregation;
@@ -395,7 +397,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let tooltipItem = tooltipList[0];
         let dataset = chartData.datasets[tooltipItem.datasetIndex];
         // Do not use tooltipItem.xLabel because it can be incorrect for category axes.
-        let item = dataset.data[tooltipItem.index];
+        let item = this.retrieveTooltipValue(dataset, tooltipItem.index);
         let text = typeof item === 'object' ? (this.isHorizontal() ? item.y : item.x) :
             (dataset.getLabels() || chartData.labels)[tooltipItem.index];
 
@@ -470,11 +472,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {any}
      * @protected
      */
-    protected findItemInDataToSelect(items: any[], chart: any): any {
-        if (this.isHorizontal()) {
-            return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].y;
-        }
-        return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].x;
+    protected findItemInDataToSelect(items: any[], chart: Chart): any {
+        const data = chart.data.datasets[items[0]._datasetIndex].data as Chart.ChartPoint[];
+        return data[items[0]._index][this.isHorizontal() ? 'y' : 'x'];
     }
 
     /**
@@ -491,13 +491,13 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     /**
      * Finalizes and returns the given chart options.
      *
-     * @arg {any} chartOptions
+     * @arg {Chart.ChartOptions} chartOptions
      * @arg {any} meta
      * @return {any}
      * @protected
      * @abstract
      */
-    protected abstract finalizeChartOptions(chartOptions: any, meta: any): any;
+    protected abstract finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions;
 
     /**
      * Returns the given min or max if the pixel value does not fit; otherwise returns the given pixel value.
@@ -640,7 +640,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} chart
      * @private
      */
-    private handleClickEvent(event, items: any[], chart: any) {
+    private handleClickEvent(event, items: any[], chart: Chart) {
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.ITEM) {
                 this.selectItem(event, items, chart);
@@ -656,7 +656,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} chart
      * @private
      */
-    private handleHoverEvent(event, items: any[], chart: any) {
+    private handleHoverEvent(event, items: any[], chart: Chart) {
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.DOMAIN) {
                 this.selectDomain(event, items, chart);
@@ -752,7 +752,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} endDate
      * @protected
      */
-    protected padEndDate(endDate: any) {
+    protected padEndDate(endDate: any): Date {
         return DateUtil.addOneOfIntervalToDate(endDate, this.options.granularity);
     }
 
@@ -774,7 +774,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @override
      */
     public redraw() {
-        this.recreateChartAndDrawData(this.chart.data);
+        this.recreateChartAndDrawData(this.chart.data as ChartJsData);
         this.listener.subcomponentRequestsRedraw();
     }
 
@@ -830,6 +830,18 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         } else {
             yAxis.width = this.computeCurrentWidthAxisY(this.canvas.clientWidth);
         }
+    }
+
+    /**
+     * Returns the value to show in the tooltip from the given dataset with the given index.
+     *
+     * @arg {any} dataset
+     * @arg {number} index
+     * @return {any}
+     * @protected
+     */
+    protected retrieveTooltipValue(dataset: any, index: number): any {
+        return dataset.data[index];
     }
 
     /**
@@ -895,7 +907,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
-    private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
+    private selectBounds(event, items: any[], chart: Chart, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons === 1) {
             this.ignoreSelect = true;
         }
@@ -950,10 +962,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         if (this.selectedBounds && event.buttons === 0) {
             // The getValueForPixel function is defined at https://www.chartjs.org/docs/latest/developers/axes.html
             // Must transform X/Y pixel coordinates into real values from the chart dataset.
-            let beginValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
-            let beginValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
-            let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
-            let endValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
+            let beginValueX = (chart as any).scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
+            let beginValueY = (chart as any).scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
+            let endValueX = (chart as any).scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
+            let endValueY = (chart as any).scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
 
             let beginLabelX;
             let beginLabelY;
@@ -964,8 +976,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let axisTypeY = this.findAxisTypeY();
 
             if (axisTypeX === 'string') {
-                beginLabelX = chart.data.datasets[0].data[beginValueX].x;
-                endLabelX = chart.data.datasets[0].data[endValueX].x;
+                beginLabelX = (chart.data.datasets[0].data[beginValueX] as Chart.ChartPoint).x;
+                endLabelX = (chart.data.datasets[0].data[endValueX] as Chart.ChartPoint).x;
             } else if (axisTypeX === 'date') {
                 beginLabelX = new Date(Math.min(beginValueX, endValueX));
                 endLabelX = new Date(Math.max(beginValueX, endValueX));
@@ -975,8 +987,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (axisTypeY === 'string') {
-                beginLabelY = chart.data.datasets[0].data[beginValueY].y;
-                endLabelY = chart.data.datasets[0].data[endValueY].y;
+                beginLabelY = (chart.data.datasets[0].data[beginValueY] as Chart.ChartPoint).y;
+                endLabelY = (chart.data.datasets[0].data[endValueY] as Chart.ChartPoint).y;
             } else if (axisTypeY === 'number') {
                 beginLabelY = Math.min(beginValueY, endValueY);
                 endLabelY = Math.max(beginValueY, endValueY);
@@ -1000,7 +1012,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} chart
      * @private
      */
-    private selectDomain(event, items: any[], chart: any) {
+    private selectDomain(event, items: any[], chart: Chart) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -1062,10 +1074,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         if (this.selectedDomain && event.buttons === 0) {
             let beginIndexX = Math.min(this.selectedDomain.beginIndex, this.selectedDomain.endIndex);
             let endIndexX = Math.max(this.selectedDomain.beginIndex, this.selectedDomain.endIndex);
-            let beginLabelX = chart.data.datasets[0].data[beginIndexX].x;
-            let endLabelX = chart.data.datasets[0].data[endIndexX].x;
+            let beginLabelX = (chart.data.datasets[0].data[beginIndexX] as Chart.ChartPoint).x;
+            let endLabelX = (chart.data.datasets[0].data[endIndexX] as Chart.ChartPoint).x;
             if (this.findAxisTypeX() === 'date') {
-                beginLabelX = DateUtil.fromStringToDate(beginLabelX);
+                beginLabelX = DateUtil.fromStringToDate('' + beginLabelX);
                 endLabelX = this.padEndDate(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {

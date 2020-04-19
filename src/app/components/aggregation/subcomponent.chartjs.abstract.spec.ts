@@ -81,8 +81,8 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.axisTypeY;
     }
 
-    protected finalizeChartOptions(chartOptions: any, __meta: any): any {
-        chartOptions.test = true;
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, __meta: any): any {
+        (chartOptions as any).test = true;
         return chartOptions;
     }
 
