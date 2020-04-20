@@ -67,7 +67,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         let superclassOptions = super.finalizeChartOptions(chartOptions, meta);
         superclassOptions.hover.mode = 'point';
         superclassOptions.tooltips.mode = 'point';

@@ -107,7 +107,7 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         // ChartJs does not support a time y-axis (only the x-axis).
         chartOptions.scales.xAxes[0].type = (meta.xAxis === 'number' ? (this.options.logScaleX && meta.dataLength > 10 ? 'logarithmic' :
             'linear') : (meta.xAxis === 'date' ? 'time' : 'category'));

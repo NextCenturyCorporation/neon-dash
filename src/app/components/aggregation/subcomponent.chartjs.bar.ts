@@ -105,7 +105,7 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         // Use a category axis for number and date data, but save the true type.
         this.axisTypeX = this.horizontal ? meta.yAxis : meta.xAxis;
         this.axisTypeY = this.horizontal ? meta.xAxis : meta.yAxis;
