@@ -449,7 +449,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected findAxisTypeX(): string {
-        let axisType = (this.chart ? this.chart.options : this.chartOptions).scales.xAxes[0].type;
+        let axisType = (this.chart ? (this.chart as any).options : this.chartOptions).scales.xAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
@@ -460,7 +460,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected findAxisTypeY(): string {
-        let axisType = (this.chart ? this.chart.options : this.chartOptions).scales.yAxes[0].type;
+        let axisType = (this.chart ? (this.chart as any).options : this.chartOptions).scales.yAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
