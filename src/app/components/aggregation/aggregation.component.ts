@@ -83,7 +83,6 @@ import { StatisticsUtil } from '../../util/statistics.util';
 import flatpickr from 'flatpickr';
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import * as moment from 'moment';
-import 'moment/min/locales';
 import { neonEvents } from '../../models/neon-namespaces';
 
 let styleImport: any;
