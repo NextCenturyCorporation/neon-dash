@@ -25,7 +25,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType } from '@caci-critical-insight-solutions/nucleus-core';
+import { ConfigOptionNumber, OptionType } from '@caci-critical-insight-solutions/nucleus-core';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { neonEvents } from '../../models/neon-namespaces';
@@ -90,6 +90,10 @@ export class GearComponent implements OnDestroy {
      */
     public getIconForFilter(options: any): string {
         return this.layerHidden.get(options._id) ? 'keyboard_arrow_down' : 'keyboard_arrow_up';
+    }
+
+    public getLimitOption(): ConfigOptionNumber {
+        return this.modifiedOptions.access('limit') as ConfigOptionNumber;
     }
 
     /**
