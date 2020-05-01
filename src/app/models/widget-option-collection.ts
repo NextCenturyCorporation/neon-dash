@@ -18,6 +18,7 @@ import {
     ConfigOptionDatastore,
     ConfigOptionFreeText,
     ConfigOptionNonPrimitive,
+    ConfigOptionNumber,
     ConfigOptionTable,
     Dataset,
     DatasetUtil,
@@ -355,7 +356,7 @@ export class WidgetOptionCollection extends OptionCollection {
 
         this.inject([
             new ConfigOptionFreeText('title', 'Title', true, defaultTitle),
-            new ConfigOptionFreeText('limit', 'Limit', true, defaultLimit),
+            new ConfigOptionNumber('limit', 'Limit', true, defaultLimit),
             ...nonFieldOptions
         ]);
 

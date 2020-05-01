@@ -45,9 +45,8 @@
     </app-options-section>
 
     <mat-form-field class="option-container">
-        <input matInput placeholder="Limit" [(ngModel)]="modifiedOptions.limit" (ngModelChange)="updateOnChange('limit')"
-            [name]="modifiedOptions._id + '_limit'" required="false">
-
+        <input matInput placeholder="Limit" [(ngModel)]="modifiedOptions.access('limit').intermediateValue"
+            (ngModelChange)="updateOnChange('limit')" [name]="modifiedOptions._id + '_limit'" required="false">
     </mat-form-field>
 
     <app-export-control [exportCallbacks]="exportCallbacks"></app-export-control>
