@@ -63,7 +63,9 @@
                         <app-text-with-url [text]=item.field[cField.columnName]></app-text-with-url>
                     </div>
                     <div class="appendix">
-                        <span class="date" *ngIf="options.dateField.columnName != ''">{{ item.field[options.dateField.columnName] }}</span>
+                        <span class="date" *ngIf="options.dateField.columnName != ''">
+                            {{ relativeTime(item.field[options.dateField.columnName]) }}
+                        </span>
                         <a mat-icon-button *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
                             class="neon-icon-button-contrast" (click)="filterItem(item)">
                             <mat-icon class="neon-icon-small filter-icon" svgIcon="neon_filter"></mat-icon>

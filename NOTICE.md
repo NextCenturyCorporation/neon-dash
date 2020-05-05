@@ -14,7 +14,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34m@angular/platform-browser[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/platform-server[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/router[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
-| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.16[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
+| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.17[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@caci-critical-insight-solutions/nucleus-wrappers-angular[39m[2m@[22m[32m0.0.5[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@swimlane/ngx-datatable[39m[2m@[22m[32m16.0.2[39m | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | [34m@wishtack/reactive-component-loader[39m[2m@[22m[32m1.1.0[39m | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
