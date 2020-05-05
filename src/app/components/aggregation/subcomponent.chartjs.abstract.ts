@@ -1014,7 +1014,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     private selectDomain(event, items: any[], chart: Chart) {
         if (event.type === 'mouseover' && event.buttons > 0) {
-            this.ignoreSelect = true;
+            // TODO Why did this suddenly stop working? Is it still needed?
+            // this.ignoreSelect = true;
         }
 
         if (event.buttons === 0) {

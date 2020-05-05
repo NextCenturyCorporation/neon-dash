@@ -91,6 +91,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.logScaleX).toEqual(false);
         expect(component.options.logScaleY).toEqual(false);
         expect(component.options.notFilterable).toEqual(false);
+        expect(component.options.numberFill).toEqual(0);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
         expect(component.options.scaleMaxX).toEqual(undefined);
@@ -3106,6 +3107,219 @@ describe('Component: Aggregation', () => {
         expect(component.yList).toEqual([0, 2, 4]);
     });
 
+    it('transformVisualizationQueryResults with numberFill does add missing numbers if needed', () => {
+        component.options.countByAggregation = true;
+        component.options.type = 'histogram';
+        component.options.numberFill = 1;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testSizeField: 1,
+            _aggregation: 2
+        }, {
+            testSizeField: 3,
+            _aggregation: 4
+        }], new FilterCollection());
+
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual).toEqual(3);
+        expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 1,
+            y: 2
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 2,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 3,
+            y: 4
+        }]);
+        expect(component.xList).toEqual([1, 2, 3]);
+        expect(component.yList).toEqual([2, 0, 4]);
+    });
+
+    it('transformVisualizationQueryResults with numberFill of non-one does add missing numbers if needed', () => {
+        component.options.countByAggregation = true;
+        component.options.type = 'histogram';
+        component.options.numberFill = 0.5;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testSizeField: 1,
+            _aggregation: 2
+        }, {
+            testSizeField: 3,
+            _aggregation: 4
+        }], new FilterCollection());
+
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual).toEqual(5);
+        expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 1,
+            y: 2
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 1.5,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 2,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 2.5,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 3,
+            y: 4
+        }]);
+        expect(component.xList).toEqual([1, 1.5, 2, 2.5, 3]);
+        expect(component.yList).toEqual([2, 0, 4]);
+    });
+
+    it('transformVisualizationQueryResults with numberFill does not add missing numbers if not needed', () => {
+        component.options.countByAggregation = true;
+        component.options.type = 'histogram';
+        component.options.numberFill = 1;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            testSizeField: 11,
+            _aggregation: 2
+        }, {
+            testSizeField: 12,
+            _aggregation: 3
+        }, {
+            testSizeField: 13,
+            _aggregation: 4
+        }, {
+            testSizeField: 14,
+            _aggregation: 5
+        }], new FilterCollection());
+
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(actual).toEqual(4);
+        expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 11,
+            y: 2
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 12,
+            y: 3
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 13,
+            y: 4
+        }, {
+            aggregation: undefined,
+            color: DEFAULT_COLOR,
+            group: 'All',
+            x: 14,
+            y: 5
+        }]);
+        expect(component.xList).toEqual([11, 12, 13, 14]);
+        expect(component.yList).toEqual([2, 3, 4, 5]);
+    });
+
+    it('transformVisualizationQueryResults with numberFill and groups does add missing numbers to separate groups if needed', () => {
+        component.options.countByAggregation = true;
+        component.options.type = 'histogram';
+        component.options.numberFill = 2;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
+
+        let actual = component.transformVisualizationQueryResults(component.options, [{
+            _aggregation: 90,
+            testCategoryField: 'a',
+            testSizeField: 0
+        }, {
+            _aggregation: 80,
+            testCategoryField: 'b',
+            testSizeField: 2
+        }, {
+            _aggregation: 70,
+            testCategoryField: 'a',
+            testSizeField: 4
+        }, {
+            _aggregation: 60,
+            testCategoryField: 'b',
+            testSizeField: 6
+        }], new FilterCollection());
+
+        expect(component.legendActiveGroups).toEqual(['a', 'b']);
+        expect(component.legendGroups).toEqual(['a', 'b']);
+        expect(actual).toEqual(4);
+        expect(component.aggregationData).toEqual([{
+            aggregation: undefined,
+            color: COLOR_1,
+            group: 'a',
+            x: 0,
+            y: 90
+        }, {
+            aggregation: undefined,
+            color: COLOR_2,
+            group: 'b',
+            x: 2,
+            y: 80
+        }, {
+            aggregation: undefined,
+            color: COLOR_1,
+            group: 'a',
+            x: 2,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: COLOR_1,
+            group: 'a',
+            x: 4,
+            y: 70
+        }, {
+            aggregation: undefined,
+            color: COLOR_2,
+            group: 'b',
+            x: 4,
+            y: 0
+        }, {
+            aggregation: undefined,
+            color: COLOR_2,
+            group: 'b',
+            x: 6,
+            y: 60
+        }]);
+        expect(component.xList).toEqual([0, 2, 4, 6]);
+        expect(component.yList).toEqual([90, 80, 0, 70, 60]);
+    });
+
     it('transformVisualizationQueryResults with XY data and countByAggregation=false does return expected data', () => {
         component.options.countByAggregation = false;
         component.options.type = 'line-xy';
@@ -4629,6 +4843,7 @@ describe('Component: Aggregation with config', () => {
             logScaleX: true,
             logScaleY: true,
             notFilterable: true,
+            numberFill: 1,
             requireAll: true,
             savePrevious: true,
             scaleMaxX: '44',
@@ -4671,6 +4886,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
         expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.numberFill).toEqual(1);
         expect(component.options.requireAll).toEqual(true);
         expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');
@@ -4731,6 +4947,7 @@ describe('Component: Aggregation with XY config', () => {
             logScaleX: true,
             logScaleY: true,
             notFilterable: true,
+            numberFill: 1,
             requireAll: true,
             savePrevious: true,
             scaleMaxX: '44',
@@ -4773,6 +4990,7 @@ describe('Component: Aggregation with XY config', () => {
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
         expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.numberFill).toEqual(1);
         expect(component.options.requireAll).toEqual(true);
         expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');
@@ -4833,6 +5051,7 @@ describe('Component: Aggregation with date config', () => {
             logScaleX: true,
             logScaleY: true,
             notFilterable: true,
+            numberFill: 1,
             requireAll: true,
             savePrevious: true,
             scaleMaxX: '44',
@@ -4875,6 +5094,7 @@ describe('Component: Aggregation with date config', () => {
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
         expect(component.options.notFilterable).toEqual(true);
+        expect(component.options.numberFill).toEqual(1);
         expect(component.options.requireAll).toEqual(true);
         expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');

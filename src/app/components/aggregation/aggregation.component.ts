@@ -530,6 +530,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsNotGrid.bind(this)),
             new ConfigOptionSelect('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotGrid.bind(this)),
+            new ConfigOptionNumber('numberFill', 'Number Fill', false, 0, this.optionsIsNotNumberFillable.bind(this)),
             new ConfigOptionSelect('reverseY', 'Reverse Y Axis', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('rocCurve', 'ROC Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsNotLine.bind(this)),
@@ -1058,8 +1059,42 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // Transform non-date data.
             this.dateBucketizer = null;
 
-            shownResults = queryResults.map((item) => {
+            let groupToPreviousX = new Map<string, number>();
+
+            shownResults = queryResults.reduce((list, item) => {
                 let transformation = createTransformationFromItem(item);
+                let transformations = [];
+
+                if (options.numberFill && !this.optionsIsNotNumberFillable(options)) {
+                    let previousX = groupToPreviousX.get(transformation.group);
+                    let diffX = previousX === null ? 0 : (transformation.x - previousX);
+
+                    while (diffX > options.numberFill) {
+                        let nextX = previousX + options.numberFill;
+
+                        transformations.push({
+                            aggregation: undefined,
+                            color: transformation.color,
+                            group: transformation.group,
+                            x: nextX,
+                            y: 0
+                        });
+
+                        if (xList.indexOf(nextX) < 0) {
+                            xList.push(nextX);
+                        }
+                        if (yList.indexOf(0) < 0) {
+                            yList.push(0);
+                        }
+
+                        previousX = nextX;
+                        diffX = transformation.x - previousX;
+                    }
+
+                    groupToPreviousX.set(transformation.group, transformation.x);
+                }
+
+                transformations.push(transformation);
 
                 if (xList.indexOf(transformation.x) < 0) {
                     xList.push(transformation.x);
@@ -1068,8 +1103,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     yList.push(transformation.y);
                 }
 
-                return transformation;
-            });
+                return list.concat(transformations);
+            }, []);
 
             // TODO Add missing X to xList of numeric histograms.
         }
@@ -1109,6 +1144,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     optionsAggregationIsCountOrNA(options: any): boolean {
         return this.optionsTypeIsXY(options) || options.aggregation === AggregationType.COUNT;
+    }
+
+    /**
+     * Returns whether the options are not number fillable.
+     *
+     * @arg {any} options A WidgetOptionCollection object.
+     * @return {boolean}
+     */
+    optionsIsNotNumberFillable(options: any): boolean {
+        return !((options.xField.type === 'integer' || options.xField.type === 'decimal') && !options.sortByAggregation &&
+            (options.type === 'histogram' || options.type === 'line'));
     }
 
     /**
