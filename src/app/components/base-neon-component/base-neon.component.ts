@@ -1130,4 +1130,13 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             this.contributorsRef = null;
         });
     }
+
+    public runQuery(): void {
+        this.errorMessage = '';
+        this.cachedPage = -1;
+        this.lastPage = true;
+        this.page = 1;
+        this.showingZeroOrMultipleElementsPerResult = false;
+        this.executeAllQueryChain();
+    }
 }

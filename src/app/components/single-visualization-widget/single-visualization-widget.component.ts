@@ -581,6 +581,24 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     /**
+     * Manually runs the search query for the visualization.
+     */
+    public runQuery(): void {
+        this.errorMessage = '';
+        this._cachedPage = -1;
+        this._lastPage = true;
+        this._page = 1;
+
+        const visArray = this.visualizations.toArray();
+        if (visArray.length) {
+            switch (this.visualizationType) {
+                case VisualizationType.TEXT_CLOUD:
+                    (visArray[0] as NucleusTextCloudAngularComponent).runQuery();
+            }
+        }
+    }
+
+    /**
      * Returns the contributor abbreviations from the dashboard config.
      */
     public retrieveContributionAbbreviations(): string {

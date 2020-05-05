@@ -34,5 +34,6 @@ export abstract class VisualizationWidget {
     public abstract onResize(): void;
     public abstract onResizeStart(): void;
     public abstract onResizeStop(): void;
+    public abstract runQuery(): void;
 }
 
