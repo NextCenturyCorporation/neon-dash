@@ -228,7 +228,7 @@ describe('Component: ThumbnailGrid', () => {
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 1;
-        component.options.limit = 1;
+        component.options.searchLimit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
@@ -252,7 +252,7 @@ describe('Component: ThumbnailGrid', () => {
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 2;
-        component.options.limit = 1;
+        component.options.searchLimit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
@@ -276,7 +276,7 @@ describe('Component: ThumbnailGrid', () => {
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = true;
         (component as any).page = 3;
-        component.options.limit = 1;
+        component.options.searchLimit = 1;
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
@@ -873,7 +873,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.options.limit).toEqual(10);
+        expect(component.options.searchLimit).toEqual(10);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',

@@ -309,7 +309,7 @@ describe('Component: Aggregation', () => {
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
-        component.options.limit = 100;
+        component.options.searchLimit = 100;
         component.options.sortByAggregation = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
@@ -4863,7 +4863,7 @@ describe('Component: Aggregation with config', () => {
     it('custom class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.options.limit).toEqual(1234);
+        expect(component.options.searchLimit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',
@@ -4967,7 +4967,7 @@ describe('Component: Aggregation with XY config', () => {
     it('custom XY class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.options.limit).toEqual(1234);
+        expect(component.options.searchLimit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',
@@ -5071,7 +5071,7 @@ describe('Component: Aggregation with date config', () => {
     it('custom date class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.options.limit).toEqual(1234);
+        expect(component.options.searchLimit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',

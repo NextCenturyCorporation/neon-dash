@@ -138,7 +138,8 @@ describe('SingleVisualizationWidgetComponent static function', () => {
 
         let layerIdToElementCount: Map<string, number> = new Map<string, number>();
         let options = new RootWidgetOptionCollection(DATASET);
-        options.limit = 10;
+        options.dataLimit = 10;
+        options.searchLimit = 10;
         expect(SingleVisualizationWidgetComponent.createInfoButtonText(layerIdToElementCount, options, 1, VisualizationType.SAMPLE))
             .toEqual('');
 
@@ -146,7 +147,8 @@ describe('SingleVisualizationWidgetComponent static function', () => {
         expect(SingleVisualizationWidgetComponent.createInfoButtonText(layerIdToElementCount, options, 1, VisualizationType.SAMPLE))
             .toEqual('5 Results');
 
-        options.limit = 2;
+        options.dataLimit = 2;
+        options.searchLimit = 2;
         expect(SingleVisualizationWidgetComponent.createInfoButtonText(layerIdToElementCount, options, 1, VisualizationType.SAMPLE))
             .toEqual('1 - 2 of 5 Results');
 
@@ -200,7 +202,7 @@ describe('SingleVisualizationWidgetComponent static function', () => {
         expect(options.contributionKeys).toEqual(undefined);
         expect(options.filter).toEqual(undefined);
         expect(options.hideUnfiltered).toEqual('false');
-        expect(options.limit).toEqual(10);
+        expect(options.searchLimit).toEqual(10);
         expect(options.testArray).toEqual([]);
         expect(options.testFreeText).toEqual('');
         expect(options.testMultipleFields).toEqual([]);
@@ -247,8 +249,9 @@ describe('SingleVisualizationWidgetComponent static function', () => {
         const configOptions = {
             contributionKeys: ['organization1', 'organization2'],
             filter: [{ lhs: 'testFilterField', operator: '!=', rhs: 'testFilterValue' }],
+            dataLimit: 50,
             hideUnfiltered: 'true',
-            limit: 100,
+            searchLimit: 100,
             tableKey: 'table_key_2',
             testArray: [4, 3, 2, 1],
             testFreeText: 'the quick brown fox jumps over the lazy dog',
@@ -277,8 +280,9 @@ describe('SingleVisualizationWidgetComponent static function', () => {
             operator: '!=',
             rhs: 'testFilterValue'
         }]);
+        expect(options.dataLimit).toEqual(50);
         expect(options.hideUnfiltered).toEqual('true');
-        expect(options.limit).toEqual(100);
+        expect(options.searchLimit).toEqual(100);
         expect(options.title).toEqual('VisualizationTitle');
 
         expect(options.testArray).toEqual([4, 3, 2, 1]);
@@ -714,7 +718,8 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.showPagination()).toEqual(true);
 
         component['_page'] = 1;
-        component.options.limit = 10;
+        component.options.dataLimit = 10;
+        component.options.searchLimit = 10;
         expect(component.showPagination()).toEqual(false);
 
         component['_layerIdToElementCount'].set(component.options._id, 1000);
@@ -1069,7 +1074,7 @@ describe('SingleVisualizationWidgetComponent (TEXT_CLOUD)', () => {
         const options = SingleVisualizationWidgetComponent.createWidgetOptionCollection({}, {}, DATASET,
             VisualizationType.TEXT_CLOUD);
 
-        expect(options.limit).toEqual(40);
+        expect(options.searchLimit).toEqual(40);
         expect(options.title).toEqual('Text Cloud');
 
         expect(options.dataField).toEqual(FieldConfig.get());
@@ -1135,6 +1140,7 @@ describe('SingleVisualizationWidgetComponent (TEXT_CLOUD)', () => {
             VisualizationType.TEXT_CLOUD)).toEqual({
             'color-accent': '#54C8CD',
             'color-text': '#333333',
+            'data-limit': 0,
             'enable-hide-if-unfiltered': undefined,
             'enable-ignore-self-filter': undefined,
             'search-limit': 0,
@@ -1153,8 +1159,9 @@ describe('SingleVisualizationWidgetComponent (TEXT_CLOUD)', () => {
         const options = new RootWidgetOptionCollection(DATASET);
         options.dataField = FIELD_MAP.TEXT;
         options.sizeField = FIELD_MAP.SIZE;
+        options.dataLimit = 50;
         options.hideUnfiltered = 'true';
-        options.limit = 100;
+        options.searchLimit = 100;
         options.aggregation = AggregationType.AVG;
         options.andFilters = true;
         options.ignoreSelf = true;
@@ -1165,6 +1172,7 @@ describe('SingleVisualizationWidgetComponent (TEXT_CLOUD)', () => {
             VisualizationType.TEXT_CLOUD)).toEqual({
             'color-accent': '#54C8CD',
             'color-text': '#333333',
+            'data-limit': 50,
             'enable-hide-if-unfiltered': true,
             'enable-ignore-self-filter': true,
             'search-limit': 100,

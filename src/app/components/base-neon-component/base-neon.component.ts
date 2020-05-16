@@ -376,10 +376,10 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             let query: SearchObject = this.createCompleteVisualizationQuery(queryOptions);
 
             if (query) {
-                this.searchService.withLimit(query, this.options.limit);
+                this.searchService.withLimit(query, this.options.searchLimit);
 
                 if (this.visualizationQueryPaginates) {
-                    this.searchService.withOffset(query, (this.page - 1) * this.options.limit);
+                    this.searchService.withOffset(query, (this.page - 1) * this.options.searchLimit);
                 }
 
                 this.executeQuery(queryOptions, query, 'default visualization query', this.handleSuccessfulVisualizationQuery.bind(this));
@@ -508,7 +508,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         } else {
             this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationLabel('count')]);
         }
-        this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
+        this.lastPage = ((this.page * this.options.searchLimit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
         this.loadingCount--;
         callback();
@@ -571,7 +571,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
-                    this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
+                    this.lastPage = ((this.page * this.options.searchLimit) >= this.layerIdToElementCount.get(options._id));
                     callback();
                 }
             } else {
@@ -594,7 +594,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             callback();
         };
 
-        this.handleTransformVisualizationQueryResults(options, response.data, successCallback, failureCallback);
+        this.handleTransformVisualizationQueryResults(options, response.data.slice(0, this.options.dataLimit), successCallback,
+            failureCallback);
     }
 
     /**
@@ -773,6 +774,9 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         this.page = 1;
         this.showingZeroOrMultipleElementsPerResult = false;
 
+        this.options.searchLimit = Math.max(1, this.options.searchLimit);
+        this.options.dataLimit = Math.max(1, this.options.dataLimit);
+
         this.onChangeData(databaseOrTableChange);
         this.messenger.publish(neonEvents.WIDGET_CONFIGURED, {});
 
@@ -795,10 +799,10 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Creates and returns the text for the settings button using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {number} queryLimit
+     * @arg {number} displayLimit
      * @return {string}
      */
-    private createButtonText(options: WidgetOptionCollection, queryLimit: number): string {
+    private createButtonText(options: WidgetOptionCollection, displayLimit: number): string {
         // If the query was not yet run, show no text unless waiting on an event.
         if (!this.layerIdToElementCount.has(options._id)) {
             // TODO Add support for 'Please Select'
@@ -817,9 +821,9 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
         // If the visualization query does pagination, show the pagination text.
         if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
-            let begin = CoreUtil.prettifyInteger((this.page - 1) * queryLimit + 1);
-            let end = CoreUtil.prettifyInteger(Math.min(this.page * queryLimit, elementCount));
-            if (elementCount <= queryLimit) {
+            let begin = CoreUtil.prettifyInteger((this.page - 1) * displayLimit + 1);
+            let end = CoreUtil.prettifyInteger(Math.min(this.page * displayLimit, elementCount));
+            if (elementCount <= displayLimit) {
                 return CoreUtil.prettifyInteger(elementCount) + (elementLabel ? (' ' + elementLabel) : '');
             }
             return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + CoreUtil.prettifyInteger(elementCount) +
@@ -837,15 +841,15 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      */
     public getButtonText(): string {
         if (!this.options.layers.length) {
-            return this.createButtonText(this.options, this.options.limit);
+            return this.createButtonText(this.options, Math.min(this.options.searchLimit, this.options.dataLimit));
         }
 
         if (this.options.layers.length === 1) {
-            return this.createButtonText(this.options.layers[0], this.options.limit);
+            return this.createButtonText(this.options.layers[0], Math.min(this.options.searchLimit, this.options.dataLimit));
         }
 
         return this.options.layers.map((layer) => {
-            let text = this.createButtonText(layer, this.options.limit);
+            let text = this.createButtonText(layer, Math.min(this.options.searchLimit, this.options.dataLimit));
             return text ? (layer.title + ' (' + text + ')') : '';
         }).filter((text) => !!text).join(', ');
     }
@@ -1063,7 +1067,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
     public showPagination(): boolean {
         // Assumes single-layer widget.
         return this.visualizationQueryPaginates && (this.page > 1 || this.showingZeroOrMultipleElementsPerResult ||
-            ((this.page * this.options.limit) < this.layerIdToElementCount.get(this.options._id)));
+            ((this.page * Math.min(this.options.searchLimit, this.options.dataLimit)) < this.layerIdToElementCount.get(this.options._id)));
     }
 
     /**

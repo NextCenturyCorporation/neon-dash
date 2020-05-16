@@ -235,6 +235,8 @@ describe('BaseNeonComponent', () => {
         expect(component.options.filter).toEqual(undefined);
         expect(component.options.hideUnfiltered).toEqual('false');
         expect(component.options.limit).toEqual(1000);
+        expect(component.options.searchLimit).toEqual(1000);
+        expect(component.options.dataLimit).toEqual(1000);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.title).toEqual('Mock Superclass');
@@ -1183,7 +1185,7 @@ describe('BaseNeonComponent', () => {
         component['layerIdToElementCount'].set(component.options._id, 1234);
         expect(component.getButtonText()).toEqual('1 - 1,000 of 1,234 Results');
 
-        component.options.limit = 100;
+        component.options.searchLimit = 100;
         expect(component.getButtonText()).toEqual('1 - 100 of 1,234 Results');
 
         component['page'] = 2;
@@ -1434,7 +1436,7 @@ describe('BaseNeonComponent', () => {
     it('handleSuccessfulVisualizationQuery with pagination and page > 1 and element count does always execute total count query', () => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let spyExecuteQuery = spyOn(component, 'executeQuery');
-        component.options.limit = 10;
+        component.options.searchLimit = 10;
         component['lastPage'] = false;
         component['layerIdToElementCount'].set(component.options._id, 20);
         component['page'] = 2;
@@ -1621,7 +1623,8 @@ describe('BaseNeonComponent', () => {
         component['layerIdToElementCount'].set(component.options._id, 2000);
         expect(component.showPagination()).toEqual(true);
 
-        component.options.limit = 2000;
+        component.options.dataLimit = 2000;
+        component.options.searchLimit = 2000;
         expect(component.showPagination()).toEqual(false);
 
         component['layerIdToElementCount'].set(component.options._id, 3000);
@@ -1931,6 +1934,8 @@ describe('Advanced BaseNeonComponent with config', () => {
         });
         expect(component.options.hideUnfiltered).toEqual('true');
         expect(component.options.limit).toEqual(10);
+        expect(component.options.searchLimit).toEqual(10);
+        expect(component.options.dataLimit).toEqual(10);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.testArray).toEqual([4, 3, 2, 1]);

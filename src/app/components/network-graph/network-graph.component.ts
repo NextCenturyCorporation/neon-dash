@@ -873,7 +873,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private createReifiedGraphProperties() {
         let graph = new GraphProperties();
-        let limit = this.options.limit;
+        let limit = this.options.searchLimit;
         let nodeColor = this.options.nodeColor;
         let nodeTextObject = {
             size: NetworkGraphComponent.NODE_FONT_SIZE,
@@ -998,7 +998,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
 
                 // Create a new node for each unique nodeId
-                for (let index = 0; index < nodes.length && ret.length < this.options.limit; index++) {
+                for (let index = 0; index < nodes.length && ret.length < this.options.searchLimit; index++) {
                     let nodeEntry = nodes[index];
                     if (this.isUniqueNode(nodeEntry)) {
                         // If legend labels have been modified, override the node color

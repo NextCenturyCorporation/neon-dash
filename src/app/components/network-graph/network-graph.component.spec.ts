@@ -71,7 +71,7 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
         expect(component.options.edgeWidth).toEqual(1);
-        expect(component.options.limit).toEqual(500000);
+        expect(component.options.searchLimit).toEqual(500000);
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.physics).toEqual(true);
         expect(component.options.filterable).toEqual(false);
@@ -159,7 +159,7 @@ describe('Component: NetworkGraph', () => {
 
     it('transformVisualizationQueryResults does load the Network Graph with reified data', (() => {
         component.options.isReified = true;
-        component.options.limit = 8;
+        component.options.searchLimit = 8;
 
         component.transformVisualizationQueryResults(component.options, [{
             object: 'testObject',
@@ -212,7 +212,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = 3;
+        component.options.searchLimit = 3;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -295,7 +295,7 @@ describe('Component: NetworkGraph', () => {
         options.linkColor = '#938d8f';
         options.nodeShape = 'star';
         options.isReified = false;
-        options.limit = 3;
+        options.searchLimit = 3;
 
         component.initializeProperties();
         component.transformVisualizationQueryResults(options.layers[0], [{
@@ -350,9 +350,9 @@ describe('Component: NetworkGraph', () => {
 
         component.transformVisualizationQueryResults(options.layers[1], edgesData, new FilterCollection());
 
-        expect(component.totalNodes).toEqual(component.options.limit); // Total based on allowed limit
+        expect(component.totalNodes).toEqual(component.options.searchLimit); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
-        expect(component.graphData.nodes.length).toEqual(component.options.limit);
+        expect(component.graphData.nodes.length).toEqual(component.options.searchLimit);
         expect(component.graphData.edges.length).toEqual(edgesData.length);
     }));
 
@@ -372,7 +372,7 @@ describe('Component: NetworkGraph', () => {
         component.options.relationLinks = true;
         component.options.relationNodeIdentifier = 'testNodeColorValue2';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -506,7 +506,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -587,7 +587,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'and';
         component.options.toggleFiltered = true;
 
@@ -650,7 +650,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'or';
         component.options.toggleFiltered = true;
 
@@ -712,7 +712,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'and';
         component.options.toggleFiltered = true;
 
@@ -771,7 +771,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'or';
         component.options.toggleFiltered = true;
 
@@ -832,7 +832,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'and';
         component.options.toggleFiltered = true;
 
@@ -901,7 +901,7 @@ describe('Component: NetworkGraph', () => {
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.limit = Infinity;
+        component.options.searchLimit = Infinity;
         component.options.multiFilterOperator = 'or';
         component.options.toggleFiltered = true;
 

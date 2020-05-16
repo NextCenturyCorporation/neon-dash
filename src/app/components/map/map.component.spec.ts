@@ -202,7 +202,7 @@ describe('Component: Map', () => {
         expect(component.options.customServer).toEqual(undefined);
         expect(component.options.disableCtrlZoom).toEqual(false);
         expect(component.options.hoverSelect).toEqual(undefined);
-        expect(component.options.limit).toEqual(1000);
+        expect(component.options.searchLimit).toEqual(1000);
         expect(component.options.minClusterSize).toEqual(5);
         expect(component.options.singleColor).toEqual(false);
         expect(component.options.title).toEqual('Map');
@@ -779,7 +779,7 @@ describe('Component: Map', () => {
     it('finalizeVisualizationQuery does return expected object', () => {
         updateMapLayer1(component);
 
-        component.options.limit = 5678;
+        component.options.searchLimit = 5678;
 
         let searchObject = new CoreSearch(component.options.layers[0].database.name, component.options.layers[0].table.name);
 
@@ -1045,7 +1045,7 @@ describe('Component: Map with config', () => {
         expect(component.options.hoverSelect).toEqual({
             hoverTime: 5
         });
-        expect(component.options.limit).toEqual(9999);
+        expect(component.options.searchLimit).toEqual(9999);
         expect(component.options.minClusterSize).toEqual(10);
         expect(component.options.singleColor).toEqual(true);
         expect(component.options.title).toEqual('Test Title');

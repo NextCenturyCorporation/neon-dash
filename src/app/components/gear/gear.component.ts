@@ -92,8 +92,8 @@ export class GearComponent implements OnDestroy {
         return this.layerHidden.get(options._id) ? 'keyboard_arrow_down' : 'keyboard_arrow_up';
     }
 
-    public getLimitOption(): ConfigOptionNumber {
-        return this.modifiedOptions.access('limit') as ConfigOptionNumber;
+    public getLimitOption(key: string): ConfigOptionNumber {
+        return this.modifiedOptions.access(key) as ConfigOptionNumber;
     }
 
     /**

@@ -356,9 +356,15 @@ export class WidgetOptionCollection extends OptionCollection {
 
         this.inject([
             new ConfigOptionFreeText('title', 'Title', true, defaultTitle),
-            new ConfigOptionNumber('limit', 'Limit', true, defaultLimit),
+            new ConfigOptionNumber('searchLimit', 'Search Query Limit', true, 0),
+            new ConfigOptionNumber('dataLimit', 'Visualization Data Limit', true, 0),
+            new ConfigOptionNumber('limit', 'Legacy Limit', true, defaultLimit),
             ...nonFieldOptions
         ]);
+
+        // Backwards compatibility: legacy limit
+        (this as any).searchLimit = this.searchLimit || this.limit;
+        (this as any).dataLimit = this.dataLimit || this.limit;
 
         this.updateDatastores(dataset);
     }

@@ -48,6 +48,8 @@ export class OptionsSectionComponent {
         optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'title');
         optionList = this.removeOptions(optionCollection, optionList, 'hideFromMenu', true);
         optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'limit');
+        optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'searchLimit');
+        optionList = this.removeOptions(optionCollection, optionList, 'bindingKey', 'dataLimit');
         optionList = this.removeOptions(optionCollection, optionList, 'optionType', 'DATABASE');
         optionList = this.removeOptions(optionCollection, optionList, 'optionType', 'TABLE');
         return optionList;

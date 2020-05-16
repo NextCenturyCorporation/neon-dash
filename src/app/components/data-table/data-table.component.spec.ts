@@ -675,7 +675,7 @@ describe('Component: DataTable', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
-        component.options.limit = 25;
+        component.options.searchLimit = 25;
         (component as any).page = 1;
 
         let searchObject = new CoreSearch(component.options.database.name, component.options.table.name);

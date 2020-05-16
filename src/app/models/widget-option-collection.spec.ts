@@ -447,6 +447,8 @@ describe('WidgetOptionCollection', () => {
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.limit).toEqual('1234');
+        expect(options.searchLimit).toEqual('1234');
+        expect(options.dataLimit).toEqual('1234');
         expect(options.title).toEqual('Test Custom Title');
 
         expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
@@ -560,6 +562,8 @@ describe('WidgetOptionCollection with no bindings', () => {
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.limit).toEqual(100);
+        expect(options.searchLimit).toEqual(100);
+        expect(options.dataLimit).toEqual(100);
         expect(options.title).toEqual('Test Title');
 
         expect(options.testCustomField).toEqual(FieldConfig.get());
@@ -613,6 +617,8 @@ describe('RootWidgetOptionCollection', () => {
         expect(options.filter).toEqual({ lhs: 'a', operator: '!=', rhs: 'b' });
         expect(options.hideUnfiltered).toEqual('true');
         expect(options.limit).toEqual('1234');
+        expect(options.searchLimit).toEqual('1234');
+        expect(options.dataLimit).toEqual('1234');
         expect(options.title).toEqual('Test Custom Title');
 
         expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
@@ -721,6 +727,8 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.filter).toEqual(undefined);
         expect(options.hideUnfiltered).toEqual('false');
         expect(options.limit).toEqual(100);
+        expect(options.searchLimit).toEqual(100);
+        expect(options.dataLimit).toEqual(100);
         expect(options.title).toEqual('Test Title');
 
         expect(options.testCustomField).toEqual(FieldConfig.get());

@@ -250,7 +250,7 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.limit = 1;
+        component.options.searchLimit = 1;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',

@@ -45,8 +45,13 @@
     </app-options-section>
 
     <mat-form-field class="option-container">
-        <input matInput placeholder="Limit" [(ngModel)]="getLimitOption().intermediateValue" (ngModelChange)="updateOnChange('limit')"
-            [name]="modifiedOptions._id + '_limit'" required="false">
+        <input matInput placeholder="Search Query Limit" [(ngModel)]="getLimitOption('searchLimit').intermediateValue"
+            (ngModelChange)="updateOnChange('searchLimit')" [name]="modifiedOptions._id + '_search_limit'" required="false">
+    </mat-form-field>
+
+    <mat-form-field class="option-container">
+        <input matInput placeholder="Visualization Data Limit" [(ngModel)]="getLimitOption('dataLimit').intermediateValue"
+            (ngModelChange)="updateOnChange('dataLimit')" [name]="modifiedOptions._id + '_data_limit'" required="false">
     </mat-form-field>
 
     <app-export-control [exportCallbacks]="exportCallbacks"></app-export-control>

@@ -111,11 +111,11 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         visualizationType: VisualizationType
     ): string {
         const optionsWrapperList: { limit: number, options: WidgetOptionCollection }[] = !options.layers.length ? [{
-            limit: options.limit,
+            limit: Math.min(options.searchLimit, options.dataLimit),
             options
         }] : options.layers.map((layer) => ({
             // TODO The limit should be in the layer options...
-            limit: options.limit,
+            limit: Math.min(options.searchLimit, options.dataLimit),
             options: layer
         }));
 
@@ -362,9 +362,10 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
         let componentLibraryOptions = {
             'color-accent': colorThemeService.getThemeAccentColorHex(),
             'color-text': colorThemeService.getThemeTextColorHex(),
+            'data-limit': options.dataLimit,
             'enable-hide-if-unfiltered': (!options.hideUnfiltered || options.hideUnfiltered === 'false') ? undefined : true,
             'enable-ignore-self-filter': options.ignoreSelf || undefined, // If false, set to undefined
-            'search-limit': options.limit,
+            'search-limit': options.searchLimit,
             'search-page': page
         };
 
@@ -623,7 +624,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     public showPagination(): boolean {
         // Assumes single-layer widget.
         return SingleVisualizationWidgetComponent.isPaginatedVisualization(this.visualizationType) && (this._page > 1 ||
-            ((this._page * this.options.limit) < this._layerIdToElementCount.get(this.options._id)));
+            ((this._page * Math.min(this.options.searchLimit, this.options.dataLimit)) <
+                this._layerIdToElementCount.get(this.options._id)));
     }
 
     private _getHtmlElement(): HTMLElement {
