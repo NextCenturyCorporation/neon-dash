@@ -370,24 +370,19 @@ describe('Component: Annotation with Dropdowns', () => {
     });
 
     it('does run search queries for dropdown inputs on config change', () => {
-        let spy = spyOn(searchService, 'runSearch').and.returnValue({
-            done: (callback) => {
-                callback({
-                    data: [{
-                        testNameField: 'a',
-                        testIrrelevantField: 'x'
-                    }, {
-                        testNameField: 'b',
-                        testIrrelevantField: 'y'
-                    }, {
-                        testNameField: 'd',
-                        testIrrelevantField: 'z'
-                    }]
-                });
-            },
-            fail: (__callback) => {
-                // Do nothing.
-            }
+        let spy = spyOn(searchService, 'runSearch').and.callFake((__type, __host, __search, onSuccess, __onError) => {
+            onSuccess({
+                data: [{
+                    testNameField: 'a',
+                    testIrrelevantField: 'x'
+                }, {
+                    testNameField: 'b',
+                    testIrrelevantField: 'y'
+                }, {
+                    testNameField: 'd',
+                    testIrrelevantField: 'z'
+                }]
+            });
         });
 
         configService.setActive(NeonConfig.get({

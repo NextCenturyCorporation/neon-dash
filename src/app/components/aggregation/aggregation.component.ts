@@ -884,9 +884,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this._backgroundImageQuery.abort();
             }
 
-            this._backgroundImageQuery = this.searchService.runSearch(options.datastore.type, options.datastore.host, searchObject);
-
-            this._backgroundImageQuery.done((response) => {
+            var onSuccess = (response) => {
                 if (response.data && response.data.length) {
                     const link = (options.backgroundImageLinkPrefix || '') + CoreUtil.deepFind(response.data[0],
                         options.backgroundImageLinkField.columnName);
@@ -902,9 +900,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
                 this._backgroundImageQuery = null;
                 resolve();
-            });
+            };
 
-            this._backgroundImageQuery.fail((response) => {
+            var onError = (response) => {
                 if (response.statusText !== 'abort') {
                     this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                         error: response,
@@ -913,7 +911,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }
                 this._backgroundImageQuery = undefined;
                 resolve();
-            });
+            };
+
+            this._backgroundImageQuery = this.searchService.runSearch(options.datastore.type, options.datastore.host, searchObject,
+                onSuccess, onError);
         }).then(() => {
             super.handleTransformVisualizationQueryResults(options, results, successCallback, failureCallback);
         });

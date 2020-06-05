@@ -202,9 +202,7 @@ export class AnnotationComponent implements AfterViewInit {
             field: input.field.columnName
         } as FieldKey);
 
-        const search = this.searchService.runSearch(this.datastore.type, this.datastore.host, searchObject);
-
-        search.done((response) => {
+        var onSuccess = (response) => {
             if (response.data && response.data.length) {
                 let dropdownData = response.data.map((item) => CoreUtil.deepFind(item, input.field.columnName))
                     .filter((item) => typeof item !== 'undefined' && item !== null);
@@ -212,15 +210,17 @@ export class AnnotationComponent implements AfterViewInit {
                 input.dropdown = dropdownData.concat((Array.isArray(input.dropdown) ? input.dropdown : []).filter((item) =>
                     dropdownData.indexOf(item) < 0)).sort();
             }
-        });
+        };
 
-        search.fail((response) => {
+        var onError = (response) => {
             if (response.statusText !== 'abort') {
                 this._messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                     error: response,
                     message: 'Failed annotation component dropdown data query on ' + input.field.prettyName
                 });
             }
-        });
+        };
+
+        const search = this.searchService.runSearch(this.datastore.type, this.datastore.host, searchObject, onSuccess, onError);
     }
 }
