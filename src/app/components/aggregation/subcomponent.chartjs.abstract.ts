@@ -116,6 +116,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     protected selectedLabels: any[] = [];
 
+    protected customAction: SelectMode;
+
     constructor(
         options: any,
         listener: AggregationSubcomponentListener,
@@ -641,6 +643,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private handleClickEvent(event, items: any[], chart: Chart) {
+        if (this.customAction === SelectMode.ITEM) {
+            this.listener.subcomponentRequestsAction({
+                x: event.layerX,
+                y: event.layerY
+            });
+            return;
+        }
+
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.ITEM) {
                 this.selectItem(event, items, chart);
@@ -657,6 +667,16 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private handleHoverEvent(event, items: any[], chart: Chart) {
+        if (this.customAction === SelectMode.DOMAIN) {
+            this.selectDomainCustomAction(event, chart);
+            return;
+        }
+
+        if (this.customAction === SelectMode.BOUNDS) {
+            this.selectBoundsCustomAction(event);
+            return;
+        }
+
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.DOMAIN) {
                 this.selectDomain(event, items, chart);
@@ -908,16 +928,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: Chart, domainOnly: boolean = false) {
-        if (event.type === 'mouseover' && event.buttons === 1) {
-            this.ignoreSelect = true;
-        }
-
-        if (event.buttons === 0) {
-            this.cancelSelect = false;
-            this.ignoreSelect = false;
-        }
-
-        if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
+        if (!this.selectBoundsValidate(event)) {
             return;
         }
 
@@ -1004,6 +1015,63 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
     }
 
+    private selectBoundsCustomAction(event: any): void {
+        if (!this.selectBoundsValidate(event)) {
+            return;
+        }
+
+        if (!this.selectedBounds && event.buttons === 1) {
+            this.selectedBounds = {
+                beginX: event.layerX,
+                beginY: event.layerY,
+                endX: event.layerX,
+                endY: event.layerY
+            };
+        }
+
+        if (this.selectedBounds && event.buttons === 1) {
+            this.selectedBounds = {
+                beginX: this.selectedBounds.beginX,
+                beginY: this.selectedBounds.beginY,
+                endX: event.layerX,
+                endY: event.layerY
+            };
+
+            this.listener.subcomponentRequestsSelect(
+                Math.min(this.selectedBounds.beginX, this.selectedBounds.endX),
+                Math.min(this.selectedBounds.beginY, this.selectedBounds.endY),
+                Math.abs(this.selectedBounds.beginX - this.selectedBounds.endX),
+                Math.abs(this.selectedBounds.beginY - this.selectedBounds.endY)
+            );
+
+            this.listener.subcomponentRequestsRedraw(event);
+        }
+
+        if (this.selectedBounds && event.buttons === 0) {
+            this.listener.subcomponentRequestsAction({
+                beginX: Math.min(this.selectedBounds.beginX, this.selectedBounds.endX),
+                beginY: Math.min(this.selectedBounds.beginY, this.selectedBounds.endY),
+                endX: Math.max(this.selectedBounds.beginX, this.selectedBounds.endX),
+                endY: Math.max(this.selectedBounds.beginY, this.selectedBounds.endY)
+            });
+
+            this.selectedBounds = null;
+        }
+    }
+
+    private selectBoundsValidate(event: any): boolean {
+        if (event.type === 'mouseover' && event.buttons === 1) {
+            this.ignoreSelect = true;
+        }
+
+        if (event.buttons === 0) {
+            this.cancelSelect = false;
+            this.ignoreSelect = false;
+        }
+
+        return !(event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect);
+    }
+
     /**
      * Selects a domain using the given event and items.
      *
@@ -1013,17 +1081,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private selectDomain(event, items: any[], chart: Chart) {
-        if (event.type === 'mouseover' && event.buttons > 0) {
-            // TODO Why did this suddenly stop working? Is it still needed?
-            // this.ignoreSelect = true;
-        }
-
-        if (event.buttons === 0) {
-            this.cancelSelect = false;
-            this.ignoreSelect = false;
-        }
-
-        if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
+        if (!this.selectDomainValidate(event)) {
             return;
         }
 
@@ -1092,6 +1150,62 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
     }
 
+    private selectDomainCustomAction(event: any, chart: Chart): void {
+        if (!this.selectDomainValidate(event)) {
+            return;
+        }
+
+        if (!this.selectedDomain && event.buttons === 1) {
+            this.selectedDomain = {
+                beginIndex: -1,
+                beginX: event.layerX,
+                endIndex: -1,
+                endX: event.layerX
+            };
+        }
+
+        if (this.selectedDomain && event.buttons === 1) {
+            this.selectedDomain = {
+                beginIndex: -1,
+                beginX: this.selectedDomain.beginX,
+                endIndex: -1,
+                endX: event.layerX
+            };
+
+            this.listener.subcomponentRequestsSelect(
+                Math.min(this.selectedDomain.beginX, this.selectedDomain.endX),
+                chart.chartArea.top,
+                Math.abs(this.selectedDomain.beginX - this.selectedDomain.endX),
+                (chart.chartArea.bottom - chart.chartArea.top)
+            );
+
+            this.listener.subcomponentRequestsRedraw(event);
+        }
+
+        if (this.selectedDomain && event.buttons === 0) {
+            this.listener.subcomponentRequestsAction({
+                beginX: Math.min(this.selectedDomain.beginX, this.selectedDomain.endX),
+                endX: Math.max(this.selectedDomain.beginX, this.selectedDomain.endX)
+            });
+
+            this.selectedDomain = null;
+        }
+    }
+
+    private selectDomainValidate(event: any): boolean {
+        if (event.type === 'mouseover' && event.buttons > 0) {
+            // TODO Why did this suddenly stop working? Is it still needed?
+            // this.ignoreSelect = true;
+        }
+
+        if (event.buttons === 0) {
+            this.cancelSelect = false;
+            this.ignoreSelect = false;
+        }
+
+        return !(event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect);
+    }
+
     /**
      * Selects an item using the given event and items.
      *
@@ -1116,6 +1230,15 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 this.selectedLabels.filter((oldLabel) => oldLabel !== labelValue);
         }
         this.listener.subcomponentRequestsFilter(labelGroup, labelValue, !exchangeFilter);
+    }
+
+    /**
+     * Sets a custom action using the given select modes that overrides the visualization's select mode on click/hover.
+     *
+     * @arg {boolean} on
+     */
+    public setCustomAction(mode: SelectMode): void {
+        this.customAction = mode;
     }
 
     /**

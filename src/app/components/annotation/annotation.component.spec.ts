@@ -292,7 +292,7 @@ describe('Component: Annotation', () => {
     it('saveAnnotation does run mutation query with correct inputs', () => {
         let calls = 0;
         spyOn(connectionService, 'connect').and.returnValue({
-            runMutate: (body, __onSuccess, __onError) => {
+            runUpdateById: (body, __onSuccess, __onError) => {
                 ++calls;
                 expect(JSON.parse(JSON.stringify(body))).toEqual({
                     datastoreHost: DATASTORE.host,

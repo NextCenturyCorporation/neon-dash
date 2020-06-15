@@ -665,13 +665,13 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        var onSuccess = (response) => {
+        let onSuccess = (response) => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
             callback(options, this.searchService.transformSearchResultValues(response, this.getLabelOptions(options)),
                 this.finishQueryExecution.bind(this));
         };
 
-        var onError = (response) => {
+        let onError = (response) => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
             this.loadingCount--;
             if (response.statusText !== 'abort') {

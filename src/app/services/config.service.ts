@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import { HttpClient } from '@angular/common/http';
-import * as neon from 'neon-framework';
 import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
@@ -55,12 +54,12 @@ export class ConfigService {
     ) {
         this.messenger = new eventing.Messenger();
 
-        this.connectionService.setDataServerHost(this.DATA_SERVER_HOST);
-
         if (this.connectionService) {
+            this.connectionService.setDataServerHost(this.DATA_SERVER_HOST);
+
             // Listen for new data notification updates.
             this.connectionService.listenOnDataUpdate((message) => {
-                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message })
+                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message });
             });
         }
     }
@@ -135,7 +134,7 @@ export class ConfigService {
             this.connectionService.setDataServerHost(config.neonServerUrl);
             // Listen for new data notification updates using the data server host from the loaded config file.
             this.connectionService.listenOnDataUpdate((message) => {
-                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message })
+                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message });
             }, true);
         }
 

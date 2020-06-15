@@ -143,6 +143,10 @@ export class AnnotationComponent implements AfterViewInit {
         return !inputs.some((input) => !input.hidden && input.currentValue !== input.newValue);
     }
 
+    public isVerifyDisabled(inputs: AnnotationUserInput[]): boolean {
+        return !this.isSaveDisabled(inputs);
+    }
+
     public saveAnnotation(): void {
         let fieldsWithValues = this.inputs.reduce((output, input) => {
             output[input.field.columnName] = input.newValue;
@@ -151,7 +155,7 @@ export class AnnotationComponent implements AfterViewInit {
 
         let connection = this.connectionService.connect(this.datastore.type, this.datastore.host);
 
-        connection.runMutate({
+        connection.runUpdateById({
             datastoreHost: this.datastore.host,
             datastoreType: this.datastore.type,
             databaseName: this.database.name,
@@ -166,6 +170,10 @@ export class AnnotationComponent implements AfterViewInit {
                 this._onSuccess();
             }
         }), this._onError.bind(this));
+    }
+
+    public verifyAnnotation(): void {
+        this.saveAnnotation();
     }
 
     private _onError(error: any): void {
@@ -202,7 +210,7 @@ export class AnnotationComponent implements AfterViewInit {
             field: input.field.columnName
         } as FieldKey);
 
-        var onSuccess = (response) => {
+        let onSuccess = (response) => {
             if (response.data && response.data.length) {
                 let dropdownData = response.data.map((item) => CoreUtil.deepFind(item, input.field.columnName))
                     .filter((item) => typeof item !== 'undefined' && item !== null);
@@ -212,7 +220,7 @@ export class AnnotationComponent implements AfterViewInit {
             }
         };
 
-        var onError = (response) => {
+        let onError = (response) => {
             if (response.statusText !== 'abort') {
                 this._messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                     error: response,
@@ -221,6 +229,6 @@ export class AnnotationComponent implements AfterViewInit {
             }
         };
 
-        const search = this.searchService.runSearch(this.datastore.type, this.datastore.host, searchObject, onSuccess, onError);
+        this.searchService.runSearch(this.datastore.type, this.datastore.host, searchObject, onSuccess, onError);
     }
 }

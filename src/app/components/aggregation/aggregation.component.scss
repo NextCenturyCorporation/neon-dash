@@ -199,3 +199,8 @@ input {
     color: var(--color-text, dimgrey);
     height: 18px;
 }
+
+.buttons {
+    display: inline-block;
+    padding: 6px;
+}

@@ -1,20 +1,20 @@
 <div class="thumbnail-title" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)"
-    (click)="thumbnailGrid.selectGridItem(item)" [style.width.px]="options.canvasSize + 10">
+    [style.width.px]="options.canvasSize + 10" (click)="selectGridItemIfAnnotationsAreOff(options, item)">
 
     <div class="thumbnail-title-details" *ngIf="thumbnailGrid.getThumbnailLabel(item) != ''">
         <button mat-icon-button *ngIf="shouldShowAnnotationButton(options)" class="neon-icon-button-medium" matTooltip="Edit Annotation"
             matTooltipPosition="below" (click)="openAnnotationDialog($event)" [class.flag]="shouldFlagAnnotationButton(options, item)">
-            <mat-icon class="neon-icon-small">edit</mat-icon>
+            <mat-icon class="neon-icon-medium">edit</mat-icon>
         </button>
         <button mat-icon-button *ngIf="options.openOnMouseClick" class="neon-icon-button-medium" matTooltip="Open in New Tab"
             matTooltipPosition="below" (click)="thumbnailGrid.displayMediaTab($event, item)">
-            <mat-icon class="neon-icon-small">open_in_new</mat-icon>
+            <mat-icon class="neon-icon-medium">open_in_new</mat-icon>
         </button>
         <span class="detail-ellipses">{{ thumbnailGrid.getThumbnailLabel(item) }}</span>
         <span class="detail-percentage">{{ thumbnailGrid.getThumbnailPercent(item) }}</span>
     </div>
 
     <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view with-border" [height]="options.canvasSize"
-        [width]="options.canvasSize">
+        [width]="options.canvasSize" (click)="selectGridItemIfAnnotationsAreOn(options, item)">
     </canvas>
 </div>

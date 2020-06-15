@@ -64,7 +64,8 @@
             }
 
             &.flag {
-                background-color: var(--color-data-item-selected, white) !important;
+                background-color: #FFFF00 !important;
+                border-radius: 0;
             }
         }
     }
@@ -230,6 +231,14 @@
                 &:first-child {
                     color: var(--color-data-item-selectable-text, dimgrey);
                 }
+            }
+        }
+
+        &.thumbnail-title {
+            cursor: unset;
+
+            canvas {
+                cursor: pointer;
             }
         }
     }

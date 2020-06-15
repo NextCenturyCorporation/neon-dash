@@ -24,6 +24,10 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
         return null;
     }
 
+    subcomponentRequestsAction(__data: any) {
+        // Do nothing.
+    }
+
     subcomponentRequestsDeselect() {
         // Do nothing.
     }

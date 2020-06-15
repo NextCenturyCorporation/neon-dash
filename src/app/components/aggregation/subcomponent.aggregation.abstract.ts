@@ -29,6 +29,14 @@ export interface AggregationSubcomponentListener {
     getHiddenCanvas(): ElementRef;
 
     /**
+     * Runs a custom action on the given data.
+     *
+     * @arg {any} data
+     * @abstract
+     */
+    subcomponentRequestsAction(data: any);
+
+    /**
      * Deselects the selected area.
      *
      * @abstract
