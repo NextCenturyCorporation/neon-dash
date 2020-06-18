@@ -80,7 +80,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     public errorMessage: string = '';
     public infoButtonText: string = '';
     public loadingCount: number = 0;
-    public showNoData: boolean = false;
+    public showNoData: string = '';
 
     // Wrapped visualization variables.
     public dataset: Dataset;
@@ -586,9 +586,8 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public runQuery(): void {
         this.errorMessage = '';
-        this._cachedPage = -1;
-        this._lastPage = true;
-        this._page = 1;
+        this.showNoData = false;
+        this._changeDetector.detectChanges();
 
         const visArray = this.visualizations.toArray();
         if (visArray.length) {
@@ -635,7 +634,6 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     private _handleChangeOptions(options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
         this._layerIdToElementCount.set((options || this.options)._id, 0);
 
-        this.errorMessage = '';
         this._cachedPage = -1;
         this._lastPage = true;
         this._page = 1;
@@ -712,7 +710,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     private _updateInfoElements(): void {
         this.infoButtonText = SingleVisualizationWidgetComponent.createInfoButtonText(this._layerIdToElementCount, this.options, this._page,
             this.visualizationType);
-        this.showNoData = (this.errorMessage === 'No Data');
+        this.showNoData = this.errorMessage;
 
         // Run the change detector after setting the variables to update the DOM.
         this._changeDetector.detectChanges();
@@ -731,6 +729,10 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
     }
 
     private _updateVisualizationOptions(): void {
+        this.errorMessage = '';
+        this.showNoData = false;
+        this._changeDetector.detectChanges();
+
         this.componentLibraryOptions = SingleVisualizationWidgetComponent.transformComponentLibraryOptions(this._colorThemeService,
             this.options, this._page, this.visualizationType);
         this._updateInfoElements();

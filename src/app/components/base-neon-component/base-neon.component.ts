@@ -67,9 +67,9 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
     // Maps the options/layer ID to the query ID to the query object.
     private layerIdToQueryIdToQueryObject: Map<string, Map<string, RequestWrapper>> = new Map<string, Map<string, RequestWrapper>>();
 
+    public showNoData: string = '';
     public errorMessage: string = '';
     public loadingCount: number = 0;
-    public showNoData: boolean = false;
 
     protected initializing: boolean = false;
     protected redrawOnResize: boolean = false;
@@ -546,8 +546,9 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      */
     private handleSuccessfulVisualizationQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
-            this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
-            this.errorMessage = 'No Data';
+            const filterCollection: FilterCollection = this.retrieveCompatibleFilters();
+            this.transformVisualizationQueryResults(options, [], filterCollection);
+            this.errorMessage = this.shouldHideUnfiltered(options, filterCollection) ? 'Please Filter' : 'No Data';
             this.layerIdToElementCount.set(options._id, 0);
             callback();
             return;
@@ -707,7 +708,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
         const filters: AbstractFilter[] = this.retrieveApplicableFilters(options);
 
-        if (this.options.hideUnfiltered === 'true') {
+        if (this.options.hideUnfiltered === true || this.options.hideUnfiltered === 'true') {
             return !filters.length;
         }
 
@@ -803,10 +804,12 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * @return {string}
      */
     private createButtonText(options: WidgetOptionCollection, displayLimit: number): string {
+        const hideUnfiltered = this.shouldHideUnfiltered(options);
+
         // If the query was not yet run, show no text unless waiting on an event.
         if (!this.layerIdToElementCount.has(options._id)) {
             // TODO Add support for 'Please Select'
-            return this.options.hideUnfiltered !== 'false' ? 'Please Filter' : '';
+            return (hideUnfiltered ? 'Please Filter' : '');
         }
 
         let elementCount = this.layerIdToElementCount.get(options._id);
@@ -814,9 +817,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
         // If the query was empty, show the relevant text.
         if (!elementCount) {
-            let filtered = !!this.retrieveApplicableFilters(options).length;
-            return (this.options.hideUnfiltered !== 'false' && !filtered) ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) :
-                'None');
+            return (hideUnfiltered ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) : 'None'));
         }
 
         // If the visualization query does pagination, show the pagination text.
@@ -1083,7 +1084,8 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Checks wheather there are any filters and returns no data.
      */
     public noDataCheck() {
-        this.showNoData = !this.layerIdToElementCount.get(this.options._id);
+        this.showNoData = (!this.layerIdToElementCount.get(this.options._id) ? (this.shouldHideUnfiltered(this.options) ?
+            'Please Filter' : 'No Data') : '');
         this.changeDetection.detectChanges();
         this.toggleBodyContainer();
     }
@@ -1133,6 +1135,11 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         this.contributorsRef.afterClosed().subscribe(() => {
             this.contributorsRef = null;
         });
+    }
+
+    public shouldHideUnfiltered(options: any, filterCollection?: FilterCollection): boolean {
+        const filters: AbstractFilter[] = (filterCollection || this.retrieveCompatibleFilters()).getFilters();
+        return ((options.hideUnfiltered !== false && options.hideUnfiltered !== 'false') && !filters.length);
     }
 
     public runQuery(): void {

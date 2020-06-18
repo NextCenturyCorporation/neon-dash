@@ -469,6 +469,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsXY.bind(this)),
             new ConfigOptionColor('elementColor', 'Color Override for All Visualization Elements', false, null),
             new ConfigOptionSelect('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionSelect('noColor', 'Color by Group', false, false, OptionChoices.YesFalseNoTrue),
             new ConfigOptionSelect('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsXFieldIsNotDate.bind(this)),
             new ConfigOptionSelect('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
@@ -945,7 +946,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.colorThemeService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
+                color = options.noColor ? groupsToColors.get(this.DEFAULT_GROUP) :
+                    this.colorThemeService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -1481,7 +1483,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     showLegend(): boolean {
         // Always hide the legend if elementColor is set.
-        if (this.options.elementColor) {
+        if (this.options.elementColor || this.options.noColor) {
             return false;
         }
         // TODO THOR-973

@@ -236,6 +236,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private defaultActiveColor;
     private graph: vis.Network;
+    private mostRecentDrawId = 0;
     private relationNodes: any[] = [];
 
     // Save the values of the filters in the FilterService that are compatible with this visualization's filters.
@@ -304,19 +305,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     protected createOptions(): ConfigOption[] {
         return [
-            new ConfigOptionField('nodeField', 'Node Field', true, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('targetNameField', 'Target Name Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('linkField', 'Link Field', true, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('linkNameField', 'Link Name Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsIsReified.bind(this)),
             new ConfigOptionField('edgeColorField', 'Edge Color Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('targetColorField', 'Target Color Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('xPositionField', 'X Position Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('yPositionField', 'Y Position Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('xTargetPositionField', 'X Target Position Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('yTargetPositionField', 'Y Target Position Field', false, this.optionsIsReified.bind(this)),
-            new ConfigOptionField('typeField', 'Type Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('linkNameField', 'Edge Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nodeField', 'Node ID Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nodeColorField', 'Node Color Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('nodeNameField', 'Node Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('typeField', 'Node Type Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('xPositionField', 'Node X Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('yPositionField', 'Node Y Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('linkField', 'Target Node ID Field', true, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('targetColorField', 'Target Node Color Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('targetNameField', 'Target Node Name Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('xTargetPositionField', 'Target Node X Position Field', false, this.optionsIsReified.bind(this)),
+            new ConfigOptionField('yTargetPositionField', 'Target Node Y Position Field', false, this.optionsIsReified.bind(this)),
             new ConfigOptionFieldArray('filterFields', 'Filter Fields', false),
             new ConfigOptionSelect('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionSelect('isReified', 'Data Format', false, false, [{
@@ -489,18 +490,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     springConstant: 0.18
                 },
                 maxVelocity: 146,
-                solver: 'forceAtlas2Based',
-                timestep: 1,
-                stabilization: { iterations: 50 }
+                solver: 'forceAtlas2Based'
             },
             nodes: {
                 physics: this.options.physics
             },
             edges: {
                 smooth: {
-                    type: 'dynamic'
+                    type: 'continuous'
                 },
-                physics: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics
+                physics: this.options.edgePhysics || this.options.physics
             },
             interaction: {
                 hideEdgesOnDrag: true
@@ -508,22 +507,33 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         };
 
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
+        this.graph.once('afterDrawing', this.afterDrawing.bind(this));
+
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
         this.graph.on('dragEnd', this.onDrag.bind(this));
-        this.graph.once('afterDrawing', this.afterDrawing.bind(this));
+
+        this.graph.on('startStabilizing', (event) => {
+            const drawId = this.mostRecentDrawId;
+            // If the graph isn't stable after 5 seconds, stop the physics automatically.
+            // Use the draw ID in case we draw a new graph before the end of 5 seconds.
+            setTimeout(() => {
+                if (drawId === this.mostRecentDrawId) {
+                    this.graph.setOptions({ physics: { enabled: false } });
+                }
+            }, 5000);
+        });
+
+        // Turn off the physics once stable.
+        this.graph.on('stabilized', (event) => {
+            this.graph.setOptions({ physics: { enabled: false } });
+        });
     }
 
     private restartPhysics(): void {
-        // Turn off physics when stabilized
-        this.graph.on('stabilized', () => {
-            this.graph.setOptions({ physics: { enabled: false } });
-            this.graph.off('stabilized');
-        });
-
-        // To avoid edge overlap the physics must always be on for edges.
-        this.graph.setOptions({ physics: { enabled: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics } });
+        this.mostRecentDrawId++;
+        this.graph.setOptions({ physics: { enabled: this.options.physics } });
     }
 
     setInterpolationType(curveType) {
@@ -645,8 +655,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 break;
             default:
                 names = [options.nodeField.columnName, options.linkField.columnName];
-                sortFieldName = (options.nodeColorField.columnName || options.edgeColorField.columnName ||
-                    options.nodeField.columnName);
+                sortFieldName = options.nodeField.columnName;
                 sortOrder = SortOrder.ASCENDING;
         }
 
@@ -784,7 +793,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.existingNodeNames = [];
         this.relationNodes = [];
 
-        this.displayGraph = this._shouldShowNetworkGraph(options, filters);
+        this.displayGraph = this._shouldShowNetworkGraph(options);
 
         this.resetGraphData();
 
@@ -1460,16 +1469,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.reloadGraph();
     }
 
-    private _shouldShowNetworkGraph(options: any, filters: FilterCollection): boolean {
-        const numberOfFilters = filters.getFilters().length;
+    private _shouldShowNetworkGraph(options: any): boolean {
+        const numberOfFilters = this.createSharedFilters(options).length;
 
-        if (!this.options.hideUnfiltered || this.options.hideUnfiltered === 'false' || (this.options.hideUnfiltered === 'true' &&
-            !!numberOfFilters)) {
-            return true;
-        }
-
-        return !numberOfFilters ? false : filters.getDataSources().some((dataSourceList) => dataSourceList.some((dataSource) =>
-            dataSource.datastore === options.datastore.name && dataSource.database === options.database.name &&
-            dataSource.table === options.table.name && dataSource.field === this.options.hideUnfiltered));
+        return (!options.hideUnfiltered || options.hideUnfiltered === 'false' || (numberOfFilters &&
+            (options.hideUnfiltered === 'true' || options.hideUnfiltered === true)));
     }
 }

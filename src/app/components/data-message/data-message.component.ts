@@ -16,6 +16,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    Input,
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
@@ -28,9 +29,15 @@ import {
     encapsulation: ViewEncapsulation.Emulated
 })
 export class DataMessageComponent implements OnInit {
+    @Input() displayMessage: string;
+
     constructor(private changeDetection: ChangeDetectorRef) { }
 
     ngOnInit() {
         this.changeDetection.detectChanges();
+    }
+
+    public getDisplayMessage(): string {
+        return this.displayMessage || 'No data to display';
     }
 }

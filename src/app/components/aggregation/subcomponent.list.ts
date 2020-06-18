@@ -54,7 +54,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
         document.documentElement.style.setProperty('--neon-list-columns', this.options.listColumns);
 
         data.forEach((item, index) => {
-            let labelAndValueClass = 'list-text list-selectable';
+            let labelAndValueClass = 'list-text' + (this.options.notFilterable ? '' : ' list-selectable');
 
             let labelElement = document.createElement('span');
             labelElement.innerHTML = item.x;
@@ -84,7 +84,9 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             if (groups.length > 1) {
                 let groupElement = document.createElement('span');
                 groupElement.setAttribute('class', 'list-text');
-                groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef.nativeElement));
+                if (item.color) {
+                    groupElement.setAttribute('style', 'color: ' + item.color.getComputedCss(this.elementRef.nativeElement));
+                }
                 groupElement.innerHTML = item.group;
                 rowTitle = item.group + ' - ' + rowTitle;
                 rowElement.appendChild(groupElement);

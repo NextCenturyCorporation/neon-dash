@@ -13,7 +13,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<app-data-message *ngIf="showNoData"></app-data-message>
+<app-data-message *ngIf="showNoData" [displayMessage]="showNoData"></app-data-message>
 
 <div class="body-container" *ngIf="!showNoData">
     <app-nucleus-angular-text-cloud #visualization *ngIf="visualizationType == VISUALIZATION_TYPE.TEXT_CLOUD" [attr.id]="visElementId"

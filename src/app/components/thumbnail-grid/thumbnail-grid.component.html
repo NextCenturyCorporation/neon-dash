@@ -16,7 +16,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<app-data-message *ngIf="showNoData"></app-data-message>
+<app-data-message *ngIf="showNoData" [displayMessage]="showNoData"></app-data-message>
 
 <div #thumbnailGrid class="body-container thumbnail-grid">
     <div class="thumbnail-grid-container" *ngIf="gridArray.length">

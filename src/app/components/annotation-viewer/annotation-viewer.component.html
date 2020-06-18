@@ -16,7 +16,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<app-data-message *ngIf="showNoData"></app-data-message>
+<app-data-message *ngIf="showNoData" [displayMessage]="showNoData"></app-data-message>
 
 <div class=" top-container " *ngIf="showLegendContainer()">
     <div class="legend-container">

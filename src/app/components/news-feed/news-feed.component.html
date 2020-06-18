@@ -16,7 +16,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<app-data-message *ngIf="showNoData"></app-data-message>
+<app-data-message *ngIf="showNoData" [displayMessage]="showNoData"></app-data-message>
 
 <div #newsFeed class="body-container">
     <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat"
