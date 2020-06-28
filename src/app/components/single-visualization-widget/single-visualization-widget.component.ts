@@ -586,7 +586,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
      */
     public runQuery(): void {
         this.errorMessage = '';
-        this.showNoData = false;
+        this.showNoData = '';
         this._changeDetector.detectChanges();
 
         const visArray = this.visualizations.toArray();
@@ -730,7 +730,7 @@ export class SingleVisualizationWidgetComponent extends VisualizationWidget impl
 
     private _updateVisualizationOptions(): void {
         this.errorMessage = '';
-        this.showNoData = false;
+        this.showNoData = '';
         this._changeDetector.detectChanges();
 
         this.componentLibraryOptions = SingleVisualizationWidgetComponent.transformComponentLibraryOptions(this._colorThemeService,

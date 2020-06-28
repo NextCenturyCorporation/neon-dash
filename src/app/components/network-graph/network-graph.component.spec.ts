@@ -20,10 +20,13 @@ import {
     AbstractSearchService,
     CompoundFilterType,
     CoreSearch,
+    DATABASES,
+    DATASET,
     FieldConfig,
     FilterCollection,
     ListFilterDesign,
-    SearchServiceMock
+    SearchServiceMock,
+    TABLES
 } from '@caci-critical-insight-solutions/nucleus-core';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
@@ -146,7 +149,7 @@ describe('Component: NetworkGraph', () => {
                 fieldClause: {
                     database: 'testDatabase1',
                     table: 'testTable1',
-                    field: 'testNodeColorField'
+                    field: 'testNodeField'
                 },
                 order: 1
             }],
@@ -268,28 +271,29 @@ describe('Component: NetworkGraph', () => {
     it('transformVisualizationQueryResults does load the Network Graph from multiple data tables', (() => {
         let options = component.options;
         options.layers = [
-            {
-                database: 'testNodeDatabase',
-                table: 'testNodeTable',
-                layerType: 'nodes',
-                idField: FieldConfig.get({ columnName: 'testNodeIdField' }),
-                nameField: FieldConfig.get({ columnName: 'testNodeNameField' }),
-                colorField: FieldConfig.get({ columnName: 'testNodeColorField' }),
-                param1Field: FieldConfig.get({ columnName: 'testNodeXPositionField' }),
-                param2Field: FieldConfig.get({ columnName: 'testNodeYPositionField' }),
-                filterFields: [FieldConfig.get({ columnName: 'testFilterField' })]
-            },
-            {
-                database: 'testEdgeDatabase',
-                table: 'testTable',
-                layerType: 'edges',
-                nameField: FieldConfig.get({ columnName: 'testEdgeNameField' }),
-                colorField: FieldConfig.get({ columnName: 'testEdgeColorField' }),
-                param1Field: FieldConfig.get({ columnName: 'testEdgeSourceIdField' }),
-                param2Field: FieldConfig.get({ columnName: 'testEdgeDestinationIdField' }),
-                filterFields: [FieldConfig.get({ columnName: 'testFilterField' })]
-            }
-        ] as any as WidgetOptionCollection[]; // TODO: Violating typing rules
+            new WidgetOptionCollection(DATASET),
+            new WidgetOptionCollection(DATASET)
+        ];
+
+        options.layers[0].database = DATABASES.testDatabase1;
+        options.layers[0].table = TABLES.testTable1;
+        options.layers[0].layerType = 'nodes';
+        options.layers[0].idField = FieldConfig.get({ columnName: 'testNodeIdField' });
+        options.layers[0].nameField = FieldConfig.get({ columnName: 'testNodeNameField' });
+        options.layers[0].colorField = FieldConfig.get({ columnName: 'testNodeColorField' });
+        options.layers[0].param1Field = FieldConfig.get({ columnName: 'testNodeXPositionField' });
+        options.layers[0].param2Field = FieldConfig.get({ columnName: 'testNodeYPositionField' });
+        options.layers[0].filterFields = [FieldConfig.get({ columnName: 'testFilterField' })];
+
+        options.layers[1].database = DATABASES.testDatabase2;
+        options.layers[1].table = TABLES.testTable2;
+        options.layers[1].layerType = 'edges';
+        options.layers[1].nameField = FieldConfig.get({ columnName: 'testEdgeNameField' });
+        options.layers[1].colorField = FieldConfig.get({ columnName: 'testEdgeColorField' });
+        options.layers[1].param1Field = FieldConfig.get({ columnName: 'testEdgeSourceIdField' });
+        options.layers[1].param2Field = FieldConfig.get({ columnName: 'testEdgeDestinationIdField' });
+        options.layers[1].filterFields = [FieldConfig.get({ columnName: 'testFilterField' })];
+
         options.nodeColor = '#96f4f2';
         options.edgeColor = '#93663e';
         options.linkColor = '#938d8f';

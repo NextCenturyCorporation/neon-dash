@@ -449,7 +449,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.options = new RootWidgetOptionCollection(DATASET);
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
         component['_cachedPage'] = 5;
         component['_lastPage'] = false;
         component['_page'] = 2;
@@ -462,7 +462,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(spyPublish.calls.argsFor(0)[0]).toEqual(neonEvents.WIDGET_CONFIGURED);
         expect(component.errorMessage).toEqual('');
         expect(component.infoButtonText).toEqual('0 Results');
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('');
         expect(component['_cachedPage']).toEqual(-1);
         expect(component['_lastPage']).toEqual(true);
         expect(component['_page']).toEqual(1);
@@ -735,7 +735,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         // Invoke the event listener callback function
         onSearchCanceled({
@@ -745,7 +745,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('');
         expect(component.infoButtonText).toEqual('0 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('');
     });
 
     it('searchCanceled event with error message does update expected properties and call expected functions', () => {
@@ -756,7 +756,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         onSearchCanceled({
             detail: {
@@ -768,7 +768,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('New Message');
         expect(component.infoButtonText).toEqual('0 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('New Message');
 
         expect(spyPublish.calls.count()).toEqual(1);
         expect(spyPublish.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_MESSAGE, {
@@ -783,7 +783,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         onSearchFailed({
             detail: {}
@@ -792,7 +792,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('');
         expect(component.infoButtonText).toEqual('0 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('');
     });
 
     it('searchFailed event with error message does update expected properties and call expected functions', () => {
@@ -803,7 +803,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         onSearchFailed({
             detail: {
@@ -815,7 +815,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('New Message');
         expect(component.infoButtonText).toEqual('0 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('New Message');
 
         expect(spyPublish.calls.count()).toEqual(1);
         expect(spyPublish.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_MESSAGE, {
@@ -830,7 +830,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         onSearchFinished({
             detail: {
@@ -841,7 +841,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('');
         expect(component.infoButtonText).toEqual('1,234 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('');
     });
 
     it('searchFinished event with no data does update expected properties and call expected functions', () => {
@@ -850,7 +850,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = false;
+        component.showNoData = '';
 
         onSearchFinished({
             detail: {
@@ -861,7 +861,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('No Data');
         expect(component.infoButtonText).toEqual('0 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(true);
+        expect(component.showNoData).toEqual('No Data');
     });
 
     it('searchFinished event with info property does update expected properties and call expected functions', () => {
@@ -870,7 +870,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         component.loadingCount = 1;
         component.errorMessage = 'Test Error Message';
         component.infoButtonText = 'Test Info Text';
-        component.showNoData = true;
+        component.showNoData = 'No Data';
 
         onSearchFinished({
             detail: {
@@ -882,7 +882,7 @@ describe('SingleVisualizationWidgetComponent', () => {
         expect(component.errorMessage).toEqual('New Info');
         expect(component.infoButtonText).toEqual('1,234 Results');
         expect(component.loadingCount).toEqual(0);
-        expect(component.showNoData).toEqual(false);
+        expect(component.showNoData).toEqual('New Info');
     });
 
     it('searchLaunched event from vis element does update expected properties', () => {

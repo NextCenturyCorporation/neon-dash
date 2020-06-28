@@ -1139,7 +1139,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
 
     public shouldHideUnfiltered(options: any, filterCollection?: FilterCollection): boolean {
         const filters: AbstractFilter[] = (filterCollection || this.retrieveCompatibleFilters()).getFilters();
-        return ((options.hideUnfiltered !== false && options.hideUnfiltered !== 'false') && !filters.length);
+        return (!(!options.hideUnfiltered || options.hideUnfiltered === 'false') && !filters.length);
     }
 
     public runQuery(): void {

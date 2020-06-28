@@ -514,7 +514,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
         this.graph.on('dragEnd', this.onDrag.bind(this));
 
-        this.graph.on('startStabilizing', (event) => {
+        this.graph.on('startStabilizing', (__event) => {
             const drawId = this.mostRecentDrawId;
             // If the graph isn't stable after 5 seconds, stop the physics automatically.
             // Use the draw ID in case we draw a new graph before the end of 5 seconds.
@@ -526,7 +526,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         });
 
         // Turn off the physics once stable.
-        this.graph.on('stabilized', (event) => {
+        this.graph.on('stabilized', (__event) => {
             this.graph.setOptions({ physics: { enabled: false } });
         });
     }

@@ -1122,7 +1122,7 @@ describe('BaseNeonComponent', () => {
 
     it('noDataCheck works as intended', () => {
         component.noDataCheck();
-        expect(component.showNoData).toEqual(true);
+        expect(component.showNoData).toEqual('No Data');
     });
 
     it('getButtonText does return expected string', () => {
