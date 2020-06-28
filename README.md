@@ -38,6 +38,8 @@ The Neon Dashboard offers multiple benefits over other big data exploration and 
 * [Node and NPM](https://nodejs.org/en/)
 * (Optional) [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
 
+![Neon Dashboard Architecture](./Neon-Architecture.jpg)
+
 ### Download Source Code
 
 `git clone https://github.com/NextCenturyCorporation/neon-dash.git; cd neon-dash`
