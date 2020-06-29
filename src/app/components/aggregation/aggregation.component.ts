@@ -1562,7 +1562,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 fieldsWithValues[this.options.yField.columnName] = yValues.length > 1 ? yValues : yValues[0];
             }
             if (this.options.backgroundImageLinkField.columnName) {
-                fieldsWithValues[this.options.backgroundImageLinkField.columnName] = this._backgroundImage;
+                fieldsWithValues[this.options.backgroundImageLinkField.columnName] = this.options.backgroundImageLinkPrefix +
+                    this._backgroundImage;
             }
 
             if (this.customButtonSelected.is === 'create') {
