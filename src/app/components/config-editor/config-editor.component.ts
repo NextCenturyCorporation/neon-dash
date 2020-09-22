@@ -64,7 +64,7 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     public save() {
-        const settings = yaml.safeLoad(this.configText);
+        const settings = yaml.safeLoad(this.configText) as NeonConfig;
 
         this.configService.save(settings, this.dashboardName)
             .subscribe(() => {
