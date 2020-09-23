@@ -763,35 +763,6 @@ describe('ChartJsSubcomponent', () => {
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
 
-    it('selectBounds with mouseover event and button down does ignore', () => {
-        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
-        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
-        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnBounds');
-        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
-
-        let chart = {
-            chartArea: {
-                top: 5,
-                bottom: 300,
-                left: 5,
-                right: 300
-            }
-        };
-
-        (subcomponent).selectBounds({
-            buttons: 1,
-            offsetX: 10,
-            offsetY: 20,
-            type: 'mouseover'
-        }, [], chart);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-        expect(spy4.calls.count()).toEqual(0);
-        expect(subcomponent.getSelectedLabels()).toEqual([]);
-    });
-
     it('selectDomain with button down does select area', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
@@ -1151,39 +1122,6 @@ describe('ChartJsSubcomponent', () => {
         expect(spy4.calls.count()).toEqual(2);
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
-
-    /* TODO
-    it('selectDomain with mouseover event and button down does ignore', () => {
-        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
-        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
-        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
-        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
-
-        let chart = {
-            chartArea: {
-                top: 5,
-                bottom: 50
-            }
-        };
-
-        (subcomponent).selectDomain({
-            buttons: 1,
-            type: 'mouseover'
-        }, [{
-            _index: 1,
-            _model: {
-                label: 'B',
-                x: 10
-            }
-        }], chart);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
-        expect(spy4.calls.count()).toEqual(0);
-        expect(subcomponent.getSelectedLabels()).toEqual([]);
-    });
-    */
 
     it('selectItem does select item', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsFilter');

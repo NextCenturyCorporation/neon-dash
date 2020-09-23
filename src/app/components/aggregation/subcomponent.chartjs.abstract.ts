@@ -673,7 +673,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         if (this.customAction === SelectMode.BOUNDS) {
-            this.selectBoundsCustomAction(event);
+            this.selectBoundsCustomAction(event, chart);
             return;
         }
 
@@ -928,7 +928,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: Chart, domainOnly: boolean = false) {
-        if (!this.selectBoundsValidate(event)) {
+        if (!this.selectBoundsValidate(event, chart)) {
             return;
         }
 
@@ -1015,8 +1015,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
     }
 
-    private selectBoundsCustomAction(event: any): void {
-        if (!this.selectBoundsValidate(event)) {
+    private selectBoundsCustomAction(event: any, chart: Chart): void {
+        if (!this.selectBoundsValidate(event, chart)) {
             return;
         }
 
@@ -1059,17 +1059,18 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
     }
 
-    private selectBoundsValidate(event: any): boolean {
-        if (event.type === 'mouseover' && event.buttons === 1) {
-            this.ignoreSelect = true;
-        }
-
+    private selectBoundsValidate(event: any, chart: Chart): boolean {
         if (event.buttons === 0) {
             this.cancelSelect = false;
             this.ignoreSelect = false;
         }
 
-        return !(event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect);
+        if (chart && (event.offsetX < 0 || event.offsetX > chart.chartArea.right || event.offsetY < 0 ||
+            event.offsetY > chart.chartArea.bottom)) {
+            return false;
+        }
+
+        return !(this.cancelSelect || this.ignoreSelect);
     }
 
     /**
@@ -1081,7 +1082,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @private
      */
     private selectDomain(event, items: any[], chart: Chart) {
-        if (!this.selectDomainValidate(event)) {
+        if (!this.selectDomainValidate(event, chart)) {
             return;
         }
 
@@ -1151,7 +1152,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     private selectDomainCustomAction(event: any, chart: Chart): void {
-        if (!this.selectDomainValidate(event)) {
+        if (!this.selectDomainValidate(event, chart)) {
             return;
         }
 
@@ -1192,18 +1193,18 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
     }
 
-    private selectDomainValidate(event: any): boolean {
-        if (event.type === 'mouseover' && event.buttons > 0) {
-            // TODO Why did this suddenly stop working? Is it still needed?
-            // this.ignoreSelect = true;
-        }
-
+    private selectDomainValidate(event: any, chart: Chart): boolean {
         if (event.buttons === 0) {
             this.cancelSelect = false;
             this.ignoreSelect = false;
         }
 
-        return !(event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect);
+        if (chart && (event.offsetX < 0 || event.offsetX > chart.chartArea.right || event.offsetY < 0 ||
+            event.offsetY > chart.chartArea.bottom)) {
+            return false;
+        }
+
+        return !(this.cancelSelect || this.ignoreSelect);
     }
 
     /**
