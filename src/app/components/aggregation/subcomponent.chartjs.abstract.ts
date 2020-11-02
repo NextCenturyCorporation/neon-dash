@@ -445,7 +445,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let item = this.retrieveTooltipValue(dataset, tooltipItem.index);
             let value = typeof item === 'object' ? (this.isHorizontal() ? item.x : item.y) : item;
 
-            if (value === 0 || (value && !Number.isNaN(value))) {
+            if (value && !Number.isNaN(value)) {
                 total += value;
             }
         }
