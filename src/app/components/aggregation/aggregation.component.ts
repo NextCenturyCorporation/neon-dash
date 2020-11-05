@@ -1433,6 +1433,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }, new Map<string, string>())
             } : null,
             maximumAggregation: this.maximumAggregation,
+            minTicksX: 0,
+            minTicksY: 0,
             maxTicksX: this._backgroundImageWidth,
             maxTicksY: this._backgroundImageHeight,
             sort: this.options.sortByAggregation ? 'y' : 'x',
@@ -1891,7 +1893,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             const ratio = (this.options.zoom ? 1 : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
             const canvasHeight = this._backgroundImageHeight * ratio;
             const canvasWidth = this._backgroundImageWidth * ratio;
-
+            console.log(this._backgroundImageHeight + ", " + this._backgroundImageWidth);
+            console.log(canvasHeight + ", " + canvasWidth);
             document.documentElement.style.setProperty('--neon-canvas-height', canvasHeight + 'px');
             document.documentElement.style.setProperty('--neon-canvas-width', canvasWidth + 'px');
         }

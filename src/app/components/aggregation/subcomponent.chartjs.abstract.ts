@@ -244,6 +244,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     ticks: {
                         display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
+                        min: meta.minTicksX,
                         max: meta.maxTicksX,
                         maxRotation: 0,
                         minRotation: 0,
@@ -268,6 +269,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     ticks: {
                         display: !this.options.hideGridTicks,
                         fontColor: this.textColorHex,
+                        min: meta.minTicksY,
                         max: meta.maxTicksY,
                         maxRotation: 0,
                         minRotation: 0,
