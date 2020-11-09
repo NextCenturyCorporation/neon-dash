@@ -26,21 +26,24 @@
     <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
         (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
-    <div class="buttons" [style.display]="(showBackgroundImageUrl(options) || showCustomButtons(options)) ? '' : 'none'">
+    <div class="buttons"
+        [style.display]="(showBackgroundImageUrl(options) || showCustomButtons(options)) ? '' : 'none'">
         <button mat-icon-button *ngIf="showBackgroundImageUrl(options) && !options.zoom" class="neon-icon-button-medium"
-            [matTooltip]="'Zoom In'" tooltip-position="below" aria-label="Zoom In" (click)="changeZoom(true)">
-            <mat-icon class="neon-icon-medium">zoom_in</mat-icon>
-        </button>
-        <button mat-icon-button *ngIf="showBackgroundImageUrl(options) && options.zoom" class="neon-icon-button-medium"
-            [matTooltip]="'Zoom Out'" tooltip-position="below" aria-label="Zoom Out" (click)="changeZoom(false)">
+            [matTooltip]="'Zoom Out'" tooltip-position="below" aria-label="Zoom Out" [disabled]="this._zoomLevel<=0" (click)="zoomOut()">
             <mat-icon class="neon-icon-medium">zoom_out</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="showBackgroundImageUrl(options) && !options.zoom" class="neon-icon-button-medium"
+            [matTooltip]="'Zoom In'" tooltip-position="below" aria-label="Zoom In" (click)="zoomIn()">
+            <mat-icon class="neon-icon-medium">zoom_in</mat-icon>
         </button>
         <button mat-icon-button *ngFor="let buttonConfig of options.customButtons" class="neon-icon-button-medium"
             [class.active]="isCustomButtonSelected(buttonConfig) && isCustomButtonOnToggle(buttonConfig)"
             [matTooltip]="buttonConfig.name + (isCustomButtonOnToggle(buttonConfig) ? (isCustomButtonSelected(buttonConfig) ? ' ON' : ' OFF') : '')"
             tooltip-position="below" (click)="selectCustomButton(buttonConfig)">
-            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'icon')">{{ buttonConfig.icon }}</mat-icon>
-            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'svg')" [svgIcon]="buttonConfig.svg"></mat-icon>
+            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'icon')">{{ buttonConfig.icon }}
+            </mat-icon>
+            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'svg')"
+                [svgIcon]="buttonConfig.svg"></mat-icon>
         </button>
     </div>
 
@@ -55,16 +58,19 @@
 </div>
 
 <div class="body-container">
-    <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
-        [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
+    <div class="subcomponent-container zoom" [class.hide]="!showBothViews()"
+        [style.minHeight.px]="minimumDimensionsZoom.height" [style.minWidth.px]="minimumDimensionsZoom.width"
+        (click)="stopEventPropagation($event)">
 
         <div #subcomponentZoom class="subcomponent-element"></div>
     </div>
 
-    <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
-        [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
+    <div class="subcomponent-container" [class.main]="showBothViews()"
+        [style.minHeight.px]="minimumDimensionsMain.height" [style.minWidth.px]="minimumDimensionsMain.width"
+        (click)="stopEventPropagation($event)">
 
-        <div #subcomponentMain class="subcomponent-element" [class.with-background-image-url]="showBackgroundImageUrl(options)"></div>
+        <div #subcomponentMain class="subcomponent-element"
+            [class.with-background-image-url]="showBackgroundImageUrl(options)"></div>
 
         <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
             [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"

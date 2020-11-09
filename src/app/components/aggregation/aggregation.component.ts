@@ -213,6 +213,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private _backgroundImageWidth: number;
     private _backgroundImageWidthRatio: number;
     private _backgroundImageQuery: any;
+    private _zoomLevel: number = 0;
 
     constructor(
         dashboardService: DashboardService,
@@ -241,8 +242,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
     }
 
-    public changeZoom(zoom: boolean): void {
-        this.options.zoom = zoom;
+    public zoomIn(): void {
+        this._zoomLevel += 1;
+        this._updateBackgroundImageProperties();
+        this.updateOnResize();
+    }
+
+    public zoomOut(): void {
+        this._zoomLevel -= 1;
         this._updateBackgroundImageProperties();
         this.updateOnResize();
     }
@@ -1547,7 +1554,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        const backgroundImageRatio = (!this._backgroundImage || this.options.zoom) ? 1 : Math.min(this._backgroundImageHeightRatio,
+        const backgroundImageRatio = (!this._backgroundImage || (!this.options.zoom && this._zoomLevel >0)) ? this._zoomLevel : Math.min(this._backgroundImageHeightRatio,
             this._backgroundImageWidthRatio);
 
         this.selectedArea = null;
@@ -1890,7 +1897,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this._backgroundImageWidthRatio = this._backgroundImageWidthRatio ||
                 (this.subcomponentMainElementRef.nativeElement.clientWidth / this._backgroundImageWidth);
 
-            const ratio = (this.options.zoom ? 1 : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
+            const ratio = (!this.options.zoom && (this._zoomLevel >0) ? this._zoomLevel : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
             const canvasHeight = this._backgroundImageHeight * ratio;
             const canvasWidth = this._backgroundImageWidth * ratio;
             document.documentElement.style.setProperty('--neon-canvas-height', canvasHeight + 'px');
