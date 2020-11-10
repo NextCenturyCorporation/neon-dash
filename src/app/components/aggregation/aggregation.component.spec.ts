@@ -123,11 +123,17 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.x).toBeDefined();
         expect(component.selectedAreaOffset.y).toBeDefined();
         expect(component.subcomponentTypes).toEqual([{
-            name: 'Bar, Horizontal (Aggregations)',
+            name: 'Bar, Horizontal - Stacked (Aggregations)',
             type: 'bar-h'
         }, {
-            name: 'Bar, Vertical (Aggregations)',
+            name: 'Bar, Vertical - Stacked (Aggregations)',
             type: 'bar-v'
+        }, {
+            name: 'Bar, Horizontal - Grouped (Aggregations)',
+            type: 'bar-g-h'
+        }, {
+            name: 'Bar, Vertical - Grouped (Aggregations)',
+            type: 'bar-g-v'
         }, {
             name: 'Doughnut (Aggregations)',
             type: 'doughnut'

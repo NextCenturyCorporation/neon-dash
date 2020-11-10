@@ -70,7 +70,7 @@ import {
 } from './subcomponent.aggregation.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
-import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
+import { BarType, ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
@@ -152,11 +152,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     // TODO THOR-349 Remove once future widget option menu is finished
     public subcomponentTypes: { name: string, type: string }[] = [{
-        name: 'Bar, Horizontal (Aggregations)',
+        name: 'Bar, Horizontal - Stacked (Aggregations)',
         type: 'bar-h'
     }, {
-        name: 'Bar, Vertical (Aggregations)',
+        name: 'Bar, Vertical - Stacked (Aggregations)',
         type: 'bar-v'
+    }, {
+        name: 'Bar, Horizontal - Grouped (Aggregations)',
+        type: 'bar-g-h'
+    }, {
+        name: 'Bar, Vertical - Grouped (Aggregations)',
+        type: 'bar-g-v'
     }, {
         name: 'Doughnut (Aggregations)',
         type: 'doughnut'
@@ -585,11 +591,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 variable: true
             }]),
             new ConfigOptionSelect('type', 'Visualization Type', true, 'line', [{
-                prettyName: 'Bar, Horizontal (Aggregations)',
+                prettyName: 'Bar, Horizontal - Stacked (Aggregations)',
                 variable: 'bar-h'
             }, {
-                prettyName: 'Bar, Vertical (Aggregations)',
+                prettyName: 'Bar, Vertical - Stacked (Aggregations)',
                 variable: 'bar-v'
+            }, {
+                prettyName: 'Bar, Horizontal - Grouped (Aggregations)',
+                variable: 'bar-g-h'
+            }, {
+                prettyName: 'Bar, Vertical - Grouped (Aggregations)',
+                variable: 'bar-g-v'
             }, {
                 prettyName: 'Doughnut (Aggregations)',
                 variable: 'doughnut'
@@ -712,6 +724,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             switch (this.options.type) {
                 case 'bar-h':
                 case 'bar-v':
+                case 'bar-g-h':
+                case 'bar-g-v':
                 case 'histogram':
                     label = 'Bar';
                     break;
@@ -745,6 +759,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         switch (type) {
             case 'bar-h':
             case 'bar-v':
+            case 'bar-g-h':
+            case 'bar-g-v':
             case 'histogram':
                 return 'Bar Field';
             case 'doughnut':
@@ -817,6 +833,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let textColorHex = this.colorThemeService.getThemeTextColorHex();
 
         switch (this.options.type) {
+            case 'bar-g-h':
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex,
+                    true, SelectMode.ITEM, BarType.GROUPED);
+                break;
+            case 'bar-g-v':
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex,
+                    false, SelectMode.ITEM, BarType.GROUPED);
+                break;
             case 'bar-h':
                 subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex, true);
                 break;
@@ -1215,6 +1239,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 return true;
             case 'bar-h':
             case 'bar-v':
+            case 'bar-g-h':
+            case 'bar-g-v':
             case 'doughnut':
             case 'list':
             case 'pie':
@@ -1237,6 +1263,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 return false;
             case 'bar-h':
             case 'bar-v':
+            case 'bar-g-h':
+            case 'bar-g-v':
             case 'doughnut':
             case 'list':
             case 'pie':
@@ -1277,6 +1305,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         switch (options.type) {
             case 'bar-h':
             case 'bar-v':
+            case 'bar-g-h':
+            case 'bar-g-v':
             case 'histogram':
             case 'line':
             case 'line-xy':
@@ -1877,6 +1907,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     return groups.length;
                 case 'bar-h':
                 case 'bar-v':
+                case 'bar-g-h':
+                case 'bar-g-v':
                 case 'doughnut':
                 case 'histogram':
                 case 'list':
