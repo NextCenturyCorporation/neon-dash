@@ -1554,8 +1554,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        const backgroundImageRatio = (!this._backgroundImage || (!this.options.zoom && this._zoomLevel >0)) ? this._zoomLevel : Math.min(this._backgroundImageHeightRatio,
-            this._backgroundImageWidthRatio);
+        const backgroundImageRatio = (!this._backgroundImage || (!this.options.zoom && this._zoomLevel > 0)) ?
+            this._zoomLevel : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio);
 
         this.selectedArea = null;
 
@@ -1897,7 +1897,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this._backgroundImageWidthRatio = this._backgroundImageWidthRatio ||
                 (this.subcomponentMainElementRef.nativeElement.clientWidth / this._backgroundImageWidth);
 
-            const ratio = (!this.options.zoom && (this._zoomLevel >0) ? this._zoomLevel : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
+            const ratio = (!this.options.zoom && (this._zoomLevel > 0) ? this._zoomLevel :
+                Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
             const canvasHeight = this._backgroundImageHeight * ratio;
             const canvasWidth = this._backgroundImageWidth * ratio;
             document.documentElement.style.setProperty('--neon-canvas-height', canvasHeight + 'px');
