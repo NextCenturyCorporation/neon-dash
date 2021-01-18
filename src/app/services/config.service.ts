@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import { HttpClient } from '@angular/common/http';
-import * as neon from 'neon-framework';
 import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
@@ -25,15 +24,21 @@ import { Injectable } from '@angular/core';
 import { InjectableConnectionService } from './injectable.connection.service';
 import { ConfigUtil } from '../util/config.util';
 
+import { eventing } from 'neon-framework';
+
 @Injectable({
     providedIn: 'root'
 })
 export class ConfigService {
+    private DATA_SERVER_HOST = '../neon';
+
     private source = new Subject<NeonConfig>();
 
     private $default: Observable<NeonConfig>;
 
     private _configFileLoadErrors: string[] = [];
+
+    private messenger: eventing.Messenger;
 
     // eslint-disable-next-line no-invalid-this
     $source = this.source.asObservable()
@@ -47,11 +52,15 @@ export class ConfigService {
         private http: HttpClient,
         private connectionService: InjectableConnectionService
     ) {
-        neon.setNeonServerUrl('../neon');
+        this.messenger = new eventing.Messenger();
 
         if (this.connectionService) {
+            this.connectionService.setDataServerHost(this.DATA_SERVER_HOST);
+
             // Listen for new data notification updates.
-            this.connectionService.connect('.', '.', true);
+            this.connectionService.listenOnDataUpdate((message) => {
+                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message });
+            });
         }
     }
 
@@ -121,8 +130,12 @@ export class ConfigService {
 
         this._configFileLoadErrors = [];
 
-        if (config.neonServerUrl) {
-            neon.setNeonServerUrl(config.neonServerUrl);
+        if (config.neonServerUrl && config.neonServerUrl !== this.DATA_SERVER_HOST) {
+            this.connectionService.setDataServerHost(config.neonServerUrl);
+            // Listen for new data notification updates using the data server host from the loaded config file.
+            this.connectionService.listenOnDataUpdate((message) => {
+                this.messenger.publish(eventing.channels.DATASET_UPDATED, { message });
+            }, true);
         }
 
         let dash: NeonDashboardLeafConfig;

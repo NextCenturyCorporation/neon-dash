@@ -9,7 +9,8 @@
             [name]="optionCollection._id + '_datastore'" (ngModelChange)="handleChangeDatastore()"
             [disabled]="optionCollection.datastores.length < 2">
             <mat-option *ngFor="let datastore of optionCollection.datastores" [value]="datastore">
-                {{ datastore.name }}</mat-option>
+                {{ datastore.name }}
+            </mat-option>
         </mat-select>
     </mat-form-field>
 
@@ -18,7 +19,8 @@
             [name]="optionCollection._id + '_database'" (ngModelChange)="handleChangeDatabase()"
             [disabled]="optionCollection.databases.length < 2">
             <mat-option *ngFor="let database of optionCollection.databases" [value]="database">
-                {{ database.prettyName }}</mat-option>
+                {{ database.prettyName }}
+            </mat-option>
         </mat-select>
     </mat-form-field>
 

@@ -35,6 +35,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
+    <button mat-raised-button class="neon-button-large" [disabled]="isVerifyDisabled(inputs)" (click)="verifyAnnotation()">Verify</button>
     <button mat-raised-button class="neon-button-large" [disabled]="isSaveDisabled(inputs)" (click)="saveAnnotation()">Save</button>
     <button mat-raised-button class="neon-button-large" (click)="dialogRef.close()">Cancel</button>
 </mat-dialog-actions>

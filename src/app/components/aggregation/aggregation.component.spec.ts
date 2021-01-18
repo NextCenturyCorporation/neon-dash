@@ -14,7 +14,7 @@
  */
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { } from 'jasmine-core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { AggregationModule } from './aggregation.module';
 
@@ -39,9 +39,11 @@ import {
 } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { StatisticsUtil } from '../../util/statistics.util';
 
+import { ConnectionServiceMock } from '../../services/mock.connection-service';
 import { DashboardServiceMock } from '../../services/mock.dashboard-service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -56,12 +58,14 @@ describe('Component: Aggregation', () => {
     initializeTestBed('Aggregation', {
         providers: [
             InjectableColorThemeService,
+            { provide: InjectableConnectionService, useValue: new ConnectionServiceMock() },
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
-            AggregationModule
+            AggregationModule,
+            HttpClientTestingModule
         ]
     });
 
@@ -3660,6 +3664,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3697,6 +3703,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -3731,6 +3739,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3767,6 +3777,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3800,6 +3812,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3836,6 +3850,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3869,6 +3885,8 @@ describe('Component: Aggregation', () => {
             groups: [],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3905,6 +3923,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -3957,6 +3977,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -3979,6 +4001,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4006,6 +4030,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4028,6 +4054,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4080,6 +4108,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4107,6 +4137,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4160,6 +4192,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4182,6 +4216,8 @@ describe('Component: Aggregation', () => {
             groups: ['a', 'b'],
             legend: null,
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'y',
@@ -4244,6 +4280,8 @@ describe('Component: Aggregation', () => {
                 groupsToLabels: expectedGroupsToLabels
             },
             maximumAggregation: 0,
+            minTicksX: undefined,
+            minTicksY: undefined,
             maxTicksX: undefined,
             maxTicksY: undefined,
             sort: 'x',
@@ -4812,12 +4850,14 @@ describe('Component: Aggregation with config', () => {
     initializeTestBed('Aggregation', {
         providers: [
             InjectableColorThemeService,
+            { provide: InjectableConnectionService, useValue: new ConnectionServiceMock() },
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
-            AggregationModule
+            AggregationModule,
+            HttpClientTestingModule
         ]
     });
 
@@ -4916,12 +4956,14 @@ describe('Component: Aggregation with XY config', () => {
     initializeTestBed('Aggregation', {
         providers: [
             InjectableColorThemeService,
+            { provide: InjectableConnectionService, useValue: new ConnectionServiceMock() },
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
-            AggregationModule
+            AggregationModule,
+            HttpClientTestingModule
         ]
     });
 
@@ -5020,12 +5062,14 @@ describe('Component: Aggregation with date config', () => {
     initializeTestBed('Aggregation', {
         providers: [
             InjectableColorThemeService,
+            { provide: InjectableConnectionService, useValue: new ConnectionServiceMock() },
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [
-            AggregationModule
+            AggregationModule,
+            HttpClientTestingModule
         ]
     });
 

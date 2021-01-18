@@ -1,6 +1,7 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
     <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
-        {{ options.title }}</div>
+        {{ options.title }}
+    </div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
         <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -19,9 +20,31 @@
 <app-data-message *ngIf="showNoData" [displayMessage]="showNoData"></app-data-message>
 
 <!-- Don't use ngIf here.  Just set the display to none so the flatpickr library can find the elements it needs. -->
-<div class="legend" [style.display]="(showLegend() && !showNoData) ? '' : 'none'">
-    <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
-    </app-legend>
+<div class="legend"
+    [style.display]="((showLegend() || showBackgroundImageUrl(options) || showCustomButtons(options)) && !showNoData) ? '' : 'none'">
+
+    <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [colorKeys]="colorKeys"
+        (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+
+    <div class="buttons" [style.display]="(showBackgroundImageUrl(options) || showCustomButtons(options)) ? '' : 'none'">
+        <button mat-icon-button *ngIf="showBackgroundImageUrl(options) && !options.zoom" class="neon-icon-button-medium"
+            [matTooltip]="'Zoom Out'" tooltip-position="below" aria-label="Zoom Out" [disabled]="this._zoomLevel<=0" (click)="zoomOut()">
+            <mat-icon class="neon-icon-medium">zoom_out</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="showBackgroundImageUrl(options) && !options.zoom" class="neon-icon-button-medium"
+            [matTooltip]="'Zoom In'" tooltip-position="below" aria-label="Zoom In" (click)="zoomIn()">
+            <mat-icon class="neon-icon-medium">zoom_in</mat-icon>
+        </button>
+        <button mat-icon-button *ngFor="let buttonConfig of options.customButtons" class="neon-icon-button-medium"
+            [class.active]="isCustomButtonSelected(buttonConfig) && isCustomButtonOnToggle(buttonConfig)"
+            [matTooltip]="buttonConfig.name + (isCustomButtonOnToggle(buttonConfig) ? (isCustomButtonSelected(buttonConfig) ? ' ON' : ' OFF') : '')"
+            tooltip-position="below" (click)="selectCustomButton(buttonConfig)">
+            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'icon')">{{ buttonConfig.icon }}
+            </mat-icon>
+            <mat-icon class="neon-icon-medium" *ngIf="doesHaveProperty(buttonConfig, 'svg')" [svgIcon]="buttonConfig.svg"></mat-icon>
+        </button>
+    </div>
+
     <div class="date" [style.display]="canHaveDatePicker() ? '' : 'none'">
         <input [id]="'begin_date_' + options._id">
         <b> - </b>

@@ -14,7 +14,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34m@angular/platform-browser[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/platform-server[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
 | [34m@angular/router[39m[2m@[22m[32m8.2.14[39m | [MIT](https://github.com/angular/angular) |
-| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.18[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
+| [34m@caci-critical-insight-solutions/nucleus-core[39m[2m@[22m[32m0.0.19[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@caci-critical-insight-solutions/nucleus-wrappers-angular[39m[2m@[22m[32m0.0.8[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/nucleus/raw/master/LICENSE) |
 | [34m@swimlane/ngx-datatable[39m[2m@[22m[32m16.0.2[39m | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
 | [34m@wishtack/reactive-component-loader[39m[2m@[22m[32m1.1.2[39m | [MIT](https://github.com/wishtack/wishtack-steroids/raw/master/LICENSE) |
@@ -28,13 +28,13 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34md3-shape[39m[2m@[22m[32m1.3.7[39m | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | [34md3-transition[39m[2m@[22m[32m1.3.2[39m | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | [34md3[39m[2m@[22m[32m3.5.17[39m | [BSD-3-Clause](https://github.com/mbostock/d3/raw/master/LICENSE) |
-| [34mflatpickr[39m[2m@[22m[32m4.6.3[39m | [MIT](https://github.com/chmln/flatpickr/raw/master/LICENSE.md) |
+| [34mflatpickr[39m[2m@[22m[32m4.6.6[39m | [MIT](https://github.com/chmln/flatpickr/raw/master/LICENSE.md) |
 | [34mgeo-hash[39m[2m@[22m[32m0.0.2[39m | [MIT](https://github.com/Wayla/geo-hash) |
 | [34mintl[39m[2m@[22m[32m1.2.5[39m | [MIT](https://github.com/andyearnshaw/Intl.js/raw/master/LICENSE.txt) |
 | [34mjs-yaml[39m[2m@[22m[32m3.14.0[39m | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | [34mleaflet.markercluster[39m[2m@[22m[32m1.4.1[39m | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
-| [34mleaflet[39m[2m@[22m[32m1.6.0[39m | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
-| [34mlodash[39m[2m@[22m[32m4.17.15[39m | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
+| [34mleaflet[39m[2m@[22m[32m1.7.1[39m | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
+| [34mlodash[39m[2m@[22m[32m4.17.20[39m | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | [34mmoment[39m[2m@[22m[32m2.24.0[39m | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | [34mneon-framework[39m[2m@[22m[32m1.0.4[39m | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
 | [34mng-dynamic-component[39m[2m@[22m[32m4.0.3[39m | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
@@ -42,7 +42,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | [34mngx-monaco-editor[39m[2m@[22m[32m7.0.0[39m | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | [34mnode-sass[39m[2m@[22m[32m4.14.1[39m | [MIT](https://github.com/sass/node-sass/raw/master/LICENSE) |
 | [34mnpx[39m[2m@[22m[32m10.2.2[39m | [ISC](https://github.com/npm/npx/raw/master/LICENSE.md) |
-| [34mpapaparse[39m[2m@[22m[32m5.2.0[39m | [MIT](https://github.com/mholt/PapaParse/raw/master/LICENSE) |
+| [34mpapaparse[39m[2m@[22m[32m5.3.0[39m | [MIT](https://github.com/mholt/PapaParse/raw/master/LICENSE) |
 | [34mreflect-metadata[39m[2m@[22m[32m0.1.13[39m | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | [34mrxjs[39m[2m@[22m[32m6.5.5[39m | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | [34mtslib[39m[2m@[22m[32m1.13.0[39m | [0BSD](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |

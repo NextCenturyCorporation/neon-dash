@@ -350,7 +350,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         const filterClause = this.searchService.createCompoundFilterClause(queryClauses, CompoundFilterType.OR);
         this.searchService.withFilter(extensionQuery, filterClause);
 
-        this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, extensionQuery).done((response) => {
+        this.searchService.runSearch(this.options.datastore.type, this.options.datastore.host, extensionQuery, (response) => {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {

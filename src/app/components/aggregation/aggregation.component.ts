@@ -23,6 +23,8 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 import {
     AbstractFilter,
@@ -37,6 +39,7 @@ import {
     ConfigOptionColor,
     ConfigOptionField,
     ConfigOptionFreeText,
+    ConfigOptionNonPrimitive,
     ConfigOptionNumber,
     ConfigOption,
     ConfigOptionSelect,
@@ -58,6 +61,7 @@ import {
 } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -65,6 +69,7 @@ import {
     AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
@@ -181,6 +186,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public aggregationData: any[] = null;
 
     public colorKeys: any[] = [];
+    public customButtonSelected: any;
     public legendActiveGroups: any[] = [];
     public legendDisabledGroups: string[] = [];
     public legendGroups: string[] = [];
@@ -201,9 +207,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private _rocCurveAUCs = new Map<string, number>();
 
+    private _backgroundImage: string;
     private _backgroundImageHeight: number;
+    private _backgroundImageHeightRatio: number;
     private _backgroundImageWidth: number;
+    private _backgroundImageWidthRatio: number;
     private _backgroundImageQuery: any;
+    private _zoomLevel: number = 0;
 
     constructor(
         dashboardService: DashboardService,
@@ -212,6 +222,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: InjectableColorThemeService,
+        protected connectionService: InjectableConnectionService,
+        private http: HttpClient,
         public visualization: ElementRef
     ) {
         super(
@@ -228,6 +240,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             styleImport.href = 'assets/flatpickr/dist/flatpickr.min.css';
             document.head.appendChild(styleImport);
         }
+    }
+
+    public zoomIn(): void {
+        this._zoomLevel += 1;
+        this._updateBackgroundImageProperties();
+        this.updateOnResize();
+    }
+
+    public zoomOut(): void {
+        this._zoomLevel -= 1;
+        this._updateBackgroundImageProperties();
+        this.updateOnResize();
     }
 
     /**
@@ -259,6 +283,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         super.ngAfterViewInit();
         this.viewInitialized = true;
         this._createDatePickerIfNeeded();
+        if (this.options.customButtons && this.options.customButtons.length) {
+            this.customButtonSelected = this.options.customButtons[0];
+        }
     }
 
     /**
@@ -608,7 +635,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new ConfigOptionField('backgroundImageLinkField', 'Background Image Link Field', false),
             new ConfigOptionField('backgroundImageHeightField', 'Background Image Height Field', false),
             new ConfigOptionField('backgroundImageWidthField', 'Background Image Width Field', false),
-            new ConfigOptionFreeText('backgroundImageLinkPrefix', 'Background Image Link Prefix', false, '')
+            new ConfigOptionFreeText('backgroundImageLinkPrefix', 'Background Image Link Prefix', false, ''),
+            new ConfigOptionSelect('zoom', 'Background Image Zoom', false, false, OptionChoices.NoFalseYesTrue),
+            new ConfigOptionNonPrimitive('customButtons', 'Custom Button Config', false, [])
         ];
     }
 
@@ -865,8 +894,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         new Promise<void>((resolve) => {
+            this._backgroundImage = undefined;
             this._backgroundImageHeight = undefined;
+            this._backgroundImageHeightRatio = undefined;
             this._backgroundImageWidth = undefined;
+            this._backgroundImageWidthRatio = undefined;
+
+            options.zoom = false;
 
             document.documentElement.style.setProperty('--neon-canvas-height', '');
             document.documentElement.style.setProperty('--neon-canvas-width', '');
@@ -885,12 +919,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this._backgroundImageQuery.abort();
             }
 
-            this._backgroundImageQuery = this.searchService.runSearch(options.datastore.type, options.datastore.host, searchObject);
-
-            this._backgroundImageQuery.done((response) => {
+            let onSuccess = (response) => {
                 if (response.data && response.data.length) {
-                    const link = (options.backgroundImageLinkPrefix || '') + CoreUtil.deepFind(response.data[0],
-                        options.backgroundImageLinkField.columnName);
+                    this._backgroundImage = CoreUtil.deepFind(response.data[0], options.backgroundImageLinkField.columnName);
+                    const link = (options.backgroundImageLinkPrefix || '') + this._backgroundImage;
                     document.documentElement.style.setProperty('--neon-background-image-url', link ? 'url("' + link + '")' : 'none');
 
                     this._backgroundImageHeight = _.toNumber(CoreUtil.deepFind(response.data[0],
@@ -899,13 +931,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         options.backgroundImageWidthField.columnName));
 
                     this._updateBackgroundImageProperties();
+
+                    // Need to wait and then resize for the canvas size to update itself properly.
+                    setTimeout(() => {
+                        this.updateOnResize();
+                    }, 500);
                 }
 
                 this._backgroundImageQuery = null;
                 resolve();
-            });
+            };
 
-            this._backgroundImageQuery.fail((response) => {
+            let onError = (response) => {
                 if (response.statusText !== 'abort') {
                     this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
                         error: response,
@@ -914,7 +951,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }
                 this._backgroundImageQuery = undefined;
                 resolve();
-            });
+            };
+
+            this._backgroundImageQuery = this.searchService.runSearch(options.datastore.type, options.datastore.host, searchObject,
+                onSuccess, onError);
         }).then(() => {
             super.handleTransformVisualizationQueryResults(options, results, successCallback, failureCallback);
         });
@@ -1402,6 +1442,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }, new Map<string, string>())
             } : null,
             maximumAggregation: this.maximumAggregation,
+            minTicksX: this._backgroundImage ? 0 : undefined,
+            minTicksY: this._backgroundImage ? 0 : undefined,
             maxTicksX: this._backgroundImageWidth,
             maxTicksY: this._backgroundImageHeight,
             sort: this.options.sortByAggregation ? 'y' : 'x',
@@ -1477,6 +1519,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns whether to show the custom buttons defined in the visualization's config.
+     *
+     * @return {boolean}
+     */
+    public showCustomButtons(options: any): boolean {
+        return (options.customButtons && options.customButtons.length);
+    }
+
+    /**
      * Returns whether the legend is shown.
      *
      * @return {boolean}
@@ -1492,6 +1543,76 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return true;
         }
         return (this.options.showLegend && this.legendGroups.length > 1);
+    }
+
+    /**
+     * Runs a custom action with the given data.  From SubcomponentListener.
+     *
+     * @arg {any} data
+     * @override
+     */
+    subcomponentRequestsAction(data: any) {
+        if (this.options.notFilterable) {
+            return;
+        }
+
+        const backgroundImageRatio = (!this._backgroundImage || (!this.options.zoom && this._zoomLevel > 0)) ?
+            this._zoomLevel : Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio);
+
+        this.selectedArea = null;
+
+        if (this.customButtonSelected) {
+            const xValues = typeof data.x !== 'undefined' ? [(data.x / backgroundImageRatio)] :
+                [(data.beginX / backgroundImageRatio), (data.endX / backgroundImageRatio)];
+            const yValues = !this.options.yField.columnName ? [] : (typeof data.y !== 'undefined' ? [(data.y / backgroundImageRatio)] :
+                [(data.beginY / backgroundImageRatio), (data.endY / backgroundImageRatio)]);
+
+            let fieldsWithValues = {};
+            fieldsWithValues[this.options.xField.columnName] = xValues.length > 1 ? xValues : xValues[0];
+            if (this.options.yField.columnName) {
+                fieldsWithValues[this.options.yField.columnName] = yValues.length > 1 ? yValues : yValues[0];
+            }
+            if (this.options.backgroundImageLinkField.columnName) {
+                fieldsWithValues[this.options.backgroundImageLinkField.columnName] = this.options.backgroundImageLinkPrefix +
+                    this._backgroundImage;
+            }
+
+            if (this.customButtonSelected.is === 'create') {
+                const connection = this.connectionService.connect(this.options.datastore.type, this.options.datastore.host);
+                connection.runInsert({
+                    datastoreHost: this.options.datastore.host,
+                    datastoreType: this.options.datastore.type,
+                    databaseName: this.options.database.name,
+                    tableName: this.options.table.name,
+                    fieldsWithValues
+                }, () => { /* Do nothing */ });
+            } else if (this.customButtonSelected.is === 'delete') {
+                const makeFilter = (value, index, count, field) => this.searchService.createFilterClause({
+                    datastore: this.options.datastore.name,
+                    database: this.options.database.name,
+                    table: this.options.table.name,
+                    field: field.columnName
+                } as FieldKey, (count > 1 ? (index === 1 ? '<=' : '>=') : '='), value);
+
+                const filters = xValues.map((xValue, xIndex) => makeFilter(xValue, xIndex, xValues.length, this.options.xField)).concat(
+                    yValues.map((yValue, yIndex) => makeFilter(yValue, yIndex, yValues.length, this.options.yField))
+                ).concat(
+                    !this.options.backgroundImageLinkField.columnName ? [] : makeFilter(this._backgroundImage, 0, 1,
+                        this.options.backgroundImageLinkField)
+                );
+
+                const connection = this.connectionService.connect(this.options.datastore.type, this.options.datastore.host);
+                connection.runDeleteByFilter({
+                    datastoreHost: this.options.datastore.host,
+                    datastoreType: this.options.datastore.type,
+                    databaseName: this.options.database.name,
+                    tableName: this.options.table.name,
+                    whereClause: this.searchService.createCompoundFilterClause(filters)
+                }, () => { /* Do nothing */ });
+            } else {
+                this.buildAndRunHttpRequest(this.customButtonSelected.method, this.customButtonSelected.endpoint, fieldsWithValues);
+            }
+        }
     }
 
     /**
@@ -1773,16 +1894,102 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private _updateBackgroundImageProperties(): void {
         if (this._backgroundImageHeight && this._backgroundImageWidth) {
-            const heightRatio = (this.subcomponentMainElementRef.nativeElement.clientHeight /
-                this._backgroundImageHeight);
-            const widthRatio = (this.subcomponentMainElementRef.nativeElement.clientWidth /
-                this._backgroundImageWidth);
+            this._backgroundImageHeightRatio = this._backgroundImageHeightRatio ||
+                (this.subcomponentMainElementRef.nativeElement.clientHeight / this._backgroundImageHeight);
+            this._backgroundImageWidthRatio = this._backgroundImageWidthRatio ||
+                (this.subcomponentMainElementRef.nativeElement.clientWidth / this._backgroundImageWidth);
 
-            const canvasHeight = this._backgroundImageHeight * Math.min(heightRatio, widthRatio);
-            const canvasWidth = this._backgroundImageWidth * Math.min(heightRatio, widthRatio);
-
+            const ratio = (!this.options.zoom && (this._zoomLevel > 0) ? this._zoomLevel :
+                Math.min(this._backgroundImageHeightRatio, this._backgroundImageWidthRatio));
+            const canvasHeight = this._backgroundImageHeight * ratio;
+            const canvasWidth = this._backgroundImageWidth * ratio;
             document.documentElement.style.setProperty('--neon-canvas-height', canvasHeight + 'px');
             document.documentElement.style.setProperty('--neon-canvas-width', canvasWidth + 'px');
+        }
+    }
+
+    protected buildAndRunHttpRequest(
+        method: string,
+        endpoint: string,
+        data: Record<string, string>,
+        onSuccess?: (response: any) => void,
+        onFailure?: (error: any) => void
+    ): void {
+        let httpObservable: Observable<Record<string, any>> = this.buildHttpRequest(method, endpoint, data);
+
+        if (httpObservable) {
+            httpObservable.subscribe(onSuccess, onFailure);
+        } else {
+            this.errorMessage = 'Action Failed';
+        }
+    }
+
+    protected buildHttpRequest(method: string, endpoint: string, data: Record<string, string>): Observable<Record<string, any>> {
+        let requestOptions = {
+            headers: new HttpHeaders().set('Access-Control-Allow-Origin', '*')
+        };
+
+        if (method.toUpperCase() === 'DELETE') {
+            return this.http.delete(endpoint, requestOptions);
+        }
+
+        // Assume GET if method is undefined and data does not contain properties.
+        if (method.toUpperCase() === 'GET' || (!method && !Object.keys(data).length)) {
+            return this.http.get(endpoint, requestOptions);
+        }
+
+        // Assume POST if method is undefined and data contains properties.
+        if (method.toUpperCase() === 'POST' || (!method && Object.keys(data).length)) {
+            return this.http.post<Record<string, string>>(endpoint, data, requestOptions);
+        }
+
+        if (method.toUpperCase() === 'PUT') {
+            return this.http.put<Record<string, string>>(endpoint, data, requestOptions);
+        }
+
+        return null;
+    }
+
+    public doesHaveProperty(data: any, property: string): boolean {
+        return !!data[property];
+    }
+
+    public isCustomButtonOnFilter(buttonConfig: any): boolean {
+        return buttonConfig.on === 'filter' || buttonConfig.on === 'filter_item' || buttonConfig.on === 'filter_domain' ||
+            buttonConfig.on === 'filter_bounds';
+    }
+
+    public isCustomButtonOnToggle(buttonConfig: any): boolean {
+        return this.isCustomButtonOnFilter(buttonConfig);
+    }
+
+    public isCustomButtonSelected(buttonConfig: any): boolean {
+        return buttonConfig === this.customButtonSelected;
+    }
+
+    public selectCustomButton(buttonConfig: any): void {
+        this.customButtonSelected = buttonConfig;
+
+        let customAction: SelectMode = null;
+        if (this.customButtonSelected.is !== 'filter' && this.isCustomButtonOnFilter(this.customButtonSelected)) {
+            switch (this.customButtonSelected.on) {
+                case 'filter_bounds':
+                    customAction = SelectMode.BOUNDS;
+                    break;
+                case 'filter_domain':
+                    customAction = SelectMode.DOMAIN;
+                    break;
+                case 'filter':
+                case 'filter_item':
+                    customAction = SelectMode.ITEM;
+            }
+        }
+        if (this.subcomponentMain instanceof AbstractChartJsSubcomponent) {
+            (this.subcomponentMain).setCustomAction(customAction);
+        }
+
+        if (this.customButtonSelected.on === 'action') {
+            // TODO
         }
     }
 }

@@ -26,7 +26,6 @@ import {
     FilterClause,
     FilterCollection,
     OptionType,
-    RequestWrapper,
     SearchObject
 } from '@caci-critical-insight-solutions/nucleus-core';
 import { DashboardService } from '../../services/dashboard.service';
@@ -65,7 +64,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
     // Maps the options/layer ID to the query ID to the query object.
-    private layerIdToQueryIdToQueryObject: Map<string, Map<string, RequestWrapper>> = new Map<string, Map<string, RequestWrapper>>();
+    private layerIdToQueryIdToQueryObject: Map<string, Map<string, XMLHttpRequest>> = new Map<string, Map<string, XMLHttpRequest>>();
 
     public showNoData: string = '';
     public errorMessage: string = '';
@@ -283,7 +282,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
      * Angular lifecycle hook:  Removes the visualization from the page and unregisters from listeners as needed.
      */
     public ngOnDestroy() {
-        let queryMap: Map<string, RequestWrapper>;
+        let queryMap: Map<string, XMLHttpRequest>;
         Array.from(this.layerIdToQueryIdToQueryObject.keys()).forEach((layerId) => {
             queryMap = this.layerIdToQueryIdToQueryObject.get(layerId);
             Array.from(queryMap.keys()).forEach((queryId) => {
@@ -667,19 +666,14 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(options.datastore.type,
-            options.datastore.host, query));
-
-        this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
+        let onSuccess = (response) => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
-        });
-
-        this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
             callback(options, this.searchService.transformSearchResultValues(response, this.getLabelOptions(options)),
                 this.finishQueryExecution.bind(this));
-        });
+        };
 
-        this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
+        let onError = (response) => {
+            this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
@@ -688,7 +682,10 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
                 });
                 this.changeDetection.detectChanges();
             }
-        });
+        };
+
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(options.datastore.type,
+            options.datastore.host, query, onSuccess, onError));
     }
 
     /**
@@ -961,7 +958,7 @@ export abstract class BaseNeonComponent extends VisualizationWidget implements A
         let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
             visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new OptionConfig(configOptions));
 
-        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
+        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, XMLHttpRequest>());
 
         options.layers.forEach((layerOptions) => {
             this.finalizeCreateLayer(layerOptions);

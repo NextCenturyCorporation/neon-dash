@@ -18,5 +18,17 @@ export class ConnectionServiceMock extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
         return null as any;
     }
+
+    public getServerStatus(__onSuccess: (response: any) => void, __onError?: (response: any) => void): XMLHttpRequest {
+        return null;
+    }
+
+    public listenOnDataUpdate(__onUpdate: (response: any) => void, __reset: boolean = false) {
+        // Do nothing.
+    }
+
+    public setDataServerHost(__dataServerHost: string): void {
+        // Do nothing.
+    }
 }
 

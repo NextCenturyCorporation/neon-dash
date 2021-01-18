@@ -151,7 +151,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     protected createOptions(): ConfigOption[] {
         return [
             new ConfigOptionField('annotationClassField', 'Annotation Class Field', false),
-            new ConfigOptionField('annotationStateField', 'Annotation State Field', false),
             new ConfigOptionField('datastoreIdField', 'Annotation Datastore UUID Field', false),
             new ConfigOptionField('dateField', 'Date Field', false),
             new ConfigOptionField('flagLabel', 'Flag Field', false),
@@ -178,6 +177,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             // The additionalAnnotationFields can be names of existing fields, names of new fields, or FieldConfig objects.
             new ConfigOptionNonPrimitive('additionalAnnotationFields', 'Additional Annotation Fields ', false, [],
                 this.optionsAnnotationsAreNotActive.bind(this)),
+            // Not a ConfigOptionField because it may not exist in the dataset yet!
+            new ConfigOptionFreeText('annotationStateField', 'Annotation State Field', false, ''),
             new ConfigOptionSelect('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
             new ConfigOptionFreeText('border', 'Border', false, ''),
             new ConfigOptionFreeText('borderCompareValue', 'Border Comparison Field Equals', false, '',
@@ -275,6 +276,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 table: options.table.name,
                 field: options.sortField.columnName
             } as FieldKey, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
+
+        if (options.annotationStateField) {
+            this.searchService.withField(query, {
+                datastore: options.datastore.name,
+                database: options.database.name,
+                table: options.table.name,
+                field: options.annotationStateField
+            } as FieldKey);
         }
 
         return query;
@@ -438,6 +448,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     item[fieldObject.columnName] = CoreUtil.deepFind(result, fieldObject.columnName);
                 });
             });
+
+            if (options.annotationStateField) {
+                item[options.annotationStateField] = CoreUtil.deepFind(result, options.annotationStateField);
+            }
 
             item._filtered = CoreUtil.isItemFilteredInEveryField(item, this.options.filterFields, this._filterFieldsToFilteredValues);
 

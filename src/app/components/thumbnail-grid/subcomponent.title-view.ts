@@ -46,8 +46,12 @@ export class TitleThumbnailSubComponent {
             value: this.thumbnailGrid.annotatedClasses.has(id) ? this.thumbnailGrid.annotatedClasses.get(id) :
                 this.item[this.options.annotationClassField.columnName]
         });
+        annotationFields.set(this.options.annotationStateField, {
+            field: { columnName: this.options.annotationStateField } as FieldConfig,
+            value: this.item[this.options.annotationStateField]
+        });
 
-        this.options.additionalAnnotationFields.forEach((fieldNameOrObject) => {
+        (this.options.additionalAnnotationFields || []).forEach((fieldNameOrObject) => {
             let field: FieldConfig = typeof fieldNameOrObject === 'string' ? this.options.findField(fieldNameOrObject) : {
                 columnName: fieldNameOrObject.columnName,
                 prettyName: fieldNameOrObject.prettyName,
@@ -97,8 +101,20 @@ export class TitleThumbnailSubComponent {
         });
     }
 
+    public selectGridItemIfAnnotationsAreOff(options: any, item: any): void {
+        if (!this.shouldShowAnnotationButton(options)) {
+            this.thumbnailGrid.selectGridItem(item);
+        }
+    }
+
+    public selectGridItemIfAnnotationsAreOn(options: any, item: any): void {
+        if (this.shouldShowAnnotationButton(options)) {
+            this.thumbnailGrid.selectGridItem(item);
+        }
+    }
+
     public shouldFlagAnnotationButton(options: any, item: any): boolean {
-        return options.annotationStateField.columnName && !!item[options.annotationStateField.columnName];
+        return options.annotationStateField && !!item[options.annotationStateField];
     }
 
     public shouldShowAnnotationButton(options: any): boolean {
