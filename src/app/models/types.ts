@@ -114,6 +114,8 @@ export interface PropertyMetaData {
     choices?: { pretty: string, value: string }[];
     // Should input box always be disabled
     disabled?: boolean;
+    // Is a file property
+    file?: boolean;
     // Should parse input value as JSON
     json?: boolean;
     // Property name to save in body

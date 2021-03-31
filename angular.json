@@ -50,6 +50,11 @@
                 "output": "assets/monaco"
               },
               {
+                "glob": "**/*",
+                "input": "node_modules/ngx-material-file-input",
+                "output": "assets/material-file-input"
+              },
+              {
                 "glob": "**/*.js",
                 "input": "node_modules/@webcomponents/webcomponentsjs",
                 "output": "webcomponents/"
