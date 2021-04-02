@@ -15,7 +15,7 @@
             <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
         </mat-select>
         <ngx-mat-file-input *ngIf="property.file != undefined" [placeholder]="createPlaceholder(property)" [(ngModel)]="property.value" 
-            [name]="property.name" [required]="!property.optional" ngDefaultControl [formControlName]="property.angularFormControl"></ngx-mat-file-input>
+            [required]="!property.optional" ngDefaultControl [formControlName]="property.angularFormControl"></ngx-mat-file-input>
         <mat-icon *ngIf="property.file != undefined" matSuffix>folder</mat-icon>
     </mat-form-field>
     <div>
