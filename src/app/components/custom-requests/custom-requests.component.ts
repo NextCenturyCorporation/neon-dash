@@ -199,7 +199,6 @@ export class CustomRequestsComponent implements OnInit {
                         value: ''
                     }, validators);
                 });
-                console.log(request);
                 return request;
             });
 

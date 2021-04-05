@@ -126,6 +126,8 @@ export interface PropertyMetaData {
     optional?: boolean;
     // Pretty name to show to user
     pretty: string;
+    // File types to accept if the property is a file
+    type: string;
     // Input value from user
     value?: string;
 
