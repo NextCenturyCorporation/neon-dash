@@ -25,7 +25,6 @@ import {
     MatTooltipModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
@@ -38,7 +37,6 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     ],
     imports: [
         FormsModule,
-        MaterialFileInputModule,
         MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         MatButtonModule,
         MatDialogModule,

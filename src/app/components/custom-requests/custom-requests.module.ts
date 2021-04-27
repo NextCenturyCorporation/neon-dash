@@ -16,7 +16,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommonWidgetModule } from '../../common-widget.module';
 import { MatFormFieldModule, MatIconModule, MatButtonModule, MatSelectModule, MatInputModule } from '@angular/material';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { CustomRequestsComponent } from './custom-requests.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -34,7 +33,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatIconModule,
         MatInputModule,
         MatSelectModule,
-        MaterialFileInputModule,
         MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         CommonModule
     ]

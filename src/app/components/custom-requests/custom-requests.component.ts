@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -35,11 +35,13 @@ export class CustomRequestsComponent implements OnInit {
     public loading: boolean = true;
     public requests: NeonCustomRequests[] = [];
     public readonly dashboardState: DashboardState;
+    public yourForm: FormGroup;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
         private dashboardService: DashboardService,
-        private http: HttpClient
+        private http: HttpClient,
+        private fb: FormBuilder
     ) {
         this.dashboardState = this.retrieveDashboardState(this.dashboardService);
         this.updateRequests(this.dashboardState);
@@ -105,9 +107,13 @@ export class CustomRequestsComponent implements OnInit {
         return CoreUtil.isNumber(value);
     }
 
+    public isValidFileValue(value: string): boolean {
+        return true;
+    }
+
     public isValidRequestBody(request: NeonCustomRequests): boolean {
         return (request.properties || []).every((property) => property.optional || (property.json ? this.isValidJsonValue(property.value) :
-            (property.number ? this.isValidNumberValue(property.value) : typeof property.value !== 'undefined')));
+            (property.number ? this.isValidNumberValue(property.value) : (property.file ? true : typeof property.value !== 'undefined'))));
     }
 
     public isValidRequestObject(request: NeonCustomRequests): boolean {
@@ -128,7 +134,9 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     public retrieveRequestValue(property: PropertyMetaData): any {
-        if (property.json) {
+        if (property.file){
+            return this.yourForm.get(property.name).value;
+        } else if (property.json) {
             try {
                 return JSON.parse(property.value);
             } catch (error) {
@@ -152,6 +160,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public submitData(request: NeonCustomRequests): void {
         let bodyData: Record<string, string> = (request.properties || []).reduce((data, property) => {
+
             data[property.name] = this.retrieveRequestValue(property);
             return data;
         }, {});
@@ -188,17 +197,21 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     protected updateRequests(dashboardState: DashboardState): void {
+        let formControls = {};
         this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) => this.isValidRequestObject(request))
             .map((request) => {
                 (request.properties || []).forEach((property) => {
-                    const validators = [].concat(property.optional ? [] : Validators.required.bind(Validators))
+                    const validators = [].concat((property.optional || property.file) ? [] : Validators.required.bind(Validators))
                         .concat(property.json ? this._validateJson.bind(this) : [])
-                        .concat(property.number ? this._validateNumber.bind(this) : []);
-                    property.angularFormControl = new FormControl({
-                        disabled: property.disabled,
-                        value: ''
-                    }, validators);
+                        .concat(property.number ? this._validateNumber.bind(this) : [])
+                        .concat(property.number ? this._validateFile.bind(this) : []);
+                        property.angularFormControl = new FormControl({
+                            disabled: property.disabled,
+                            value: ''
+                        }, validators);
+                        formControls[property.name] = [property.angularFormControl];
                 });
+                this.yourForm = this.fb.group(formControls);
                 return request;
             });
 
@@ -227,4 +240,22 @@ export class CustomRequestsComponent implements OnInit {
             }
         };
     }
+
+    private _validateFile(angularFormControl: FormControl): any {
+        return this.isValidFileValue(angularFormControl.value) ? null : {
+            validateFile: {
+                valid: false
+            }
+        };
+    }
+
+    protected uploadDocument(event: any, name: string) {
+        if (event.target.files && event.target.files[0]) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.yourForm.get(name).setValue(reader.result);
+          };
+          reader.readAsDataURL(event.target.files[0]);
+        }
+      }
 }
