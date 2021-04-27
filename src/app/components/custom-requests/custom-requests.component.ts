@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -24,24 +24,28 @@ import { NeonCustomRequests, PropertyMetaData } from '../../models/types';
 
 import * as uuidv4 from 'uuid/v4';
 import * as yaml from 'js-yaml';
+import { truncate } from 'lodash';
 
 @Component({
     selector: 'app-custom-requests',
     templateUrl: 'custom-requests.component.html',
     styleUrls: ['custom-requests.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomRequestsComponent implements OnInit {
     public loading: boolean = true;
     public requests: NeonCustomRequests[] = [];
     public readonly dashboardState: DashboardState;
-    public yourForm: FormGroup;
+    public uploadedFiles: Object = {};
+    public uploadedFilesDirty: Object = {}
+    //filesDirty necessary because changeDetection on the submit button happens before Validation can complete due to uploading files
+    //trying to trigger detection after upload is complete does not seem to work
+    public filesDirty: boolean = false;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
         private dashboardService: DashboardService,
         private http: HttpClient,
-        private fb: FormBuilder
     ) {
         this.dashboardState = this.retrieveDashboardState(this.dashboardService);
         this.updateRequests(this.dashboardState);
@@ -107,13 +111,18 @@ export class CustomRequestsComponent implements OnInit {
         return CoreUtil.isNumber(value);
     }
 
-    public isValidFileValue(value: string): boolean {
-        return true;
+    public isValidFileValue(value: Object): boolean {
+        //Maybe come back here later to make a better validation method for uploaded files
+        this.updateFilesDirty();
+        if (value != undefined && value !=""){
+            return true;
+        }
+        return false;
     }
 
     public isValidRequestBody(request: NeonCustomRequests): boolean {
         return (request.properties || []).every((property) => property.optional || (property.json ? this.isValidJsonValue(property.value) :
-            (property.number ? this.isValidNumberValue(property.value) : (property.file ? true : typeof property.value !== 'undefined'))));
+            (property.number ? this.isValidNumberValue(property.value) : (property.file ? this.isValidFileValue(this.uploadedFiles[property.name]) : typeof property.value !== 'undefined'))));
     }
 
     public isValidRequestObject(request: NeonCustomRequests): boolean {
@@ -135,7 +144,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public retrieveRequestValue(property: PropertyMetaData): any {
         if (property.file){
-            return this.yourForm.get(property.name).value;
+            return this.uploadedFiles[property.name];
         } else if (property.json) {
             try {
                 return JSON.parse(property.value);
@@ -197,21 +206,18 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     protected updateRequests(dashboardState: DashboardState): void {
-        let formControls = {};
         this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) => this.isValidRequestObject(request))
             .map((request) => {
                 (request.properties || []).forEach((property) => {
-                    const validators = [].concat((property.optional || property.file) ? [] : Validators.required.bind(Validators))
+                    const validators = [].concat((property.optional) ? [] : Validators.required.bind(Validators))
                         .concat(property.json ? this._validateJson.bind(this) : [])
                         .concat(property.number ? this._validateNumber.bind(this) : [])
-                        .concat(property.number ? this._validateFile.bind(this) : []);
+                        .concat(property.file ? this._validateFile.bind(this) : []);
                         property.angularFormControl = new FormControl({
                             disabled: property.disabled,
                             value: ''
                         }, validators);
-                        formControls[property.name] = [property.angularFormControl];
                 });
-                this.yourForm = this.fb.group(formControls);
                 return request;
             });
 
@@ -249,13 +255,31 @@ export class CustomRequestsComponent implements OnInit {
         };
     }
 
-    protected uploadDocument(event: any, name: string) {
+    protected uploadFile(event: any, name: string) {
+        this.filesDirty = true;
+        this.uploadedFilesDirty[name] = true;
         if (event.target.files && event.target.files[0]) {
           const reader = new FileReader();
           reader.onload = () => {
-            this.yourForm.get(name).setValue(reader.result);
+              this.uploadedFiles[name] = reader.result;
           };
           reader.readAsDataURL(event.target.files[0]);
         }
-      }
+        this.uploadedFilesDirty[name] = false;
+    }
+
+    protected updateFilesDirty(){
+        var keys = Object.keys(this.uploadedFilesDirty)
+        if (keys.length == 0){
+            this.filesDirty = false;
+            return;
+        }
+        var result = true;
+        for (var key in keys){
+          result = result && this.uploadedFilesDirty[key];
+        }
+        this.filesDirty = result;
+    }
 }
+
+

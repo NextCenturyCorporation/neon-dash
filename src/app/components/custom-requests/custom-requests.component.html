@@ -5,7 +5,6 @@
     <div *ngIf="request.notes != undefined">
         <div *ngFor="let note of request.notes" class="request-description">{{ note }}</div>
     </div>
-    <form [formGroup]="yourForm" (ngSubmit)="onSubmit()">
     <div *ngFor="let property of request.properties">
         <mat-form-field *ngIf="property.file == undefined" appearance="outline" floatLabel="always"
             [class.disabled]="property.disabled">
@@ -17,16 +16,14 @@
                 <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
             </mat-select>
         </mat-form-field>
-        <div *ngIf="property.file != undefined" appearance="outline" floatLabel="always">
-            <input [required]="!property.optional" [class.disabled]="property.disabled" (change)="uploadDocument($event, property.name)" type="file" accept=".png, .pdf, .jpg, .jpeg"> <br>
+        <div *ngIf="property.file != undefined">
+            <input [required]="!property.optional" [class.disabled]="property.disabled" (change)="uploadFile($event, property.name)" type="file" accept=".png, .pdf, .jpg, .jpeg"> <br>
             <!-- <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
             <input hidden (change)="onFileSelected()" #fileInput type="file" id="file"> -->
         </div>
-
     </div>
-    </form>
     <div>
-        <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
+        <button mat-raised-button class="neon-button-large" [disabled]="!filesDirty && !isValidRequestBody(request)" (click)="submitData(request)">
             Submit
         </button>
         <button mat-raised-button class="neon-button-large" [disabled]="!isValidUserInput(request)" (click)="deleteData(request)"
