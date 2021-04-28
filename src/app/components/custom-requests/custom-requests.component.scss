@@ -73,6 +73,22 @@
     }
 }
 
+.outline{
+    width: -webkit-fill-available;
+    border: 1px solid var(--color-background-contrast, lightgray);
+    border-radius: 4px;
+    padding: 0 .75em 0 .75em;
+}
+
+.pickfile{
+    padding: 2px 0 10px 0;
+}
+
+.infix{
+    padding:5px 0;
+    font-size: smaller;
+}
+
 .mat-select {
     height: 25px;
 }

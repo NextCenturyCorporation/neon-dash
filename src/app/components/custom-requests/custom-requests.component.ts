@@ -85,6 +85,7 @@ export class CustomRequestsComponent implements OnInit {
         return 'Enter Your ' + (property.json ? 'JSON' : (property.number ? 'Number' : 'Text')) + ' Input';
     }
 
+    //TODO make this reset the file values
     public deleteData(request: NeonCustomRequests): void {
         request.status = undefined;
         request.response = undefined;

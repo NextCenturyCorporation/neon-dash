@@ -16,10 +16,12 @@
                 <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
             </mat-select>
         </mat-form-field>
-        <div *ngIf="property.file != undefined">
-            <input [required]="!property.optional" [class.disabled]="property.disabled" (change)="uploadFile($event, property.name)" type="file" accept="property.types"> <br>
-            <!-- <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
-            <input hidden (change)="onFileSelected()" #fileInput type="file" id="file"> -->
+        <div *ngIf="property.file != undefined" class="mat-form-field mat-form-field-appearance-outline outline">
+        <div class="infix"><span>{{property.pretty}} (Required, File) </span></div>
+        <div class="pickfile">
+            <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button><span *ngIf="uploadedFiles[property.name]">{{uploadedFiles[property.name]["filename"]}}</span>
+            <input hidden (change)="uploadFile($event, property.name)" #fileInput type="file" id="file" accept={{property.types}}>
+        </div>
         </div>
     </div>
     <div>
