@@ -37,7 +37,6 @@ export class CustomRequestsComponent implements OnInit {
     public requests: NeonCustomRequests[] = [];
     public readonly dashboardState: DashboardState;
     public uploadedFiles: Object = {};
-    public uploadedFilesDirty: Object = {}
     //filesDirty necessary because changeDetection on the submit button happens before Validation can complete due to uploading files
     //trying to trigger detection after upload is complete does not seem to work
     public filesDirty: boolean = false;
@@ -111,10 +110,10 @@ export class CustomRequestsComponent implements OnInit {
         return CoreUtil.isNumber(value);
     }
 
-    public isValidFileValue(value: Object): boolean {
+    public isValidFileValue(file: Object, types:string): boolean {
         //Maybe come back here later to make a better validation method for uploaded files
         this.updateFilesDirty();
-        if (value != undefined && value !=""){
+        if (file != null && types != null){
             return true;
         }
         return false;
@@ -122,7 +121,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public isValidRequestBody(request: NeonCustomRequests): boolean {
         return (request.properties || []).every((property) => property.optional || (property.json ? this.isValidJsonValue(property.value) :
-            (property.number ? this.isValidNumberValue(property.value) : (property.file ? this.isValidFileValue(this.uploadedFiles[property.name]) : typeof property.value !== 'undefined'))));
+            (property.number ? this.isValidNumberValue(property.value) : (property.file ? this.isValidFileValue(this.uploadedFiles[property.name], property.types) : typeof property.value !== 'undefined'))));
     }
 
     public isValidRequestObject(request: NeonCustomRequests): boolean {
@@ -144,7 +143,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public retrieveRequestValue(property: PropertyMetaData): any {
         if (property.file){
-            return this.uploadedFiles[property.name];
+            return this.uploadedFiles[property.name]["value"];
         } else if (property.json) {
             try {
                 return JSON.parse(property.value);
@@ -248,7 +247,7 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     private _validateFile(angularFormControl: FormControl): any {
-        return this.isValidFileValue(angularFormControl.value) ? null : {
+        return this.isValidFileValue(null, null) ? null : {
             validateFile: {
                 valid: false
             }
@@ -256,27 +255,30 @@ export class CustomRequestsComponent implements OnInit {
     }
 
     protected uploadFile(event: any, name: string) {
+        let file = {};
         this.filesDirty = true;
-        this.uploadedFilesDirty[name] = true;
+        file["dirty"] = true;
         if (event.target.files && event.target.files[0]) {
           const reader = new FileReader();
           reader.onload = () => {
-              this.uploadedFiles[name] = reader.result;
+              file["value"] = reader.result;
           };
           reader.readAsDataURL(event.target.files[0]);
+          file["filename"] = event.target.files[0].name;
         }
-        this.uploadedFilesDirty[name] = false;
+        file["dirty"] = false;
+        this.uploadedFiles[name] = file;
     }
 
     protected updateFilesDirty(){
-        var keys = Object.keys(this.uploadedFilesDirty)
+        var keys = Object.keys(this.uploadedFiles);
         if (keys.length == 0){
             this.filesDirty = false;
             return;
         }
         var result = true;
         for (var key in keys){
-          result = result && this.uploadedFilesDirty[key];
+          result = result && this.uploadedFiles[key]["dirty"];
         }
         this.filesDirty = result;
     }
