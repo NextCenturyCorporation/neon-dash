@@ -144,7 +144,7 @@ export class CustomRequestsComponent implements OnInit {
 
     public retrieveRequestValue(property: PropertyMetaData): any {
         if (property.file){
-            return this.uploadedFiles[property.name]["value"];
+            return this.uploadedFiles[property.name];
         } else if (property.json) {
             try {
                 return JSON.parse(property.value);
