@@ -285,7 +285,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 position: 'nearest',
                 callbacks: {
                     label: this.createTooltipLabel.bind(this),
-                    title: this.createTooltipTitle.bind(this)
+                    title: this.createTooltipTitle.bind(this),
+                    footer: this.createTooltipFooter.bind(this)
                 }
             }
         };
@@ -416,6 +417,40 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         return this.truncateTooltipLabel(text, '');
+    }
+
+    /**
+     * Creates and returns a tooltip footer for the given list and data
+     *
+     * @arg {any[]} tooltipList
+     * @arg {any} chartData
+     * @return {string}
+     * @private
+     */
+    protected createTooltipFooter(tooltipList: any[], chartData: any): string {
+        let axisType = this.isHorizontal() ? this.findAxisTypeX() : this.findAxisTypeY();
+
+        if (axisType !== 'number') {
+            return '';
+        }
+
+        // Skip the footer for a single dataset
+        if (chartData.datasets.length <= 1) {
+            return '';
+        }
+
+        let total = 0;
+        let tooltipItem = tooltipList[0];
+        for (let dataset of chartData.datasets) {
+            let item = this.retrieveTooltipValue(dataset, tooltipItem.index);
+            let value = typeof item === 'object' ? (this.isHorizontal() ? item.x : item.y) : item;
+
+            if (value && !Number.isNaN(value)) {
+                total += value;
+            }
+        }
+
+        return 'Total: ' + this.toNumberString(total + '');
     }
 
     /**
