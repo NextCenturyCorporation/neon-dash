@@ -17,6 +17,11 @@ import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from 
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '@caci-critical-insight-solutions/nucleus-core';
 
+export enum BarType {
+    STACKED,
+    GROUPED
+}
+
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
@@ -60,9 +65,11 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {string} [textColorHex]
      * @arg {boolean} [horizontal=false]
      * @arg {boolean} [selectMode=ITEM]
+     * @arg {BarType} [type=]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, textColorHex?: string,
-        protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM) {
+        protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM,
+        private type: BarType = BarType.STACKED) {
         super(options, listener, elementRef, textColorHex, selectMode);
     }
 
@@ -115,8 +122,15 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
             (this.options.logScaleX && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
         chartOptions.scales.yAxes[0].type = this.horizontal ? 'category' : (this.axisTypeY === 'number' ?
             (this.options.logScaleY && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
-        chartOptions.scales.xAxes[0].stacked = true;
-        chartOptions.scales.yAxes[0].stacked = true;
+
+        if (this.type === BarType.STACKED) {
+            chartOptions.scales.xAxes[0].stacked = true;
+            chartOptions.scales.yAxes[0].stacked = true;
+        } else {
+            chartOptions.scales.xAxes[0].stacked = false;
+            chartOptions.scales.yAxes[0].stacked = false;
+        }
+
         chartOptions.tooltips.position = 'average';
         return chartOptions;
     }
